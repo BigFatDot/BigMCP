@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Funcții",
+    "howItWorks": "Cum funcționează",
+    "pricing": "Prețuri",
+    "login": "Conectare",
+    "getStarted": "Începe"
+  },
+  "hero": {
+    "badge": "Strat de guvernanță pentru MCP",
+    "title": "Un singur",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "pentru toate instrumentele tale",
+    "subtitle": "Centralizează, guvernează și orchestrează instrumentele Model Context Protocol într-o platformă unificată. Accesibil de oriunde—desktop sau mobil.",
+    "cta": "Începe perioada de probă gratuită",
+    "ctaSecondary": "Vezi cum funcționează"
+  },
+  "mobileDemo": {
+    "badge": "Un singur conector",
+    "title": "Transformă ore de muncă manuală",
+    "titleHighlight": "în secunde de automatizare",
+    "description": "BigMCP îți permite să compui fluxuri de lucru personalizate care orchestrează multiple servicii cu o singură comandă. Creează-ți propriile compoziții multi-instrument o singură dată, apoi execută-le instant de oriunde.",
+    "features": [
+      "Compune fluxuri de lucru din instrumentele existente (HubSpot, Drive, Gmail, Slack...)",
+      "Execută operațiuni multi-serviciu cu limbaj natural",
+      "Compozițiile tale personalizate devin instrumente apelabile pentru întreaga echipă",
+      "Rulează fluxuri de lucru complexe din Claude—desktop sau mobil"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Onboarding client nou: Acme Corp (contact: john@acme.com, sector: B2B SaaS)",
+    "thinkingTitle": "Proces de gândire",
+    "thinkingText": "Utilizatorul a creat un flux de lucru personalizat pentru onboarding complet al clientului. Se va executa în sistemele CRM, Drive, Gmail și Slack.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Flux personalizat • 5 servicii",
+    "steps": {
+      "crm": "HubSpot: create_contact",
+      "drive": "Drive: create_folder",
+      "mail": "Gmail: send_welcome",
+      "sheet": "Sheets: add_tracking",
+      "chat": "Slack: notify_team"
+    },
+    "workflowCompleted": "Flux de lucru finalizat",
+    "resultTitle": "Client adăugat cu succes",
+    "resultIntro": "Am configurat <strong>Acme Corp</strong> în toate sistemele tale:",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • Sector B2B SaaS",
+    "hubspotDetails": "Contact principal: John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Structură completă cu contracte și facturare",
+    "statusItems": [
+      "Email de bun venit trimis lui John",
+      "Urmărire vânzări actualizată",
+      "Echipa notificată în #sales"
+    ],
+    "conclusion": "Totul este pregătit pentru a începe colaborarea cu Acme Corp.",
+    "replyPlaceholder": "Răspunde..."
+  },
+  "challenge": {
+    "badge": "Provocarea",
+    "title": "Provocarea guvernanței MCP",
+    "subtitle": "Pe măsură ce ecosistemul tău MCP crește, gestionarea instrumentelor devine complexă și riscantă",
+    "withoutTitle": "Fără BigMCP",
+    "withoutItems": [
+      "Fiecare server MCP gestionează propriile credențiale",
+      "Niciun control de acces centralizat sau auditare",
+      "Orchestrare manuală a instrumentelor între servere",
+      "Doar desktop, fără acces mobil",
+      "Zero vizibilitate asupra tiparelor de utilizare",
+      "Imposibil de aplicat politici de guvernanță"
+    ],
+    "withTitle": "Cu BigMCP",
+    "withItems": [
+      "Autentificare OAuth unificată",
+      "RBAC la nivel de organizație cu 4 niveluri de roluri",
+      "Compoziție automată a instrumentelor și fluxuri de lucru",
+      "Acces de pe desktop, mobil, oriunde",
+      "Urmărire completă a utilizării și metrici",
+      "Strat unic de guvernanță pentru toate MCP-urile"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Configurare simplă",
+    "title": "Cum funcționează BigMCP",
+    "subtitle": "Trei pași pentru guvernanță MCP unificată",
+    "steps": [
+      {
+        "title": "Creează-ți contul",
+        "description": "Înregistrează-te cu emailul tău. Credențialele tale sunt criptate și sincronizate pe toate dispozitivele."
+      },
+      {
+        "title": "Conectează servere MCP",
+        "description": "Adaugă serverele MCP existente la BigMCP. Configurează credențialele și politicile de acces pentru fiecare server."
+      },
+      {
+        "title": "Folosește și compune instrumente",
+        "description": "Folosește instrumentele sau combină-le în fluxuri de lucru puternice. Fără complexitate, doar rezultate livrate instant."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Funcții",
+    "title": "Tot ce ai nevoie pentru a",
+    "titleEnd": "guverna MCP la scară",
+    "subtitle": "Construit pentru echipele care iau în serios guvernanța MCP",
+    "items": [
+      {
+        "title": "Autentificare unificată",
+        "description": "Un singur flux OAuth 2.0 + PKCE pentru clienții AI. Stocare criptată a credențialelor cu izolare la nivel de organizație și utilizator."
+      },
+      {
+        "title": "Orchestrare instrumente",
+        "description": "Compune fluxuri de lucru multi-instrument cu injectare automată de credențiale și legătură ierarhică pentru operațiuni complexe."
+      },
+      {
+        "title": "Acces mobil",
+        "description": "Instrumentele tale MCP disponibile pe mobil, tabletă, oriunde. Aceeași autentificare, aceeași experiență, zero configurare."
+      },
+      {
+        "title": "Analiză utilizare",
+        "description": "Urmărește execuția instrumentelor, ratele de succes și tiparele de utilizare în întreaga organizație cu urmărire completă."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Prețuri",
+    "title": "Prețuri simple și transparente",
+    "subtitle": "Cloud gestionat sau self-hosted—tu alegi",
+    "cloudLabel": "☁️ Cloud = Noi găzduim, tu folosești",
+    "selfHostedLabel": "💻 Self-hosted = Tu deții totul",
+    "individual": {
+      "title": "Individual",
+      "subtitle": "Cloud",
+      "price": "€4,99",
+      "period": "/lună",
+      "features": [
+        "1 utilizator",
+        "Servere MCP nelimitate",
+        "Orchestrare AI",
+        "Căutare semantică",
+        "Compoziții și fluxuri de lucru",
+        "LLM gestionat inclus"
+      ],
+      "cta": "Începe perioada de probă gratuită"
+    },
+    "team": {
+      "title": "Echipă",
+      "subtitle": "Cloud",
+      "price": "€4,99",
+      "period": "/lună + €4,99/utilizator",
+      "badge": "Cel mai popular",
+      "features": [
+        "Tot ce include Individual",
+        "Până la 20 de utilizatori",
+        "Organizații și RBAC",
+        "Credențiale partajate",
+        "Jurnale de audit avansate"
+      ],
+      "cta": "Începe perioada de probă gratuită"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "subtitle": "Self-hosted",
+      "price": "Gratuit",
+      "period": "ofertă de lansare • 3 luni",
+      "features": [
+        "Tot ce include Echipă",
+        "Utilizatori și echipe nelimitate",
+        "Control admin complet",
+        "Pool central de servere MCP",
+        "SSO (SAML, OIDC) - în curând",
+        "Audit avansat și conformitate",
+        "LLM-ul tău ales",
+        "Licență perpetuă"
+      ],
+      "cta": "Obține Enterprise"
+    },
+    "community": {
+      "title": "Community",
+      "subtitle": "Self-hosted",
+      "price": "Gratuit",
+      "period": "",
+      "features": [
+        "Tot ce include Individual",
+        "Doar 1 utilizator",
+        "LLM-ul tău ales",
+        "Implementare Docker"
+      ],
+      "cta": "Începe"
+    },
+    "comingSoon": "În curând",
+    "note": "Edițiile Cloud sunt disponibile acum cu LLM gestionat inclus. Edițiile self-hosted îți permit să alegi furnizorul de LLM."
+  },
+  "finalCta": {
+    "title": "Ești pregătit să-ți guvernezi ecosistemul MCP?",
+    "subtitle": "Începe perioada de probă gratuită astăzi. Nu este necesar un card de credit.",
+    "cta": "Începe perioada de probă gratuită"
+  },
+  "footer": {
+    "tagline": "Stratul de guvernanță pentru instrumentele tale Model Context Protocol. Centralizează, orchestrează și controlează-ți ecosistemul MCP.",
+    "madeBy": "Un produs de",
+    "product": "Produs",
+    "company": "Companie",
+    "links": {
+      "features": "Funcții",
+      "howItWorks": "Cum funcționează",
+      "pricing": "Prețuri",
+      "documentation": "Documentație",
+      "about": "Despre BigFatDot",
+      "contact": "Contact",
+      "privacy": "Confidențialitate",
+      "terms": "Termeni"
+    },
+    "copyright": "© 2026 BigMCP by BigFatDot. Toate drepturile rezervate."
+  }
+}

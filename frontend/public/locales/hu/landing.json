@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Funkciók",
+    "howItWorks": "Hogyan működik",
+    "pricing": "Árak",
+    "login": "Bejelentkezés",
+    "getStarted": "Kezdjük el"
+  },
+  "hero": {
+    "badge": "Irányítási réteg az MCP-hez",
+    "title": "Egy",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "minden eszközéhez",
+    "subtitle": "Központosítsa, irányítsa és hangolja össze Model Context Protocol eszközeit egy egységes platformon. Bárhonnan elérhető – asztali vagy mobileszközről.",
+    "cta": "Ingyenes próba indítása",
+    "ctaSecondary": "Hogyan működik"
+  },
+  "mobileDemo": {
+    "badge": "Egy csatlakozó",
+    "title": "Órányi kézi munkát",
+    "titleHighlight": "másodpercnyi automatizálássá alakít",
+    "description": "A BigMCP lehetővé teszi egyéni munkafolyamatok összeállítását, amelyek egyetlen paranccsal hangolnak össze több szolgáltatást. Hozza létre saját többeszközös kompozícióit egyszer, majd hajtsa végre azonnal, bárhonnan.",
+    "features": [
+      "Munkafolyamatok összeállítása meglévő eszközeiből (HubSpot, Drive, Gmail, Slack...)",
+      "Többszolgáltatásos műveletek végrehajtása természetes nyelven",
+      "Egyéni kompozíciói hívható eszközökké válnak az egész csapat számára",
+      "Összetett munkafolyamatok futtatása Claude-ból – asztali vagy mobileszközről"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Új ügyfél bevezetése: Acme Corp (kapcsolat: john@acme.com, szektor: B2B SaaS)",
+    "thinkingTitle": "Gondolkodási folyamat",
+    "thinkingText": "A felhasználó egyéni munkafolyamatot hozott létre a teljes ügyfél-bevezető folyamathoz. Végrehajtás a CRM, Drive, Gmail és Slack rendszerekben.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Egyéni munkafolyamat • 5 szolgáltatás",
+    "steps": {
+      "crm": "HubSpot: create_contact",
+      "drive": "Drive: create_folder",
+      "mail": "Gmail: send_welcome",
+      "sheet": "Sheets: add_tracking",
+      "chat": "Slack: notify_team"
+    },
+    "workflowCompleted": "Munkafolyamat befejezve",
+    "resultTitle": "Ügyfél sikeresen bevezetve",
+    "resultIntro": "Beállítottam az <strong>Acme Corp</strong> adatait az összes rendszerben:",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • B2B SaaS szektor",
+    "hubspotDetails": "Elsődleges kapcsolat: John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Teljes struktúra szerződésekkel és számlázással",
+    "statusItems": [
+      "Üdvözlő e-mail elküldve Johnnak",
+      "Értékesítési követés frissítve",
+      "Csapat értesítve a #sales csatornán"
+    ],
+    "conclusion": "Minden készen áll az Acme Corp-pal való együttműködés megkezdéséhez.",
+    "replyPlaceholder": "Válasz..."
+  },
+  "challenge": {
+    "badge": "A kihívás",
+    "title": "Az MCP irányítási kihívás",
+    "subtitle": "Ahogy az MCP ökoszisztémája növekszik, az eszközök kezelése egyre összetettebbé és kockázatosabbá válik",
+    "withoutTitle": "BigMCP nélkül",
+    "withoutItems": [
+      "Minden MCP szerver saját hitelesítő adatokat kezel",
+      "Nincs központosított hozzáférés-szabályozás vagy auditálás",
+      "Kézi eszköz-összehangolás a szerverek között",
+      "Csak asztali, nincs mobilhozzáférés",
+      "Nulla láthatóság a használati mintákba",
+      "Lehetetlen irányítási szabályokat érvényesíteni"
+    ],
+    "withTitle": "BigMCP-vel",
+    "withItems": [
+      "Egységes OAuth hitelesítés",
+      "Szervezeti szintű RBAC 4 szerepkör-szinttel",
+      "Automatizált eszköz-összeállítás és munkafolyamatok",
+      "Hozzáférés asztali, mobil és bármely eszközről",
+      "Átfogó használatkövetés és metrikák",
+      "Egyetlen irányítási réteg az összes MCP-hez"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Egyszerű beállítás",
+    "title": "Hogyan működik a BigMCP",
+    "subtitle": "Három lépés az egységes MCP irányításhoz",
+    "steps": [
+      {
+        "title": "Hozza létre fiókját",
+        "description": "Regisztráljon e-mail címével. Hitelesítő adatai titkosítottak és szinkronizálva vannak az összes eszközén."
+      },
+      {
+        "title": "MCP szerverek csatlakoztatása",
+        "description": "Adja hozzá meglévő MCP szervereit a BigMCP-hez. Állítsa be a hitelesítő adatokat és a hozzáférési szabályokat minden szerverhez."
+      },
+      {
+        "title": "Eszközök használata és összeállítása",
+        "description": "Egyszerűen használja az eszközöket, vagy kombináljon belőlük hatékony munkafolyamatokat. Nincs bonyodalom, csak azonnali eredmények."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Funkciók",
+    "title": "Minden, ami szükséges az",
+    "titleEnd": "MCP irányításhoz nagy léptékben",
+    "subtitle": "Csapatoknak készítve, akik komolyan veszik az MCP irányítást",
+    "items": [
+      {
+        "title": "Egységes hitelesítés",
+        "description": "Egyetlen OAuth 2.0 + PKCE folyamat AI kliensekhez. Titkosított hitelesítő adat tárolás szervezeti és felhasználói szintű elkülönítéssel."
+      },
+      {
+        "title": "Eszköz-összehangolás",
+        "description": "Többeszközös munkafolyamatok összeállítása automatikus hitelesítő adat befecskendezéssel és hierarchikus kötésekkel összetett műveletekhez."
+      },
+      {
+        "title": "Mobilhozzáférés",
+        "description": "Az MCP eszközei elérhetők mobilon, tableten, bárhol. Ugyanaz a hitelesítés, ugyanaz az élmény, nulla konfiguráció."
+      },
+      {
+        "title": "Használati elemzések",
+        "description": "Kövesse nyomon az eszközök végrehajtását, sikerességi arányát és a használati mintákat a szervezetben átfogó használatkövetéssel."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Árak",
+    "title": "Egyszerű, átlátható árazás",
+    "subtitle": "Felhőalapú vagy saját üzemeltetés – Ön dönt",
+    "cloudLabel": "☁️ Felhő = Mi üzemeltetjük, Ön használja",
+    "selfHostedLabel": "💻 Saját üzemeltetés = Minden az Öné",
+    "individual": {
+      "title": "Egyéni",
+      "subtitle": "Felhő",
+      "price": "€4,99",
+      "period": "/hó",
+      "features": [
+        "1 felhasználó",
+        "Korlátlan MCP szerver",
+        "AI összehangolás",
+        "Szemantikus keresés",
+        "Kompozíciók és munkafolyamatok",
+        "Felügyelt LLM mellékelve"
+      ],
+      "cta": "Ingyenes próba indítása"
+    },
+    "team": {
+      "title": "Csapat",
+      "subtitle": "Felhő",
+      "price": "€4,99",
+      "period": "/hó + €4,99/felhasználó",
+      "badge": "Legnépszerűbb",
+      "features": [
+        "Minden az Egyéni csomagból",
+        "Legfeljebb 20 felhasználó",
+        "Szervezetek és RBAC",
+        "Megosztott hitelesítő adatok",
+        "Speciális audit naplók"
+      ],
+      "cta": "Ingyenes próba indítása"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "subtitle": "Saját üzemeltetés",
+      "price": "Ingyenes",
+      "period": "indulási ajánlat • 3 hónap",
+      "features": [
+        "Minden a Csapat csomagból",
+        "Korlátlan felhasználók és csapatok",
+        "Teljes adminisztrátori irányítás",
+        "Központi MCP szerver pool",
+        "SSO (SAML, OIDC) - Hamarosan",
+        "Speciális audit és megfelelőség",
+        "Saját LLM választható",
+        "Örökös licenc"
+      ],
+      "cta": "Enterprise megszerzése"
+    },
+    "community": {
+      "title": "Közösségi",
+      "subtitle": "Saját üzemeltetés",
+      "price": "Ingyenes",
+      "period": "",
+      "features": [
+        "Minden az Egyéni csomagból",
+        "Csak 1 felhasználó",
+        "Saját LLM választható",
+        "Docker telepítés"
+      ],
+      "cta": "Kezdjük el"
+    },
+    "comingSoon": "Hamarosan",
+    "note": "A felhőalapú kiadások már elérhetők, felügyelt LLM mellékelve. A saját üzemeltetésű kiadásokhoz megválaszthatja LLM szolgáltatóját."
+  },
+  "finalCta": {
+    "title": "Készen áll az MCP ökoszisztémájának irányítására?",
+    "subtitle": "Indítsa el ingyenes próbaidőszakát még ma. Nem szükséges bankkártya.",
+    "cta": "Ingyenes próba indítása"
+  },
+  "footer": {
+    "tagline": "Az irányítási réteg a Model Context Protocol eszközeihez. Központosítsa, hangolja össze és irányítsa MCP ökoszisztémáját.",
+    "madeBy": "Egy termék a",
+    "product": "Termék",
+    "company": "Cég",
+    "links": {
+      "features": "Funkciók",
+      "howItWorks": "Hogyan működik",
+      "pricing": "Árak",
+      "documentation": "Dokumentáció",
+      "about": "A BigFatDot-ról",
+      "contact": "Kapcsolat",
+      "privacy": "Adatvédelem",
+      "terms": "Feltételek"
+    },
+    "copyright": "© 2026 BigMCP, a BigFatDot terméke. Minden jog fenntartva."
+  }
+}

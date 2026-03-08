@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Piactér",
+    "services": "Szolgáltatások",
+    "compositions": "Kompozíciók",
+    "documentation": "Dokumentáció",
+    "signin": "Bejelentkezés",
+    "signup": "Regisztráció",
+    "startTrial": "Ingyenes próba indítása"
+  },
+  "menu": {
+    "account": "Fiókbeállítások",
+    "subscription": "Előfizetés és számlázás",
+    "apiKeys": "API kulcsok",
+    "team": "Csapat",
+    "preferences": "Beállítások",
+    "signout": "Kijelentkezés"
+  },
+  "buttons": {
+    "save": "Mentés",
+    "cancel": "Mégse",
+    "delete": "Törlés",
+    "edit": "Szerkesztés",
+    "create": "Létrehozás",
+    "close": "Bezárás",
+    "confirm": "Megerősítés",
+    "back": "Vissza",
+    "next": "Tovább",
+    "submit": "Küldés",
+    "loading": "Betöltés...",
+    "retry": "Újra",
+    "copy": "Másolás",
+    "copied": "Másolva!"
+  },
+  "status": {
+    "loading": "Betöltés...",
+    "saving": "Mentés...",
+    "error": "Hiba",
+    "success": "Sikeres"
+  },
+  "errors": {
+    "generic": "Hiba történt",
+    "notFound": "Nem található",
+    "unauthorized": "Jogosulatlan hozzáférés",
+    "forbidden": "Hozzáférés megtagadva",
+    "networkError": "Hálózati hiba. Kérjük, ellenőrizze a kapcsolatát."
+  },
+  "trial": {
+    "badge": "Próbaidőszak",
+    "daysLeft": "{{count}} nap maradt a próbaidőszakból",
+    "daysLeft_plural": "{{count}} nap maradt a próbaidőszakból"
+  },
+  "empty": {
+    "noData": "Nem áll rendelkezésre adat",
+    "noResults": "Nincs találat"
+  }
+}

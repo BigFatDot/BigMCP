@@ -1,0 +1,56 @@
+# BigMCP — robots.txt
+# https://bigmcp.cloud
+
+# ─── Default: all crawlers ────────────────────────────────────────────────────
+User-agent: *
+Allow: /
+Allow: /blog/
+Allow: /use-cases/
+Allow: /integrations/
+Allow: /changelog
+Allow: /docs/
+Allow: /llms.txt
+Allow: /llms-full.txt
+Disallow: /app/
+Disallow: /login
+Disallow: /signup
+Disallow: /verify-email
+Disallow: /verify-email-pending
+Disallow: /onboarding
+Disallow: /oauth/
+Disallow: /invitations/
+Disallow: /api/
+
+# ─── AI crawlers (explicitly allowed for AEO) ────────────────────────────────
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: YouBot
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# ─── Sitemaps ─────────────────────────────────────────────────────────────────
+Sitemap: https://bigmcp.cloud/sitemap.xml

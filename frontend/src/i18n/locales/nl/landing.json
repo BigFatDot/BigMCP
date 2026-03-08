@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Functies",
+    "howItWorks": "Hoe het werkt",
+    "pricing": "Prijzen",
+    "login": "Inloggen",
+    "getStarted": "Aan de slag"
+  },
+  "hero": {
+    "badge": "Governance-laag voor MCP",
+    "title": "Één",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "voor al je tools",
+    "subtitle": "Centraliseer, beheer en orkestreer je Model Context Protocol-tools in één unified platform. Toegankelijk overal—desktop of mobiel.",
+    "cta": "Gratis proefperiode starten",
+    "ctaSecondary": "Zie hoe het werkt"
+  },
+  "mobileDemo": {
+    "badge": "Één connector",
+    "title": "Zet uren handmatig werk",
+    "titleHighlight": "om in seconden automatisering",
+    "description": "BigMCP laat je aangepaste workflows samenstellen die meerdere diensten met één opdracht orkestreren. Maak je eigen multi-tool composities eenmalig aan en voer ze daarna direct overal uit.",
+    "features": [
+      "Stel workflows samen van je bestaande tools (HubSpot, Drive, Gmail, Slack...)",
+      "Voer multi-service bewerkingen uit met natuurlijke taal",
+      "Je aangepaste composities worden aanroepbare tools voor je hele team",
+      "Voer complexe workflows uit vanuit Claude—desktop of mobiel"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Nieuwe klant onboarden: Acme Corp (contact: john@acme.com, sector: B2B SaaS)",
+    "thinkingTitle": "Denkproces",
+    "thinkingText": "Gebruiker heeft een aangepaste workflow aangemaakt voor volledige klant-onboarding. Wordt uitgevoerd via CRM-, Drive-, Gmail- en Slack-systemen.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Aangepaste workflow • 5 diensten",
+    "steps": {
+      "crm": "HubSpot: create_contact",
+      "drive": "Drive: create_folder",
+      "mail": "Gmail: send_welcome",
+      "sheet": "Sheets: add_tracking",
+      "chat": "Slack: notify_team"
+    },
+    "workflowCompleted": "Workflow voltooid",
+    "resultTitle": "Klant succesvol ge-onboard",
+    "resultIntro": "Ik heb <strong>Acme Corp</strong> in al je systemen ingesteld:",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • B2B SaaS Sector",
+    "hubspotDetails": "Primaire contactpersoon: John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Volledige structuur met contracten en facturering",
+    "statusItems": [
+      "Welkomstmail verstuurd naar John",
+      "Verkooptracking bijgewerkt",
+      "Team gemeld in #sales"
+    ],
+    "conclusion": "Alles is klaar om de samenwerking met Acme Corp te starten.",
+    "replyPlaceholder": "Antwoord..."
+  },
+  "challenge": {
+    "badge": "De uitdaging",
+    "title": "De MCP-governance-uitdaging",
+    "subtitle": "Naarmate je MCP-ecosysteem groeit, wordt het beheer van tools complexer en risicovoller",
+    "withoutTitle": "Zonder BigMCP",
+    "withoutItems": [
+      "Elke MCP-server beheert zijn eigen credentials",
+      "Geen gecentraliseerde toegangscontrole of auditing",
+      "Handmatige tool-orkestratie over servers heen",
+      "Alleen desktop, geen mobiele toegang",
+      "Nul zichtbaarheid in gebruikspatronen",
+      "Onmogelijk om governance-beleid af te dwingen"
+    ],
+    "withTitle": "Met BigMCP",
+    "withItems": [
+      "Unified OAuth-authenticatie",
+      "RBAC op organisatieniveau met 4 rollagen",
+      "Geautomatiseerde toolcompositie & workflows",
+      "Toegang via desktop, mobiel, overal",
+      "Uitgebreide gebruiksregistratie & statistieken",
+      "Één governance-laag voor alle MCPs"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Eenvoudige installatie",
+    "title": "Hoe BigMCP werkt",
+    "subtitle": "Drie stappen naar unified MCP-governance",
+    "steps": [
+      {
+        "title": "Maak je account aan",
+        "description": "Registreer met je e-mailadres. Je credentials worden versleuteld en gesynchroniseerd op alle apparaten."
+      },
+      {
+        "title": "MCP-servers verbinden",
+        "description": "Voeg je bestaande MCP-servers toe aan BigMCP. Configureer credentials en toegangsbeleid voor elke server."
+      },
+      {
+        "title": "Tools gebruiken & samenstellen",
+        "description": "Gebruik eenvoudig tools of combineer ze tot krachtige workflows. Geen complexiteit, direct resultaat."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Functies",
+    "title": "Alles wat je nodig hebt om",
+    "titleEnd": "MCP op schaal te beheren",
+    "subtitle": "Gebouwd voor teams die MCP-governance serieus nemen",
+    "items": [
+      {
+        "title": "Unified authenticatie",
+        "description": "Enkelvoudige OAuth 2.0 + PKCE-stroom voor AI-clients. Versleutelde credentialopslag met isolatie op organisatie- en gebruikersniveau."
+      },
+      {
+        "title": "Tool-orkestratie",
+        "description": "Stel multi-tool workflows samen met automatische credential-injectie en hiërarchische bindingen voor complexe bewerkingen."
+      },
+      {
+        "title": "Mobiele toegang",
+        "description": "Je MCP-tools beschikbaar op mobiel, tablet, overal. Dezelfde authenticatie, dezelfde ervaring, nul configuratie."
+      },
+      {
+        "title": "Gebruiksanalyse",
+        "description": "Volg tooluitvoering, slagingspercentages en gebruikspatronen in je organisatie met uitgebreide gebruiksregistratie."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Prijzen",
+    "title": "Eenvoudige, transparante prijzen",
+    "subtitle": "Cloudbeheerd of zelfgehost—jij kiest",
+    "cloudLabel": "☁️ Cloud = Wij hosten, jij gebruikt",
+    "selfHostedLabel": "💻 Zelfgehost = Jij bezit alles",
+    "individual": {
+      "title": "Individueel",
+      "subtitle": "Cloud",
+      "price": "€4,99",
+      "period": "/maand",
+      "features": [
+        "1 gebruiker",
+        "Onbeperkte MCP-servers",
+        "AI-orkestratie",
+        "Semantisch zoeken",
+        "Composities & workflows",
+        "Beheerde LLM inbegrepen"
+      ],
+      "cta": "Gratis proefperiode starten"
+    },
+    "team": {
+      "title": "Team",
+      "subtitle": "Cloud",
+      "price": "€4,99",
+      "period": "/maand + €4,99/gebruiker",
+      "badge": "Meest populair",
+      "features": [
+        "Alles in Individueel",
+        "Tot 20 gebruikers",
+        "Organisaties & RBAC",
+        "Gedeelde credentials",
+        "Geavanceerde auditlogboeken"
+      ],
+      "cta": "Gratis proefperiode starten"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "subtitle": "Zelfgehost",
+      "price": "Gratis",
+      "period": "lanceringaanbieding • 3 maanden",
+      "features": [
+        "Alles in Team",
+        "Onbeperkte gebruikers & teams",
+        "Volledig beheerbeheer",
+        "Centrale MCP-serverpool",
+        "SSO (SAML, OIDC) - Binnenkort beschikbaar",
+        "Geavanceerde audit & compliance",
+        "Jouw keuze van LLM",
+        "Eeuwigdurende licentie"
+      ],
+      "cta": "Enterprise ophalen"
+    },
+    "community": {
+      "title": "Community",
+      "subtitle": "Zelfgehost",
+      "price": "Gratis",
+      "period": "",
+      "features": [
+        "Alles in Individueel",
+        "Slechts 1 gebruiker",
+        "Jouw keuze van LLM",
+        "Docker-implementatie"
+      ],
+      "cta": "Aan de slag"
+    },
+    "comingSoon": "Binnenkort beschikbaar",
+    "note": "Cloud-edities zijn nu beschikbaar met beheerde LLM inbegrepen. Zelfgehoste edities laten je je eigen LLM-provider kiezen."
+  },
+  "finalCta": {
+    "title": "Klaar om je MCP-ecosysteem te beheren?",
+    "subtitle": "Start vandaag nog je gratis proefperiode. Geen creditcard vereist.",
+    "cta": "Gratis proefperiode starten"
+  },
+  "footer": {
+    "tagline": "De governance-laag voor je Model Context Protocol-tools. Centraliseer, orkestreer en beheer je MCP-ecosysteem.",
+    "madeBy": "Een product van",
+    "product": "Product",
+    "company": "Bedrijf",
+    "links": {
+      "features": "Functies",
+      "howItWorks": "Hoe het werkt",
+      "pricing": "Prijzen",
+      "documentation": "Documentatie",
+      "about": "Over BigFatDot",
+      "contact": "Contact",
+      "privacy": "Privacy",
+      "terms": "Voorwaarden"
+    },
+    "copyright": "© 2026 BigMCP by BigFatDot. Alle rechten voorbehouden."
+  }
+}

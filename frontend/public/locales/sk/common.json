@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Služby",
+    "compositions": "Kompozície",
+    "documentation": "Dokumentácia",
+    "signin": "Prihlásiť sa",
+    "signup": "Zaregistrovať sa",
+    "startTrial": "Začať bezplatnú skúšobnú dobu"
+  },
+  "menu": {
+    "account": "Nastavenia účtu",
+    "subscription": "Predplatné a fakturácia",
+    "apiKeys": "API kľúče",
+    "team": "Tím",
+    "preferences": "Predvoľby",
+    "signout": "Odhlásiť sa"
+  },
+  "buttons": {
+    "save": "Uložiť",
+    "cancel": "Zrušiť",
+    "delete": "Odstrániť",
+    "edit": "Upraviť",
+    "create": "Vytvoriť",
+    "close": "Zatvoriť",
+    "confirm": "Potvrdiť",
+    "back": "Späť",
+    "next": "Ďalej",
+    "submit": "Odoslať",
+    "loading": "Načítavanie...",
+    "retry": "Skúsiť znova",
+    "copy": "Kopírovať",
+    "copied": "Skopírované!"
+  },
+  "status": {
+    "loading": "Načítavanie...",
+    "saving": "Ukladanie...",
+    "error": "Chyba",
+    "success": "Úspech"
+  },
+  "errors": {
+    "generic": "Vyskytla sa chyba",
+    "notFound": "Nenájdené",
+    "unauthorized": "Neoprávnený prístup",
+    "forbidden": "Prístup zamietnutý",
+    "networkError": "Sieťová chyba. Skontrolujte svoje pripojenie."
+  },
+  "trial": {
+    "badge": "Skúšobná doba",
+    "daysLeft": "{{count}} deň zostáva v skúšobnej dobe",
+    "daysLeft_plural": "{{count}} dní zostáva v skúšobnej dobe"
+  },
+  "empty": {
+    "noData": "Žiadne údaje k dispozícii",
+    "noResults": "Nenašli sa žiadne výsledky"
+  }
+}

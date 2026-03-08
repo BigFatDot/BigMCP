@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Ominaisuudet",
+    "howItWorks": "Miten se toimii",
+    "pricing": "Hinnoittelu",
+    "login": "Kirjaudu sisään",
+    "getStarted": "Aloita"
+  },
+  "hero": {
+    "badge": "Hallintakerros MCP:lle",
+    "title": "Yksi",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "kaikille työkaluillesi",
+    "subtitle": "Keskitä, hallitse ja orkestroi Model Context Protocol -työkalusi yhtenäisellä alustalla. Käytä mistä tahansa — tietokoneella tai mobiilissa.",
+    "cta": "Aloita ilmainen kokeilu",
+    "ctaSecondary": "Katso miten se toimii"
+  },
+  "mobileDemo": {
+    "badge": "Yksi yhdistin",
+    "title": "Muuta tuntien manuaalinen työ",
+    "titleHighlight": "sekunneiksi automaatiota",
+    "description": "BigMCP antaa sinun koostaa mukautettuja työnkulkuja, jotka orkestrovat useita palveluja yhdellä komennolla. Luo omat monityökalukomposit kerran, ja suorita ne välittömästi mistä tahansa.",
+    "features": [
+      "Koosta työnkulkuja olemassa olevista työkaluistasi (HubSpot, Drive, Gmail, Slack...)",
+      "Suorita monipalveluoperaatioita luonnollisella kielellä",
+      "Mukautetut komposit muuttuvat kutsuttaviksi työkaluiksi koko tiimillesi",
+      "Suorita monimutkaisia työnkulkuja Claudella — tietokoneella tai mobiilissa"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Onboard new client: Acme Corp (contact: john@acme.com, sector: B2B SaaS)",
+    "thinkingTitle": "Ajatteluprosessi",
+    "thinkingText": "Käyttäjä loi mukautetun työnkulun täydelliseen asiakkaan käyttöönottoon. Suoritetaan CRM-, Drive-, Gmail- ja Slack-järjestelmissä.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Mukautettu työnkulku • 5 palvelua",
+    "steps": {
+      "crm": "HubSpot: create_contact",
+      "drive": "Drive: create_folder",
+      "mail": "Gmail: send_welcome",
+      "sheet": "Sheets: add_tracking",
+      "chat": "Slack: notify_team"
+    },
+    "workflowCompleted": "Työnkulku valmis",
+    "resultTitle": "Asiakas otettu käyttöön onnistuneesti",
+    "resultIntro": "Olen perustanut <strong>Acme Corp</strong>in kaikkiin järjestelmiisi:",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • B2B SaaS -sektori",
+    "hubspotDetails": "Pääasiallinen yhteyshenkilö: John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Täydellinen rakenne sopimuksilla ja laskutuksella",
+    "statusItems": [
+      "Tervetulosähköposti lähetetty Johnille",
+      "Myyntiseuranta päivitetty",
+      "Tiimi ilmoitettu kanavalla #sales"
+    ],
+    "conclusion": "Kaikki on valmista yhteistyön aloittamiseksi Acme Corpin kanssa.",
+    "replyPlaceholder": "Vastaa..."
+  },
+  "challenge": {
+    "badge": "Haaste",
+    "title": "MCP-hallintahaaste",
+    "subtitle": "MCP-ekosysteemisi kasvaessa työkalujen hallinnasta tulee monimutkaista ja riskialtista",
+    "withoutTitle": "Ilman BigMCP:tä",
+    "withoutItems": [
+      "Jokainen MCP-palvelin hallitsee omia tunnistetietojaan",
+      "Ei keskitettyä pääsynhallintaa tai auditointia",
+      "Manuaalinen työkalujen orkestrointi eri palvelimien välillä",
+      "Vain tietokone, ei mobiilipääsyä",
+      "Nolla näkyvyyttä käyttötapoihin",
+      "Mahdotonta toteuttaa hallintakäytäntöjä"
+    ],
+    "withTitle": "BigMCP:n kanssa",
+    "withItems": [
+      "Yhtenäinen OAuth-todennus",
+      "Organisaatiotason RBAC neljällä roolitasolla",
+      "Automatisoitu työkalujen koostaminen ja työnkulut",
+      "Pääsy tietokoneelta, mobiilista, kaikkialta",
+      "Kattava käytön seuranta ja mittarit",
+      "Yksi hallintakerros kaikille MCP:ille"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Yksinkertainen asennus",
+    "title": "Miten BigMCP toimii",
+    "subtitle": "Kolme vaihetta yhtenäiseen MCP-hallintaan",
+    "steps": [
+      {
+        "title": "Luo tilisi",
+        "description": "Rekisteröidy sähköpostillasi. Tunnistetietosi salataan ja synkronoidaan kaikille laitteillesi."
+      },
+      {
+        "title": "Yhdistä MCP-palvelimet",
+        "description": "Lisää olemassa olevat MCP-palvelimesi BigMCP:hen. Konfiguroi tunnistetiedot ja käyttökäytännöt kullekin palvelimelle."
+      },
+      {
+        "title": "Käytä ja koosta työkaluja",
+        "description": "Käytä yksinkertaisesti työkaluja tai yhdistä ne tehokkaiksi työnkuluiksi. Ei monimutkaisuutta, vain tuloksia välittömästi."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Ominaisuudet",
+    "title": "Kaikki mitä tarvitset",
+    "titleEnd": "MCP:n hallintaan laajassa mittakaavassa",
+    "subtitle": "Rakennettu tiimeille, jotka suhtautuvat vakavasti MCP-hallintaan",
+    "items": [
+      {
+        "title": "Yhtenäinen todennus",
+        "description": "Yksittäinen OAuth 2.0 + PKCE -virtaus tekoälyasiakkaille. Salattu tunnistetietojen tallennus organisaatio- ja käyttäjätason eristyksellä."
+      },
+      {
+        "title": "Työkalujen orkestrointi",
+        "description": "Koosta monityökalutyönkulkuja automaattisella tunnistetietojen injektiolla ja hierarkkisilla sidoksilla monimutkaisiin operaatioihin."
+      },
+      {
+        "title": "Mobiilipääsy",
+        "description": "MCP-työkalusi saatavilla mobiilissa, tabletissa, kaikkialla. Sama todennus, sama kokemus, nolla konfiguraatiota."
+      },
+      {
+        "title": "Käyttöanalytiikka",
+        "description": "Seuraa työkalujen suorituksia, onnistumisasteita ja käyttötapoja koko organisaatiossasi kattavalla käytön seurannalla."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Hinnoittelu",
+    "title": "Yksinkertainen, läpinäkyvä hinnoittelu",
+    "subtitle": "Pilvessä hallittuna tai omatoimisesti isännöitynä — sinä valitset",
+    "cloudLabel": "☁️ Pilvi = Me isännöimme, sinä käytät",
+    "selfHostedLabel": "💻 Omatoiminen isännöinti = Sinä omistat kaiken",
+    "individual": {
+      "title": "Yksilö",
+      "subtitle": "Pilvi",
+      "price": "€4.99",
+      "period": "/kk",
+      "features": [
+        "1 käyttäjä",
+        "Rajoittamattomat MCP-palvelimet",
+        "Tekoälyorkestrointi",
+        "Semanttinen haku",
+        "Kompositiot ja työnkulut",
+        "Hallittu LLM sisältyy"
+      ],
+      "cta": "Aloita ilmainen kokeilu"
+    },
+    "team": {
+      "title": "Tiimi",
+      "subtitle": "Pilvi",
+      "price": "€4.99",
+      "period": "/kk + €4.99/käyttäjä",
+      "badge": "Suosituin",
+      "features": [
+        "Kaikki Yksilö-paketista",
+        "Jopa 20 käyttäjää",
+        "Organisaatiot ja RBAC",
+        "Jaetut tunnistetiedot",
+        "Edistyneet auditointilokit"
+      ],
+      "cta": "Aloita ilmainen kokeilu"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "subtitle": "Omatoiminen isännöinti",
+      "price": "Ilmainen",
+      "period": "lanseeraustarra • 3 kuukautta",
+      "features": [
+        "Kaikki Tiimi-paketista",
+        "Rajoittamattomat käyttäjät ja tiimit",
+        "Täysi ylläpitohallinta",
+        "Keskitetty MCP-palvelinpooli",
+        "SSO (SAML, OIDC) - Tulossa pian",
+        "Edistynyt auditointi ja vaatimustenmukaisuus",
+        "Oma valintasi LLM:stä",
+        "Ikuinen lisenssi"
+      ],
+      "cta": "Hanki Enterprise"
+    },
+    "community": {
+      "title": "Community",
+      "subtitle": "Omatoiminen isännöinti",
+      "price": "Ilmainen",
+      "period": "",
+      "features": [
+        "Kaikki Yksilö-paketista",
+        "Vain 1 käyttäjä",
+        "Oma valintasi LLM:stä",
+        "Docker-käyttöönotto"
+      ],
+      "cta": "Aloita"
+    },
+    "comingSoon": "Tulossa pian",
+    "note": "Pilviversiot ovat saatavilla nyt sisältäen hallitun LLM:n. Omatoimisesti isännöidyt versiot antavat sinun valita LLM-palveluntarjoajasi."
+  },
+  "finalCta": {
+    "title": "Valmiina hallitsemaan MCP-ekosysteemiäsi?",
+    "subtitle": "Aloita ilmainen kokeilu tänään. Ei luottokorttia tarvita.",
+    "cta": "Aloita ilmainen kokeilu"
+  },
+  "footer": {
+    "tagline": "Hallintakerros Model Context Protocol -työkaluillesi. Keskitä, orkestroi ja hallitse MCP-ekosysteemiäsi.",
+    "madeBy": "Tuote kehittäjältä",
+    "product": "Tuote",
+    "company": "Yritys",
+    "links": {
+      "features": "Ominaisuudet",
+      "howItWorks": "Miten se toimii",
+      "pricing": "Hinnoittelu",
+      "documentation": "Dokumentaatio",
+      "about": "Tietoa BigFatDotista",
+      "contact": "Yhteystiedot",
+      "privacy": "Tietosuoja",
+      "terms": "Ehdot"
+    },
+    "copyright": "© 2026 BigMCP by BigFatDot. Kaikki oikeudet pidätetään."
+  }
+}

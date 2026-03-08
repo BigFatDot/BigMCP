@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Servicii",
+    "compositions": "Compoziții",
+    "documentation": "Documentație",
+    "signin": "Conectare",
+    "signup": "Înregistrare",
+    "startTrial": "Începe perioada de probă gratuită"
+  },
+  "menu": {
+    "account": "Setări cont",
+    "subscription": "Abonament și facturare",
+    "apiKeys": "Chei API",
+    "team": "Echipă",
+    "preferences": "Preferințe",
+    "signout": "Deconectare"
+  },
+  "buttons": {
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "edit": "Editează",
+    "create": "Creează",
+    "close": "Închide",
+    "confirm": "Confirmă",
+    "back": "Înapoi",
+    "next": "Înainte",
+    "submit": "Trimite",
+    "loading": "Se încarcă...",
+    "retry": "Reîncearcă",
+    "copy": "Copiază",
+    "copied": "Copiat!"
+  },
+  "status": {
+    "loading": "Se încarcă...",
+    "saving": "Se salvează...",
+    "error": "Eroare",
+    "success": "Succes"
+  },
+  "errors": {
+    "generic": "A apărut o eroare",
+    "notFound": "Nu a fost găsit",
+    "unauthorized": "Neautorizat",
+    "forbidden": "Acces refuzat",
+    "networkError": "Eroare de rețea. Verifică conexiunea."
+  },
+  "trial": {
+    "badge": "Probă",
+    "daysLeft": "{{count}} zi rămasă în perioada de probă",
+    "daysLeft_plural": "{{count}} zile rămase în perioada de probă"
+  },
+  "empty": {
+    "noData": "Nu există date disponibile",
+    "noResults": "Niciun rezultat găsit"
+  }
+}

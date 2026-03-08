@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Services",
+    "subtitle": "Manage your MCP servers, tools, and toolboxes",
+    "search": "Search tools...",
+    "noTools": "No tools available",
+    "noToolsDescription": "Connect to servers in the Marketplace to see tools here",
+    "goToMarketplace": "Go to Marketplace",
+    "viewToggle": {
+      "servers": "Services",
+      "toolboxes": "Toolboxes"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP Servers = Sources of Tools",
+      "serversDescription": "Each server you connect provides tools that Claude can use. Toggle visibility to control which tools are available.",
+      "visibleLabel": "Visible = Claude can use",
+      "hiddenLabel": "Hidden = Disabled for Claude",
+      "toolboxesTitle": "Toolboxes = Organize Your Tools",
+      "toolboxesDescription": "Create toolboxes to bundle specific tools together. Use toolboxes to control which tools are available when connecting external applications.",
+      "forExternalIntegrations": "For external integrations",
+      "manageConnections": "Manage Connections →"
+    },
+    "serverState": {
+      "active": "Active",
+      "apiOnly": "API Only",
+      "standby": "Standby",
+      "disabled": "Disabled",
+      "error": "Error"
+    },
+    "serverActions": {
+      "visible": "Visible",
+      "hidden": "Hidden",
+      "stopServer": "Stop server?",
+      "deleteServerConfirm": "Delete this server and its credentials?",
+      "serverError": "Server encountered an error",
+      "availableTools": "Available Tools ({{count}})",
+      "visibleToClaude": "Visible to Claude",
+      "discoveringTools": "Discovering tools...",
+      "startToDiscover": "Start server to discover tools"
+    },
+    "groups": {
+      "title": "Toolboxes",
+      "create": "Create Toolbox",
+      "createToolbox": "Create Toolbox",
+      "createFirst": "Create Your First Toolbox",
+      "edit": "Edit Toolbox",
+      "delete": "Delete Toolbox",
+      "name": "Toolbox name",
+      "description": "Description",
+      "tools": "Tools in toolbox",
+      "empty": "No Toolboxes Yet",
+      "emptyDescription": "Create toolboxes to organize which tools are available via API keys.",
+      "noTools": "No tools in this toolbox",
+      "deleteConfirm": "Delete \"{{name}}\"? API keys using this toolbox will lose their restrictions.",
+      "active": "Active",
+      "inactive": "Inactive",
+      "shared": "Shared",
+      "private": "Private",
+      "makePrivate": "Click to make private",
+      "shareWithTeam": "Click to share with team",
+      "used": "Used {{count}} time",
+      "used_plural": "Used {{count}} times"
+    },
+    "createModal": {
+      "title": "Create Toolbox",
+      "stepInfo": "Name your toolbox",
+      "stepTools": "Select tools to include",
+      "groupName": "Toolbox Name *",
+      "groupNamePlaceholder": "e.g., Read Only, Production, Dev Environment",
+      "descriptionPlaceholder": "What is this toolbox for?",
+      "color": "Color",
+      "visibility": "Visibility",
+      "visibilityPrivate": "Private",
+      "visibilityPrivateDesc": "Only you can use this toolbox",
+      "visibilityOrganization": "Organization",
+      "visibilityOrganizationDesc": "Share with your team",
+      "toolsSelected": "{{count}} tool selected",
+      "toolsSelected_plural": "{{count}} tools selected",
+      "clearAll": "Clear all",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "noToolsAvailable": "No tools available",
+      "connectServersFirst": "Connect servers first to add tools to toolboxes",
+      "back": "Back",
+      "cancel": "Cancel",
+      "nextSelectTools": "Next: Select Tools",
+      "creating": "Creating...",
+      "createGroup": "Create Toolbox ({{count}} tools)"
+    },
+    "server": {
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "error": "Error",
+      "reconnect": "Reconnect",
+      "tools": "{{count}} tool",
+      "tools_plural": "{{count}} tools"
+    }
+  },
+  "myServers": {
+    "title": "My Services",
+    "subtitle": "Manage services and control tools exposed to Claude",
+    "serversUsed": "servers used",
+    "limitReached": "Limit reached",
+    "tabs": {
+      "personal": "My Services",
+      "team": "Team Services"
+    },
+    "stats": {
+      "servers": "Services",
+      "connected": "Connected",
+      "active": "Active",
+      "tools": "Tools"
+    },
+    "info": {
+      "title": "Tool Visibility & Discovery",
+      "description": "Active servers expose tools to Claude. Use toggle to control visibility.",
+      "hint": "Tools appear after the server is started for the first time (via MCP call)."
+    },
+    "empty": {
+      "title": "No servers connected yet",
+      "description": "Get started by connecting your first MCP server from the marketplace.",
+      "browseMarketplace": "Browse Marketplace"
+    },
+    "orgCredentials": {
+      "title": "Organization Credentials Available",
+      "description": "These servers use organization credentials. You can use them without providing your own credentials.",
+      "viewAll": "View all team servers →"
+    },
+    "visibility": {
+      "title": "Server visibility",
+      "visibleOauth": "Visible to OAuth",
+      "hiddenApiOnly": "Hidden (API only)",
+      "disabled": "Disabled"
+    },
+    "actions": {
+      "stop": "Stop",
+      "start": "Start",
+      "restart": "Restart",
+      "validate": "Validate",
+      "edit": "Edit",
+      "delete": "Delete",
+      "expand": "Expand to see tools",
+      "collapse": "Collapse"
+    },
+    "tools": {
+      "available": "Available Tools ({{count}})",
+      "visibleToClaude": "Visible to Claude",
+      "visible": "Visible",
+      "hidden": "Hidden",
+      "hideFromOauth": "Hide from OAuth",
+      "showToOauth": "Show to OAuth",
+      "discovering": "Discovering tools...",
+      "discoveringNote": "Tools will appear after server initialization",
+      "notConnected": "Server not connected",
+      "notConnectedNote": "Start the server to discover available tools"
+    },
+    "serverInfo": {
+      "created": "Created:",
+      "lastUsed": "Last used:",
+      "validated": "Validated"
+    },
+    "errors": {
+      "loadingCredentials": "Error loading credentials",
+      "failedToLoad": "Failed to load credentials",
+      "deleteConfirm": "Are you sure you want to delete this credential?",
+      "stopConfirm": "Are you sure you want to stop this server?",
+      "visibilityUpdated": "Server visibility updated",
+      "visibilityFailed": "Failed to update server visibility",
+      "toolVisibilityUpdated": "Tool visibility updated",
+      "toolVisibilityFailed": "Failed to update tool visibility"
+    },
+    "team": {
+      "empty": {
+        "title": "No team servers yet",
+        "description": "Team servers are shared with all organization members. Only admins can add them.",
+        "hint": "Go to Organization Settings to manage shared credentials."
+      },
+      "orgSettings": "Organization Settings",
+      "banner": {
+        "title": "Team Services",
+        "description": "These servers are shared with all organization members. Credentials are managed by admins."
+      },
+      "badge": "Team",
+      "teamServer": "Team Server",
+      "visibleToMembers": "Visible to all members",
+      "hiddenFromMembers": "Hidden from members",
+      "showToMembers": "Make visible to members",
+      "hideFromMembers": "Hide from members",
+      "deleteConfirm": "Are you sure you want to delete this team credential? This action cannot be undone.",
+      "deleteSuccess": "Team credential deleted",
+      "deleteFailed": "Failed to delete team credential",
+      "visibilityUpdated": "Member visibility updated",
+      "visibilityFailed": "Failed to update member visibility",
+      "edit": "Edit team server",
+      "editTitle": "Edit Team Server",
+      "editSuccess": "Team server updated",
+      "editFailed": "Failed to update team server",
+      "nameLabel": "Name",
+      "namePlaceholder": "e.g., Company Grist Account",
+      "nameRequired": "Name is required",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Optional description for your team",
+      "visibleToAll": "Visible to all members",
+      "visibleToAllDesc": "All team members can see and use this server",
+      "adminOnly": "Admin only",
+      "adminOnlyDesc": "Only admins can see this credential (used as fallback)",
+      "updateCredentials": "Update Credentials (optional)",
+      "updateCredentialsHint": "Leave empty to keep existing values",
+      "leaveEmptyToKeep": "Leave empty to keep current value",
+      "howToGet": "How to get this?",
+      "cancel": "Cancel",
+      "saving": "Saving...",
+      "saveChanges": "Save Changes"
+    }
+  },
+  "compositions": {
+    "title": "Compositions",
+    "subtitle": "Manage and execute multi-step tool workflows",
+    "create": "Create Composition",
+    "edit": "Edit Composition",
+    "delete": "Delete Composition",
+    "run": "Run",
+    "running": "Running...",
+    "execute": "Execute",
+    "executing": "Executing...",
+    "stop": "Stop",
+    "name": "Composition name",
+    "description": "Description",
+    "workflow": "Workflow",
+    "trigger": "Trigger",
+    "actions": "Actions",
+    "search": "Search compositions...",
+    "steps": "{{count}} steps",
+    "executedTimes": "Executed {{count}} times",
+    "created": "Created {{date}}",
+    "canExecute": "Can execute",
+    "noExecutePermission": "No execute permission",
+    "validate": "Validate",
+    "promote": "Promote",
+    "shareWithTeam": "Share with team",
+    "makePrivate": "Make private",
+    "cancel": "Cancel",
+    "noSteps": "No steps",
+    "parameters": "{{count}} parameters",
+    "runtimeParamsNote": "Runtime parameter input coming soon. For now, compositions use default parameters.",
+    "promoteConfirm": "Promote \"{{name}}\" to {{status}}?",
+    "deleteConfirm": "Delete \"{{name}}\"? This action cannot be undone.",
+    "promotedSuccess": "Composition promoted to {{status}}",
+    "deletedSuccess": "Composition deleted",
+    "executedSuccess": "Composition executed successfully",
+    "sharedSuccess": "Composition shared with team",
+    "madePrivate": "Composition made private",
+    "status": {
+      "temporary": "Temporary",
+      "validated": "Validated",
+      "production": "Production",
+      "draft": "Draft",
+      "active": "Active",
+      "paused": "Paused",
+      "error": "Error"
+    },
+    "visibility": {
+      "private": "Private",
+      "organization": "Team",
+      "public": "Public"
+    },
+    "filters": {
+      "allStatus": "All Status",
+      "allCompositions": "All Compositions",
+      "myCompositions": "My Compositions",
+      "teamShared": "Team Shared"
+    },
+    "empty": {
+      "title": "No Compositions",
+      "description": "Compositions are created when you orchestrate multiple tools together. Use the AI assistant to create your first workflow.",
+      "noMatch": "No compositions match your filters. Try adjusting your search."
+    },
+    "executeModal": {
+      "title": "Execute Composition",
+      "resultsTitle": "Execution Results",
+      "inputsTitle": "Input Parameters",
+      "stepsPreview": "Steps to Execute",
+      "executingSteps": "Executing {{count}} steps..."
+    },
+    "inputForm": {
+      "selectOption": "Select...",
+      "noInputsRequired": "No parameters required for this composition",
+      "jsonFormat": "JSON format ({{type}})"
+    },
+    "results": {
+      "title": "Results",
+      "success": "Success",
+      "failed": "Failed",
+      "duration": "Duration",
+      "output": "Output",
+      "statusSuccess": "Execution Successful",
+      "statusPartial": "Partial Execution",
+      "statusFailed": "Execution Failed",
+      "summary": "{{success}}/{{total}} steps succeeded • {{duration}}",
+      "globalError": "Global Error",
+      "stepsTitle": "Step Details",
+      "stepOutput": "Output",
+      "noOutput": "No data returned",
+      "error": "Error",
+      "retries": "{{count}} retry(ies)",
+      "finalOutput": "Final Output",
+      "startedAt": "Started at",
+      "completedAt": "Completed at",
+      "unknownError": "An unknown error occurred"
+    },
+    "close": "Close",
+    "executeAgain": "Execute Again"
+  },
+  "onboarding": {
+    "title": "Welcome to BigMCP!",
+    "subtitle": "Let's get you started",
+    "steps": {
+      "welcome": {
+        "title": "Welcome",
+        "description": "BigMCP helps you manage and orchestrate MCP servers"
+      },
+      "connect": {
+        "title": "Connect a Server",
+        "description": "Browse the marketplace and connect your first server"
+      },
+      "configure": {
+        "title": "Configure Credentials",
+        "description": "Set up credentials for your connected servers"
+      },
+      "explore": {
+        "title": "Explore Tools",
+        "description": "Discover the tools available from your servers"
+      },
+      "complete": {
+        "title": "You're all set!",
+        "description": "Start using your tools and create compositions"
+      }
+    },
+    "skip": "Skip onboarding",
+    "next": "Next",
+    "previous": "Previous",
+    "finish": "Get Started"
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Caută în documentație...",
+    "badge": "Docs",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "Documentație API"
+  },
+  "page": {
+    "breadcrumbDocs": "Docs",
+    "previous": "Anterior",
+    "next": "Următor",
+    "notFoundTitle": "Pagina nu a fost găsită",
+    "notFoundDescription": "Pagina de documentație pe care o cauți nu există.",
+    "goToHome": "Mergi la pagina principală a documentației"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Primii pași",
+      "introduction": {
+        "title": "Introducere",
+        "description": "Ce este BigMCP și de ce să-l folosești"
+      },
+      "quickstart": {
+        "title": "Pornire rapidă",
+        "description": "Pune totul în funcțiune în 5 minute"
+      },
+      "firstServer": {
+        "title": "Conectează primul tău server",
+        "description": "Adaugă un server MCP în contul tău"
+      }
+    },
+    "guides": {
+      "title": "Ghiduri",
+      "marketplace": {
+        "title": "Descoperă servere",
+        "description": "Navighează și instalează servere MCP din marketplace"
+      },
+      "credentials": {
+        "title": "Gestionează serviciile",
+        "description": "Controlează serverele conectate și instrumentele lor"
+      },
+      "toolGroups": {
+        "title": "Organizează cu toolbox-uri",
+        "description": "Grupează instrumente pentru diferite cazuri de utilizare și control acces"
+      },
+      "apiKeys": {
+        "title": "Creează chei API",
+        "description": "Generează chei pentru integrări externe și automatizare"
+      },
+      "compositions": {
+        "title": "Construiește compoziții",
+        "description": "Înlănțuie instrumente pentru fluxuri de lucru complexe"
+      },
+      "teamServices": {
+        "title": "Servicii echipă",
+        "description": "Gestionează serviciile partajate pentru echipa ta (plan Echipă)"
+      }
+    },
+    "integrations": {
+      "title": "Integrări",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Conectează BigMCP la Claude Desktop prin OAuth"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Folosește instrumentele BigMCP în Mistral Le Chat"
+      },
+      "n8n": {
+        "title": "Automatizare n8n",
+        "description": "Folosește instrumentele BigMCP în fluxuri de lucru n8n"
+      },
+      "customClients": {
+        "title": "Clienți personalizați",
+        "description": "Construiește propriul client MCP cu SDK-ul"
+      }
+    },
+    "concepts": {
+      "title": "Concepte de bază",
+      "mcpOverview": {
+        "title": "Protocolul MCP",
+        "description": "Înțelegerea standardului Model Context Protocol"
+      },
+      "servers": {
+        "title": "Servere MCP",
+        "description": "Cum serverele expun instrumente, resurse și prompturi"
+      },
+      "tools": {
+        "title": "Instrumente și execuție",
+        "description": "Cum funcționează instrumentele și sunt executate de agenții AI"
+      },
+      "security": {
+        "title": "Model de securitate",
+        "description": "Criptare, autentificare și control acces"
+      }
+    },
+    "api": {
+      "title": "Referință API",
+      "apiOverview": {
+        "title": "Prezentare generală API",
+        "description": "Introducere REST API și autentificare"
+      },
+      "apiMarketplace": {
+        "title": "API Marketplace",
+        "description": "Endpoint-uri pentru descoperirea serverelor"
+      },
+      "apiCredentials": {
+        "title": "API Credențiale",
+        "description": "Gestionează credențialele utilizatorilor programatic"
+      },
+      "apiMcp": {
+        "title": "API Gateway MCP",
+        "description": "Conectează-te la instrumente prin gateway"
+      },
+      "apiTools": {
+        "title": "API Instrumente și execuție",
+        "description": "Execută instrumente, legături și compoziții"
+      }
+    },
+    "selfHosting": {
+      "title": "Self-Hosting",
+      "selfHostOverview": {
+        "title": "Prezentare generală",
+        "description": "Opțiuni și cerințe pentru self-hosting"
+      },
+      "dockerSetup": {
+        "title": "Configurare Docker",
+        "description": "Implementează cu Docker Compose"
+      },
+      "configuration": {
+        "title": "Configurare",
+        "description": "Variabile de mediu și setări"
+      },
+      "llmProviders": {
+        "title": "Furnizori LLM",
+        "description": "Configurează backend-ul tău AI"
+      },
+      "customServers": {
+        "title": "Servere MCP personalizate",
+        "description": "Adaugă propriile servere MCP în instanțele Enterprise"
+      }
+    }
+  }
+}

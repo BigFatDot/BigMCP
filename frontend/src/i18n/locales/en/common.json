@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Services",
+    "compositions": "Compositions",
+    "documentation": "Documentation",
+    "signin": "Sign in",
+    "signup": "Sign up",
+    "startTrial": "Start Free Trial"
+  },
+  "menu": {
+    "account": "Account Settings",
+    "subscription": "Subscription & Billing",
+    "apiKeys": "API Keys",
+    "team": "Team",
+    "preferences": "Preferences",
+    "signout": "Sign Out"
+  },
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "close": "Close",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "copy": "Copy",
+    "copied": "Copied!"
+  },
+  "status": {
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "error": "Error",
+    "success": "Success"
+  },
+  "errors": {
+    "generic": "An error occurred",
+    "notFound": "Not found",
+    "unauthorized": "Unauthorized",
+    "forbidden": "Access denied",
+    "networkError": "Network error. Please check your connection."
+  },
+  "trial": {
+    "badge": "Trial",
+    "daysLeft": "{{count}} day left in trial",
+    "daysLeft_plural": "{{count}} days left in trial"
+  },
+  "empty": {
+    "noData": "No data available",
+    "noResults": "No results found"
+  }
+}

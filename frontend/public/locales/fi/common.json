@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Palvelut",
+    "compositions": "Kompositiot",
+    "documentation": "Dokumentaatio",
+    "signin": "Kirjaudu sisään",
+    "signup": "Rekisteröidy",
+    "startTrial": "Aloita ilmainen kokeilu"
+  },
+  "menu": {
+    "account": "Tilin asetukset",
+    "subscription": "Tilaus ja laskutus",
+    "apiKeys": "API-avaimet",
+    "team": "Tiimi",
+    "preferences": "Asetukset",
+    "signout": "Kirjaudu ulos"
+  },
+  "buttons": {
+    "save": "Tallenna",
+    "cancel": "Peruuta",
+    "delete": "Poista",
+    "edit": "Muokkaa",
+    "create": "Luo",
+    "close": "Sulje",
+    "confirm": "Vahvista",
+    "back": "Takaisin",
+    "next": "Seuraava",
+    "submit": "Lähetä",
+    "loading": "Ladataan...",
+    "retry": "Yritä uudelleen",
+    "copy": "Kopioi",
+    "copied": "Kopioitu!"
+  },
+  "status": {
+    "loading": "Ladataan...",
+    "saving": "Tallennetaan...",
+    "error": "Virhe",
+    "success": "Onnistui"
+  },
+  "errors": {
+    "generic": "Tapahtui virhe",
+    "notFound": "Ei löydy",
+    "unauthorized": "Ei valtuuksia",
+    "forbidden": "Pääsy estetty",
+    "networkError": "Verkkovirhe. Tarkista yhteytesi."
+  },
+  "trial": {
+    "badge": "Kokeilu",
+    "daysLeft": "{{count}} päivä jäljellä kokeilujaksossa",
+    "daysLeft_plural": "{{count}} päivää jäljellä kokeilujaksossa"
+  },
+  "empty": {
+    "noData": "Ei tietoja saatavilla",
+    "noResults": "Ei hakutuloksia"
+  }
+}

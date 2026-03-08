@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Funkce",
+    "howItWorks": "Jak to funguje",
+    "pricing": "Ceník",
+    "login": "Přihlásit se",
+    "getStarted": "Začít"
+  },
+  "hero": {
+    "badge": "Vrstva správy pro MCP",
+    "title": "Jeden",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "pro všechny vaše nástroje",
+    "subtitle": "Centralizujte, spravujte a orchestrujte nástroje Model Context Protocol na jednotné platformě. Přístup odkudkoli – z počítače i mobilního zařízení.",
+    "cta": "Zahájit bezplatnou zkušební verzi",
+    "ctaSecondary": "Jak to funguje"
+  },
+  "mobileDemo": {
+    "badge": "Jeden konektor",
+    "title": "Proměňte hodiny ruční práce",
+    "titleHighlight": "v sekundy automatizace",
+    "description": "BigMCP vám umožňuje vytvářet vlastní pracovní postupy, které orchestrují více služeb jediným příkazem. Vytvořte si vlastní víceúrovňové kompozice jednou a pak je okamžitě spouštějte odkudkoli.",
+    "features": [
+      "Vytvářejte pracovní postupy z vašich stávajících nástrojů (HubSpot, Drive, Gmail, Slack...)",
+      "Spouštějte víceúrovňové operace přirozeným jazykem",
+      "Vaše vlastní kompozice se stanou volatelnými nástroji pro celý váš tým",
+      "Spouštějte komplexní pracovní postupy přes Claude – z počítače i mobilu"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Zaveďte nového klienta: Acme Corp (kontakt: john@acme.com, sektor: B2B SaaS)",
+    "thinkingTitle": "Myšlenkový proces",
+    "thinkingText": "Uživatel vytvořil vlastní pracovní postup pro kompletní onboarding klienta. Bude proveden přes systémy CRM, Drive, Gmail a Slack.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Vlastní pracovní postup • 5 služeb",
+    "steps": {
+      "crm": "HubSpot: create_contact",
+      "drive": "Drive: create_folder",
+      "mail": "Gmail: send_welcome",
+      "sheet": "Sheets: add_tracking",
+      "chat": "Slack: notify_team"
+    },
+    "workflowCompleted": "Pracovní postup dokončen",
+    "resultTitle": "Klient úspěšně zaveden",
+    "resultIntro": "Nastavil(a) jsem <strong>Acme Corp</strong> ve všech vašich systémech:",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • Sektor B2B SaaS",
+    "hubspotDetails": "Primární kontakt: John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Kompletní struktura se smlouvami a fakturací",
+    "statusItems": [
+      "Uvítací e-mail odeslán Johnovi",
+      "Sledování prodeje aktualizováno",
+      "Tým upozorněn v #sales"
+    ],
+    "conclusion": "Vše je připraveno pro zahájení spolupráce s Acme Corp.",
+    "replyPlaceholder": "Odpovědět..."
+  },
+  "challenge": {
+    "badge": "Výzva",
+    "title": "Výzva správy MCP",
+    "subtitle": "S růstem vašeho ekosystému MCP se správa nástrojů stává složitou a rizkantní",
+    "withoutTitle": "Bez BigMCP",
+    "withoutItems": [
+      "Každý MCP server spravuje vlastní přihlašovací údaje",
+      "Žádné centralizované řízení přístupu ani audit",
+      "Ruční orchestrace nástrojů napříč servery",
+      "Pouze pro počítač, bez mobilního přístupu",
+      "Nulová viditelnost vzorců používání",
+      "Vynucení zásad správy je nemožné"
+    ],
+    "withTitle": "S BigMCP",
+    "withItems": [
+      "Jednotné ověřování OAuth",
+      "RBAC na úrovni organizace se 4 úrovněmi rolí",
+      "Automatizovaná kompozice nástrojů a pracovní postupy",
+      "Přístup z počítače, mobilu, odkudkoli",
+      "Komplexní sledování využití a metriky",
+      "Jedna vrstva správy pro všechny MCP"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Jednoduché nastavení",
+    "title": "Jak BigMCP funguje",
+    "subtitle": "Tři kroky k jednotné správě MCP",
+    "steps": [
+      {
+        "title": "Vytvořte si účet",
+        "description": "Zaregistrujte se pomocí e-mailu. Vaše přihlašovací údaje jsou šifrovány a synchronizovány napříč všemi zařízeními."
+      },
+      {
+        "title": "Připojte MCP servery",
+        "description": "Přidejte stávající MCP servery do BigMCP. Nakonfigurujte přihlašovací údaje a zásady přístupu pro každý server."
+      },
+      {
+        "title": "Používejte a kombinujte nástroje",
+        "description": "Jednoduše používejte nástroje nebo je kombinujte do výkonných pracovních postupů. Bez složitostí, výsledky doručeny okamžitě."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Funkce",
+    "title": "Vše, co potřebujete pro",
+    "titleEnd": "správu MCP ve velkém měřítku",
+    "subtitle": "Navrženo pro týmy, které berou správu MCP vážně",
+    "items": [
+      {
+        "title": "Jednotné ověřování",
+        "description": "Jediný tok OAuth 2.0 + PKCE pro klienty AI. Šifrované úložiště přihlašovacích údajů s izolací na úrovni organizace a uživatele."
+      },
+      {
+        "title": "Orchestrace nástrojů",
+        "description": "Vytvářejte víceúrovňové pracovní postupy s automatickým vkládáním přihlašovacích údajů a hierarchickými vazbami pro komplexní operace."
+      },
+      {
+        "title": "Mobilní přístup",
+        "description": "Vaše MCP nástroje dostupné na mobilu, tabletu, odkudkoli. Stejné ověřování, stejný zážitek, nulová konfigurace."
+      },
+      {
+        "title": "Analytika využití",
+        "description": "Sledujte spouštění nástrojů, míru úspěšnosti a vzorce využití v celé organizaci s komplexním sledováním."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Ceník",
+    "title": "Jednoduchý a transparentní ceník",
+    "subtitle": "Cloudová správa nebo vlastní hosting – volba je na vás",
+    "cloudLabel": "☁️ Cloud = My hostujeme, vy používáte",
+    "selfHostedLabel": "💻 Vlastní hosting = Vše vlastníte vy",
+    "individual": {
+      "title": "Jednotlivec",
+      "subtitle": "Cloud",
+      "price": "€4,99",
+      "period": "/měsíc",
+      "features": [
+        "1 uživatel",
+        "Neomezené MCP servery",
+        "Orchestrace AI",
+        "Sémantické vyhledávání",
+        "Kompozice a pracovní postupy",
+        "Spravovaný LLM v ceně"
+      ],
+      "cta": "Zahájit bezplatnou zkušební verzi"
+    },
+    "team": {
+      "title": "Tým",
+      "subtitle": "Cloud",
+      "price": "€4,99",
+      "period": "/měsíc + €4,99/uživatel",
+      "badge": "Nejoblíbenější",
+      "features": [
+        "Vše z plánu Jednotlivec",
+        "Až 20 uživatelů",
+        "Organizace a RBAC",
+        "Sdílené přihlašovací údaje",
+        "Pokročilé protokoly auditu"
+      ],
+      "cta": "Zahájit bezplatnou zkušební verzi"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "subtitle": "Vlastní hosting",
+      "price": "Zdarma",
+      "period": "nabídka při spuštění • 3 měsíce",
+      "features": [
+        "Vše z plánu Tým",
+        "Neomezení uživatelé a týmy",
+        "Plná kontrola správce",
+        "Centrální pool MCP serverů",
+        "SSO (SAML, OIDC) – Připravujeme",
+        "Pokročilý audit a soulad",
+        "Váš výběr LLM",
+        "Trvalá licence"
+      ],
+      "cta": "Získat Enterprise"
+    },
+    "community": {
+      "title": "Komunita",
+      "subtitle": "Vlastní hosting",
+      "price": "Zdarma",
+      "period": "",
+      "features": [
+        "Vše z plánu Jednotlivec",
+        "Pouze 1 uživatel",
+        "Váš výběr LLM",
+        "Nasazení přes Docker"
+      ],
+      "cta": "Začít"
+    },
+    "comingSoon": "Připravujeme",
+    "note": "Cloudové verze jsou nyní dostupné se spravovaným LLM v ceně. Verze pro vlastní hosting vám umožňují zvolit si poskytovatele LLM."
+  },
+  "finalCta": {
+    "title": "Připraveni spravovat svůj ekosystém MCP?",
+    "subtitle": "Zahajte bezplatnou zkušební verzi ještě dnes. Není vyžadována žádná platební karta.",
+    "cta": "Zahájit bezplatnou zkušební verzi"
+  },
+  "footer": {
+    "tagline": "Vrstva správy pro vaše nástroje Model Context Protocol. Centralizujte, orchestrujte a kontrolujte svůj ekosystém MCP.",
+    "madeBy": "Produkt od",
+    "product": "Produkt",
+    "company": "Společnost",
+    "links": {
+      "features": "Funkce",
+      "howItWorks": "Jak to funguje",
+      "pricing": "Ceník",
+      "documentation": "Dokumentace",
+      "about": "O BigFatDot",
+      "contact": "Kontakt",
+      "privacy": "Ochrana soukromí",
+      "terms": "Podmínky"
+    },
+    "copyright": "© 2026 BigMCP od BigFatDot. Všechna práva vyhrazena."
+  }
+}

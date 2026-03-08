@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Servicios",
+    "subtitle": "Gestiona tus servidores MCP, herramientas y cajas de herramientas",
+    "search": "Buscar herramientas...",
+    "noTools": "No hay herramientas disponibles",
+    "noToolsDescription": "Conéctate a los servidores del Marketplace para ver las herramientas aquí",
+    "goToMarketplace": "Ir al Marketplace",
+    "viewToggle": {
+      "servers": "Servicios",
+      "toolboxes": "Cajas de herramientas"
+    },
+    "infoBanner": {
+      "serversTitle": "Servidores MCP = Fuentes de herramientas",
+      "serversDescription": "Cada servidor que conectas proporciona herramientas que Claude puede usar. Activa o desactiva la visibilidad para controlar qué herramientas están disponibles.",
+      "visibleLabel": "Visible = Claude puede usar",
+      "hiddenLabel": "Oculto = Desactivado para Claude",
+      "toolboxesTitle": "Cajas de herramientas = Organiza tus herramientas",
+      "toolboxesDescription": "Crea cajas de herramientas para agrupar herramientas específicas. Usa las cajas de herramientas para controlar qué herramientas están disponibles al conectar aplicaciones externas.",
+      "forExternalIntegrations": "Para integraciones externas",
+      "manageConnections": "Gestionar conexiones →"
+    },
+    "serverState": {
+      "active": "Activo",
+      "apiOnly": "Solo API",
+      "standby": "En espera",
+      "disabled": "Desactivado",
+      "error": "Error"
+    },
+    "serverActions": {
+      "visible": "Visible",
+      "hidden": "Oculto",
+      "stopServer": "¿Detener el servidor?",
+      "deleteServerConfirm": "¿Eliminar este servidor y sus credenciales?",
+      "serverError": "El servidor encontró un error",
+      "availableTools": "Herramientas disponibles ({{count}})",
+      "visibleToClaude": "Visible para Claude",
+      "discoveringTools": "Descubriendo herramientas...",
+      "startToDiscover": "Inicia el servidor para descubrir las herramientas"
+    },
+    "groups": {
+      "title": "Cajas de herramientas",
+      "create": "Crear caja de herramientas",
+      "createToolbox": "Crear caja de herramientas",
+      "createFirst": "Crea tu primera caja de herramientas",
+      "edit": "Editar caja de herramientas",
+      "delete": "Eliminar caja de herramientas",
+      "name": "Nombre de la caja de herramientas",
+      "description": "Descripción",
+      "tools": "Herramientas en la caja",
+      "empty": "Aún no hay cajas de herramientas",
+      "emptyDescription": "Crea cajas de herramientas para organizar qué herramientas están disponibles a través de claves API.",
+      "noTools": "No hay herramientas en esta caja de herramientas",
+      "deleteConfirm": "¿Eliminar \"{{name}}\"? Las claves API que usen esta caja de herramientas perderán sus restricciones.",
+      "active": "Activa",
+      "inactive": "Inactiva",
+      "shared": "Compartida",
+      "private": "Privada",
+      "makePrivate": "Haz clic para hacer privada",
+      "shareWithTeam": "Haz clic para compartir con el equipo",
+      "used": "Usada {{count}} vez",
+      "used_plural": "Usada {{count}} veces"
+    },
+    "createModal": {
+      "title": "Crear caja de herramientas",
+      "stepInfo": "Ponle nombre a tu caja de herramientas",
+      "stepTools": "Selecciona las herramientas a incluir",
+      "groupName": "Nombre de la caja de herramientas *",
+      "groupNamePlaceholder": "ej., Solo lectura, Producción, Entorno de desarrollo",
+      "descriptionPlaceholder": "¿Para qué es esta caja de herramientas?",
+      "color": "Color",
+      "visibility": "Visibilidad",
+      "visibilityPrivate": "Privada",
+      "visibilityPrivateDesc": "Solo tú puedes usar esta caja de herramientas",
+      "visibilityOrganization": "Organización",
+      "visibilityOrganizationDesc": "Compartir con tu equipo",
+      "toolsSelected": "{{count}} herramienta seleccionada",
+      "toolsSelected_plural": "{{count}} herramientas seleccionadas",
+      "clearAll": "Limpiar todo",
+      "selectAll": "Seleccionar todo",
+      "deselectAll": "Deseleccionar todo",
+      "noToolsAvailable": "No hay herramientas disponibles",
+      "connectServersFirst": "Conecta servidores primero para añadir herramientas a las cajas",
+      "back": "Atrás",
+      "cancel": "Cancelar",
+      "nextSelectTools": "Siguiente: Seleccionar herramientas",
+      "creating": "Creando...",
+      "createGroup": "Crear caja de herramientas ({{count}} herramientas)"
+    },
+    "server": {
+      "connected": "Conectado",
+      "disconnected": "Desconectado",
+      "error": "Error",
+      "reconnect": "Reconectar",
+      "tools": "{{count}} herramienta",
+      "tools_plural": "{{count}} herramientas"
+    }
+  },
+  "myServers": {
+    "title": "Mis servicios",
+    "subtitle": "Gestiona los servicios y controla las herramientas expuestas a Claude",
+    "serversUsed": "servidores usados",
+    "limitReached": "Límite alcanzado",
+    "tabs": {
+      "personal": "Mis servicios",
+      "team": "Servicios del equipo"
+    },
+    "stats": {
+      "servers": "Servicios",
+      "connected": "Conectados",
+      "active": "Activos",
+      "tools": "Herramientas"
+    },
+    "info": {
+      "title": "Visibilidad y descubrimiento de herramientas",
+      "description": "Los servidores activos exponen herramientas a Claude. Usa el interruptor para controlar la visibilidad.",
+      "hint": "Las herramientas aparecen después de que el servidor se inicia por primera vez (mediante una llamada MCP)."
+    },
+    "empty": {
+      "title": "Aún no hay servidores conectados",
+      "description": "Empieza conectando tu primer servidor MCP desde el marketplace.",
+      "browseMarketplace": "Explorar el Marketplace"
+    },
+    "orgCredentials": {
+      "title": "Credenciales de organización disponibles",
+      "description": "Estos servidores usan credenciales de organización. Puedes usarlos sin proporcionar tus propias credenciales.",
+      "viewAll": "Ver todos los servidores del equipo →"
+    },
+    "visibility": {
+      "title": "Visibilidad del servidor",
+      "visibleOauth": "Visible para OAuth",
+      "hiddenApiOnly": "Oculto (solo API)",
+      "disabled": "Desactivado"
+    },
+    "actions": {
+      "stop": "Detener",
+      "start": "Iniciar",
+      "restart": "Reiniciar",
+      "validate": "Validar",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "expand": "Expandir para ver las herramientas",
+      "collapse": "Contraer"
+    },
+    "tools": {
+      "available": "Herramientas disponibles ({{count}})",
+      "visibleToClaude": "Visible para Claude",
+      "visible": "Visible",
+      "hidden": "Oculto",
+      "hideFromOauth": "Ocultar de OAuth",
+      "showToOauth": "Mostrar en OAuth",
+      "discovering": "Descubriendo herramientas...",
+      "discoveringNote": "Las herramientas aparecerán después de la inicialización del servidor",
+      "notConnected": "Servidor no conectado",
+      "notConnectedNote": "Inicia el servidor para descubrir las herramientas disponibles"
+    },
+    "serverInfo": {
+      "created": "Creado:",
+      "lastUsed": "Último uso:",
+      "validated": "Validado"
+    },
+    "errors": {
+      "loadingCredentials": "Error al cargar las credenciales",
+      "failedToLoad": "Error al cargar las credenciales",
+      "deleteConfirm": "¿Estás seguro de que quieres eliminar esta credencial?",
+      "stopConfirm": "¿Estás seguro de que quieres detener este servidor?",
+      "visibilityUpdated": "Visibilidad del servidor actualizada",
+      "visibilityFailed": "Error al actualizar la visibilidad del servidor",
+      "toolVisibilityUpdated": "Visibilidad de la herramienta actualizada",
+      "toolVisibilityFailed": "Error al actualizar la visibilidad de la herramienta"
+    },
+    "team": {
+      "empty": {
+        "title": "Aún no hay servidores del equipo",
+        "description": "Los servidores del equipo se comparten con todos los miembros de la organización. Solo los admins pueden añadirlos.",
+        "hint": "Ve a Configuración de la organización para gestionar las credenciales compartidas."
+      },
+      "orgSettings": "Configuración de la organización",
+      "banner": {
+        "title": "Servicios del equipo",
+        "description": "Estos servidores se comparten con todos los miembros de la organización. Los admins gestionan las credenciales."
+      },
+      "badge": "Equipo",
+      "teamServer": "Servidor del equipo",
+      "visibleToMembers": "Visible para todos los miembros",
+      "hiddenFromMembers": "Oculto para los miembros",
+      "showToMembers": "Hacer visible para los miembros",
+      "hideFromMembers": "Ocultar para los miembros",
+      "deleteConfirm": "¿Estás seguro de que quieres eliminar esta credencial del equipo? Esta acción no se puede deshacer.",
+      "deleteSuccess": "Credencial del equipo eliminada",
+      "deleteFailed": "Error al eliminar la credencial del equipo",
+      "visibilityUpdated": "Visibilidad para los miembros actualizada",
+      "visibilityFailed": "Error al actualizar la visibilidad para los miembros",
+      "edit": "Editar servidor del equipo",
+      "editTitle": "Editar servidor del equipo",
+      "editSuccess": "Servidor del equipo actualizado",
+      "editFailed": "Error al actualizar el servidor del equipo",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "ej., Cuenta Grist de la empresa",
+      "nameRequired": "El nombre es obligatorio",
+      "descriptionLabel": "Descripción",
+      "descriptionPlaceholder": "Descripción opcional para tu equipo",
+      "visibleToAll": "Visible para todos los miembros",
+      "visibleToAllDesc": "Todos los miembros del equipo pueden ver y usar este servidor",
+      "adminOnly": "Solo admin",
+      "adminOnlyDesc": "Solo los admins pueden ver esta credencial (usada como respaldo)",
+      "updateCredentials": "Actualizar credenciales (opcional)",
+      "updateCredentialsHint": "Deja vacío para mantener los valores existentes",
+      "leaveEmptyToKeep": "Deja vacío para mantener el valor actual",
+      "howToGet": "¿Cómo obtener esto?",
+      "cancel": "Cancelar",
+      "saving": "Guardando...",
+      "saveChanges": "Guardar cambios"
+    }
+  },
+  "compositions": {
+    "title": "Composiciones",
+    "subtitle": "Gestiona y ejecuta flujos de trabajo de herramientas en varios pasos",
+    "create": "Crear composición",
+    "edit": "Editar composición",
+    "delete": "Eliminar composición",
+    "run": "Ejecutar",
+    "running": "Ejecutando...",
+    "execute": "Ejecutar",
+    "executing": "Ejecutando...",
+    "stop": "Detener",
+    "name": "Nombre de la composición",
+    "description": "Descripción",
+    "workflow": "Flujo de trabajo",
+    "trigger": "Disparador",
+    "actions": "Acciones",
+    "search": "Buscar composiciones...",
+    "steps": "{{count}} pasos",
+    "executedTimes": "Ejecutada {{count}} veces",
+    "created": "Creada {{date}}",
+    "canExecute": "Puede ejecutarse",
+    "noExecutePermission": "Sin permiso de ejecución",
+    "validate": "Validar",
+    "promote": "Promover",
+    "shareWithTeam": "Compartir con el equipo",
+    "makePrivate": "Hacer privada",
+    "cancel": "Cancelar",
+    "noSteps": "Sin pasos",
+    "parameters": "{{count}} parámetros",
+    "runtimeParamsNote": "La entrada de parámetros en tiempo de ejecución estará disponible próximamente. Por ahora, las composiciones usan parámetros predeterminados.",
+    "promoteConfirm": "¿Promover \"{{name}}\" a {{status}}?",
+    "deleteConfirm": "¿Eliminar \"{{name}}\"? Esta acción no se puede deshacer.",
+    "promotedSuccess": "Composición promovida a {{status}}",
+    "deletedSuccess": "Composición eliminada",
+    "executedSuccess": "Composición ejecutada correctamente",
+    "sharedSuccess": "Composición compartida con el equipo",
+    "madePrivate": "Composición hecha privada",
+    "status": {
+      "temporary": "Temporal",
+      "validated": "Validada",
+      "production": "Producción",
+      "draft": "Borrador",
+      "active": "Activa",
+      "paused": "En pausa",
+      "error": "Error"
+    },
+    "visibility": {
+      "private": "Privada",
+      "organization": "Equipo",
+      "public": "Pública"
+    },
+    "filters": {
+      "allStatus": "Todos los estados",
+      "allCompositions": "Todas las composiciones",
+      "myCompositions": "Mis composiciones",
+      "teamShared": "Compartidas con el equipo"
+    },
+    "empty": {
+      "title": "Sin composiciones",
+      "description": "Las composiciones se crean cuando orquestas varias herramientas juntas. Usa el asistente de IA para crear tu primer flujo de trabajo.",
+      "noMatch": "Ninguna composición coincide con tus filtros. Intenta ajustar tu búsqueda."
+    },
+    "executeModal": {
+      "title": "Ejecutar composición",
+      "resultsTitle": "Resultados de la ejecución",
+      "inputsTitle": "Parámetros de entrada",
+      "stepsPreview": "Pasos a ejecutar",
+      "executingSteps": "Ejecutando {{count}} pasos..."
+    },
+    "inputForm": {
+      "selectOption": "Seleccionar...",
+      "noInputsRequired": "No se requieren parámetros para esta composición",
+      "jsonFormat": "Formato JSON ({{type}})"
+    },
+    "results": {
+      "title": "Resultados",
+      "success": "Éxito",
+      "failed": "Fallido",
+      "duration": "Duración",
+      "output": "Salida",
+      "statusSuccess": "Ejecución exitosa",
+      "statusPartial": "Ejecución parcial",
+      "statusFailed": "Ejecución fallida",
+      "summary": "{{success}}/{{total}} pasos exitosos • {{duration}}",
+      "globalError": "Error global",
+      "stepsTitle": "Detalles de los pasos",
+      "stepOutput": "Salida",
+      "noOutput": "No se devolvieron datos",
+      "error": "Error",
+      "retries": "{{count}} reintento(s)",
+      "finalOutput": "Salida final",
+      "startedAt": "Iniciado a las",
+      "completedAt": "Completado a las",
+      "unknownError": "Se produjo un error desconocido"
+    },
+    "close": "Cerrar",
+    "executeAgain": "Ejecutar de nuevo"
+  },
+  "onboarding": {
+    "title": "¡Bienvenido a BigMCP!",
+    "subtitle": "Vamos a empezar",
+    "steps": {
+      "welcome": {
+        "title": "Bienvenido",
+        "description": "BigMCP te ayuda a gestionar y orquestar servidores MCP"
+      },
+      "connect": {
+        "title": "Conectar un servidor",
+        "description": "Explora el marketplace y conecta tu primer servidor"
+      },
+      "configure": {
+        "title": "Configurar credenciales",
+        "description": "Configura las credenciales para tus servidores conectados"
+      },
+      "explore": {
+        "title": "Explorar herramientas",
+        "description": "Descubre las herramientas disponibles en tus servidores"
+      },
+      "complete": {
+        "title": "¡Todo listo!",
+        "description": "Empieza a usar tus herramientas y crea composiciones"
+      }
+    },
+    "skip": "Omitir introducción",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "finish": "Comenzar"
+  }
+}

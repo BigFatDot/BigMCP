@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Tjänster",
+    "compositions": "Kompositioner",
+    "documentation": "Dokumentation",
+    "signin": "Logga in",
+    "signup": "Registrera dig",
+    "startTrial": "Starta gratis provperiod"
+  },
+  "menu": {
+    "account": "Kontoinställningar",
+    "subscription": "Prenumeration & Fakturering",
+    "apiKeys": "API-nycklar",
+    "team": "Team",
+    "preferences": "Inställningar",
+    "signout": "Logga ut"
+  },
+  "buttons": {
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "delete": "Ta bort",
+    "edit": "Redigera",
+    "create": "Skapa",
+    "close": "Stäng",
+    "confirm": "Bekräfta",
+    "back": "Tillbaka",
+    "next": "Nästa",
+    "submit": "Skicka",
+    "loading": "Laddar...",
+    "retry": "Försök igen",
+    "copy": "Kopiera",
+    "copied": "Kopierat!"
+  },
+  "status": {
+    "loading": "Laddar...",
+    "saving": "Sparar...",
+    "error": "Fel",
+    "success": "Klart"
+  },
+  "errors": {
+    "generic": "Ett fel uppstod",
+    "notFound": "Hittades inte",
+    "unauthorized": "Ej behörig",
+    "forbidden": "Åtkomst nekad",
+    "networkError": "Nätverksfel. Kontrollera din anslutning."
+  },
+  "trial": {
+    "badge": "Provperiod",
+    "daysLeft": "{{count}} dag kvar av provperioden",
+    "daysLeft_plural": "{{count}} dagar kvar av provperioden"
+  },
+  "empty": {
+    "noData": "Ingen data tillgänglig",
+    "noResults": "Inga resultat hittades"
+  }
+}

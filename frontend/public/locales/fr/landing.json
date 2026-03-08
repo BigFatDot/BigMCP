@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Fonctionnalités",
+    "howItWorks": "Comment ça marche",
+    "pricing": "Tarifs",
+    "login": "Connexion",
+    "getStarted": "Commencer"
+  },
+  "hero": {
+    "badge": "Couche de gouvernance pour MCP",
+    "title": "Un seul",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "pour tous vos outils",
+    "subtitle": "Centralisez, gouvernez et orchestrez vos outils Model Context Protocol sur une plateforme unifiée. Accédez de partout—ordinateur ou mobile.",
+    "cta": "Essai gratuit",
+    "ctaSecondary": "Voir comment ça marche"
+  },
+  "mobileDemo": {
+    "badge": "Un seul connecteur",
+    "title": "Transformez des heures de travail manuel",
+    "titleHighlight": "en secondes d'automatisation",
+    "description": "BigMCP vous permet de composer des workflows personnalisés qui orchestrent plusieurs services avec une seule commande. Créez vos propres compositions multi-outils une fois, puis exécutez-les instantanément de n'importe où.",
+    "features": [
+      "Composez des workflows à partir de vos outils existants (HubSpot, Drive, Gmail, Slack...)",
+      "Exécutez des opérations multi-services en langage naturel",
+      "Vos compositions personnalisées deviennent des outils appelables pour toute votre équipe",
+      "Exécutez des workflows complexes depuis Claude—ordinateur ou mobile"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Onboarder nouveau client : Acme Corp (contact : john@acme.com, secteur : B2B SaaS)",
+    "thinkingTitle": "Processus de réflexion",
+    "thinkingText": "L'utilisateur a créé un workflow personnalisé pour l'onboarding complet des clients. Exécution sur les systèmes CRM, Drive, Gmail et Slack.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Workflow personnalisé • 5 services",
+    "steps": {
+      "crm": "HubSpot : créer_contact",
+      "drive": "Drive : créer_dossier",
+      "mail": "Gmail : envoyer_bienvenue",
+      "sheet": "Sheets : ajouter_suivi",
+      "chat": "Slack : notifier_équipe"
+    },
+    "workflowCompleted": "Workflow terminé",
+    "resultTitle": "Client onboardé avec succès",
+    "resultIntro": "J'ai configuré <strong>Acme Corp</strong> dans tous vos systèmes :",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • Secteur B2B SaaS",
+    "hubspotDetails": "Contact principal : John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Structure complète avec contrats et facturation",
+    "statusItems": [
+      "Email de bienvenue envoyé à John",
+      "Suivi commercial mis à jour",
+      "Équipe notifiée dans #sales"
+    ],
+    "conclusion": "Tout est prêt pour démarrer la collaboration avec Acme Corp.",
+    "replyPlaceholder": "Répondre..."
+  },
+  "challenge": {
+    "badge": "Le défi",
+    "title": "Le défi de la gouvernance MCP",
+    "subtitle": "À mesure que votre écosystème MCP grandit, la gestion des outils devient complexe et risquée",
+    "withoutTitle": "Sans BigMCP",
+    "withoutItems": [
+      "Chaque serveur MCP gère ses propres identifiants",
+      "Aucun contrôle d'accès centralisé ni audit",
+      "Orchestration manuelle des outils entre serveurs",
+      "Bureau uniquement, pas d'accès mobile",
+      "Aucune visibilité sur les patterns d'utilisation",
+      "Impossible d'appliquer des politiques de gouvernance"
+    ],
+    "withTitle": "Avec BigMCP",
+    "withItems": [
+      "Authentification OAuth unifiée",
+      "RBAC au niveau organisation avec 4 niveaux de rôles",
+      "Composition et workflows automatisés",
+      "Accès depuis bureau, mobile, partout",
+      "Suivi complet de l'utilisation et métriques",
+      "Couche de gouvernance unique pour tous les MCPs"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Configuration simple",
+    "title": "Comment BigMCP fonctionne",
+    "subtitle": "Trois étapes vers une gouvernance MCP unifiée",
+    "steps": [
+      {
+        "title": "Créez votre compte",
+        "description": "Inscrivez-vous avec votre email. Vos identifiants sont chiffrés et synchronisés sur tous vos appareils."
+      },
+      {
+        "title": "Connectez vos serveurs MCP",
+        "description": "Ajoutez vos serveurs MCP existants à BigMCP. Configurez les identifiants et les politiques d'accès pour chaque serveur."
+      },
+      {
+        "title": "Utilisez & Composez des outils",
+        "description": "Utilisez simplement les outils ou combinez-les en workflows puissants. Pas de complexité, juste des résultats livrés instantanément."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Fonctionnalités",
+    "title": "Tout ce dont vous avez besoin pour",
+    "titleEnd": "gouverner MCP à l'échelle",
+    "subtitle": "Conçu pour les équipes qui prennent la gouvernance MCP au sérieux",
+    "items": [
+      {
+        "title": "Authentification unifiée",
+        "description": "Flux OAuth 2.0 + PKCE unique pour les clients IA. Stockage chiffré des identifiants avec isolation au niveau organisation et utilisateur."
+      },
+      {
+        "title": "Orchestration d'outils",
+        "description": "Composez des workflows multi-outils avec injection automatique des identifiants et liaisons hiérarchiques pour des opérations complexes."
+      },
+      {
+        "title": "Accès mobile",
+        "description": "Vos outils MCP disponibles sur mobile, tablette, partout. Même authentification, même expérience, zéro configuration."
+      },
+      {
+        "title": "Analytiques d'utilisation",
+        "description": "Suivez l'exécution des outils, les taux de succès et les patterns d'utilisation dans votre organisation avec un suivi complet."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Tarifs",
+    "title": "Tarification simple et transparente",
+    "subtitle": "Cloud géré ou auto-hébergé—vous choisissez",
+    "cloudLabel": "☁️ Cloud = Nous hébergeons, vous utilisez",
+    "selfHostedLabel": "💻 Auto-hébergé = Vous possédez tout",
+    "individual": {
+      "title": "Individuel",
+      "subtitle": "Cloud",
+      "price": "4,99€",
+      "period": "/mois",
+      "features": [
+        "1 utilisateur",
+        "Serveurs MCP illimités",
+        "Orchestration IA",
+        "Recherche sémantique",
+        "Compositions & workflows",
+        "LLM géré inclus"
+      ],
+      "cta": "Essai gratuit"
+    },
+    "team": {
+      "title": "Équipe",
+      "subtitle": "Cloud",
+      "price": "4,99€",
+      "period": "/mois + 4,99€/utilisateur",
+      "badge": "Plus populaire",
+      "features": [
+        "Tout dans Individuel",
+        "Jusqu'à 20 utilisateurs",
+        "Organisations & RBAC",
+        "Identifiants partagés",
+        "Journaux d'audit avancés"
+      ],
+      "cta": "Essai gratuit"
+    },
+    "enterprise": {
+      "title": "Entreprise",
+      "subtitle": "Auto-hébergé",
+      "price": "Gratuit",
+      "period": "offre de lancement • 3 mois",
+      "features": [
+        "Tout dans Équipe",
+        "Utilisateurs & équipes illimités",
+        "Contrôle admin complet",
+        "Pool central de serveurs MCP",
+        "SSO (SAML, OIDC) - Bientôt disponible",
+        "Audit & conformité avancés",
+        "Votre choix de LLM",
+        "Licence perpétuelle"
+      ],
+      "cta": "Obtenir Enterprise"
+    },
+    "community": {
+      "title": "Communauté",
+      "subtitle": "Auto-hébergé",
+      "price": "Gratuit",
+      "period": "",
+      "features": [
+        "Tout dans Individuel",
+        "1 utilisateur uniquement",
+        "Votre choix de LLM",
+        "Déploiement Docker"
+      ],
+      "cta": "Commencer"
+    },
+    "comingSoon": "Bientôt disponible",
+    "note": "Les éditions Cloud sont disponibles maintenant avec LLM géré inclus. Les éditions auto-hébergées vous permettent de choisir votre fournisseur LLM."
+  },
+  "finalCta": {
+    "title": "Prêt à gouverner votre écosystème MCP ?",
+    "subtitle": "Commencez votre essai gratuit aujourd'hui. Pas de carte bancaire requise.",
+    "cta": "Essai gratuit"
+  },
+  "footer": {
+    "tagline": "La couche de gouvernance pour vos outils Model Context Protocol. Centralisez, orchestrez et contrôlez votre écosystème MCP.",
+    "madeBy": "Un produit de",
+    "product": "Produit",
+    "company": "Entreprise",
+    "links": {
+      "features": "Fonctionnalités",
+      "howItWorks": "Comment ça marche",
+      "pricing": "Tarifs",
+      "documentation": "Documentation",
+      "about": "À propos de BigFatDot",
+      "contact": "Contact",
+      "privacy": "Confidentialité",
+      "terms": "Conditions"
+    },
+    "copyright": "© 2026 BigMCP par BigFatDot. Tous droits réservés."
+  }
+}

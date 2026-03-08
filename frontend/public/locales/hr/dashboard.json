@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Usluge",
+    "subtitle": "Upravljaj MCP serverima, alatima i kutijama s alatima",
+    "search": "Pretraži alate...",
+    "noTools": "Nema dostupnih alata",
+    "noToolsDescription": "Poveži se sa serverima na Marketplaceu da vidiš alate ovdje",
+    "goToMarketplace": "Idi na Marketplace",
+    "viewToggle": {
+      "servers": "Usluge",
+      "toolboxes": "Kutije s alatima"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP serveri = izvori alata",
+      "serversDescription": "Svaki server koji povežeš pruža alate koje Claude može koristiti. Uključi/isključi vidljivost da kontroliraš koji su alati dostupni.",
+      "visibleLabel": "Vidljivo = Claude može koristiti",
+      "hiddenLabel": "Skriveno = Onemogućeno za Claudea",
+      "toolboxesTitle": "Kutije s alatima = organiziraj svoje alate",
+      "toolboxesDescription": "Stvori kutije s alatima za grupiranje specifičnih alata. Koristi kutije s alatima za kontrolu koji alati su dostupni pri povezivanju vanjskih aplikacija.",
+      "forExternalIntegrations": "Za vanjske integracije",
+      "manageConnections": "Upravljaj vezama →"
+    },
+    "serverState": {
+      "active": "Aktivno",
+      "apiOnly": "Samo API",
+      "standby": "Pripravnost",
+      "disabled": "Onemogućeno",
+      "error": "Greška"
+    },
+    "serverActions": {
+      "visible": "Vidljivo",
+      "hidden": "Skriveno",
+      "stopServer": "Zaustaviti server?",
+      "deleteServerConfirm": "Izbrisati ovaj server i njegove vjerodajnice?",
+      "serverError": "Server je naišao na grešku",
+      "availableTools": "Dostupni alati ({{count}})",
+      "visibleToClaude": "Vidljivo Claudeu",
+      "discoveringTools": "Otkrivanje alata...",
+      "startToDiscover": "Pokreni server za otkrivanje alata"
+    },
+    "groups": {
+      "title": "Kutije s alatima",
+      "create": "Stvori kutiju s alatima",
+      "createToolbox": "Stvori kutiju s alatima",
+      "createFirst": "Stvori prvu kutiju s alatima",
+      "edit": "Uredi kutiju s alatima",
+      "delete": "Izbriši kutiju s alatima",
+      "name": "Naziv kutije s alatima",
+      "description": "Opis",
+      "tools": "Alati u kutiji",
+      "empty": "Nema kutija s alatima",
+      "emptyDescription": "Stvori kutije s alatima za organizaciju koji alati su dostupni putem API ključeva.",
+      "noTools": "Nema alata u ovoj kutiji",
+      "deleteConfirm": "Izbrisati \"{{name}}\"? API ključevi koji koriste ovu kutiju izgubit će svoja ograničenja.",
+      "active": "Aktivno",
+      "inactive": "Neaktivno",
+      "shared": "Dijeljeno",
+      "private": "Privatno",
+      "makePrivate": "Klikni za postavljanje privatnog",
+      "shareWithTeam": "Klikni za dijeljenje s timom",
+      "used": "Korišteno {{count}} put",
+      "used_plural": "Korišteno {{count}} puta"
+    },
+    "createModal": {
+      "title": "Stvori kutiju s alatima",
+      "stepInfo": "Imenuj svoju kutiju s alatima",
+      "stepTools": "Odaberi alate za uključivanje",
+      "groupName": "Naziv kutije s alatima *",
+      "groupNamePlaceholder": "npr. Samo čitanje, Produkcija, Razvojno okruženje",
+      "descriptionPlaceholder": "Za što je ova kutija s alatima?",
+      "color": "Boja",
+      "visibility": "Vidljivost",
+      "visibilityPrivate": "Privatno",
+      "visibilityPrivateDesc": "Samo ti možeš koristiti ovu kutiju s alatima",
+      "visibilityOrganization": "Organizacija",
+      "visibilityOrganizationDesc": "Dijeli s timom",
+      "toolsSelected": "{{count}} alat odabran",
+      "toolsSelected_plural": "{{count}} alata odabrano",
+      "clearAll": "Poništi sve",
+      "selectAll": "Odaberi sve",
+      "deselectAll": "Odznači sve",
+      "noToolsAvailable": "Nema dostupnih alata",
+      "connectServersFirst": "Najprije poveži servere za dodavanje alata u kutije",
+      "back": "Natrag",
+      "cancel": "Odustani",
+      "nextSelectTools": "Dalje: odaberi alate",
+      "creating": "Stvaranje...",
+      "createGroup": "Stvori kutiju s alatima ({{count}} alata)"
+    },
+    "server": {
+      "connected": "Povezano",
+      "disconnected": "Odspojeno",
+      "error": "Greška",
+      "reconnect": "Poveži ponovo",
+      "tools": "{{count}} alat",
+      "tools_plural": "{{count}} alata"
+    }
+  },
+  "myServers": {
+    "title": "Moje usluge",
+    "subtitle": "Upravljaj uslugama i kontroliraj alate izložene Claudeu",
+    "serversUsed": "servera u upotrebi",
+    "limitReached": "Dostignut limit",
+    "tabs": {
+      "personal": "Moje usluge",
+      "team": "Timske usluge"
+    },
+    "stats": {
+      "servers": "Usluge",
+      "connected": "Povezano",
+      "active": "Aktivno",
+      "tools": "Alati"
+    },
+    "info": {
+      "title": "Vidljivost i otkrivanje alata",
+      "description": "Aktivni serveri izlažu alate Claudeu. Koristi prekidač za kontrolu vidljivosti.",
+      "hint": "Alati se pojavljuju nakon prvog pokretanja servera (putem MCP poziva)."
+    },
+    "empty": {
+      "title": "Nema spojenih servera",
+      "description": "Počni povezivanjem prvog MCP servera s marketplacea.",
+      "browseMarketplace": "Pregledaj Marketplace"
+    },
+    "orgCredentials": {
+      "title": "Dostupne vjerodajnice organizacije",
+      "description": "Ovi serveri koriste vjerodajnice organizacije. Možeš ih koristiti bez navođenja vlastitih vjerodajnica.",
+      "viewAll": "Pogledaj sve timske servere →"
+    },
+    "visibility": {
+      "title": "Vidljivost servera",
+      "visibleOauth": "Vidljivo putem OAuth-a",
+      "hiddenApiOnly": "Skriveno (samo API)",
+      "disabled": "Onemogućeno"
+    },
+    "actions": {
+      "stop": "Zaustavi",
+      "start": "Pokreni",
+      "restart": "Ponovo pokreni",
+      "validate": "Provjeri valjanost",
+      "edit": "Uredi",
+      "delete": "Izbriši",
+      "expand": "Proširi za prikaz alata",
+      "collapse": "Sažmi"
+    },
+    "tools": {
+      "available": "Dostupni alati ({{count}})",
+      "visibleToClaude": "Vidljivo Claudeu",
+      "visible": "Vidljivo",
+      "hidden": "Skriveno",
+      "hideFromOauth": "Sakrij od OAuth-a",
+      "showToOauth": "Prikaži OAuth-u",
+      "discovering": "Otkrivanje alata...",
+      "discoveringNote": "Alati će se pojaviti nakon inicijalizacije servera",
+      "notConnected": "Server nije povezan",
+      "notConnectedNote": "Pokreni server za otkrivanje dostupnih alata"
+    },
+    "serverInfo": {
+      "created": "Stvoreno:",
+      "lastUsed": "Zadnja upotreba:",
+      "validated": "Validirano"
+    },
+    "errors": {
+      "loadingCredentials": "Greška pri učitavanju vjerodajnica",
+      "failedToLoad": "Učitavanje vjerodajnica nije uspjelo",
+      "deleteConfirm": "Jesi li siguran/sigurna da želiš izbrisati ovu vjerodajnicu?",
+      "stopConfirm": "Jesi li siguran/sigurna da želiš zaustaviti ovaj server?",
+      "visibilityUpdated": "Vidljivost servera ažurirana",
+      "visibilityFailed": "Ažuriranje vidljivosti servera nije uspjelo",
+      "toolVisibilityUpdated": "Vidljivost alata ažurirana",
+      "toolVisibilityFailed": "Ažuriranje vidljivosti alata nije uspjelo"
+    },
+    "team": {
+      "empty": {
+        "title": "Nema timskih servera",
+        "description": "Timski serveri su dijeljeni sa svim članovima organizacije. Samo admini ih mogu dodavati.",
+        "hint": "Idi na Postavke organizacije za upravljanje dijeljenim vjerodajnicama."
+      },
+      "orgSettings": "Postavke organizacije",
+      "banner": {
+        "title": "Timske usluge",
+        "description": "Ovi serveri su dijeljeni sa svim članovima organizacije. Vjerodajnicama upravljaju admini."
+      },
+      "badge": "Tim",
+      "teamServer": "Timski server",
+      "visibleToMembers": "Vidljivo svim članovima",
+      "hiddenFromMembers": "Skriveno od članova",
+      "showToMembers": "Učini vidljivim članovima",
+      "hideFromMembers": "Sakrij od članova",
+      "deleteConfirm": "Jesi li siguran/sigurna da želiš izbrisati ovu timsku vjerodajnicu? Ova radnja se ne može poništiti.",
+      "deleteSuccess": "Timska vjerodajnica izbrisana",
+      "deleteFailed": "Brisanje timske vjerodajnice nije uspjelo",
+      "visibilityUpdated": "Vidljivost članova ažurirana",
+      "visibilityFailed": "Ažuriranje vidljivosti članova nije uspjelo",
+      "edit": "Uredi timski server",
+      "editTitle": "Uredi timski server",
+      "editSuccess": "Timski server ažuriran",
+      "editFailed": "Ažuriranje timskog servera nije uspjelo",
+      "nameLabel": "Naziv",
+      "namePlaceholder": "npr. Tvrtkin Grist račun",
+      "nameRequired": "Naziv je obavezan",
+      "descriptionLabel": "Opis",
+      "descriptionPlaceholder": "Neobavezni opis za tvoj tim",
+      "visibleToAll": "Vidljivo svim članovima",
+      "visibleToAllDesc": "Svi članovi tima mogu vidjeti i koristiti ovaj server",
+      "adminOnly": "Samo admini",
+      "adminOnlyDesc": "Samo admini mogu vidjeti ovu vjerodajnicu (koristi se kao rezerva)",
+      "updateCredentials": "Ažuriraj vjerodajnice (neobavezno)",
+      "updateCredentialsHint": "Ostavi prazno za zadržavanje postojećih vrijednosti",
+      "leaveEmptyToKeep": "Ostavi prazno za zadržavanje trenutne vrijednosti",
+      "howToGet": "Kako dobiti ovo?",
+      "cancel": "Odustani",
+      "saving": "Spremanje...",
+      "saveChanges": "Spremi promjene"
+    }
+  },
+  "compositions": {
+    "title": "Kompozicije",
+    "subtitle": "Upravljaj i izvodi višekoračne radne tokove alata",
+    "create": "Stvori kompoziciju",
+    "edit": "Uredi kompoziciju",
+    "delete": "Izbriši kompoziciju",
+    "run": "Pokreni",
+    "running": "Pokretanje...",
+    "execute": "Izvedi",
+    "executing": "Izvođenje...",
+    "stop": "Zaustavi",
+    "name": "Naziv kompozicije",
+    "description": "Opis",
+    "workflow": "Radni tok",
+    "trigger": "Okidač",
+    "actions": "Radnje",
+    "search": "Pretraži kompozicije...",
+    "steps": "{{count}} koraka",
+    "executedTimes": "Izvršeno {{count}} puta",
+    "created": "Stvoreno {{date}}",
+    "canExecute": "Može se izvesti",
+    "noExecutePermission": "Nema dozvole za izvođenje",
+    "validate": "Provjeri valjanost",
+    "promote": "Promoviraj",
+    "shareWithTeam": "Dijeli s timom",
+    "makePrivate": "Postavi privatno",
+    "cancel": "Odustani",
+    "noSteps": "Nema koraka",
+    "parameters": "{{count}} parametara",
+    "runtimeParamsNote": "Unos parametara za izvođenje dolazi uskoro. Za sada kompozicije koriste zadane parametre.",
+    "promoteConfirm": "Promovirati \"{{name}}\" u {{status}}?",
+    "deleteConfirm": "Izbrisati \"{{name}}\"? Ova radnja se ne može poništiti.",
+    "promotedSuccess": "Kompozicija promovirana u {{status}}",
+    "deletedSuccess": "Kompozicija izbrisana",
+    "executedSuccess": "Kompozicija uspješno izvršena",
+    "sharedSuccess": "Kompozicija podijeljena s timom",
+    "madePrivate": "Kompozicija postavljena kao privatna",
+    "status": {
+      "temporary": "Privremeno",
+      "validated": "Validirano",
+      "production": "Produkcija",
+      "draft": "Nacrt",
+      "active": "Aktivno",
+      "paused": "Pauzirano",
+      "error": "Greška"
+    },
+    "visibility": {
+      "private": "Privatno",
+      "organization": "Tim",
+      "public": "Javno"
+    },
+    "filters": {
+      "allStatus": "Svi statusi",
+      "allCompositions": "Sve kompozicije",
+      "myCompositions": "Moje kompozicije",
+      "teamShared": "Dijeljeno s timom"
+    },
+    "empty": {
+      "title": "Nema kompozicija",
+      "description": "Kompozicije se stvaraju kada orkestriraš više alata zajedno. Koristi AI asistenta za stvaranje prvog radnog toka.",
+      "noMatch": "Nijedna kompozicija ne odgovara tvojim filtrima. Pokušaj prilagoditi pretragu."
+    },
+    "executeModal": {
+      "title": "Izvedi kompoziciju",
+      "resultsTitle": "Rezultati izvođenja",
+      "inputsTitle": "Ulazni parametri",
+      "stepsPreview": "Koraci za izvođenje",
+      "executingSteps": "Izvođenje {{count}} koraka..."
+    },
+    "inputForm": {
+      "selectOption": "Odaberi...",
+      "noInputsRequired": "Za ovu kompoziciju nisu potrebni parametri",
+      "jsonFormat": "JSON format ({{type}})"
+    },
+    "results": {
+      "title": "Rezultati",
+      "success": "Uspješno",
+      "failed": "Neuspješno",
+      "duration": "Trajanje",
+      "output": "Izlaz",
+      "statusSuccess": "Izvođenje uspješno",
+      "statusPartial": "Djelomično izvođenje",
+      "statusFailed": "Izvođenje neuspješno",
+      "summary": "{{success}}/{{total}} koraka uspješno • {{duration}}",
+      "globalError": "Globalna greška",
+      "stepsTitle": "Detalji koraka",
+      "stepOutput": "Izlaz",
+      "noOutput": "Nisu vraćeni podaci",
+      "error": "Greška",
+      "retries": "{{count}} ponovni pokušaj(i)",
+      "finalOutput": "Konačni izlaz",
+      "startedAt": "Pokrenuto u",
+      "completedAt": "Završeno u",
+      "unknownError": "Došlo je do nepoznate greške"
+    },
+    "close": "Zatvori",
+    "executeAgain": "Izvedi ponovo"
+  },
+  "onboarding": {
+    "title": "Dobrodošao/dobrodošla u BigMCP!",
+    "subtitle": "Hajdemo početi",
+    "steps": {
+      "welcome": {
+        "title": "Dobrodošao/dobrodošla",
+        "description": "BigMCP ti pomaže upravljati i orkestrirati MCP servere"
+      },
+      "connect": {
+        "title": "Poveži server",
+        "description": "Pregledaj marketplace i poveži prvi server"
+      },
+      "configure": {
+        "title": "Konfiguriraj vjerodajnice",
+        "description": "Postavi vjerodajnice za svoje spojene servere"
+      },
+      "explore": {
+        "title": "Istraži alate",
+        "description": "Otkrij alate dostupne na tvojim serverima"
+      },
+      "complete": {
+        "title": "Sve je spremno!",
+        "description": "Počni koristiti alate i stvarati kompozicije"
+      }
+    },
+    "skip": "Preskoči uvodni vodič",
+    "next": "Dalje",
+    "previous": "Prethodno",
+    "finish": "Počni"
+  }
+}

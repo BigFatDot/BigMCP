@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Funktioner",
+    "howItWorks": "Hur det fungerar",
+    "pricing": "Priser",
+    "login": "Logga in",
+    "getStarted": "Kom igång"
+  },
+  "hero": {
+    "badge": "Styrningslager för MCP",
+    "title": "En",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "för alla dina verktyg",
+    "subtitle": "Centralisera, styr och orkestrera dina Model Context Protocol-verktyg i en enhetlig plattform. Åtkomst från var som helst – dator eller mobil.",
+    "cta": "Starta gratis provperiod",
+    "ctaSecondary": "Se hur det fungerar"
+  },
+  "mobileDemo": {
+    "badge": "En koppling",
+    "title": "Förvandla timmar av manuellt arbete",
+    "titleHighlight": "till sekunder av automatisering",
+    "description": "BigMCP låter dig komponera anpassade arbetsflöden som orkestrerar flera tjänster med ett enda kommando. Skapa egna kompositioner med flera verktyg en gång och kör dem sedan direkt från var som helst.",
+    "features": [
+      "Komponera arbetsflöden från dina befintliga verktyg (HubSpot, Drive, Gmail, Slack...)",
+      "Utför tjänsteövergripande operationer med naturligt språk",
+      "Dina anpassade kompositioner blir anropbara verktyg för hela teamet",
+      "Kör komplexa arbetsflöden från Claude – dator eller mobil"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Onboarda ny klient: Acme Corp (kontakt: john@acme.com, sektor: B2B SaaS)",
+    "thinkingTitle": "Tankeprocess",
+    "thinkingText": "Användaren skapade ett anpassat arbetsflöde för fullständig kundonboarding. Körs mot CRM-, Drive-, Gmail- och Slack-system.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Anpassat arbetsflöde • 5 tjänster",
+    "steps": {
+      "crm": "HubSpot: create_contact",
+      "drive": "Drive: create_folder",
+      "mail": "Gmail: send_welcome",
+      "sheet": "Sheets: add_tracking",
+      "chat": "Slack: notify_team"
+    },
+    "workflowCompleted": "Arbetsflöde slutfört",
+    "resultTitle": "Klient onboardad",
+    "resultIntro": "Jag har lagt upp <strong>Acme Corp</strong> i alla dina system:",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • B2B SaaS-sektor",
+    "hubspotDetails": "Primär kontakt: John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Komplett struktur med kontrakt och fakturering",
+    "statusItems": [
+      "Välkomstmejl skickat till John",
+      "Säljuppföljning uppdaterad",
+      "Team notifierat i #sales"
+    ],
+    "conclusion": "Allt är klart för att starta samarbetet med Acme Corp.",
+    "replyPlaceholder": "Svara..."
+  },
+  "challenge": {
+    "badge": "Utmaningen",
+    "title": "MCP-styrningsutmaningen",
+    "subtitle": "När ditt MCP-ekosystem växer blir hanteringen av verktyg komplex och riskfylld",
+    "withoutTitle": "Utan BigMCP",
+    "withoutItems": [
+      "Varje MCP-server hanterar sina egna credentials",
+      "Ingen centraliserad åtkomstkontroll eller granskning",
+      "Manuell verktygsorkestrering över servrar",
+      "Endast dator, ingen mobilåtkomst",
+      "Noll insyn i användningsmönster",
+      "Omöjligt att tillämpa styrningspolicyer"
+    ],
+    "withTitle": "Med BigMCP",
+    "withItems": [
+      "Enhetlig OAuth-autentisering",
+      "RBAC på organisationsnivå med 4 rollnivåer",
+      "Automatiserad verktygskomposition & arbetsflöden",
+      "Åtkomst från dator, mobil, var som helst",
+      "Omfattande användningsspårning & mätvärden",
+      "Enstaka styrningslager för alla MCPs"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Enkel installation",
+    "title": "Hur BigMCP fungerar",
+    "subtitle": "Tre steg till enhetlig MCP-styrning",
+    "steps": [
+      {
+        "title": "Skapa ditt konto",
+        "description": "Registrera dig med din e-post. Dina credentials krypteras och synkroniseras på alla enheter."
+      },
+      {
+        "title": "Anslut MCP-servrar",
+        "description": "Lägg till dina befintliga MCP-servrar i BigMCP. Konfigurera credentials och åtkomstpolicyer för varje server."
+      },
+      {
+        "title": "Använd & komponera verktyg",
+        "description": "Använd verktyg direkt eller kombinera dem till kraftfulla arbetsflöden. Ingen komplexitet, bara resultat levererade omedelbart."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Funktioner",
+    "title": "Allt du behöver för att",
+    "titleEnd": "styra MCP i stor skala",
+    "subtitle": "Byggt för team som tar MCP-styrning på allvar",
+    "items": [
+      {
+        "title": "Enhetlig autentisering",
+        "description": "Enstaka OAuth 2.0 + PKCE-flöde för AI-klienter. Krypterad credential-lagring med isolering på organisations- och användarnivå."
+      },
+      {
+        "title": "Verktygsorkestrering",
+        "description": "Komponera arbetsflöden med flera verktyg med automatisk credential-injektion och hierarkiska bindningar för komplexa operationer."
+      },
+      {
+        "title": "Mobilåtkomst",
+        "description": "Dina MCP-verktyg tillgängliga på mobil, surfplatta, var som helst. Samma autentisering, samma upplevelse, noll konfiguration."
+      },
+      {
+        "title": "Användningsanalys",
+        "description": "Spåra verktygskörning, framgångsgrader och användningsmönster i din organisation med omfattande användningsspårning."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Priser",
+    "title": "Enkla, transparenta priser",
+    "subtitle": "Molnhanterat eller självhostat – du väljer",
+    "cloudLabel": "☁️ Cloud = Vi hostar, du använder",
+    "selfHostedLabel": "💻 Självhostad = Du äger allt",
+    "individual": {
+      "title": "Individuell",
+      "subtitle": "Cloud",
+      "price": "€4,99",
+      "period": "/månad",
+      "features": [
+        "1 användare",
+        "Obegränsade MCP-servrar",
+        "AI-orkestrering",
+        "Semantisk sökning",
+        "Kompositioner & arbetsflöden",
+        "Hanterad LLM ingår"
+      ],
+      "cta": "Starta gratis provperiod"
+    },
+    "team": {
+      "title": "Team",
+      "subtitle": "Cloud",
+      "price": "€4,99",
+      "period": "/månad + €4,99/användare",
+      "badge": "Mest populär",
+      "features": [
+        "Allt i Individuell",
+        "Upp till 20 användare",
+        "Organisationer & RBAC",
+        "Delade credentials",
+        "Avancerade granskningsloggar"
+      ],
+      "cta": "Starta gratis provperiod"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "subtitle": "Självhostad",
+      "price": "Gratis",
+      "period": "lanseringserbjudande • 3 månader",
+      "features": [
+        "Allt i Team",
+        "Obegränsade användare & team",
+        "Full adminkontroll",
+        "Central MCP-serverpool",
+        "SSO (SAML, OIDC) - Kommer snart",
+        "Avancerad granskning & regelefterlevnad",
+        "Ditt val av LLM",
+        "Evig licens"
+      ],
+      "cta": "Skaffa Enterprise"
+    },
+    "community": {
+      "title": "Community",
+      "subtitle": "Självhostad",
+      "price": "Gratis",
+      "period": "",
+      "features": [
+        "Allt i Individuell",
+        "Endast 1 användare",
+        "Ditt val av LLM",
+        "Docker-driftsättning"
+      ],
+      "cta": "Kom igång"
+    },
+    "comingSoon": "Kommer snart",
+    "note": "Cloud-utgåvor är tillgängliga nu med hanterad LLM inkluderad. Självhostade utgåvor låter dig välja din LLM-leverantör."
+  },
+  "finalCta": {
+    "title": "Redo att styra ditt MCP-ekosystem?",
+    "subtitle": "Starta din gratis provperiod idag. Inget kreditkort krävs.",
+    "cta": "Starta gratis provperiod"
+  },
+  "footer": {
+    "tagline": "Styrningslagret för dina Model Context Protocol-verktyg. Centralisera, orkestrera och kontrollera ditt MCP-ekosystem.",
+    "madeBy": "En produkt av",
+    "product": "Produkt",
+    "company": "Företag",
+    "links": {
+      "features": "Funktioner",
+      "howItWorks": "Hur det fungerar",
+      "pricing": "Priser",
+      "documentation": "Dokumentation",
+      "about": "Om BigFatDot",
+      "contact": "Kontakt",
+      "privacy": "Integritet",
+      "terms": "Villkor"
+    },
+    "copyright": "© 2026 BigMCP by BigFatDot. Alla rättigheter förbehållna."
+  }
+}

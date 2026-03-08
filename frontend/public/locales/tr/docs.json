@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Dokümanlarda ara...",
+    "badge": "Docs",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API Docs"
+  },
+  "page": {
+    "breadcrumbDocs": "Docs",
+    "previous": "Önceki",
+    "next": "Sonraki",
+    "notFoundTitle": "Sayfa Bulunamadı",
+    "notFoundDescription": "Aradığınız dokümantasyon sayfası mevcut değil.",
+    "goToHome": "Dokümantasyon ana sayfasına git"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Başlarken",
+      "introduction": {
+        "title": "Giriş",
+        "description": "BigMCP nedir ve neden kullanılır"
+      },
+      "quickstart": {
+        "title": "Hızlı Başlangıç",
+        "description": "5 dakikada hazır olun"
+      },
+      "firstServer": {
+        "title": "İlk Sunucunuzu Bağlayın",
+        "description": "Hesabınıza bir MCP sunucusu ekleyin"
+      }
+    },
+    "guides": {
+      "title": "Kılavuzlar",
+      "marketplace": {
+        "title": "Sunucuları Keşfet",
+        "description": "Marketplace'ten MCP sunucularına göz atın ve kurun"
+      },
+      "credentials": {
+        "title": "Servisleri Yönet",
+        "description": "Bağlı sunucularınızı ve araçlarını kontrol edin"
+      },
+      "toolGroups": {
+        "title": "Araç Kutularıyla Düzenle",
+        "description": "Farklı kullanım senaryoları ve erişim kontrolü için araçları gruplandırın"
+      },
+      "apiKeys": {
+        "title": "API Keys Oluştur",
+        "description": "Harici entegrasyonlar ve otomasyon için anahtarlar üretin"
+      },
+      "compositions": {
+        "title": "Komposizyon Oluştur",
+        "description": "Karmaşık iş akışları için araçları birbirine bağlayın"
+      },
+      "teamServices": {
+        "title": "Ekip Servisleri",
+        "description": "Ekibiniz için paylaşılan servisleri yönetin (Ekip planı)"
+      }
+    },
+    "integrations": {
+      "title": "Entegrasyonlar",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "BigMCP'yi OAuth aracılığıyla Claude Desktop'a bağlayın"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Mistral Le Chat'te BigMCP araçlarını kullanın"
+      },
+      "n8n": {
+        "title": "n8n Otomasyonu",
+        "description": "n8n iş akışlarında BigMCP araçlarını kullanın"
+      },
+      "customClients": {
+        "title": "Özel İstemciler",
+        "description": "SDK ile kendi MCP istemcinizi oluşturun"
+      }
+    },
+    "concepts": {
+      "title": "Temel Kavramlar",
+      "mcpOverview": {
+        "title": "MCP Protokolü",
+        "description": "Model Context Protocol standardını anlama"
+      },
+      "servers": {
+        "title": "MCP Sunucuları",
+        "description": "Sunucuların araçları, kaynakları ve istemleri nasıl sunduğu"
+      },
+      "tools": {
+        "title": "Araçlar ve Uygulama",
+        "description": "Araçların nasıl çalıştığı ve yapay zeka ajanları tarafından nasıl uygulandığı"
+      },
+      "security": {
+        "title": "Güvenlik Modeli",
+        "description": "Şifreleme, kimlik doğrulama ve erişim kontrolü"
+      }
+    },
+    "api": {
+      "title": "API Referansı",
+      "apiOverview": {
+        "title": "API Genel Bakış",
+        "description": "REST API tanıtımı ve kimlik doğrulama"
+      },
+      "apiMarketplace": {
+        "title": "Marketplace API",
+        "description": "Sunucu keşfi için uç noktalar"
+      },
+      "apiCredentials": {
+        "title": "Credentials API",
+        "description": "Kullanıcı kimlik bilgilerini programatik olarak yönetin"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Ağ geçidi aracılığıyla araçlara bağlanın"
+      },
+      "apiTools": {
+        "title": "Araçlar ve Uygulama API",
+        "description": "Araçları, bağlamaları ve komposizyonları uygulayın"
+      }
+    },
+    "selfHosting": {
+      "title": "Kendi Sunucunuzda Barındırma",
+      "selfHostOverview": {
+        "title": "Genel Bakış",
+        "description": "Kendi sunucunuzda barındırma seçenekleri ve gereksinimleri"
+      },
+      "dockerSetup": {
+        "title": "Docker Kurulumu",
+        "description": "Docker Compose ile dağıtın"
+      },
+      "configuration": {
+        "title": "Yapılandırma",
+        "description": "Ortam değişkenleri ve ayarlar"
+      },
+      "llmProviders": {
+        "title": "LLM Sağlayıcıları",
+        "description": "Yapay zeka arka ucunuzu yapılandırın"
+      },
+      "customServers": {
+        "title": "Özel MCP Sunucuları",
+        "description": "Enterprise örneklerine kendi MCP sunucularınızı ekleyin"
+      }
+    }
+  }
+}

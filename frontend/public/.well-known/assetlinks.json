@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.bigmcp.twa",
+      "sha256_cert_fingerprints": [
+        "E9:64:95:39:12:53:86:7E:D7:0C:10:FE:75:63:CD:E4:23:94:A3:D9:BD:F3:5D:B5:65:41:86:FA:AA:B4:C5:A6"
+      ]
+    }
+  }
+]

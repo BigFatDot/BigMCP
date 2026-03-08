@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Funkcije",
+    "howItWorks": "Kako funkcioniše",
+    "pricing": "Cene",
+    "login": "Prijava",
+    "getStarted": "Početak"
+  },
+  "hero": {
+    "badge": "Upravljački sloj za MCP",
+    "title": "Jedan",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "za sve vaše alate",
+    "subtitle": "Centralizujte, upravljajte i orkestrirajte vaše Model Context Protocol alate na jedinstvenoj platformi. Pristupite sa bilo kog mesta — desktop ili mobilni uređaj.",
+    "cta": "Pokrenite besplatnu probu",
+    "ctaSecondary": "Pogledajte kako funkcioniše"
+  },
+  "mobileDemo": {
+    "badge": "Jedan konektor",
+    "title": "Pretvorite sate ručnog rada",
+    "titleHighlight": "u sekunde automatizacije",
+    "description": "BigMCP vam omogućava da komponujete prilagođene tokove rada koji orkestriraju više servisa jednom komandom. Kreirajte sopstvene kompozicije sa više alata jednom, a zatim ih izvršavajte trenutno sa bilo kog mesta.",
+    "features": [
+      "Komponujte tokove rada iz vaših postojećih alata (HubSpot, Drive, Gmail, Slack...)",
+      "Izvršavajte višeservisne operacije prirodnim jezikom",
+      "Vaše prilagođene kompozicije postaju pozivni alati za ceo tim",
+      "Pokrenite složene tokove rada iz Claude-a — desktop ili mobilni uređaj"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Uvedi novog klijenta: Acme Corp (kontakt: john@acme.com, sektor: B2B SaaS)",
+    "thinkingTitle": "Proces razmišljanja",
+    "thinkingText": "Korisnik je kreirao prilagođeni tok rada za potpuno uvođenje klijenta. Izvršiće se kroz CRM, Drive, Gmail i Slack sisteme.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Prilagođeni tok rada • 5 servisa",
+    "steps": {
+      "crm": "HubSpot: create_contact",
+      "drive": "Drive: create_folder",
+      "mail": "Gmail: send_welcome",
+      "sheet": "Sheets: add_tracking",
+      "chat": "Slack: notify_team"
+    },
+    "workflowCompleted": "Tok rada završen",
+    "resultTitle": "Klijent uspešno uveden",
+    "resultIntro": "Postavio/la sam <strong>Acme Corp</strong> u svim vašim sistemima:",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • B2B SaaS sektor",
+    "hubspotDetails": "Primarni kontakt: John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Kompletna struktura sa ugovorima i naplatom",
+    "statusItems": [
+      "Dobrodošlica e-mail poslat Johnu",
+      "Praćenje prodaje ažurirano",
+      "Tim obavešten u #sales"
+    ],
+    "conclusion": "Sve je spremno za početak saradnje sa Acme Corp.",
+    "replyPlaceholder": "Odgovorite..."
+  },
+  "challenge": {
+    "badge": "Izazov",
+    "title": "Izazov upravljanja MCP-om",
+    "subtitle": "Kako vaš MCP ekosistem raste, upravljanje alatima postaje složeno i rizično",
+    "withoutTitle": "Bez BigMCP",
+    "withoutItems": [
+      "Svaki MCP server upravlja sopstvenim akreditivima",
+      "Nema centralizovane kontrole pristupa ili revizije",
+      "Ručna orkestracija alata između servera",
+      "Samo desktop, bez mobilnog pristupa",
+      "Nulta vidljivost obrazaca upotrebe",
+      "Nemoguće primeniti politike upravljanja"
+    ],
+    "withTitle": "Sa BigMCP",
+    "withItems": [
+      "Jedinstvena OAuth autentifikacija",
+      "RBAC na nivou organizacije sa 4 nivoa uloga",
+      "Automatizovana kompozicija alata i tokovi rada",
+      "Pristup sa desktop-a, mobilnog uređaja, bilo gde",
+      "Sveobuhvatno praćenje upotrebe i metrike",
+      "Jedinstven upravljački sloj za sve MCP-ove"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Jednostavno podešavanje",
+    "title": "Kako BigMCP funkcioniše",
+    "subtitle": "Tri koraka do jedinstvenog MCP upravljanja",
+    "steps": [
+      {
+        "title": "Kreirajte vaš nalog",
+        "description": "Registrujte se sa vašim e-mailom. Vaši akreditivi su enkriptovani i sinhronizovani na svim uređajima."
+      },
+      {
+        "title": "Povežite MCP servere",
+        "description": "Dodajte vaše postojeće MCP servere u BigMCP. Konfigurišite akreditive i politike pristupa za svaki server."
+      },
+      {
+        "title": "Koristite i komponujte alate",
+        "description": "Jednostavno koristite alate ili ih kombinujte u moćne tokove rada. Bez složenosti, samo rezultati isporučeni trenutno."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Funkcije",
+    "title": "Sve što vam je potrebno da",
+    "titleEnd": "upravljate MCP-om u velikim razmerama",
+    "subtitle": "Izgrađeno za timove koji ozbiljno shvataju MCP upravljanje",
+    "items": [
+      {
+        "title": "Jedinstvena autentifikacija",
+        "description": "Jedinstven OAuth 2.0 + PKCE tok za AI klijente. Enkriptovano čuvanje akreditiva sa izolacijom na nivou organizacije i korisnika."
+      },
+      {
+        "title": "Orkestracija alata",
+        "description": "Komponujte višekoračne tokove rada sa automatskim ubrizgavanjem akreditiva i hijerarhijskim vezivanjima za složene operacije."
+      },
+      {
+        "title": "Mobilni pristup",
+        "description": "Vaši MCP alati dostupni na mobilnom uređaju, tabletu, svugde. Ista autentifikacija, isto iskustvo, nula konfiguracije."
+      },
+      {
+        "title": "Analitika upotrebe",
+        "description": "Pratite izvršavanje alata, stope uspešnosti i obrasce upotrebe u vašoj organizaciji sa sveobuhvatnim praćenjem upotrebe."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Cene",
+    "title": "Jednostavne, transparentne cene",
+    "subtitle": "Cloud upravljano ili samo-hostirano — vi birate",
+    "cloudLabel": "☁️ Cloud = Mi hostujemo, vi koristite",
+    "selfHostedLabel": "💻 Samo-hostirano = Vi posedujete sve",
+    "individual": {
+      "title": "Individualni",
+      "subtitle": "Cloud",
+      "price": "€4.99",
+      "period": "/mesec",
+      "features": [
+        "1 korisnik",
+        "Neograničeni MCP serveri",
+        "AI orkestracija",
+        "Semantička pretraga",
+        "Kompozicije i tokovi rada",
+        "Upravljani LLM uključen"
+      ],
+      "cta": "Pokrenite besplatnu probu"
+    },
+    "team": {
+      "title": "Tim",
+      "subtitle": "Cloud",
+      "price": "€4.99",
+      "period": "/mesec + €4.99/korisnik",
+      "badge": "Najpopularnije",
+      "features": [
+        "Sve iz Individualnog",
+        "Do 20 korisnika",
+        "Organizacije i RBAC",
+        "Deljeni akreditivi",
+        "Napredni revizijski zapisi"
+      ],
+      "cta": "Pokrenite besplatnu probu"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "subtitle": "Samo-hostirano",
+      "price": "Besplatno",
+      "period": "ponuda pri lansiranju • 3 meseca",
+      "features": [
+        "Sve iz Tima",
+        "Neograničeni korisnici i timovi",
+        "Puna administratorska kontrola",
+        "Centralni MCP server pool",
+        "SSO (SAML, OIDC) - Uskoro",
+        "Napredna revizija i usklađenost",
+        "Vaš izbor LLM-a",
+        "Trajna licenca"
+      ],
+      "cta": "Nabavi Enterprise"
+    },
+    "community": {
+      "title": "Zajednica",
+      "subtitle": "Samo-hostirano",
+      "price": "Besplatno",
+      "period": "",
+      "features": [
+        "Sve iz Individualnog",
+        "Samo 1 korisnik",
+        "Vaš izbor LLM-a",
+        "Docker raspoređivanje"
+      ],
+      "cta": "Počnite"
+    },
+    "comingSoon": "Uskoro",
+    "note": "Cloud izdanja su dostupna odmah sa upravljanim LLM-om. Samo-hostovana izdanja vam omogućavaju da izaberete LLM provajdera."
+  },
+  "finalCta": {
+    "title": "Spremni da upravljate vašim MCP ekosistemom?",
+    "subtitle": "Pokrenite besplatnu probu danas. Nije potrebna kreditna kartica.",
+    "cta": "Pokrenite besplatnu probu"
+  },
+  "footer": {
+    "tagline": "Upravljački sloj za vaše Model Context Protocol alate. Centralizujte, orkestrišite i kontrolišite vaš MCP ekosistem.",
+    "madeBy": "Proizvod kompanije",
+    "product": "Proizvod",
+    "company": "Kompanija",
+    "links": {
+      "features": "Funkcije",
+      "howItWorks": "Kako funkcioniše",
+      "pricing": "Cene",
+      "documentation": "Dokumentacija",
+      "about": "O BigFatDot-u",
+      "contact": "Kontakt",
+      "privacy": "Privatnost",
+      "terms": "Uslovi"
+    },
+    "copyright": "© 2026 BigMCP od BigFatDot. Sva prava zadržana."
+  }
+}

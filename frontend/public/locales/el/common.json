@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Υπηρεσίες",
+    "compositions": "Compositions",
+    "documentation": "Τεκμηρίωση",
+    "signin": "Σύνδεση",
+    "signup": "Εγγραφή",
+    "startTrial": "Έναρξη Δωρεάν Δοκιμής"
+  },
+  "menu": {
+    "account": "Ρυθμίσεις Λογαριασμού",
+    "subscription": "Συνδρομή & Χρέωση",
+    "apiKeys": "API Keys",
+    "team": "Ομάδα",
+    "preferences": "Προτιμήσεις",
+    "signout": "Αποσύνδεση"
+  },
+  "buttons": {
+    "save": "Αποθήκευση",
+    "cancel": "Ακύρωση",
+    "delete": "Διαγραφή",
+    "edit": "Επεξεργασία",
+    "create": "Δημιουργία",
+    "close": "Κλείσιμο",
+    "confirm": "Επιβεβαίωση",
+    "back": "Πίσω",
+    "next": "Επόμενο",
+    "submit": "Υποβολή",
+    "loading": "Φόρτωση...",
+    "retry": "Επανάληψη",
+    "copy": "Αντιγραφή",
+    "copied": "Αντιγράφηκε!"
+  },
+  "status": {
+    "loading": "Φόρτωση...",
+    "saving": "Αποθήκευση...",
+    "error": "Σφάλμα",
+    "success": "Επιτυχία"
+  },
+  "errors": {
+    "generic": "Παρουσιάστηκε σφάλμα",
+    "notFound": "Δεν βρέθηκε",
+    "unauthorized": "Μη εξουσιοδοτημένη πρόσβαση",
+    "forbidden": "Πρόσβαση απαγορευμένη",
+    "networkError": "Σφάλμα δικτύου. Ελέγξτε τη σύνδεσή σας."
+  },
+  "trial": {
+    "badge": "Δοκιμή",
+    "daysLeft": "{{count}} ημέρα απομένει στη δοκιμή",
+    "daysLeft_plural": "{{count}} ημέρες απομένουν στη δοκιμή"
+  },
+  "empty": {
+    "noData": "Δεν υπάρχουν διαθέσιμα δεδομένα",
+    "noResults": "Δεν βρέθηκαν αποτελέσματα"
+  }
+}

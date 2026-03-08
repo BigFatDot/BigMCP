@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Funkcje",
+    "howItWorks": "Jak to działa",
+    "pricing": "Cennik",
+    "login": "Zaloguj się",
+    "getStarted": "Zacznij"
+  },
+  "hero": {
+    "badge": "Warstwa zarządzania dla MCP",
+    "title": "Jeden",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "dla wszystkich Twoich narzędzi",
+    "subtitle": "Centralizuj, zarządzaj i orkiestruj narzędzia Model Context Protocol na ujednoliconej platformie. Dostęp z dowolnego miejsca — na komputerze lub urządzeniu mobilnym.",
+    "cta": "Rozpocznij bezpłatny okres próbny",
+    "ctaSecondary": "Zobacz, jak to działa"
+  },
+  "mobileDemo": {
+    "badge": "Jedno połączenie",
+    "title": "Zamień godziny ręcznej pracy",
+    "titleHighlight": "w sekundy automatyzacji",
+    "description": "BigMCP pozwala tworzyć niestandardowe przepływy pracy, które orkiestrują wiele usług za pomocą jednego polecenia. Twórz własne kompozycje wielonarzędziowe raz, a następnie wykonuj je natychmiast z dowolnego miejsca.",
+    "features": [
+      "Twórz przepływy pracy z istniejących narzędzi (HubSpot, Drive, Gmail, Slack...)",
+      "Wykonuj operacje wielousługowe za pomocą języka naturalnego",
+      "Twoje niestandardowe kompozycje stają się wywoływalnymi narzędziami dla całego zespołu",
+      "Uruchamiaj złożone przepływy pracy z Claude — na komputerze lub urządzeniu mobilnym"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Wdróż nowego klienta: Acme Corp (kontakt: john@acme.com, sektor: B2B SaaS)",
+    "thinkingTitle": "Proces myślenia",
+    "thinkingText": "Użytkownik stworzył niestandardowy przepływ pracy dla kompletnego wdrożenia klienta. Zostanie wykonany w systemach CRM, Drive, Gmail i Slack.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Niestandardowy przepływ pracy • 5 usług",
+    "steps": {
+      "crm": "HubSpot: create_contact",
+      "drive": "Drive: create_folder",
+      "mail": "Gmail: send_welcome",
+      "sheet": "Sheets: add_tracking",
+      "chat": "Slack: notify_team"
+    },
+    "workflowCompleted": "Przepływ pracy zakończony",
+    "resultTitle": "Klient pomyślnie wdrożony",
+    "resultIntro": "Skonfigurowałem(-am) <strong>Acme Corp</strong> we wszystkich Twoich systemach:",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • Sektor B2B SaaS",
+    "hubspotDetails": "Główny kontakt: John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Kompletna struktura z umowami i rozliczeniami",
+    "statusItems": [
+      "E-mail powitalny wysłany do Johna",
+      "Śledzenie sprzedaży zaktualizowane",
+      "Zespół powiadomiony na #sales"
+    ],
+    "conclusion": "Wszystko gotowe do rozpoczęcia współpracy z Acme Corp.",
+    "replyPlaceholder": "Odpowiedz..."
+  },
+  "challenge": {
+    "badge": "Wyzwanie",
+    "title": "Wyzwanie zarządzania MCP",
+    "subtitle": "Wraz z rozwojem ekosystemu MCP zarządzanie narzędziami staje się złożone i ryzykowne",
+    "withoutTitle": "Bez BigMCP",
+    "withoutItems": [
+      "Każdy serwer MCP zarządza własnymi danymi uwierzytelniającymi",
+      "Brak scentralizowanej kontroli dostępu lub audytu",
+      "Ręczna orkiestracja narzędzi na serwerach",
+      "Tylko na komputerze, brak dostępu mobilnego",
+      "Zerowa widoczność wzorców użytkowania",
+      "Niemożliwe egzekwowanie zasad zarządzania"
+    ],
+    "withTitle": "Z BigMCP",
+    "withItems": [
+      "Ujednolicone uwierzytelnianie OAuth",
+      "RBAC na poziomie organizacji z 4 poziomami ról",
+      "Automatyczna kompozycja i przepływy pracy narzędzi",
+      "Dostęp z komputera, urządzenia mobilnego, z dowolnego miejsca",
+      "Kompleksowe śledzenie użytkowania i metryki",
+      "Jedna warstwa zarządzania dla wszystkich MCP"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Prosta konfiguracja",
+    "title": "Jak działa BigMCP",
+    "subtitle": "Trzy kroki do ujednoliconego zarządzania MCP",
+    "steps": [
+      {
+        "title": "Utwórz konto",
+        "description": "Zarejestruj się za pomocą adresu e-mail. Twoje dane uwierzytelniające są szyfrowane i synchronizowane na wszystkich urządzeniach."
+      },
+      {
+        "title": "Połącz serwery MCP",
+        "description": "Dodaj istniejące serwery MCP do BigMCP. Skonfiguruj dane uwierzytelniające i zasady dostępu dla każdego serwera."
+      },
+      {
+        "title": "Używaj i komponuj narzędzia",
+        "description": "Po prostu używaj narzędzi lub łącz je w potężne przepływy pracy. Bez złożoności, po prostu wyniki dostarczane natychmiast."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Funkcje",
+    "title": "Wszystko, czego potrzebujesz, aby",
+    "titleEnd": "zarządzać MCP na dużą skalę",
+    "subtitle": "Zbudowane dla zespołów, które poważnie traktują zarządzanie MCP",
+    "items": [
+      {
+        "title": "Ujednolicone uwierzytelnianie",
+        "description": "Pojedynczy przepływ OAuth 2.0 + PKCE dla klientów AI. Zaszyfrowane przechowywanie danych uwierzytelniających z izolacją na poziomie organizacji i użytkownika."
+      },
+      {
+        "title": "Orkiestracja narzędzi",
+        "description": "Twórz wielonarzędziowe przepływy pracy z automatycznym wstrzykiwaniem danych uwierzytelniających i hierarchicznymi powiązaniami dla złożonych operacji."
+      },
+      {
+        "title": "Dostęp mobilny",
+        "description": "Twoje narzędzia MCP dostępne na urządzeniu mobilnym, tablecie, wszędzie. To samo uwierzytelnianie, to samo doświadczenie, zerowa konfiguracja."
+      },
+      {
+        "title": "Analityka użytkowania",
+        "description": "Śledź wykonanie narzędzi, wskaźniki sukcesu i wzorce użytkowania w całej organizacji dzięki kompleksowemu śledzeniu użytkowania."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Cennik",
+    "title": "Prosty, przejrzysty cennik",
+    "subtitle": "Zarządzany w chmurze lub samodzielnie hostowany — Ty decydujesz",
+    "cloudLabel": "☁️ Cloud = My hostujemy, Ty używasz",
+    "selfHostedLabel": "💻 Samodzielnie hostowany = Ty posiadasz wszystko",
+    "individual": {
+      "title": "Indywidualny",
+      "subtitle": "Cloud",
+      "price": "€4,99",
+      "period": "/miesiąc",
+      "features": [
+        "1 użytkownik",
+        "Nieograniczona liczba serwerów MCP",
+        "Orkiestracja AI",
+        "Wyszukiwanie semantyczne",
+        "Kompozycje i przepływy pracy",
+        "Zarządzany LLM w zestawie"
+      ],
+      "cta": "Rozpocznij bezpłatny okres próbny"
+    },
+    "team": {
+      "title": "Zespołowy",
+      "subtitle": "Cloud",
+      "price": "€4,99",
+      "period": "/miesiąc + €4,99/użytkownik",
+      "badge": "Najpopularniejszy",
+      "features": [
+        "Wszystko z planu Indywidualnego",
+        "Do 20 użytkowników",
+        "Organizacje i RBAC",
+        "Współdzielone dane uwierzytelniające",
+        "Zaawansowane dzienniki audytu"
+      ],
+      "cta": "Rozpocznij bezpłatny okres próbny"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "subtitle": "Samodzielnie hostowany",
+      "price": "Bezpłatny",
+      "period": "oferta startowa • 3 miesiące",
+      "features": [
+        "Wszystko z planu Zespołowego",
+        "Nieograniczona liczba użytkowników i zespołów",
+        "Pełna kontrola administratora",
+        "Centralny pool serwerów MCP",
+        "SSO (SAML, OIDC) - wkrótce",
+        "Zaawansowany audyt i zgodność",
+        "Twój wybór LLM",
+        "Licencja wieczysta"
+      ],
+      "cta": "Uzyskaj Enterprise"
+    },
+    "community": {
+      "title": "Community",
+      "subtitle": "Samodzielnie hostowany",
+      "price": "Bezpłatny",
+      "period": "",
+      "features": [
+        "Wszystko z planu Indywidualnego",
+        "Tylko 1 użytkownik",
+        "Twój wybór LLM",
+        "Wdrożenie Docker"
+      ],
+      "cta": "Zacznij"
+    },
+    "comingSoon": "Wkrótce",
+    "note": "Edycje cloud są dostępne teraz z zarządzanym LLM w zestawie. Edycje samodzielnie hostowane pozwalają wybrać dostawcę LLM."
+  },
+  "finalCta": {
+    "title": "Gotowy(-a) do zarządzania ekosystemem MCP?",
+    "subtitle": "Rozpocznij bezpłatny okres próbny już dziś. Karta kredytowa nie jest wymagana.",
+    "cta": "Rozpocznij bezpłatny okres próbny"
+  },
+  "footer": {
+    "tagline": "Warstwa zarządzania dla narzędzi Model Context Protocol. Centralizuj, orkiestruj i kontroluj swój ekosystem MCP.",
+    "madeBy": "Produkt firmy",
+    "product": "Produkt",
+    "company": "Firma",
+    "links": {
+      "features": "Funkcje",
+      "howItWorks": "Jak to działa",
+      "pricing": "Cennik",
+      "documentation": "Dokumentacja",
+      "about": "O BigFatDot",
+      "contact": "Kontakt",
+      "privacy": "Prywatność",
+      "terms": "Warunki"
+    },
+    "copyright": "© 2026 BigMCP by BigFatDot. Wszelkie prawa zastrzeżone."
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "grist": {
+      "command": "python",
+      "args": ["-m", "mcp_server_grist"],
+      "env": {
+        "GRIST_API_KEY": "${GRIST_API_KEY}",
+        "GRIST_API_URL": "${GRIST_API_URL}"
+      },
+      "_metadata": {
+        "name": "Grist",
+        "description": "Grist spreadsheet-database integration",
+        "category": "productivity",
+        "install": {"type": "pip", "package": "mcp_server_grist"},
+        "credentials": [
+          {"name": "GRIST_API_KEY", "required": true},
+          {"name": "GRIST_API_URL", "required": true}
+        ],
+        "visible_in_marketplace": true
+      }
+    }
+  }
+}

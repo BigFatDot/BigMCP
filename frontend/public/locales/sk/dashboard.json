@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Služby",
+    "subtitle": "Spravujte svoje MCP servery, nástroje a sady nástrojov",
+    "search": "Hľadať nástroje...",
+    "noTools": "Žiadne nástroje k dispozícii",
+    "noToolsDescription": "Pripojte sa k serverom na Marketplace a zobrazte tu nástroje",
+    "goToMarketplace": "Prejsť na Marketplace",
+    "viewToggle": {
+      "servers": "Služby",
+      "toolboxes": "Sady nástrojov"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP servery = Zdroje nástrojov",
+      "serversDescription": "Každý server, ku ktorému sa pripojíte, poskytuje nástroje, ktoré môže Claude používať. Prepínajte viditeľnosť a kontrolujte, ktoré nástroje sú dostupné.",
+      "visibleLabel": "Viditeľné = Claude môže používať",
+      "hiddenLabel": "Skryté = Deaktivované pre Claude",
+      "toolboxesTitle": "Sady nástrojov = Organizujte svoje nástroje",
+      "toolboxesDescription": "Vytvárajte sady nástrojov na zoskupenie konkrétnych nástrojov. Pomocou sád nástrojov kontrolujte, ktoré nástroje sú dostupné pri pripájaní externých aplikácií.",
+      "forExternalIntegrations": "Pre externé integrácie",
+      "manageConnections": "Spravovať pripojenia →"
+    },
+    "serverState": {
+      "active": "Aktívny",
+      "apiOnly": "Iba API",
+      "standby": "Pohotovostný režim",
+      "disabled": "Deaktivovaný",
+      "error": "Chyba"
+    },
+    "serverActions": {
+      "visible": "Viditeľný",
+      "hidden": "Skrytý",
+      "stopServer": "Zastaviť server?",
+      "deleteServerConfirm": "Odstrániť tento server a jeho prihlasovacie údaje?",
+      "serverError": "Server zaznamenal chybu",
+      "availableTools": "Dostupné nástroje ({{count}})",
+      "visibleToClaude": "Viditeľné pre Claude",
+      "discoveringTools": "Zisťovanie nástrojov...",
+      "startToDiscover": "Spustite server na zistenie nástrojov"
+    },
+    "groups": {
+      "title": "Sady nástrojov",
+      "create": "Vytvoriť sadu nástrojov",
+      "createToolbox": "Vytvoriť sadu nástrojov",
+      "createFirst": "Vytvorte svoju prvú sadu nástrojov",
+      "edit": "Upraviť sadu nástrojov",
+      "delete": "Odstrániť sadu nástrojov",
+      "name": "Názov sady nástrojov",
+      "description": "Popis",
+      "tools": "Nástroje v sade",
+      "empty": "Zatiaľ žiadne sady nástrojov",
+      "emptyDescription": "Vytvárajte sady nástrojov na organizovanie nástrojov dostupných cez API kľúče.",
+      "noTools": "V tejto sade nástrojov nie sú žiadne nástroje",
+      "deleteConfirm": "Odstrániť „{{name}}"? API kľúče používajúce túto sadu nástrojov stratia svoje obmedzenia.",
+      "active": "Aktívna",
+      "inactive": "Neaktívna",
+      "shared": "Zdieľaná",
+      "private": "Súkromná",
+      "makePrivate": "Kliknutím nastavíte ako súkromnú",
+      "shareWithTeam": "Kliknutím zdieľate s tímom",
+      "used": "Použitá {{count}}-krát",
+      "used_plural": "Použitá {{count}}-krát"
+    },
+    "createModal": {
+      "title": "Vytvoriť sadu nástrojov",
+      "stepInfo": "Pomenujte svoju sadu nástrojov",
+      "stepTools": "Vyberte nástroje na zahrnutie",
+      "groupName": "Názov sady nástrojov *",
+      "groupNamePlaceholder": "napr. Iba na čítanie, Produkčné, Vývojové prostredie",
+      "descriptionPlaceholder": "Na čo je táto sada nástrojov?",
+      "color": "Farba",
+      "visibility": "Viditeľnosť",
+      "visibilityPrivate": "Súkromná",
+      "visibilityPrivateDesc": "Iba vy môžete používať túto sadu nástrojov",
+      "visibilityOrganization": "Organizácia",
+      "visibilityOrganizationDesc": "Zdieľajte so svojím tímom",
+      "toolsSelected": "{{count}} nástroj vybraný",
+      "toolsSelected_plural": "{{count}} nástrojov vybraných",
+      "clearAll": "Vymazať všetko",
+      "selectAll": "Vybrať všetko",
+      "deselectAll": "Zrušiť výber všetkého",
+      "noToolsAvailable": "Žiadne nástroje k dispozícii",
+      "connectServersFirst": "Najskôr pripojte servery, aby ste mohli pridávať nástroje do sád nástrojov",
+      "back": "Späť",
+      "cancel": "Zrušiť",
+      "nextSelectTools": "Ďalej: Vybrať nástroje",
+      "creating": "Vytváranie...",
+      "createGroup": "Vytvoriť sadu nástrojov ({{count}} nástrojov)"
+    },
+    "server": {
+      "connected": "Pripojený",
+      "disconnected": "Odpojený",
+      "error": "Chyba",
+      "reconnect": "Znova pripojiť",
+      "tools": "{{count}} nástroj",
+      "tools_plural": "{{count}} nástrojov"
+    }
+  },
+  "myServers": {
+    "title": "Moje služby",
+    "subtitle": "Spravujte služby a kontrolujte nástroje sprístupnené pre Claude",
+    "serversUsed": "serverov použitých",
+    "limitReached": "Limit dosiahnutý",
+    "tabs": {
+      "personal": "Moje služby",
+      "team": "Tímové služby"
+    },
+    "stats": {
+      "servers": "Služby",
+      "connected": "Pripojené",
+      "active": "Aktívne",
+      "tools": "Nástroje"
+    },
+    "info": {
+      "title": "Viditeľnosť a objavovanie nástrojov",
+      "description": "Aktívne servery sprístupňujú nástroje pre Claude. Použite prepínač na kontrolu viditeľnosti.",
+      "hint": "Nástroje sa zobrazia po prvom spustení servera (cez MCP volanie)."
+    },
+    "empty": {
+      "title": "Zatiaľ žiadne servery nie sú pripojené",
+      "description": "Začnite pripojením svojho prvého MCP servera z marketplace.",
+      "browseMarketplace": "Prehliadať Marketplace"
+    },
+    "orgCredentials": {
+      "title": "K dispozícii sú prihlasovacie údaje organizácie",
+      "description": "Tieto servery používajú prihlasovacie údaje organizácie. Môžete ich používať bez toho, aby ste zadávali vlastné prihlasovacie údaje.",
+      "viewAll": "Zobraziť všetky tímové servery →"
+    },
+    "visibility": {
+      "title": "Viditeľnosť servera",
+      "visibleOauth": "Viditeľné pre OAuth",
+      "hiddenApiOnly": "Skryté (iba API)",
+      "disabled": "Deaktivované"
+    },
+    "actions": {
+      "stop": "Zastaviť",
+      "start": "Spustiť",
+      "restart": "Reštartovať",
+      "validate": "Overiť",
+      "edit": "Upraviť",
+      "delete": "Odstrániť",
+      "expand": "Rozbaliť pre zobrazenie nástrojov",
+      "collapse": "Zbaliť"
+    },
+    "tools": {
+      "available": "Dostupné nástroje ({{count}})",
+      "visibleToClaude": "Viditeľné pre Claude",
+      "visible": "Viditeľné",
+      "hidden": "Skryté",
+      "hideFromOauth": "Skryť pred OAuth",
+      "showToOauth": "Zobraziť pre OAuth",
+      "discovering": "Zisťovanie nástrojov...",
+      "discoveringNote": "Nástroje sa zobrazia po inicializácii servera",
+      "notConnected": "Server nie je pripojený",
+      "notConnectedNote": "Spustite server na zistenie dostupných nástrojov"
+    },
+    "serverInfo": {
+      "created": "Vytvorené:",
+      "lastUsed": "Naposledy použité:",
+      "validated": "Overené"
+    },
+    "errors": {
+      "loadingCredentials": "Chyba pri načítaní prihlasovacích údajov",
+      "failedToLoad": "Nepodarilo sa načítať prihlasovacie údaje",
+      "deleteConfirm": "Naozaj chcete odstrániť tieto prihlasovacie údaje?",
+      "stopConfirm": "Naozaj chcete zastaviť tento server?",
+      "visibilityUpdated": "Viditeľnosť servera aktualizovaná",
+      "visibilityFailed": "Nepodarilo sa aktualizovať viditeľnosť servera",
+      "toolVisibilityUpdated": "Viditeľnosť nástroja aktualizovaná",
+      "toolVisibilityFailed": "Nepodarilo sa aktualizovať viditeľnosť nástroja"
+    },
+    "team": {
+      "empty": {
+        "title": "Zatiaľ žiadne tímové servery",
+        "description": "Tímové servery sú zdieľané so všetkými členmi organizácie. Pridávať ich môžu iba správcovia.",
+        "hint": "Prejdite do Nastavení organizácie na správu zdieľaných prihlasovacích údajov."
+      },
+      "orgSettings": "Nastavenia organizácie",
+      "banner": {
+        "title": "Tímové služby",
+        "description": "Tieto servery sú zdieľané so všetkými členmi organizácie. Prihlasovacie údaje spravujú správcovia."
+      },
+      "badge": "Tím",
+      "teamServer": "Tímový server",
+      "visibleToMembers": "Viditeľné pre všetkých členov",
+      "hiddenFromMembers": "Skryté pred členmi",
+      "showToMembers": "Sprístupniť členom",
+      "hideFromMembers": "Skryť pred členmi",
+      "deleteConfirm": "Naozaj chcete odstrániť tieto tímové prihlasovacie údaje? Túto akciu nie je možné vrátiť späť.",
+      "deleteSuccess": "Tímové prihlasovacie údaje odstránené",
+      "deleteFailed": "Nepodarilo sa odstrániť tímové prihlasovacie údaje",
+      "visibilityUpdated": "Viditeľnosť pre členov aktualizovaná",
+      "visibilityFailed": "Nepodarilo sa aktualizovať viditeľnosť pre členov",
+      "edit": "Upraviť tímový server",
+      "editTitle": "Upraviť tímový server",
+      "editSuccess": "Tímový server aktualizovaný",
+      "editFailed": "Nepodarilo sa aktualizovať tímový server",
+      "nameLabel": "Názov",
+      "namePlaceholder": "napr. Firemný účet Grist",
+      "nameRequired": "Názov je povinný",
+      "descriptionLabel": "Popis",
+      "descriptionPlaceholder": "Voliteľný popis pre váš tím",
+      "visibleToAll": "Viditeľné pre všetkých členov",
+      "visibleToAllDesc": "Všetci členovia tímu môžu vidieť a používať tento server",
+      "adminOnly": "Iba pre správcov",
+      "adminOnlyDesc": "Tieto prihlasovacie údaje môžu vidieť iba správcovia (používa sa ako záložná možnosť)",
+      "updateCredentials": "Aktualizovať prihlasovacie údaje (voliteľné)",
+      "updateCredentialsHint": "Ponechajte prázdne na zachovanie existujúcich hodnôt",
+      "leaveEmptyToKeep": "Ponechajte prázdne na zachovanie aktuálnej hodnoty",
+      "howToGet": "Ako to získať?",
+      "cancel": "Zrušiť",
+      "saving": "Ukladanie...",
+      "saveChanges": "Uložiť zmeny"
+    }
+  },
+  "compositions": {
+    "title": "Kompozície",
+    "subtitle": "Spravujte a spúšťajte viacstupňové pracovné postupy nástrojov",
+    "create": "Vytvoriť kompozíciu",
+    "edit": "Upraviť kompozíciu",
+    "delete": "Odstrániť kompozíciu",
+    "run": "Spustiť",
+    "running": "Spúšťanie...",
+    "execute": "Vykonať",
+    "executing": "Vykonávanie...",
+    "stop": "Zastaviť",
+    "name": "Názov kompozície",
+    "description": "Popis",
+    "workflow": "Pracovný postup",
+    "trigger": "Spúšťač",
+    "actions": "Akcie",
+    "search": "Hľadať kompozície...",
+    "steps": "{{count}} krokov",
+    "executedTimes": "Vykonané {{count}}-krát",
+    "created": "Vytvorené {{date}}",
+    "canExecute": "Možno vykonať",
+    "noExecutePermission": "Žiadne povolenie na vykonanie",
+    "validate": "Overiť",
+    "promote": "Povýšiť",
+    "shareWithTeam": "Zdieľať s tímom",
+    "makePrivate": "Nastaviť ako súkromné",
+    "cancel": "Zrušiť",
+    "noSteps": "Žiadne kroky",
+    "parameters": "{{count}} parametrov",
+    "runtimeParamsNote": "Zadávanie parametrov za behu bude čoskoro k dispozícii. Zatiaľ kompozície používajú predvolené parametre.",
+    "promoteConfirm": "Povýšiť „{{name}}" na {{status}}?",
+    "deleteConfirm": "Odstrániť „{{name}}"? Túto akciu nie je možné vrátiť späť.",
+    "promotedSuccess": "Kompozícia povýšená na {{status}}",
+    "deletedSuccess": "Kompozícia odstránená",
+    "executedSuccess": "Kompozícia úspešne vykonaná",
+    "sharedSuccess": "Kompozícia zdieľaná s tímom",
+    "madePrivate": "Kompozícia nastavená ako súkromná",
+    "status": {
+      "temporary": "Dočasná",
+      "validated": "Overená",
+      "production": "Produkčná",
+      "draft": "Koncept",
+      "active": "Aktívna",
+      "paused": "Pozastavená",
+      "error": "Chyba"
+    },
+    "visibility": {
+      "private": "Súkromná",
+      "organization": "Tím",
+      "public": "Verejná"
+    },
+    "filters": {
+      "allStatus": "Všetky stavy",
+      "allCompositions": "Všetky kompozície",
+      "myCompositions": "Moje kompozície",
+      "teamShared": "Zdieľané s tímom"
+    },
+    "empty": {
+      "title": "Žiadne kompozície",
+      "description": "Kompozície sa vytvárajú, keď orchestrujete viacero nástrojov dohromady. Použite asistenta AI na vytvorenie svojho prvého pracovného postupu.",
+      "noMatch": "Žiadne kompozície nezodpovedajú vašim filtrom. Skúste upraviť vyhľadávanie."
+    },
+    "executeModal": {
+      "title": "Vykonať kompozíciu",
+      "resultsTitle": "Výsledky vykonania",
+      "inputsTitle": "Vstupné parametre",
+      "stepsPreview": "Kroky na vykonanie",
+      "executingSteps": "Vykonávanie {{count}} krokov..."
+    },
+    "inputForm": {
+      "selectOption": "Vybrať...",
+      "noInputsRequired": "Pre túto kompozíciu nie sú potrebné žiadne parametre",
+      "jsonFormat": "Formát JSON ({{type}})"
+    },
+    "results": {
+      "title": "Výsledky",
+      "success": "Úspech",
+      "failed": "Zlyhalo",
+      "duration": "Trvanie",
+      "output": "Výstup",
+      "statusSuccess": "Vykonanie úspešné",
+      "statusPartial": "Čiastočné vykonanie",
+      "statusFailed": "Vykonanie zlyhalo",
+      "summary": "{{success}}/{{total}} krokov úspešných • {{duration}}",
+      "globalError": "Globálna chyba",
+      "stepsTitle": "Podrobnosti krokov",
+      "stepOutput": "Výstup",
+      "noOutput": "Neboli vrátené žiadne údaje",
+      "error": "Chyba",
+      "retries": "{{count}} pokus(ov)",
+      "finalOutput": "Konečný výstup",
+      "startedAt": "Začalo o",
+      "completedAt": "Dokončené o",
+      "unknownError": "Vyskytla sa neznáma chyba"
+    },
+    "close": "Zatvoriť",
+    "executeAgain": "Vykonať znova"
+  },
+  "onboarding": {
+    "title": "Vitajte v BigMCP!",
+    "subtitle": "Poďme vás uviesť do prevádzky",
+    "steps": {
+      "welcome": {
+        "title": "Vitajte",
+        "description": "BigMCP vám pomáha spravovať a orchestrovať MCP servery"
+      },
+      "connect": {
+        "title": "Pripojiť server",
+        "description": "Prehliadajte marketplace a pripojte svoj prvý server"
+      },
+      "configure": {
+        "title": "Nakonfigurovať prihlasovacie údaje",
+        "description": "Nastavte prihlasovacie údaje pre vaše pripojené servery"
+      },
+      "explore": {
+        "title": "Preskúmať nástroje",
+        "description": "Objavte nástroje dostupné z vašich serverov"
+      },
+      "complete": {
+        "title": "Všetko je pripravené!",
+        "description": "Začnite používať nástroje a vytvárať kompozície"
+      }
+    },
+    "skip": "Preskočiť úvodného sprievodcu",
+    "next": "Ďalej",
+    "previous": "Predchádzajúci",
+    "finish": "Začať"
+  }
+}

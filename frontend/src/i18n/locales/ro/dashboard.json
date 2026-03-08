@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Servicii",
+    "subtitle": "Gestionează-ți serverele MCP, instrumentele și toolbox-urile",
+    "search": "Caută instrumente...",
+    "noTools": "Niciun instrument disponibil",
+    "noToolsDescription": "Conectează-te la servere din Marketplace pentru a vedea instrumentele aici",
+    "goToMarketplace": "Mergi la Marketplace",
+    "viewToggle": {
+      "servers": "Servicii",
+      "toolboxes": "Toolbox-uri"
+    },
+    "infoBanner": {
+      "serversTitle": "Serverele MCP = Surse de instrumente",
+      "serversDescription": "Fiecare server la care te conectezi oferă instrumente pe care Claude le poate folosi. Comută vizibilitatea pentru a controla ce instrumente sunt disponibile.",
+      "visibleLabel": "Vizibil = Claude poate folosi",
+      "hiddenLabel": "Ascuns = Dezactivat pentru Claude",
+      "toolboxesTitle": "Toolbox-uri = Organizează-ți instrumentele",
+      "toolboxesDescription": "Creează toolbox-uri pentru a grupa instrumente specifice. Folosește toolbox-uri pentru a controla ce instrumente sunt disponibile la conectarea aplicațiilor externe.",
+      "forExternalIntegrations": "Pentru integrări externe",
+      "manageConnections": "Gestionează conexiunile →"
+    },
+    "serverState": {
+      "active": "Activ",
+      "apiOnly": "Doar API",
+      "standby": "Standby",
+      "disabled": "Dezactivat",
+      "error": "Eroare"
+    },
+    "serverActions": {
+      "visible": "Vizibil",
+      "hidden": "Ascuns",
+      "stopServer": "Oprești serverul?",
+      "deleteServerConfirm": "Ștergi acest server și credențialele sale?",
+      "serverError": "Serverul a întâmpinat o eroare",
+      "availableTools": "Instrumente disponibile ({{count}})",
+      "visibleToClaude": "Vizibil pentru Claude",
+      "discoveringTools": "Se descoperă instrumentele...",
+      "startToDiscover": "Pornește serverul pentru a descoperi instrumentele"
+    },
+    "groups": {
+      "title": "Toolbox-uri",
+      "create": "Creează toolbox",
+      "createToolbox": "Creează toolbox",
+      "createFirst": "Creează primul tău toolbox",
+      "edit": "Editează toolbox",
+      "delete": "Șterge toolbox",
+      "name": "Numele toolbox-ului",
+      "description": "Descriere",
+      "tools": "Instrumente în toolbox",
+      "empty": "Niciun toolbox încă",
+      "emptyDescription": "Creează toolbox-uri pentru a organiza ce instrumente sunt disponibile prin cheile API.",
+      "noTools": "Niciun instrument în acest toolbox",
+      "deleteConfirm": "Ștergi \"{{name}}\"? Cheile API care folosesc acest toolbox vor pierde restricțiile.",
+      "active": "Activ",
+      "inactive": "Inactiv",
+      "shared": "Partajat",
+      "private": "Privat",
+      "makePrivate": "Clic pentru a face privat",
+      "shareWithTeam": "Clic pentru a partaja cu echipa",
+      "used": "Folosit de {{count}} oară",
+      "used_plural": "Folosit de {{count}} ori"
+    },
+    "createModal": {
+      "title": "Creează toolbox",
+      "stepInfo": "Denumește toolbox-ul",
+      "stepTools": "Selectează instrumentele de inclus",
+      "groupName": "Numele toolbox-ului *",
+      "groupNamePlaceholder": "ex.: Doar citire, Producție, Mediu de dezvoltare",
+      "descriptionPlaceholder": "La ce este folosit acest toolbox?",
+      "color": "Culoare",
+      "visibility": "Vizibilitate",
+      "visibilityPrivate": "Privat",
+      "visibilityPrivateDesc": "Doar tu poți folosi acest toolbox",
+      "visibilityOrganization": "Organizație",
+      "visibilityOrganizationDesc": "Partajează cu echipa ta",
+      "toolsSelected": "{{count}} instrument selectat",
+      "toolsSelected_plural": "{{count}} instrumente selectate",
+      "clearAll": "Șterge tot",
+      "selectAll": "Selectează tot",
+      "deselectAll": "Deselectează tot",
+      "noToolsAvailable": "Niciun instrument disponibil",
+      "connectServersFirst": "Conectează mai întâi serverele pentru a adăuga instrumente în toolbox-uri",
+      "back": "Înapoi",
+      "cancel": "Anulează",
+      "nextSelectTools": "Înainte: Selectează instrumente",
+      "creating": "Se creează...",
+      "createGroup": "Creează toolbox ({{count}} instrumente)"
+    },
+    "server": {
+      "connected": "Conectat",
+      "disconnected": "Deconectat",
+      "error": "Eroare",
+      "reconnect": "Reconectează",
+      "tools": "{{count}} instrument",
+      "tools_plural": "{{count}} instrumente"
+    }
+  },
+  "myServers": {
+    "title": "Serviciile mele",
+    "subtitle": "Gestionează serviciile și controlează instrumentele expuse lui Claude",
+    "serversUsed": "servere folosite",
+    "limitReached": "Limită atinsă",
+    "tabs": {
+      "personal": "Serviciile mele",
+      "team": "Servicii echipă"
+    },
+    "stats": {
+      "servers": "Servicii",
+      "connected": "Conectate",
+      "active": "Active",
+      "tools": "Instrumente"
+    },
+    "info": {
+      "title": "Vizibilitate și descoperire instrumente",
+      "description": "Serverele active expun instrumentele lui Claude. Folosește butonul pentru a controla vizibilitatea.",
+      "hint": "Instrumentele apar după ce serverul este pornit pentru prima dată (prin apel MCP)."
+    },
+    "empty": {
+      "title": "Niciun server conectat încă",
+      "description": "Începe prin a conecta primul tău server MCP din marketplace.",
+      "browseMarketplace": "Navighează în Marketplace"
+    },
+    "orgCredentials": {
+      "title": "Credențiale de organizație disponibile",
+      "description": "Aceste servere folosesc credențiale de organizație. Le poți folosi fără a-ți furniza propriile credențiale.",
+      "viewAll": "Vezi toate serverele echipei →"
+    },
+    "visibility": {
+      "title": "Vizibilitatea serverului",
+      "visibleOauth": "Vizibil pentru OAuth",
+      "hiddenApiOnly": "Ascuns (doar API)",
+      "disabled": "Dezactivat"
+    },
+    "actions": {
+      "stop": "Oprește",
+      "start": "Pornește",
+      "restart": "Repornește",
+      "validate": "Validează",
+      "edit": "Editează",
+      "delete": "Șterge",
+      "expand": "Extinde pentru a vedea instrumentele",
+      "collapse": "Restrânge"
+    },
+    "tools": {
+      "available": "Instrumente disponibile ({{count}})",
+      "visibleToClaude": "Vizibil pentru Claude",
+      "visible": "Vizibil",
+      "hidden": "Ascuns",
+      "hideFromOauth": "Ascunde de la OAuth",
+      "showToOauth": "Afișează pentru OAuth",
+      "discovering": "Se descoperă instrumentele...",
+      "discoveringNote": "Instrumentele vor apărea după inițializarea serverului",
+      "notConnected": "Serverul nu este conectat",
+      "notConnectedNote": "Pornește serverul pentru a descoperi instrumentele disponibile"
+    },
+    "serverInfo": {
+      "created": "Creat:",
+      "lastUsed": "Ultima utilizare:",
+      "validated": "Validat"
+    },
+    "errors": {
+      "loadingCredentials": "Eroare la încărcarea credențialelor",
+      "failedToLoad": "Încărcarea credențialelor a eșuat",
+      "deleteConfirm": "Ești sigur că vrei să ștergi această credențială?",
+      "stopConfirm": "Ești sigur că vrei să oprești acest server?",
+      "visibilityUpdated": "Vizibilitatea serverului a fost actualizată",
+      "visibilityFailed": "Actualizarea vizibilității serverului a eșuat",
+      "toolVisibilityUpdated": "Vizibilitatea instrumentului a fost actualizată",
+      "toolVisibilityFailed": "Actualizarea vizibilității instrumentului a eșuat"
+    },
+    "team": {
+      "empty": {
+        "title": "Niciun server de echipă încă",
+        "description": "Serverele de echipă sunt partajate cu toți membrii organizației. Doar adminii le pot adăuga.",
+        "hint": "Mergi la Setările organizației pentru a gestiona credențialele partajate."
+      },
+      "orgSettings": "Setările organizației",
+      "banner": {
+        "title": "Servicii echipă",
+        "description": "Aceste servere sunt partajate cu toți membrii organizației. Credențialele sunt gestionate de admini."
+      },
+      "badge": "Echipă",
+      "teamServer": "Server echipă",
+      "visibleToMembers": "Vizibil pentru toți membrii",
+      "hiddenFromMembers": "Ascuns de la membri",
+      "showToMembers": "Fă vizibil pentru membri",
+      "hideFromMembers": "Ascunde de la membri",
+      "deleteConfirm": "Ești sigur că vrei să ștergi această credențială de echipă? Această acțiune nu poate fi anulată.",
+      "deleteSuccess": "Credențiala echipei a fost ștearsă",
+      "deleteFailed": "Ștergerea credențialei echipei a eșuat",
+      "visibilityUpdated": "Vizibilitatea membrilor a fost actualizată",
+      "visibilityFailed": "Actualizarea vizibilității membrilor a eșuat",
+      "edit": "Editează serverul echipei",
+      "editTitle": "Editează serverul echipei",
+      "editSuccess": "Serverul echipei a fost actualizat",
+      "editFailed": "Actualizarea serverului echipei a eșuat",
+      "nameLabel": "Nume",
+      "namePlaceholder": "ex.: Contul Grist al companiei",
+      "nameRequired": "Numele este obligatoriu",
+      "descriptionLabel": "Descriere",
+      "descriptionPlaceholder": "Descriere opțională pentru echipa ta",
+      "visibleToAll": "Vizibil pentru toți membrii",
+      "visibleToAllDesc": "Toți membrii echipei pot vedea și folosi acest server",
+      "adminOnly": "Doar admin",
+      "adminOnlyDesc": "Doar adminii pot vedea această credențială (folosită ca rezervă)",
+      "updateCredentials": "Actualizează credențialele (opțional)",
+      "updateCredentialsHint": "Lasă gol pentru a păstra valorile existente",
+      "leaveEmptyToKeep": "Lasă gol pentru a păstra valoarea curentă",
+      "howToGet": "Cum obții asta?",
+      "cancel": "Anulează",
+      "saving": "Se salvează...",
+      "saveChanges": "Salvează modificările"
+    }
+  },
+  "compositions": {
+    "title": "Compoziții",
+    "subtitle": "Gestionează și execută fluxuri de lucru cu mai mulți pași",
+    "create": "Creează compoziție",
+    "edit": "Editează compoziția",
+    "delete": "Șterge compoziția",
+    "run": "Rulează",
+    "running": "Se rulează...",
+    "execute": "Execută",
+    "executing": "Se execută...",
+    "stop": "Oprește",
+    "name": "Numele compoziției",
+    "description": "Descriere",
+    "workflow": "Flux de lucru",
+    "trigger": "Declanșator",
+    "actions": "Acțiuni",
+    "search": "Caută compoziții...",
+    "steps": "{{count}} pași",
+    "executedTimes": "Executată de {{count}} ori",
+    "created": "Creată pe {{date}}",
+    "canExecute": "Poate executa",
+    "noExecutePermission": "Fără permisiune de execuție",
+    "validate": "Validează",
+    "promote": "Promovează",
+    "shareWithTeam": "Partajează cu echipa",
+    "makePrivate": "Fă privată",
+    "cancel": "Anulează",
+    "noSteps": "Niciun pas",
+    "parameters": "{{count}} parametri",
+    "runtimeParamsNote": "Introducerea parametrilor la rulare vine în curând. Momentan, compozițiile folosesc parametrii impliciți.",
+    "promoteConfirm": "Promovezi \"{{name}}\" la {{status}}?",
+    "deleteConfirm": "Ștergi \"{{name}}\"? Această acțiune nu poate fi anulată.",
+    "promotedSuccess": "Compoziția a fost promovată la {{status}}",
+    "deletedSuccess": "Compoziția a fost ștearsă",
+    "executedSuccess": "Compoziția a fost executată cu succes",
+    "sharedSuccess": "Compoziția a fost partajată cu echipa",
+    "madePrivate": "Compoziția a fost făcută privată",
+    "status": {
+      "temporary": "Temporară",
+      "validated": "Validată",
+      "production": "Producție",
+      "draft": "Ciornă",
+      "active": "Activă",
+      "paused": "Pauzată",
+      "error": "Eroare"
+    },
+    "visibility": {
+      "private": "Privată",
+      "organization": "Echipă",
+      "public": "Publică"
+    },
+    "filters": {
+      "allStatus": "Toate stările",
+      "allCompositions": "Toate compozițiile",
+      "myCompositions": "Compozițiile mele",
+      "teamShared": "Partajate cu echipa"
+    },
+    "empty": {
+      "title": "Nicio compoziție",
+      "description": "Compozițiile sunt create când orchestrezi mai multe instrumente împreună. Folosește asistentul AI pentru a crea primul flux de lucru.",
+      "noMatch": "Nicio compoziție nu corespunde filtrelor tale. Încearcă să ajustezi căutarea."
+    },
+    "executeModal": {
+      "title": "Execută compoziția",
+      "resultsTitle": "Rezultatele execuției",
+      "inputsTitle": "Parametri de intrare",
+      "stepsPreview": "Pași de executat",
+      "executingSteps": "Se execută {{count}} pași..."
+    },
+    "inputForm": {
+      "selectOption": "Selectează...",
+      "noInputsRequired": "Nu sunt necesari parametri pentru această compoziție",
+      "jsonFormat": "Format JSON ({{type}})"
+    },
+    "results": {
+      "title": "Rezultate",
+      "success": "Succes",
+      "failed": "Eșuat",
+      "duration": "Durată",
+      "output": "Ieșire",
+      "statusSuccess": "Execuție reușită",
+      "statusPartial": "Execuție parțială",
+      "statusFailed": "Execuție eșuată",
+      "summary": "{{success}}/{{total}} pași reușiți • {{duration}}",
+      "globalError": "Eroare globală",
+      "stepsTitle": "Detalii pași",
+      "stepOutput": "Ieșire",
+      "noOutput": "Nicio dată returnată",
+      "error": "Eroare",
+      "retries": "{{count}} reîncercare(i)",
+      "finalOutput": "Ieșire finală",
+      "startedAt": "Început la",
+      "completedAt": "Finalizat la",
+      "unknownError": "A apărut o eroare necunoscută"
+    },
+    "close": "Închide",
+    "executeAgain": "Execută din nou"
+  },
+  "onboarding": {
+    "title": "Bun venit la BigMCP!",
+    "subtitle": "Hai să te ajutăm să începi",
+    "steps": {
+      "welcome": {
+        "title": "Bun venit",
+        "description": "BigMCP te ajută să gestionezi și să orchestrezi servere MCP"
+      },
+      "connect": {
+        "title": "Conectează un server",
+        "description": "Navighează în marketplace și conectează primul tău server"
+      },
+      "configure": {
+        "title": "Configurează credențialele",
+        "description": "Configurează credențialele pentru serverele tale conectate"
+      },
+      "explore": {
+        "title": "Explorează instrumentele",
+        "description": "Descoperă instrumentele disponibile de la serverele tale"
+      },
+      "complete": {
+        "title": "Ești pregătit!",
+        "description": "Începe să-ți folosești instrumentele și creează compoziții"
+      }
+    },
+    "skip": "Sari peste configurare",
+    "next": "Înainte",
+    "previous": "Înapoi",
+    "finish": "Începe"
+  }
+}

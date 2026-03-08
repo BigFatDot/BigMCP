@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Szolgáltatások",
+    "subtitle": "Kezelje MCP szervereit, eszközeit és eszköztárait",
+    "search": "Eszközök keresése...",
+    "noTools": "Nincs elérhető eszköz",
+    "noToolsDescription": "Csatlakozzon a piactéren elérhető szerverekhez az eszközök megtekintéséhez",
+    "goToMarketplace": "Ugrás a piactérre",
+    "viewToggle": {
+      "servers": "Szolgáltatások",
+      "toolboxes": "Eszköztárak"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP szerverek = Eszközforrások",
+      "serversDescription": "Minden csatlakoztatott szerver eszközöket biztosít, amelyeket Claude használhat. A láthatóság kapcsolójával szabályozza, mely eszközök érhetők el.",
+      "visibleLabel": "Látható = Claude használhatja",
+      "hiddenLabel": "Rejtett = Letiltva Claude számára",
+      "toolboxesTitle": "Eszköztárak = Rendszerezze eszközeit",
+      "toolboxesDescription": "Hozzon létre eszköztárakat az eszközök csoportosításához. Az eszköztárakkal szabályozhatja, mely eszközök érhetők el külső alkalmazások csatlakoztatásakor.",
+      "forExternalIntegrations": "Külső integrációkhoz",
+      "manageConnections": "Kapcsolatok kezelése →"
+    },
+    "serverState": {
+      "active": "Aktív",
+      "apiOnly": "Csak API",
+      "standby": "Készenléti",
+      "disabled": "Letiltva",
+      "error": "Hiba"
+    },
+    "serverActions": {
+      "visible": "Látható",
+      "hidden": "Rejtett",
+      "stopServer": "Leállítja a szervert?",
+      "deleteServerConfirm": "Törli ezt a szervert és a hitelesítő adatait?",
+      "serverError": "A szerver hibát észlelt",
+      "availableTools": "Elérhető eszközök ({{count}})",
+      "visibleToClaude": "Claude számára látható",
+      "discoveringTools": "Eszközök felderítése...",
+      "startToDiscover": "Indítsa el a szervert az eszközök felderítéséhez"
+    },
+    "groups": {
+      "title": "Eszköztárak",
+      "create": "Eszköztár létrehozása",
+      "createToolbox": "Eszköztár létrehozása",
+      "createFirst": "Hozza létre az első eszköztárát",
+      "edit": "Eszköztár szerkesztése",
+      "delete": "Eszköztár törlése",
+      "name": "Eszköztár neve",
+      "description": "Leírás",
+      "tools": "Eszközök az eszköztárban",
+      "empty": "Még nincsenek eszköztárak",
+      "emptyDescription": "Hozzon létre eszköztárakat az API kulcsokon keresztül elérhető eszközök rendszerezéséhez.",
+      "noTools": "Nincs eszköz ebben az eszköztárban",
+      "deleteConfirm": "Törli a(z) \"{{name}}\" eszköztárat? Az ezt az eszköztárat használó API kulcsok elveszítik korlátozásaikat.",
+      "active": "Aktív",
+      "inactive": "Inaktív",
+      "shared": "Megosztott",
+      "private": "Privát",
+      "makePrivate": "Kattintson a privátté tételhez",
+      "shareWithTeam": "Kattintson a csapattal való megosztáshoz",
+      "used": "{{count}} alkalommal használva",
+      "used_plural": "{{count}} alkalommal használva"
+    },
+    "createModal": {
+      "title": "Eszköztár létrehozása",
+      "stepInfo": "Nevezze el az eszköztárát",
+      "stepTools": "Válassza ki a felvenni kívánt eszközöket",
+      "groupName": "Eszköztár neve *",
+      "groupNamePlaceholder": "pl. Csak olvasható, Éles környezet, Fejlesztői környezet",
+      "descriptionPlaceholder": "Mire való ez az eszköztár?",
+      "color": "Szín",
+      "visibility": "Láthatóság",
+      "visibilityPrivate": "Privát",
+      "visibilityPrivateDesc": "Csak Ön használhatja ezt az eszköztárat",
+      "visibilityOrganization": "Szervezet",
+      "visibilityOrganizationDesc": "Megosztás a csapattal",
+      "toolsSelected": "{{count}} eszköz kiválasztva",
+      "toolsSelected_plural": "{{count}} eszköz kiválasztva",
+      "clearAll": "Összes törlése",
+      "selectAll": "Összes kijelölése",
+      "deselectAll": "Kijelölés megszüntetése",
+      "noToolsAvailable": "Nincs elérhető eszköz",
+      "connectServersFirst": "Először csatlakozzon a szerverekhez, hogy eszközöket adhasson az eszköztárakhoz",
+      "back": "Vissza",
+      "cancel": "Mégse",
+      "nextSelectTools": "Tovább: Eszközök kiválasztása",
+      "creating": "Létrehozás...",
+      "createGroup": "Eszköztár létrehozása ({{count}} eszköz)"
+    },
+    "server": {
+      "connected": "Csatlakoztatva",
+      "disconnected": "Leválasztva",
+      "error": "Hiba",
+      "reconnect": "Újracsatlakozás",
+      "tools": "{{count}} eszköz",
+      "tools_plural": "{{count}} eszköz"
+    }
+  },
+  "myServers": {
+    "title": "Saját szolgáltatásaim",
+    "subtitle": "Kezelje a szolgáltatásokat és szabályozza a Claude számára elérhető eszközöket",
+    "serversUsed": "szerver használatban",
+    "limitReached": "Limit elérve",
+    "tabs": {
+      "personal": "Saját szolgáltatásaim",
+      "team": "Csapat szolgáltatások"
+    },
+    "stats": {
+      "servers": "Szolgáltatások",
+      "connected": "Csatlakoztatva",
+      "active": "Aktív",
+      "tools": "Eszközök"
+    },
+    "info": {
+      "title": "Eszközök láthatósága és felderítése",
+      "description": "Az aktív szerverek eszközöket tesznek elérhetővé Claude számára. A kapcsolóval szabályozza a láthatóságot.",
+      "hint": "Az eszközök az első indítás után jelennek meg (MCP-híváson keresztül)."
+    },
+    "empty": {
+      "title": "Még nincs csatlakoztatott szerver",
+      "description": "Kezdje el az első MCP szerver csatlakoztatásával a piactérről.",
+      "browseMarketplace": "Piactér böngészése"
+    },
+    "orgCredentials": {
+      "title": "Szervezeti hitelesítő adatok elérhetők",
+      "description": "Ezek a szerverek szervezeti hitelesítő adatokat használnak. Saját hitelesítő adatok megadása nélkül is használhatja őket.",
+      "viewAll": "Összes csapat szerver megtekintése →"
+    },
+    "visibility": {
+      "title": "Szerver láthatósága",
+      "visibleOauth": "OAuth számára látható",
+      "hiddenApiOnly": "Rejtett (csak API)",
+      "disabled": "Letiltva"
+    },
+    "actions": {
+      "stop": "Leállítás",
+      "start": "Indítás",
+      "restart": "Újraindítás",
+      "validate": "Ellenőrzés",
+      "edit": "Szerkesztés",
+      "delete": "Törlés",
+      "expand": "Kibontás az eszközök megtekintéséhez",
+      "collapse": "Összecsukás"
+    },
+    "tools": {
+      "available": "Elérhető eszközök ({{count}})",
+      "visibleToClaude": "Claude számára látható",
+      "visible": "Látható",
+      "hidden": "Rejtett",
+      "hideFromOauth": "Elrejtés az OAuth elől",
+      "showToOauth": "Megjelenítés az OAuth-nak",
+      "discovering": "Eszközök felderítése...",
+      "discoveringNote": "Az eszközök a szerver inicializálása után jelennek meg",
+      "notConnected": "A szerver nincs csatlakoztatva",
+      "notConnectedNote": "Indítsa el a szervert az elérhető eszközök felderítéséhez"
+    },
+    "serverInfo": {
+      "created": "Létrehozva:",
+      "lastUsed": "Utoljára használva:",
+      "validated": "Ellenőrizve"
+    },
+    "errors": {
+      "loadingCredentials": "Hiba a hitelesítő adatok betöltésekor",
+      "failedToLoad": "Nem sikerült betölteni a hitelesítő adatokat",
+      "deleteConfirm": "Biztosan törli ezt a hitelesítő adatot?",
+      "stopConfirm": "Biztosan leállítja ezt a szervert?",
+      "visibilityUpdated": "A szerver láthatósága frissítve",
+      "visibilityFailed": "Nem sikerült frissíteni a szerver láthatóságát",
+      "toolVisibilityUpdated": "Az eszköz láthatósága frissítve",
+      "toolVisibilityFailed": "Nem sikerült frissíteni az eszköz láthatóságát"
+    },
+    "team": {
+      "empty": {
+        "title": "Még nincsenek csapat szerverek",
+        "description": "A csapat szerverek megosztottak a szervezet összes tagjával. Csak adminisztrátorok adhatnak hozzá.",
+        "hint": "A megosztott hitelesítő adatok kezeléséhez lépjen a szervezeti beállításokba."
+      },
+      "orgSettings": "Szervezeti beállítások",
+      "banner": {
+        "title": "Csapat szolgáltatások",
+        "description": "Ezek a szerverek megosztottak a szervezet összes tagjával. A hitelesítő adatokat az adminisztrátorok kezelik."
+      },
+      "badge": "Csapat",
+      "teamServer": "Csapat szerver",
+      "visibleToMembers": "Minden tag számára látható",
+      "hiddenFromMembers": "Tagok előtt rejtett",
+      "showToMembers": "Láthatóvá tétel a tagok számára",
+      "hideFromMembers": "Elrejtés a tagok elől",
+      "deleteConfirm": "Biztosan törli ezt a csapat hitelesítő adatot? Ez a művelet nem vonható vissza.",
+      "deleteSuccess": "Csapat hitelesítő adat törölve",
+      "deleteFailed": "Nem sikerült törölni a csapat hitelesítő adatot",
+      "visibilityUpdated": "A tagok láthatósága frissítve",
+      "visibilityFailed": "Nem sikerült frissíteni a tagok láthatóságát",
+      "edit": "Csapat szerver szerkesztése",
+      "editTitle": "Csapat szerver szerkesztése",
+      "editSuccess": "Csapat szerver frissítve",
+      "editFailed": "Nem sikerült frissíteni a csapat szervert",
+      "nameLabel": "Név",
+      "namePlaceholder": "pl. Vállalati Grist fiók",
+      "nameRequired": "A név megadása kötelező",
+      "descriptionLabel": "Leírás",
+      "descriptionPlaceholder": "Opcionális leírás a csapatnak",
+      "visibleToAll": "Minden tag számára látható",
+      "visibleToAllDesc": "Minden csapattag láthatja és használhatja ezt a szervert",
+      "adminOnly": "Csak adminisztrátoroknak",
+      "adminOnlyDesc": "Csak az adminisztrátorok láthatják ezt a hitelesítő adatot (tartalékként használva)",
+      "updateCredentials": "Hitelesítő adatok frissítése (opcionális)",
+      "updateCredentialsHint": "Hagyja üresen a meglévő értékek megtartásához",
+      "leaveEmptyToKeep": "Hagyja üresen az aktuális érték megtartásához",
+      "howToGet": "Hogyan szerezhetem be?",
+      "cancel": "Mégse",
+      "saving": "Mentés...",
+      "saveChanges": "Változtatások mentése"
+    }
+  },
+  "compositions": {
+    "title": "Kompozíciók",
+    "subtitle": "Többlépéses eszköz munkafolyamatok kezelése és végrehajtása",
+    "create": "Kompozíció létrehozása",
+    "edit": "Kompozíció szerkesztése",
+    "delete": "Kompozíció törlése",
+    "run": "Futtatás",
+    "running": "Futtatás folyamatban...",
+    "execute": "Végrehajtás",
+    "executing": "Végrehajtás folyamatban...",
+    "stop": "Leállítás",
+    "name": "Kompozíció neve",
+    "description": "Leírás",
+    "workflow": "Munkafolyamat",
+    "trigger": "Indító",
+    "actions": "Műveletek",
+    "search": "Kompozíciók keresése...",
+    "steps": "{{count}} lépés",
+    "executedTimes": "{{count}} alkalommal végrehajtva",
+    "created": "Létrehozva: {{date}}",
+    "canExecute": "Végrehajtható",
+    "noExecutePermission": "Nincs végrehajtási jogosultság",
+    "validate": "Ellenőrzés",
+    "promote": "Előléptetés",
+    "shareWithTeam": "Megosztás a csapattal",
+    "makePrivate": "Privátté tétel",
+    "cancel": "Mégse",
+    "noSteps": "Nincsenek lépések",
+    "parameters": "{{count}} paraméter",
+    "runtimeParamsNote": "A futásidejű paraméter bevitel hamarosan elérhető. Egyelőre a kompozíciók alapértelmezett paramétereket használnak.",
+    "promoteConfirm": "Előlépteti a(z) \"{{name}}\" elemet ide: {{status}}?",
+    "deleteConfirm": "Törli a(z) \"{{name}}\" elemet? Ez a művelet nem vonható vissza.",
+    "promotedSuccess": "A kompozíció előléptetve: {{status}}",
+    "deletedSuccess": "Kompozíció törölve",
+    "executedSuccess": "A kompozíció sikeresen végrehajtva",
+    "sharedSuccess": "Kompozíció megosztva a csapattal",
+    "madePrivate": "A kompozíció privát lett",
+    "status": {
+      "temporary": "Ideiglenes",
+      "validated": "Ellenőrzött",
+      "production": "Éles",
+      "draft": "Vázlat",
+      "active": "Aktív",
+      "paused": "Szüneteltetve",
+      "error": "Hiba"
+    },
+    "visibility": {
+      "private": "Privát",
+      "organization": "Csapat",
+      "public": "Nyilvános"
+    },
+    "filters": {
+      "allStatus": "Minden állapot",
+      "allCompositions": "Minden kompozíció",
+      "myCompositions": "Saját kompozícióim",
+      "teamShared": "Csapattal megosztott"
+    },
+    "empty": {
+      "title": "Nincsenek kompozíciók",
+      "description": "A kompozíciók akkor jönnek létre, amikor több eszközt hangol össze. Használja az AI asszisztenst az első munkafolyamat létrehozásához.",
+      "noMatch": "Nincs a szűrőknek megfelelő kompozíció. Próbálja módosítani a keresést."
+    },
+    "executeModal": {
+      "title": "Kompozíció végrehajtása",
+      "resultsTitle": "Végrehajtási eredmények",
+      "inputsTitle": "Bemeneti paraméterek",
+      "stepsPreview": "Végrehajtandó lépések",
+      "executingSteps": "{{count}} lépés végrehajtása..."
+    },
+    "inputForm": {
+      "selectOption": "Válasszon...",
+      "noInputsRequired": "Ehhez a kompozícióhoz nem szükségesek paraméterek",
+      "jsonFormat": "JSON formátum ({{type}})"
+    },
+    "results": {
+      "title": "Eredmények",
+      "success": "Sikeres",
+      "failed": "Sikertelen",
+      "duration": "Időtartam",
+      "output": "Kimenet",
+      "statusSuccess": "Végrehajtás sikeres",
+      "statusPartial": "Részleges végrehajtás",
+      "statusFailed": "Végrehajtás sikertelen",
+      "summary": "{{success}}/{{total}} lépés sikeres • {{duration}}",
+      "globalError": "Globális hiba",
+      "stepsTitle": "Lépés részletei",
+      "stepOutput": "Kimenet",
+      "noOutput": "Nem érkezett adat vissza",
+      "error": "Hiba",
+      "retries": "{{count}} újrapróbálkozás",
+      "finalOutput": "Végső kimenet",
+      "startedAt": "Elindítva",
+      "completedAt": "Befejezve",
+      "unknownError": "Ismeretlen hiba történt"
+    },
+    "close": "Bezárás",
+    "executeAgain": "Újbóli végrehajtás"
+  },
+  "onboarding": {
+    "title": "Üdvözöljük a BigMCP-ben!",
+    "subtitle": "Kezdjük el",
+    "steps": {
+      "welcome": {
+        "title": "Üdvözöljük",
+        "description": "A BigMCP segít az MCP szerverek kezelésében és összehangolásában"
+      },
+      "connect": {
+        "title": "Szerver csatlakoztatása",
+        "description": "Böngéssze a piacteret és csatlakoztassa az első szerverét"
+      },
+      "configure": {
+        "title": "Hitelesítő adatok konfigurálása",
+        "description": "Állítsa be a csatlakoztatott szerverek hitelesítő adatait"
+      },
+      "explore": {
+        "title": "Eszközök felfedezése",
+        "description": "Fedezze fel a szerverekről elérhető eszközöket"
+      },
+      "complete": {
+        "title": "Minden készen áll!",
+        "description": "Kezdje el használni az eszközöket és hozzon létre kompozíciókat"
+      }
+    },
+    "skip": "Bevezetés kihagyása",
+    "next": "Tovább",
+    "previous": "Vissza",
+    "finish": "Kezdjük el"
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Funksjoner",
+    "howItWorks": "Slik fungerer det",
+    "pricing": "Priser",
+    "login": "Logg inn",
+    "getStarted": "Kom i gang"
+  },
+  "hero": {
+    "badge": "Styringslagfor MCP",
+    "title": "Én",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "for alle verktøyene dine",
+    "subtitle": "Sentraliser, styr og orkestrer Model Context Protocol-verktøyene dine i én samlet plattform. Tilgang fra hvor som helst — desktop eller mobil.",
+    "cta": "Start gratis prøveperiode",
+    "ctaSecondary": "Se hvordan det fungerer"
+  },
+  "mobileDemo": {
+    "badge": "Én kobling",
+    "title": "Gjør timer med manuelt arbeid",
+    "titleHighlight": "om til sekunder med automatisering",
+    "description": "BigMCP lar deg sette sammen egendefinerte arbeidsflyter som orkestrerer flere tjenester med én enkelt kommando. Opprett dine egne flerverktøyskomposisjoner én gang, og kjør dem deretter øyeblikkelig fra hvor som helst.",
+    "features": [
+      "Sett sammen arbeidsflyter fra eksisterende verktøy (HubSpot, Drive, Gmail, Slack...)",
+      "Kjør flerserviceoperasjoner med naturlig språk",
+      "Dine egendefinerte komposisjoner blir kallbare verktøy for hele teamet",
+      "Kjør komplekse arbeidsflyter fra Claude — desktop eller mobil"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Introduser ny kunde: Acme Corp (kontakt: john@acme.com, sektor: B2B SaaS)",
+    "thinkingTitle": "Tankeprosess",
+    "thinkingText": "Brukeren opprettet en egendefinert arbeidsflyt for fullstendig kundeonboarding. Vil kjøres på tvers av CRM, Drive, Gmail og Slack.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Egendefinert arbeidsflyt • 5 tjenester",
+    "steps": {
+      "crm": "HubSpot: create_contact",
+      "drive": "Drive: create_folder",
+      "mail": "Gmail: send_welcome",
+      "sheet": "Sheets: add_tracking",
+      "chat": "Slack: notify_team"
+    },
+    "workflowCompleted": "Arbeidsflyt fullført",
+    "resultTitle": "Kunden er onboardet",
+    "resultIntro": "Jeg har satt opp <strong>Acme Corp</strong> i alle systemene dine:",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • B2B SaaS-sektor",
+    "hubspotDetails": "Primærkontakt: John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Fullstendig struktur med kontrakter og fakturering",
+    "statusItems": [
+      "Velkomst-e-post sendt til John",
+      "Salgssporing oppdatert",
+      "Team varslet i #sales"
+    ],
+    "conclusion": "Alt er klart for å starte samarbeidet med Acme Corp.",
+    "replyPlaceholder": "Svar..."
+  },
+  "challenge": {
+    "badge": "Utfordringen",
+    "title": "MCP-styringsutfordringen",
+    "subtitle": "Etter hvert som MCP-økosystemet vokser, blir det komplekst og risikabelt å administrere verktøy",
+    "withoutTitle": "Uten BigMCP",
+    "withoutItems": [
+      "Hver MCP-server administrerer sine egne legitimasjoner",
+      "Ingen sentralisert tilgangskontroll eller revisjon",
+      "Manuell verktøyorkestrering på tvers av servere",
+      "Kun desktop, ingen mobiltilgang",
+      "Null synlighet i bruksmønstre",
+      "Umulig å håndheve styringspolicyer"
+    ],
+    "withTitle": "Med BigMCP",
+    "withItems": [
+      "Samlet OAuth-autentisering",
+      "RBAC på organisasjonsnivå med 4 rollenivåer",
+      "Automatisert verktøykomposisjon og arbeidsflyter",
+      "Tilgang fra desktop, mobil, hvor som helst",
+      "Omfattende brukssporing og målinger",
+      "Enkelt styringslag for alle MCP-er"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Enkelt oppsett",
+    "title": "Slik fungerer BigMCP",
+    "subtitle": "Tre steg til samlet MCP-styring",
+    "steps": [
+      {
+        "title": "Opprett kontoen din",
+        "description": "Registrer deg med e-posten din. Legitimasjonene dine er kryptert og synkronisert på alle enheter."
+      },
+      {
+        "title": "Koble til MCP-servere",
+        "description": "Legg til eksisterende MCP-servere i BigMCP. Konfigurer legitimasjoner og tilgangspolicyer for hver server."
+      },
+      {
+        "title": "Bruk og kombiner verktøy",
+        "description": "Bruk verktøy direkte eller kombiner dem i kraftige arbeidsflyter. Ingen kompleksitet, bare resultater levert umiddelbart."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Funksjoner",
+    "title": "Alt du trenger for å",
+    "titleEnd": "styre MCP i stor skala",
+    "subtitle": "Bygget for team som tar MCP-styring på alvor",
+    "items": [
+      {
+        "title": "Samlet autentisering",
+        "description": "Enkelt OAuth 2.0 + PKCE-flyt for AI-klienter. Kryptert legitimasjonslagring med isolasjon på organisasjons- og brukernivå."
+      },
+      {
+        "title": "Verktøyorkestrering",
+        "description": "Sett sammen flerverktøysarbeidsflyter med automatisk legitimasjonsinjeksjon og hierarkiske bindinger for komplekse operasjoner."
+      },
+      {
+        "title": "Mobiltilgang",
+        "description": "MCP-verktøyene dine tilgjengelige på mobil, nettbrett, hvor som helst. Samme autentisering, samme opplevelse, null konfigurasjon."
+      },
+      {
+        "title": "Bruksanalyse",
+        "description": "Spor verktøykjøringer, suksessrater og bruksmønstre i hele organisasjonen med omfattende brukssporing."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Priser",
+    "title": "Enkle, transparente priser",
+    "subtitle": "Skybasert eller selvhostet — du velger",
+    "cloudLabel": "☁️ Sky = Vi hoster, du bruker",
+    "selfHostedLabel": "💻 Selvhostet = Du eier alt",
+    "individual": {
+      "title": "Individuell",
+      "subtitle": "Sky",
+      "price": "€4,99",
+      "period": "/måned",
+      "features": [
+        "1 bruker",
+        "Ubegrensede MCP-servere",
+        "AI-orkestrering",
+        "Semantisk søk",
+        "Komposisjoner og arbeidsflyter",
+        "Administrert LLM inkludert"
+      ],
+      "cta": "Start gratis prøveperiode"
+    },
+    "team": {
+      "title": "Team",
+      "subtitle": "Sky",
+      "price": "€4,99",
+      "period": "/måned + €4,99/bruker",
+      "badge": "Mest populær",
+      "features": [
+        "Alt i Individuell",
+        "Opptil 20 brukere",
+        "Organisasjoner og RBAC",
+        "Delte legitimasjoner",
+        "Avanserte revisionslogger"
+      ],
+      "cta": "Start gratis prøveperiode"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "subtitle": "Selvhostet",
+      "price": "Gratis",
+      "period": "lanseringstilbud • 3 måneder",
+      "features": [
+        "Alt i Team",
+        "Ubegrensede brukere og team",
+        "Full administratorkontroll",
+        "Sentral MCP-serverpool",
+        "SSO (SAML, OIDC) - Kommer snart",
+        "Avansert revisjon og samsvar",
+        "Ditt valg av LLM",
+        "Evigvarende lisens"
+      ],
+      "cta": "Få Enterprise"
+    },
+    "community": {
+      "title": "Community",
+      "subtitle": "Selvhostet",
+      "price": "Gratis",
+      "period": "",
+      "features": [
+        "Alt i Individuell",
+        "Kun 1 bruker",
+        "Ditt valg av LLM",
+        "Docker-distribusjon"
+      ],
+      "cta": "Kom i gang"
+    },
+    "comingSoon": "Kommer snart",
+    "note": "Sky-utgavene er tilgjengelige nå med administrert LLM inkludert. Selvhostede utgaver lar deg velge din LLM-leverandør."
+  },
+  "finalCta": {
+    "title": "Klar til å styre MCP-økosystemet ditt?",
+    "subtitle": "Start den gratis prøveperioden din i dag. Ingen kredittkort kreves.",
+    "cta": "Start gratis prøveperiode"
+  },
+  "footer": {
+    "tagline": "Styringslaget for Model Context Protocol-verktøyene dine. Sentraliser, orkestrer og kontroller MCP-økosystemet ditt.",
+    "madeBy": "Et produkt av",
+    "product": "Produkt",
+    "company": "Selskap",
+    "links": {
+      "features": "Funksjoner",
+      "howItWorks": "Slik fungerer det",
+      "pricing": "Priser",
+      "documentation": "Dokumentasjon",
+      "about": "Om BigFatDot",
+      "contact": "Kontakt",
+      "privacy": "Personvern",
+      "terms": "Vilkår"
+    },
+    "copyright": "© 2026 BigMCP by BigFatDot. Alle rettigheter forbeholdt."
+  }
+}

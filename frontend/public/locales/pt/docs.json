@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Buscar na documentação...",
+    "badge": "Docs",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "Docs da API"
+  },
+  "page": {
+    "breadcrumbDocs": "Docs",
+    "previous": "Anterior",
+    "next": "Próximo",
+    "notFoundTitle": "Página Não Encontrada",
+    "notFoundDescription": "A página de documentação que você está procurando não existe.",
+    "goToHome": "Ir para a página inicial da documentação"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Primeiros Passos",
+      "introduction": {
+        "title": "Introdução",
+        "description": "O que é o BigMCP e por que usá-lo"
+      },
+      "quickstart": {
+        "title": "Início Rápido",
+        "description": "Comece a usar em 5 minutos"
+      },
+      "firstServer": {
+        "title": "Conecte Seu Primeiro Servidor",
+        "description": "Adicione um servidor MCP à sua conta"
+      }
+    },
+    "guides": {
+      "title": "Guias",
+      "marketplace": {
+        "title": "Descobrir Servidores",
+        "description": "Explore e instale servidores MCP do marketplace"
+      },
+      "credentials": {
+        "title": "Gerenciar Serviços",
+        "description": "Controle seus servidores conectados e suas ferramentas"
+      },
+      "toolGroups": {
+        "title": "Organizar com Toolboxes",
+        "description": "Agrupe ferramentas para diferentes casos de uso e controle de acesso"
+      },
+      "apiKeys": {
+        "title": "Criar Chaves API",
+        "description": "Gere chaves para integrações externas e automação"
+      },
+      "compositions": {
+        "title": "Criar Composições",
+        "description": "Encadeie ferramentas para workflows complexos"
+      },
+      "teamServices": {
+        "title": "Serviços da Equipe",
+        "description": "Gerencie serviços compartilhados para sua equipe (plano Equipe)"
+      }
+    },
+    "integrations": {
+      "title": "Integrações",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Conecte o BigMCP ao Claude Desktop via OAuth"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Use as ferramentas do BigMCP no Mistral Le Chat"
+      },
+      "n8n": {
+        "title": "Automação n8n",
+        "description": "Use as ferramentas do BigMCP em workflows do n8n"
+      },
+      "customClients": {
+        "title": "Clientes Personalizados",
+        "description": "Construa seu próprio cliente MCP com o SDK"
+      }
+    },
+    "concepts": {
+      "title": "Conceitos Fundamentais",
+      "mcpOverview": {
+        "title": "Protocolo MCP",
+        "description": "Entendendo o padrão Model Context Protocol"
+      },
+      "servers": {
+        "title": "Servidores MCP",
+        "description": "Como os servidores expõem ferramentas, recursos e prompts"
+      },
+      "tools": {
+        "title": "Ferramentas e Execução",
+        "description": "Como as ferramentas funcionam e são executadas por agentes de IA"
+      },
+      "security": {
+        "title": "Modelo de Segurança",
+        "description": "Criptografia, autenticação e controle de acesso"
+      }
+    },
+    "api": {
+      "title": "Referência da API",
+      "apiOverview": {
+        "title": "Visão Geral da API",
+        "description": "Introdução à API REST e autenticação"
+      },
+      "apiMarketplace": {
+        "title": "API do Marketplace",
+        "description": "Endpoints para descoberta de servidores"
+      },
+      "apiCredentials": {
+        "title": "API de Credenciais",
+        "description": "Gerencie credenciais de usuário programaticamente"
+      },
+      "apiMcp": {
+        "title": "API do MCP Gateway",
+        "description": "Conecte-se às ferramentas via gateway"
+      },
+      "apiTools": {
+        "title": "API de Ferramentas e Execução",
+        "description": "Execute ferramentas, vínculos e composições"
+      }
+    },
+    "selfHosting": {
+      "title": "Auto-Hospedagem",
+      "selfHostOverview": {
+        "title": "Visão Geral",
+        "description": "Opções e requisitos de auto-hospedagem"
+      },
+      "dockerSetup": {
+        "title": "Configuração Docker",
+        "description": "Implante com Docker Compose"
+      },
+      "configuration": {
+        "title": "Configuração",
+        "description": "Variáveis de ambiente e configurações"
+      },
+      "llmProviders": {
+        "title": "Provedores de LLM",
+        "description": "Configure seu backend de IA"
+      },
+      "customServers": {
+        "title": "Servidores MCP Personalizados",
+        "description": "Adicione seus próprios servidores MCP a instâncias Enterprise"
+      }
+    }
+  }
+}

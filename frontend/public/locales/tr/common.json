@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Servisler",
+    "compositions": "Komposizyonlar",
+    "documentation": "Dokümantasyon",
+    "signin": "Giriş yap",
+    "signup": "Kayıt ol",
+    "startTrial": "Ücretsiz Denemeyi Başlat"
+  },
+  "menu": {
+    "account": "Hesap Ayarları",
+    "subscription": "Abonelik ve Faturalama",
+    "apiKeys": "API Keys",
+    "team": "Ekip",
+    "preferences": "Tercihler",
+    "signout": "Çıkış Yap"
+  },
+  "buttons": {
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "create": "Oluştur",
+    "close": "Kapat",
+    "confirm": "Onayla",
+    "back": "Geri",
+    "next": "İleri",
+    "submit": "Gönder",
+    "loading": "Yükleniyor...",
+    "retry": "Tekrar dene",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı!"
+  },
+  "status": {
+    "loading": "Yükleniyor...",
+    "saving": "Kaydediliyor...",
+    "error": "Hata",
+    "success": "Başarılı"
+  },
+  "errors": {
+    "generic": "Bir hata oluştu",
+    "notFound": "Bulunamadı",
+    "unauthorized": "Yetkisiz",
+    "forbidden": "Erişim reddedildi",
+    "networkError": "Ağ hatası. Lütfen bağlantınızı kontrol edin."
+  },
+  "trial": {
+    "badge": "Deneme",
+    "daysLeft": "Denemede {{count}} gün kaldı",
+    "daysLeft_plural": "Denemede {{count}} gün kaldı"
+  },
+  "empty": {
+    "noData": "Veri yok",
+    "noResults": "Sonuç bulunamadı"
+  }
+}

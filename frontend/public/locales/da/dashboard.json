@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Tjenester",
+    "subtitle": "Administrer dine MCP-servere, værktøjer og værktøjskasser",
+    "search": "Søg efter værktøjer...",
+    "noTools": "Ingen værktøjer tilgængelige",
+    "noToolsDescription": "Tilslut dig servere i Marketplace for at se værktøjer her",
+    "goToMarketplace": "Gå til Marketplace",
+    "viewToggle": {
+      "servers": "Tjenester",
+      "toolboxes": "Værktøjskasser"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP-servere = kilder til værktøjer",
+      "serversDescription": "Hver server du tilslutter giver værktøjer, som Claude kan bruge. Skift synlighed for at styre, hvilke værktøjer der er tilgængelige.",
+      "visibleLabel": "Synlig = Claude kan bruge",
+      "hiddenLabel": "Skjult = deaktiveret for Claude",
+      "toolboxesTitle": "Værktøjskasser = organiser dine værktøjer",
+      "toolboxesDescription": "Opret værktøjskasser for at samle specifikke værktøjer. Brug værktøjskasser til at styre, hvilke værktøjer der er tilgængelige, når du forbinder eksterne applikationer.",
+      "forExternalIntegrations": "Til eksterne integrationer",
+      "manageConnections": "Administrer forbindelser →"
+    },
+    "serverState": {
+      "active": "Aktiv",
+      "apiOnly": "Kun API",
+      "standby": "Standby",
+      "disabled": "Deaktiveret",
+      "error": "Fejl"
+    },
+    "serverActions": {
+      "visible": "Synlig",
+      "hidden": "Skjult",
+      "stopServer": "Stop server?",
+      "deleteServerConfirm": "Slet denne server og dens legitimationsoplysninger?",
+      "serverError": "Serveren stødte på en fejl",
+      "availableTools": "Tilgængelige værktøjer ({{count}})",
+      "visibleToClaude": "Synlig for Claude",
+      "discoveringTools": "Opdager værktøjer...",
+      "startToDiscover": "Start server for at opdage værktøjer"
+    },
+    "groups": {
+      "title": "Værktøjskasser",
+      "create": "Opret værktøjskasse",
+      "createToolbox": "Opret værktøjskasse",
+      "createFirst": "Opret din første værktøjskasse",
+      "edit": "Rediger værktøjskasse",
+      "delete": "Slet værktøjskasse",
+      "name": "Navn på værktøjskasse",
+      "description": "Beskrivelse",
+      "tools": "Værktøjer i værktøjskassen",
+      "empty": "Ingen værktøjskasser endnu",
+      "emptyDescription": "Opret værktøjskasser for at organisere, hvilke værktøjer der er tilgængelige via API-nøgler.",
+      "noTools": "Ingen værktøjer i denne værktøjskasse",
+      "deleteConfirm": "Slet \"{{name}}\"? API-nøgler, der bruger denne værktøjskasse, mister deres begrænsninger.",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "shared": "Delt",
+      "private": "Privat",
+      "makePrivate": "Klik for at gøre privat",
+      "shareWithTeam": "Klik for at dele med team",
+      "used": "Brugt {{count}} gang",
+      "used_plural": "Brugt {{count}} gange"
+    },
+    "createModal": {
+      "title": "Opret værktøjskasse",
+      "stepInfo": "Navngiv din værktøjskasse",
+      "stepTools": "Vælg værktøjer der skal inkluderes",
+      "groupName": "Navn på værktøjskasse *",
+      "groupNamePlaceholder": "f.eks. Skrivebeskyttet, Produktion, Udviklingsmiljø",
+      "descriptionPlaceholder": "Hvad er denne værktøjskasse til?",
+      "color": "Farve",
+      "visibility": "Synlighed",
+      "visibilityPrivate": "Privat",
+      "visibilityPrivateDesc": "Kun du kan bruge denne værktøjskasse",
+      "visibilityOrganization": "Organisation",
+      "visibilityOrganizationDesc": "Del med dit team",
+      "toolsSelected": "{{count}} værktøj valgt",
+      "toolsSelected_plural": "{{count}} værktøjer valgt",
+      "clearAll": "Ryd alle",
+      "selectAll": "Vælg alle",
+      "deselectAll": "Fravælg alle",
+      "noToolsAvailable": "Ingen værktøjer tilgængelige",
+      "connectServersFirst": "Tilslut servere først for at tilføje værktøjer til værktøjskasser",
+      "back": "Tilbage",
+      "cancel": "Annuller",
+      "nextSelectTools": "Næste: Vælg værktøjer",
+      "creating": "Opretter...",
+      "createGroup": "Opret værktøjskasse ({{count}} værktøjer)"
+    },
+    "server": {
+      "connected": "Forbundet",
+      "disconnected": "Afbrudt",
+      "error": "Fejl",
+      "reconnect": "Genopret forbindelse",
+      "tools": "{{count}} værktøj",
+      "tools_plural": "{{count}} værktøjer"
+    }
+  },
+  "myServers": {
+    "title": "Mine tjenester",
+    "subtitle": "Administrer tjenester og styr værktøjer eksponeret for Claude",
+    "serversUsed": "servere i brug",
+    "limitReached": "Grænse nået",
+    "tabs": {
+      "personal": "Mine tjenester",
+      "team": "Teamtjenester"
+    },
+    "stats": {
+      "servers": "Tjenester",
+      "connected": "Forbundet",
+      "active": "Aktiv",
+      "tools": "Værktøjer"
+    },
+    "info": {
+      "title": "Synlighed og opdagelse af værktøjer",
+      "description": "Aktive servere eksponerer værktøjer for Claude. Brug toggle til at styre synlighed.",
+      "hint": "Værktøjer vises, når serveren startes for første gang (via MCP-kald)."
+    },
+    "empty": {
+      "title": "Ingen servere forbundet endnu",
+      "description": "Kom i gang ved at tilslutte din første MCP-server fra marketplace.",
+      "browseMarketplace": "Gennemse Marketplace"
+    },
+    "orgCredentials": {
+      "title": "Organisationslegitimationsoplysninger tilgængelige",
+      "description": "Disse servere bruger organisationslegitimationsoplysninger. Du kan bruge dem uden at angive dine egne.",
+      "viewAll": "Vis alle teamservere →"
+    },
+    "visibility": {
+      "title": "Serversynlighed",
+      "visibleOauth": "Synlig for OAuth",
+      "hiddenApiOnly": "Skjult (kun API)",
+      "disabled": "Deaktiveret"
+    },
+    "actions": {
+      "stop": "Stop",
+      "start": "Start",
+      "restart": "Genstart",
+      "validate": "Valider",
+      "edit": "Rediger",
+      "delete": "Slet",
+      "expand": "Udvid for at se værktøjer",
+      "collapse": "Fold sammen"
+    },
+    "tools": {
+      "available": "Tilgængelige værktøjer ({{count}})",
+      "visibleToClaude": "Synlig for Claude",
+      "visible": "Synlig",
+      "hidden": "Skjult",
+      "hideFromOauth": "Skjul fra OAuth",
+      "showToOauth": "Vis for OAuth",
+      "discovering": "Opdager værktøjer...",
+      "discoveringNote": "Værktøjer vises efter serverinitialisering",
+      "notConnected": "Server ikke forbundet",
+      "notConnectedNote": "Start serveren for at opdage tilgængelige værktøjer"
+    },
+    "serverInfo": {
+      "created": "Oprettet:",
+      "lastUsed": "Sidst brugt:",
+      "validated": "Valideret"
+    },
+    "errors": {
+      "loadingCredentials": "Fejl ved indlæsning af legitimationsoplysninger",
+      "failedToLoad": "Kunne ikke indlæse legitimationsoplysninger",
+      "deleteConfirm": "Er du sikker på, at du vil slette disse legitimationsoplysninger?",
+      "stopConfirm": "Er du sikker på, at du vil stoppe denne server?",
+      "visibilityUpdated": "Serversynlighed opdateret",
+      "visibilityFailed": "Kunne ikke opdatere serversynlighed",
+      "toolVisibilityUpdated": "Værktøjssynlighed opdateret",
+      "toolVisibilityFailed": "Kunne ikke opdatere værktøjssynlighed"
+    },
+    "team": {
+      "empty": {
+        "title": "Ingen teamservere endnu",
+        "description": "Teamservere deles med alle organisationsmedlemmer. Kun administratorer kan tilføje dem.",
+        "hint": "Gå til organisationsindstillinger for at administrere delte legitimationsoplysninger."
+      },
+      "orgSettings": "Organisationsindstillinger",
+      "banner": {
+        "title": "Teamtjenester",
+        "description": "Disse servere deles med alle organisationsmedlemmer. Legitimationsoplysninger administreres af administratorer."
+      },
+      "badge": "Team",
+      "teamServer": "Teamserver",
+      "visibleToMembers": "Synlig for alle medlemmer",
+      "hiddenFromMembers": "Skjult fra medlemmer",
+      "showToMembers": "Gør synlig for medlemmer",
+      "hideFromMembers": "Skjul fra medlemmer",
+      "deleteConfirm": "Er du sikker på, at du vil slette disse teamlegitimationsoplysninger? Denne handling kan ikke fortrydes.",
+      "deleteSuccess": "Teamlegitimationsoplysninger slettet",
+      "deleteFailed": "Kunne ikke slette teamlegitimationsoplysninger",
+      "visibilityUpdated": "Medlemssynlighed opdateret",
+      "visibilityFailed": "Kunne ikke opdatere medlemssynlighed",
+      "edit": "Rediger teamserver",
+      "editTitle": "Rediger teamserver",
+      "editSuccess": "Teamserver opdateret",
+      "editFailed": "Kunne ikke opdatere teamserver",
+      "nameLabel": "Navn",
+      "namePlaceholder": "f.eks. Firmakonto i Grist",
+      "nameRequired": "Navn er påkrævet",
+      "descriptionLabel": "Beskrivelse",
+      "descriptionPlaceholder": "Valgfri beskrivelse til dit team",
+      "visibleToAll": "Synlig for alle medlemmer",
+      "visibleToAllDesc": "Alle teammedlemmer kan se og bruge denne server",
+      "adminOnly": "Kun administrator",
+      "adminOnlyDesc": "Kun administratorer kan se disse legitimationsoplysninger (bruges som fallback)",
+      "updateCredentials": "Opdater legitimationsoplysninger (valgfrit)",
+      "updateCredentialsHint": "Lad feltet stå tomt for at beholde eksisterende værdier",
+      "leaveEmptyToKeep": "Lad feltet stå tomt for at beholde den aktuelle værdi",
+      "howToGet": "Hvordan får man dette?",
+      "cancel": "Annuller",
+      "saving": "Gemmer...",
+      "saveChanges": "Gem ændringer"
+    }
+  },
+  "compositions": {
+    "title": "Kompositioner",
+    "subtitle": "Administrer og udfør flertrins-værktøjsarbejdsforløb",
+    "create": "Opret komposition",
+    "edit": "Rediger komposition",
+    "delete": "Slet komposition",
+    "run": "Kør",
+    "running": "Kører...",
+    "execute": "Udfør",
+    "executing": "Udfører...",
+    "stop": "Stop",
+    "name": "Kompositionsnavn",
+    "description": "Beskrivelse",
+    "workflow": "Arbejdsforløb",
+    "trigger": "Udløser",
+    "actions": "Handlinger",
+    "search": "Søg efter kompositioner...",
+    "steps": "{{count}} trin",
+    "executedTimes": "Udført {{count}} gange",
+    "created": "Oprettet {{date}}",
+    "canExecute": "Kan udføres",
+    "noExecutePermission": "Ingen udførelsestilladelse",
+    "validate": "Valider",
+    "promote": "Forfremmelse",
+    "shareWithTeam": "Del med team",
+    "makePrivate": "Gør privat",
+    "cancel": "Annuller",
+    "noSteps": "Ingen trin",
+    "parameters": "{{count}} parametre",
+    "runtimeParamsNote": "Kørselstids-parameterinput kommer snart. Kompositioner bruger foreløbig standardparametre.",
+    "promoteConfirm": "Forfremme \"{{name}}\" til {{status}}?",
+    "deleteConfirm": "Slet \"{{name}}\"? Denne handling kan ikke fortrydes.",
+    "promotedSuccess": "Komposition forfremmet til {{status}}",
+    "deletedSuccess": "Komposition slettet",
+    "executedSuccess": "Komposition udført",
+    "sharedSuccess": "Komposition delt med team",
+    "madePrivate": "Komposition gjort privat",
+    "status": {
+      "temporary": "Midlertidig",
+      "validated": "Valideret",
+      "production": "Produktion",
+      "draft": "Kladde",
+      "active": "Aktiv",
+      "paused": "Sat på pause",
+      "error": "Fejl"
+    },
+    "visibility": {
+      "private": "Privat",
+      "organization": "Team",
+      "public": "Offentlig"
+    },
+    "filters": {
+      "allStatus": "Alle statusser",
+      "allCompositions": "Alle kompositioner",
+      "myCompositions": "Mine kompositioner",
+      "teamShared": "Delt med team"
+    },
+    "empty": {
+      "title": "Ingen kompositioner",
+      "description": "Kompositioner oprettes, når du orkestrerer flere værktøjer sammen. Brug AI-assistenten til at oprette dit første arbejdsforløb.",
+      "noMatch": "Ingen kompositioner matcher dine filtre. Prøv at justere din søgning."
+    },
+    "executeModal": {
+      "title": "Udfør komposition",
+      "resultsTitle": "Udførelsesresultater",
+      "inputsTitle": "Inputparametre",
+      "stepsPreview": "Trin der skal udføres",
+      "executingSteps": "Udfører {{count}} trin..."
+    },
+    "inputForm": {
+      "selectOption": "Vælg...",
+      "noInputsRequired": "Ingen parametre kræves til denne komposition",
+      "jsonFormat": "JSON-format ({{type}})"
+    },
+    "results": {
+      "title": "Resultater",
+      "success": "Succes",
+      "failed": "Mislykkedes",
+      "duration": "Varighed",
+      "output": "Output",
+      "statusSuccess": "Udførelse lykkedes",
+      "statusPartial": "Delvis udførelse",
+      "statusFailed": "Udførelse mislykkedes",
+      "summary": "{{success}}/{{total}} trin lykkedes • {{duration}}",
+      "globalError": "Global fejl",
+      "stepsTitle": "Trindetaljer",
+      "stepOutput": "Output",
+      "noOutput": "Ingen data returneret",
+      "error": "Fejl",
+      "retries": "{{count}} forsøg",
+      "finalOutput": "Endeligt output",
+      "startedAt": "Startet kl.",
+      "completedAt": "Afsluttet kl.",
+      "unknownError": "Der opstod en ukendt fejl"
+    },
+    "close": "Luk",
+    "executeAgain": "Udfør igen"
+  },
+  "onboarding": {
+    "title": "Velkommen til BigMCP!",
+    "subtitle": "Lad os komme i gang",
+    "steps": {
+      "welcome": {
+        "title": "Velkommen",
+        "description": "BigMCP hjælper dig med at administrere og orkestrere MCP-servere"
+      },
+      "connect": {
+        "title": "Tilslut en server",
+        "description": "Gennemse marketplace og tilslut din første server"
+      },
+      "configure": {
+        "title": "Konfigurér legitimationsoplysninger",
+        "description": "Opsæt legitimationsoplysninger til dine tilsluttede servere"
+      },
+      "explore": {
+        "title": "Udforsk værktøjer",
+        "description": "Opdag de værktøjer der er tilgængelige fra dine servere"
+      },
+      "complete": {
+        "title": "Du er klar!",
+        "description": "Begynd at bruge dine værktøjer og opret kompositioner"
+      }
+    },
+    "skip": "Spring onboarding over",
+    "next": "Næste",
+    "previous": "Forrige",
+    "finish": "Kom i gang"
+  }
+}

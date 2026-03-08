@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Търсете в документацията...",
+    "badge": "Документация",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API документация"
+  },
+  "page": {
+    "breadcrumbDocs": "Документация",
+    "previous": "Предишна",
+    "next": "Следваща",
+    "notFoundTitle": "Страницата не е намерена",
+    "notFoundDescription": "Страницата с документация, която търсите, не съществува.",
+    "goToHome": "Отидете към началото на документацията"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Първи стъпки",
+      "introduction": {
+        "title": "Въведение",
+        "description": "Какво е BigMCP и защо да го използвате"
+      },
+      "quickstart": {
+        "title": "Бърз старт",
+        "description": "Стартирайте за 5 минути"
+      },
+      "firstServer": {
+        "title": "Свържете първия си сървър",
+        "description": "Добавете MCP сървър към вашия акаунт"
+      }
+    },
+    "guides": {
+      "title": "Ръководства",
+      "marketplace": {
+        "title": "Открийте сървъри",
+        "description": "Разгледайте и инсталирайте MCP сървъри от маркетплейса"
+      },
+      "credentials": {
+        "title": "Управлявайте услуги",
+        "description": "Контролирайте вашите свързани сървъри и техните инструменти"
+      },
+      "toolGroups": {
+        "title": "Организирайте с кутии с инструменти",
+        "description": "Групирайте инструменти за различни случаи на употреба и контрол на достъпа"
+      },
+      "apiKeys": {
+        "title": "Създайте API ключове",
+        "description": "Генерирайте ключове за външни интеграции и автоматизация"
+      },
+      "compositions": {
+        "title": "Изграждайте композиции",
+        "description": "Верижно свързвайте инструменти за сложни работни потоци"
+      },
+      "teamServices": {
+        "title": "Екипни услуги",
+        "description": "Управлявайте споделени услуги за вашия екип (Екипен план)"
+      }
+    },
+    "integrations": {
+      "title": "Интеграции",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Свържете BigMCP с Claude Desktop чрез OAuth"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Използвайте инструментите на BigMCP в Mistral Le Chat"
+      },
+      "n8n": {
+        "title": "n8n автоматизация",
+        "description": "Използвайте инструментите на BigMCP в работни потоци на n8n"
+      },
+      "customClients": {
+        "title": "Персонализирани клиенти",
+        "description": "Изградете собствен MCP клиент с SDK"
+      }
+    },
+    "concepts": {
+      "title": "Основни концепции",
+      "mcpOverview": {
+        "title": "MCP протокол",
+        "description": "Разбиране на стандарта Model Context Protocol"
+      },
+      "servers": {
+        "title": "MCP сървъри",
+        "description": "Как сървърите излагат инструменти, ресурси и подканвания"
+      },
+      "tools": {
+        "title": "Инструменти и изпълнение",
+        "description": "Как работят инструментите и се изпълняват от AI агенти"
+      },
+      "security": {
+        "title": "Модел на сигурност",
+        "description": "Криптиране, автентикация и контрол на достъпа"
+      }
+    },
+    "api": {
+      "title": "API справочник",
+      "apiOverview": {
+        "title": "Преглед на API",
+        "description": "Въведение в REST API и автентикация"
+      },
+      "apiMarketplace": {
+        "title": "API на маркетплейса",
+        "description": "Крайни точки за откритие на сървъри"
+      },
+      "apiCredentials": {
+        "title": "API за идентификационни данни",
+        "description": "Управлявайте идентификационните данни на потребителите програмно"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Свържете се с инструменти чрез шлюза"
+      },
+      "apiTools": {
+        "title": "API за инструменти и изпълнение",
+        "description": "Изпълнявайте инструменти, обвързвания и композиции"
+      }
+    },
+    "selfHosting": {
+      "title": "Самостоятелно хостване",
+      "selfHostOverview": {
+        "title": "Преглед",
+        "description": "Опции и изисквания за самостоятелно хостване"
+      },
+      "dockerSetup": {
+        "title": "Настройка с Docker",
+        "description": "Внедряване с Docker Compose"
+      },
+      "configuration": {
+        "title": "Конфигурация",
+        "description": "Променливи на средата и настройки"
+      },
+      "llmProviders": {
+        "title": "LLM доставчици",
+        "description": "Конфигурирайте вашия AI бекенд"
+      },
+      "customServers": {
+        "title": "Персонализирани MCP сървъри",
+        "description": "Добавете собствени MCP сървъри към Enterprise инстанции"
+      }
+    }
+  }
+}

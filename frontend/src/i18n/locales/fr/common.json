@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Services",
+    "compositions": "Compositions",
+    "documentation": "Documentation",
+    "signin": "Connexion",
+    "signup": "Inscription",
+    "startTrial": "Essai gratuit"
+  },
+  "menu": {
+    "account": "Paramètres du compte",
+    "subscription": "Abonnement & Facturation",
+    "apiKeys": "Clés API",
+    "team": "Équipe",
+    "preferences": "Préférences",
+    "signout": "Déconnexion"
+  },
+  "buttons": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "create": "Créer",
+    "close": "Fermer",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "submit": "Envoyer",
+    "loading": "Chargement...",
+    "retry": "Réessayer",
+    "copy": "Copier",
+    "copied": "Copié !"
+  },
+  "status": {
+    "loading": "Chargement...",
+    "saving": "Enregistrement...",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "errors": {
+    "generic": "Une erreur est survenue",
+    "notFound": "Non trouvé",
+    "unauthorized": "Non autorisé",
+    "forbidden": "Accès refusé",
+    "networkError": "Erreur réseau. Veuillez vérifier votre connexion."
+  },
+  "trial": {
+    "badge": "Essai",
+    "daysLeft": "{{count}} jour restant",
+    "daysLeft_plural": "{{count}} jours restants"
+  },
+  "empty": {
+    "noData": "Aucune donnée disponible",
+    "noResults": "Aucun résultat trouvé"
+  }
+}

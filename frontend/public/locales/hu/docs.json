@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Dokumentáció keresése...",
+    "badge": "Docs",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API dokumentáció"
+  },
+  "page": {
+    "breadcrumbDocs": "Docs",
+    "previous": "Előző",
+    "next": "Következő",
+    "notFoundTitle": "Az oldal nem található",
+    "notFoundDescription": "A keresett dokumentációs oldal nem létezik.",
+    "goToHome": "Ugrás a dokumentáció főoldalára"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Első lépések",
+      "introduction": {
+        "title": "Bevezetés",
+        "description": "Mi a BigMCP és miért érdemes használni"
+      },
+      "quickstart": {
+        "title": "Gyors kezdés",
+        "description": "Legyen készen 5 perc alatt"
+      },
+      "firstServer": {
+        "title": "Az első szerver csatlakoztatása",
+        "description": "MCP szerver hozzáadása a fiókjához"
+      }
+    },
+    "guides": {
+      "title": "Útmutatók",
+      "marketplace": {
+        "title": "Szerverek felfedezése",
+        "description": "MCP szerverek böngészése és telepítése a piactérről"
+      },
+      "credentials": {
+        "title": "Szolgáltatások kezelése",
+        "description": "Csatlakoztatott szervereinek és eszközeinek vezérlése"
+      },
+      "toolGroups": {
+        "title": "Rendszerezés eszköztárakkal",
+        "description": "Eszközök csoportosítása különböző felhasználási esetekre és hozzáférés-szabályozásra"
+      },
+      "apiKeys": {
+        "title": "API kulcsok létrehozása",
+        "description": "Kulcsok generálása külső integrációkhoz és automatizáláshoz"
+      },
+      "compositions": {
+        "title": "Kompozíciók készítése",
+        "description": "Eszközök láncolása összetett munkafolyamatokhoz"
+      },
+      "teamServices": {
+        "title": "Csapat szolgáltatások",
+        "description": "Megosztott szolgáltatások kezelése a csapat számára (Team csomag)"
+      }
+    },
+    "integrations": {
+      "title": "Integrációk",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "A BigMCP csatlakoztatása a Claude Desktop alkalmazáshoz OAuth segítségével"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "BigMCP eszközök használata a Mistral Le Chat-ben"
+      },
+      "n8n": {
+        "title": "n8n automatizálás",
+        "description": "BigMCP eszközök használata n8n munkafolyamatokban"
+      },
+      "customClients": {
+        "title": "Egyedi kliensek",
+        "description": "Saját MCP kliens készítése az SDK segítségével"
+      }
+    },
+    "concepts": {
+      "title": "Alapfogalmak",
+      "mcpOverview": {
+        "title": "MCP protokoll",
+        "description": "A Model Context Protocol szabvány megértése"
+      },
+      "servers": {
+        "title": "MCP szerverek",
+        "description": "Hogyan tesznek elérhetővé a szerverek eszközöket, erőforrásokat és promptokat"
+      },
+      "tools": {
+        "title": "Eszközök és végrehajtás",
+        "description": "Hogyan működnek az eszközök és hogyan hajtják végre őket az AI ügynökök"
+      },
+      "security": {
+        "title": "Biztonsági modell",
+        "description": "Titkosítás, hitelesítés és hozzáférés-szabályozás"
+      }
+    },
+    "api": {
+      "title": "API referencia",
+      "apiOverview": {
+        "title": "API áttekintés",
+        "description": "REST API bevezetés és hitelesítés"
+      },
+      "apiMarketplace": {
+        "title": "Piactér API",
+        "description": "Végpontok a szerver felfedezéshez"
+      },
+      "apiCredentials": {
+        "title": "Hitelesítő adatok API",
+        "description": "Felhasználói hitelesítő adatok programmatikus kezelése"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Csatlakozás az eszközökhöz az átjárón keresztül"
+      },
+      "apiTools": {
+        "title": "Eszközök és végrehajtás API",
+        "description": "Eszközök, kötések és kompozíciók végrehajtása"
+      }
+    },
+    "selfHosting": {
+      "title": "Saját üzemeltetés",
+      "selfHostOverview": {
+        "title": "Áttekintés",
+        "description": "Saját üzemeltetési lehetőségek és követelmények"
+      },
+      "dockerSetup": {
+        "title": "Docker beállítás",
+        "description": "Telepítés Docker Compose segítségével"
+      },
+      "configuration": {
+        "title": "Konfiguráció",
+        "description": "Környezeti változók és beállítások"
+      },
+      "llmProviders": {
+        "title": "LLM szolgáltatók",
+        "description": "Az AI háttér konfigurálása"
+      },
+      "customServers": {
+        "title": "Egyedi MCP szerverek",
+        "description": "Saját MCP szerverek hozzáadása Enterprise példányokhoz"
+      }
+    }
+  }
+}

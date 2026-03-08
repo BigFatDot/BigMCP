@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Services",
+    "subtitle": "Gérez vos serveurs MCP, outils et boîtes à outils",
+    "search": "Rechercher des outils...",
+    "noTools": "Aucun outil disponible",
+    "noToolsDescription": "Connectez-vous à des serveurs dans le Marketplace pour voir les outils ici",
+    "goToMarketplace": "Aller au Marketplace",
+    "viewToggle": {
+      "servers": "Services",
+      "toolboxes": "Boîtes à outils"
+    },
+    "infoBanner": {
+      "serversTitle": "Serveurs MCP = Sources d'outils",
+      "serversDescription": "Chaque serveur que vous connectez fournit des outils que Claude peut utiliser. Basculez la visibilité pour contrôler quels outils sont disponibles.",
+      "visibleLabel": "Visible = Claude peut utiliser",
+      "hiddenLabel": "Masqué = Désactivé pour Claude",
+      "toolboxesTitle": "Boîtes à outils = Organisez vos outils",
+      "toolboxesDescription": "Créez des boîtes à outils pour regrouper des outils spécifiques. Utilisez-les pour contrôler quels outils sont disponibles lors de la connexion d'applications externes.",
+      "forExternalIntegrations": "Pour les intégrations externes",
+      "manageConnections": "Gérer les connexions →"
+    },
+    "serverState": {
+      "active": "Actif",
+      "apiOnly": "API uniquement",
+      "standby": "En veille",
+      "disabled": "Désactivé",
+      "error": "Erreur"
+    },
+    "serverActions": {
+      "visible": "Visible",
+      "hidden": "Masqué",
+      "stopServer": "Arrêter le serveur ?",
+      "deleteServerConfirm": "Supprimer ce serveur et ses identifiants ?",
+      "serverError": "Le serveur a rencontré une erreur",
+      "availableTools": "Outils disponibles ({{count}})",
+      "visibleToClaude": "Visible pour Claude",
+      "discoveringTools": "Découverte des outils...",
+      "startToDiscover": "Démarrer le serveur pour découvrir les outils"
+    },
+    "groups": {
+      "title": "Boîtes à outils",
+      "create": "Créer une boîte à outils",
+      "createToolbox": "Créer une boîte à outils",
+      "createFirst": "Créer votre première boîte à outils",
+      "edit": "Modifier la boîte à outils",
+      "delete": "Supprimer la boîte à outils",
+      "name": "Nom de la boîte à outils",
+      "description": "Description",
+      "tools": "Outils dans la boîte",
+      "empty": "Aucune boîte à outils",
+      "emptyDescription": "Créez des boîtes à outils pour organiser quels outils sont disponibles via les clés API.",
+      "noTools": "Aucun outil dans cette boîte",
+      "deleteConfirm": "Supprimer \"{{name}}\" ? Les clés API utilisant cette boîte à outils perdront leurs restrictions.",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "shared": "Partagé",
+      "private": "Privé",
+      "makePrivate": "Cliquer pour rendre privé",
+      "shareWithTeam": "Cliquer pour partager avec l'équipe",
+      "used": "Utilisé {{count}} fois",
+      "used_plural": "Utilisé {{count}} fois"
+    },
+    "createModal": {
+      "title": "Créer une boîte à outils",
+      "stepInfo": "Nommez votre boîte à outils",
+      "stepTools": "Sélectionnez les outils à inclure",
+      "groupName": "Nom de la boîte à outils *",
+      "groupNamePlaceholder": "ex. Lecture seule, Production, Environnement de dev",
+      "descriptionPlaceholder": "À quoi sert cette boîte à outils ?",
+      "color": "Couleur",
+      "visibility": "Visibilité",
+      "visibilityPrivate": "Privé",
+      "visibilityPrivateDesc": "Vous seul pouvez utiliser cette boîte à outils",
+      "visibilityOrganization": "Organisation",
+      "visibilityOrganizationDesc": "Partager avec votre équipe",
+      "toolsSelected": "{{count}} outil sélectionné",
+      "toolsSelected_plural": "{{count}} outils sélectionnés",
+      "clearAll": "Tout effacer",
+      "selectAll": "Tout sélectionner",
+      "deselectAll": "Tout désélectionner",
+      "noToolsAvailable": "Aucun outil disponible",
+      "connectServersFirst": "Connectez d'abord des serveurs pour ajouter des outils aux boîtes à outils",
+      "back": "Retour",
+      "cancel": "Annuler",
+      "nextSelectTools": "Suivant : Sélectionner les outils",
+      "creating": "Création...",
+      "createGroup": "Créer la boîte à outils ({{count}} outils)"
+    },
+    "server": {
+      "connected": "Connecté",
+      "disconnected": "Déconnecté",
+      "error": "Erreur",
+      "reconnect": "Reconnecter",
+      "tools": "{{count}} outil",
+      "tools_plural": "{{count}} outils"
+    }
+  },
+  "myServers": {
+    "title": "Mes services",
+    "subtitle": "Gérez les services et contrôlez les outils exposés à Claude",
+    "serversUsed": "serveurs utilisés",
+    "limitReached": "Limite atteinte",
+    "tabs": {
+      "personal": "Mes services",
+      "team": "Services d'équipe"
+    },
+    "stats": {
+      "servers": "Services",
+      "connected": "Connectés",
+      "active": "Actifs",
+      "tools": "Outils"
+    },
+    "info": {
+      "title": "Visibilité et découverte des outils",
+      "description": "Les serveurs actifs exposent des outils à Claude. Utilisez le bouton pour contrôler la visibilité.",
+      "hint": "Les outils apparaissent après le premier démarrage du serveur (via un appel MCP)."
+    },
+    "empty": {
+      "title": "Aucun serveur connecté",
+      "description": "Commencez par connecter votre premier serveur MCP depuis le marketplace.",
+      "browseMarketplace": "Parcourir le Marketplace"
+    },
+    "orgCredentials": {
+      "title": "Identifiants d'organisation disponibles",
+      "description": "Ces serveurs utilisent des identifiants d'organisation. Vous pouvez les utiliser sans fournir vos propres identifiants.",
+      "viewAll": "Voir tous les serveurs d'équipe →"
+    },
+    "visibility": {
+      "title": "Visibilité du serveur",
+      "visibleOauth": "Visible pour OAuth",
+      "hiddenApiOnly": "Masqué (API uniquement)",
+      "disabled": "Désactivé"
+    },
+    "actions": {
+      "stop": "Arrêter",
+      "start": "Démarrer",
+      "restart": "Redémarrer",
+      "validate": "Valider",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "expand": "Développer pour voir les outils",
+      "collapse": "Réduire"
+    },
+    "tools": {
+      "available": "Outils disponibles ({{count}})",
+      "visibleToClaude": "Visible pour Claude",
+      "visible": "Visible",
+      "hidden": "Masqué",
+      "hideFromOauth": "Masquer pour OAuth",
+      "showToOauth": "Afficher pour OAuth",
+      "discovering": "Découverte des outils...",
+      "discoveringNote": "Les outils apparaîtront après l'initialisation du serveur",
+      "notConnected": "Serveur non connecté",
+      "notConnectedNote": "Démarrez le serveur pour découvrir les outils disponibles"
+    },
+    "serverInfo": {
+      "created": "Créé le :",
+      "lastUsed": "Dernière utilisation :",
+      "validated": "Validé"
+    },
+    "errors": {
+      "loadingCredentials": "Erreur lors du chargement des identifiants",
+      "failedToLoad": "Échec du chargement des identifiants",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cet identifiant ?",
+      "stopConfirm": "Êtes-vous sûr de vouloir arrêter ce serveur ?",
+      "visibilityUpdated": "Visibilité du serveur mise à jour",
+      "visibilityFailed": "Échec de la mise à jour de la visibilité du serveur",
+      "toolVisibilityUpdated": "Visibilité de l'outil mise à jour",
+      "toolVisibilityFailed": "Échec de la mise à jour de la visibilité de l'outil"
+    },
+    "team": {
+      "empty": {
+        "title": "Aucun serveur d'équipe",
+        "description": "Les serveurs d'équipe sont partagés avec tous les membres de l'organisation. Seuls les administrateurs peuvent les ajouter.",
+        "hint": "Allez dans les Paramètres de l'organisation pour gérer les identifiants partagés."
+      },
+      "orgSettings": "Paramètres de l'organisation",
+      "banner": {
+        "title": "Services d'équipe",
+        "description": "Ces serveurs sont partagés avec tous les membres de l'organisation. Les identifiants sont gérés par les administrateurs."
+      },
+      "badge": "Équipe",
+      "teamServer": "Serveur d'équipe",
+      "visibleToMembers": "Visible pour tous les membres",
+      "hiddenFromMembers": "Masqué pour les membres",
+      "showToMembers": "Rendre visible aux membres",
+      "hideFromMembers": "Masquer pour les membres",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer cet identifiant d'équipe ? Cette action est irréversible.",
+      "deleteSuccess": "Identifiant d'équipe supprimé",
+      "deleteFailed": "Échec de la suppression de l'identifiant d'équipe",
+      "visibilityUpdated": "Visibilité membres mise à jour",
+      "visibilityFailed": "Échec de la mise à jour de la visibilité membres",
+      "edit": "Modifier le serveur d'équipe",
+      "editTitle": "Modifier le serveur d'équipe",
+      "editSuccess": "Serveur d'équipe mis à jour",
+      "editFailed": "Échec de la mise à jour du serveur d'équipe",
+      "nameLabel": "Nom",
+      "namePlaceholder": "ex. Compte Grist de l'entreprise",
+      "nameRequired": "Le nom est requis",
+      "descriptionLabel": "Description",
+      "descriptionPlaceholder": "Description optionnelle pour votre équipe",
+      "visibleToAll": "Visible pour tous les membres",
+      "visibleToAllDesc": "Tous les membres de l'équipe peuvent voir et utiliser ce serveur",
+      "adminOnly": "Administrateurs uniquement",
+      "adminOnlyDesc": "Seuls les administrateurs peuvent voir ces identifiants (utilisé en secours)",
+      "updateCredentials": "Mettre à jour les identifiants (optionnel)",
+      "updateCredentialsHint": "Laisser vide pour conserver les valeurs existantes",
+      "leaveEmptyToKeep": "Laisser vide pour conserver la valeur actuelle",
+      "howToGet": "Comment obtenir ceci ?",
+      "cancel": "Annuler",
+      "saving": "Enregistrement...",
+      "saveChanges": "Enregistrer"
+    }
+  },
+  "compositions": {
+    "title": "Compositions",
+    "subtitle": "Gérez et exécutez des workflows d'outils multi-étapes",
+    "create": "Créer une composition",
+    "edit": "Modifier la composition",
+    "delete": "Supprimer la composition",
+    "run": "Exécuter",
+    "running": "En cours...",
+    "execute": "Exécuter",
+    "executing": "Exécution...",
+    "stop": "Arrêter",
+    "name": "Nom de la composition",
+    "description": "Description",
+    "workflow": "Workflow",
+    "trigger": "Déclencheur",
+    "actions": "Actions",
+    "search": "Rechercher des compositions...",
+    "steps": "{{count}} étapes",
+    "executedTimes": "Exécuté {{count}} fois",
+    "created": "Créé le {{date}}",
+    "canExecute": "Peut exécuter",
+    "noExecutePermission": "Pas de permission d'exécution",
+    "validate": "Valider",
+    "promote": "Promouvoir",
+    "shareWithTeam": "Partager avec l'équipe",
+    "makePrivate": "Rendre privé",
+    "cancel": "Annuler",
+    "noSteps": "Aucune étape",
+    "parameters": "{{count}} paramètres",
+    "runtimeParamsNote": "La saisie des paramètres d'exécution arrive bientôt. Pour l'instant, les compositions utilisent les paramètres par défaut.",
+    "promoteConfirm": "Promouvoir \"{{name}}\" vers {{status}} ?",
+    "deleteConfirm": "Supprimer \"{{name}}\" ? Cette action est irréversible.",
+    "promotedSuccess": "Composition promue vers {{status}}",
+    "deletedSuccess": "Composition supprimée",
+    "executedSuccess": "Composition exécutée avec succès",
+    "sharedSuccess": "Composition partagée avec l'équipe",
+    "madePrivate": "Composition rendue privée",
+    "status": {
+      "temporary": "Temporaire",
+      "validated": "Validée",
+      "production": "Production",
+      "draft": "Brouillon",
+      "active": "Actif",
+      "paused": "En pause",
+      "error": "Erreur"
+    },
+    "visibility": {
+      "private": "Privé",
+      "organization": "Équipe",
+      "public": "Public"
+    },
+    "filters": {
+      "allStatus": "Tous les statuts",
+      "allCompositions": "Toutes les compositions",
+      "myCompositions": "Mes compositions",
+      "teamShared": "Partagées avec l'équipe"
+    },
+    "empty": {
+      "title": "Aucune composition",
+      "description": "Les compositions sont créées lorsque vous orchestrez plusieurs outils ensemble. Utilisez l'assistant IA pour créer votre premier workflow.",
+      "noMatch": "Aucune composition ne correspond à vos filtres. Essayez d'ajuster votre recherche."
+    },
+    "executeModal": {
+      "title": "Exécuter la composition",
+      "resultsTitle": "Résultats de l'exécution",
+      "inputsTitle": "Paramètres d'entrée",
+      "stepsPreview": "Étapes à exécuter",
+      "executingSteps": "Exécution de {{count}} étapes..."
+    },
+    "inputForm": {
+      "selectOption": "Sélectionner...",
+      "noInputsRequired": "Aucun paramètre requis pour cette composition",
+      "jsonFormat": "Format JSON ({{type}})"
+    },
+    "results": {
+      "title": "Résultats",
+      "success": "Succès",
+      "failed": "Échec",
+      "duration": "Durée",
+      "output": "Sortie",
+      "statusSuccess": "Exécution réussie",
+      "statusPartial": "Exécution partielle",
+      "statusFailed": "Exécution échouée",
+      "summary": "{{success}}/{{total}} étapes réussies • {{duration}}",
+      "globalError": "Erreur globale",
+      "stepsTitle": "Détail des étapes",
+      "stepOutput": "Résultat",
+      "noOutput": "Pas de données retournées",
+      "error": "Erreur",
+      "retries": "{{count}} tentative(s)",
+      "finalOutput": "Sortie finale",
+      "startedAt": "Démarré à",
+      "completedAt": "Terminé à",
+      "unknownError": "Une erreur inconnue s'est produite"
+    },
+    "close": "Fermer",
+    "executeAgain": "Ré-exécuter"
+  },
+  "onboarding": {
+    "title": "Bienvenue sur BigMCP !",
+    "subtitle": "Commençons ensemble",
+    "steps": {
+      "welcome": {
+        "title": "Bienvenue",
+        "description": "BigMCP vous aide à gérer et orchestrer vos serveurs MCP"
+      },
+      "connect": {
+        "title": "Connecter un serveur",
+        "description": "Parcourez le marketplace et connectez votre premier serveur"
+      },
+      "configure": {
+        "title": "Configurer les identifiants",
+        "description": "Configurez les identifiants pour vos serveurs connectés"
+      },
+      "explore": {
+        "title": "Explorer les outils",
+        "description": "Découvrez les outils disponibles depuis vos serveurs"
+      },
+      "complete": {
+        "title": "Vous êtes prêt !",
+        "description": "Commencez à utiliser vos outils et créez des compositions"
+      }
+    },
+    "skip": "Passer l'introduction",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "finish": "Commencer"
+  }
+}

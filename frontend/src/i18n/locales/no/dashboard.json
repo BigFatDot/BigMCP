@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Tjenester",
+    "subtitle": "Administrer MCP-serverne, verktøyene og verktøykassene dine",
+    "search": "Søk etter verktøy...",
+    "noTools": "Ingen verktøy tilgjengelig",
+    "noToolsDescription": "Koble til servere i markedsplassen for å se verktøy her",
+    "goToMarketplace": "Gå til markedsplassen",
+    "viewToggle": {
+      "servers": "Tjenester",
+      "toolboxes": "Verktøykasser"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP-servere = Verktøykilder",
+      "serversDescription": "Hver server du kobler til gir verktøy som Claude kan bruke. Slå synlighet av/på for å kontrollere hvilke verktøy som er tilgjengelige.",
+      "visibleLabel": "Synlig = Claude kan bruke",
+      "hiddenLabel": "Skjult = Deaktivert for Claude",
+      "toolboxesTitle": "Verktøykasser = Organiser verktøyene dine",
+      "toolboxesDescription": "Opprett verktøykasser for å samle bestemte verktøy. Bruk verktøykasser til å kontrollere hvilke verktøy som er tilgjengelige når du kobler til eksterne applikasjoner.",
+      "forExternalIntegrations": "For eksterne integrasjoner",
+      "manageConnections": "Administrer tilkoblinger →"
+    },
+    "serverState": {
+      "active": "Aktiv",
+      "apiOnly": "Kun API",
+      "standby": "Ventemodus",
+      "disabled": "Deaktivert",
+      "error": "Feil"
+    },
+    "serverActions": {
+      "visible": "Synlig",
+      "hidden": "Skjult",
+      "stopServer": "Stopp server?",
+      "deleteServerConfirm": "Slett denne serveren og legitimasjonene?",
+      "serverError": "Serveren støtte på en feil",
+      "availableTools": "Tilgjengelige verktøy ({{count}})",
+      "visibleToClaude": "Synlig for Claude",
+      "discoveringTools": "Oppdager verktøy...",
+      "startToDiscover": "Start server for å oppdage verktøy"
+    },
+    "groups": {
+      "title": "Verktøykasser",
+      "create": "Opprett verktøykasse",
+      "createToolbox": "Opprett verktøykasse",
+      "createFirst": "Opprett din første verktøykasse",
+      "edit": "Rediger verktøykasse",
+      "delete": "Slett verktøykasse",
+      "name": "Navn på verktøykasse",
+      "description": "Beskrivelse",
+      "tools": "Verktøy i verktøykasse",
+      "empty": "Ingen verktøykasser ennå",
+      "emptyDescription": "Opprett verktøykasser for å organisere hvilke verktøy som er tilgjengelige via API-nøkler.",
+      "noTools": "Ingen verktøy i denne verktøykassen",
+      "deleteConfirm": "Slett \"{{name}}\"? API-nøkler som bruker denne verktøykassen mister begrensningene sine.",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "shared": "Delt",
+      "private": "Privat",
+      "makePrivate": "Klikk for å gjøre privat",
+      "shareWithTeam": "Klikk for å dele med team",
+      "used": "Brukt {{count}} gang",
+      "used_plural": "Brukt {{count}} ganger"
+    },
+    "createModal": {
+      "title": "Opprett verktøykasse",
+      "stepInfo": "Gi verktøykassen et navn",
+      "stepTools": "Velg verktøy som skal inkluderes",
+      "groupName": "Navn på verktøykasse *",
+      "groupNamePlaceholder": "f.eks. Skrivebeskyttet, Produksjon, Utviklingsmiljø",
+      "descriptionPlaceholder": "Hva er denne verktøykassen til?",
+      "color": "Farge",
+      "visibility": "Synlighet",
+      "visibilityPrivate": "Privat",
+      "visibilityPrivateDesc": "Bare du kan bruke denne verktøykassen",
+      "visibilityOrganization": "Organisasjon",
+      "visibilityOrganizationDesc": "Del med teamet ditt",
+      "toolsSelected": "{{count}} verktøy valgt",
+      "toolsSelected_plural": "{{count}} verktøy valgt",
+      "clearAll": "Fjern alle",
+      "selectAll": "Velg alle",
+      "deselectAll": "Fjern alle valg",
+      "noToolsAvailable": "Ingen verktøy tilgjengelig",
+      "connectServersFirst": "Koble til servere først for å legge til verktøy i verktøykasser",
+      "back": "Tilbake",
+      "cancel": "Avbryt",
+      "nextSelectTools": "Neste: Velg verktøy",
+      "creating": "Oppretter...",
+      "createGroup": "Opprett verktøykasse ({{count}} verktøy)"
+    },
+    "server": {
+      "connected": "Tilkoblet",
+      "disconnected": "Frakoblet",
+      "error": "Feil",
+      "reconnect": "Koble til på nytt",
+      "tools": "{{count}} verktøy",
+      "tools_plural": "{{count}} verktøy"
+    }
+  },
+  "myServers": {
+    "title": "Mine tjenester",
+    "subtitle": "Administrer tjenester og kontroller verktøy som er eksponert for Claude",
+    "serversUsed": "servere brukt",
+    "limitReached": "Grensen er nådd",
+    "tabs": {
+      "personal": "Mine tjenester",
+      "team": "Teamtjenester"
+    },
+    "stats": {
+      "servers": "Tjenester",
+      "connected": "Tilkoblet",
+      "active": "Aktiv",
+      "tools": "Verktøy"
+    },
+    "info": {
+      "title": "Verktøysynlighet og oppdagelse",
+      "description": "Aktive servere eksponerer verktøy for Claude. Bruk bryteren til å kontrollere synlighet.",
+      "hint": "Verktøy vises etter at serveren er startet for første gang (via MCP-kall)."
+    },
+    "empty": {
+      "title": "Ingen servere tilkoblet ennå",
+      "description": "Kom i gang ved å koble til din første MCP-server fra markedsplassen.",
+      "browseMarketplace": "Bla gjennom markedsplassen"
+    },
+    "orgCredentials": {
+      "title": "Organisasjonslegitimasjoner tilgjengelig",
+      "description": "Disse serverne bruker organisasjonslegitimasjoner. Du kan bruke dem uten å oppgi egne legitimasjoner.",
+      "viewAll": "Vis alle teamservere →"
+    },
+    "visibility": {
+      "title": "Serversynlighet",
+      "visibleOauth": "Synlig for OAuth",
+      "hiddenApiOnly": "Skjult (kun API)",
+      "disabled": "Deaktivert"
+    },
+    "actions": {
+      "stop": "Stopp",
+      "start": "Start",
+      "restart": "Start på nytt",
+      "validate": "Valider",
+      "edit": "Rediger",
+      "delete": "Slett",
+      "expand": "Utvid for å se verktøy",
+      "collapse": "Skjul"
+    },
+    "tools": {
+      "available": "Tilgjengelige verktøy ({{count}})",
+      "visibleToClaude": "Synlig for Claude",
+      "visible": "Synlig",
+      "hidden": "Skjult",
+      "hideFromOauth": "Skjul fra OAuth",
+      "showToOauth": "Vis til OAuth",
+      "discovering": "Oppdager verktøy...",
+      "discoveringNote": "Verktøy vil vises etter serverinitialisering",
+      "notConnected": "Server ikke tilkoblet",
+      "notConnectedNote": "Start serveren for å oppdage tilgjengelige verktøy"
+    },
+    "serverInfo": {
+      "created": "Opprettet:",
+      "lastUsed": "Sist brukt:",
+      "validated": "Validert"
+    },
+    "errors": {
+      "loadingCredentials": "Feil ved lasting av legitimasjoner",
+      "failedToLoad": "Kunne ikke laste legitimasjoner",
+      "deleteConfirm": "Er du sikker på at du vil slette denne legitimasjonen?",
+      "stopConfirm": "Er du sikker på at du vil stoppe denne serveren?",
+      "visibilityUpdated": "Serversynlighet oppdatert",
+      "visibilityFailed": "Kunne ikke oppdatere serversynlighet",
+      "toolVisibilityUpdated": "Verktøysynlighet oppdatert",
+      "toolVisibilityFailed": "Kunne ikke oppdatere verktøysynlighet"
+    },
+    "team": {
+      "empty": {
+        "title": "Ingen teamservere ennå",
+        "description": "Teamservere deles med alle organisasjonsmedlemmer. Bare administratorer kan legge dem til.",
+        "hint": "Gå til organisasjonsinnstillinger for å administrere delte legitimasjoner."
+      },
+      "orgSettings": "Organisasjonsinnstillinger",
+      "banner": {
+        "title": "Teamtjenester",
+        "description": "Disse serverne deles med alle organisasjonsmedlemmer. Legitimasjoner administreres av administratorer."
+      },
+      "badge": "Team",
+      "teamServer": "Teamserver",
+      "visibleToMembers": "Synlig for alle medlemmer",
+      "hiddenFromMembers": "Skjult fra medlemmer",
+      "showToMembers": "Gjør synlig for medlemmer",
+      "hideFromMembers": "Skjul fra medlemmer",
+      "deleteConfirm": "Er du sikker på at du vil slette denne teamlegitimasjonen? Denne handlingen kan ikke angres.",
+      "deleteSuccess": "Teamlegitimasjon slettet",
+      "deleteFailed": "Kunne ikke slette teamlegitimasjon",
+      "visibilityUpdated": "Medlemssynlighet oppdatert",
+      "visibilityFailed": "Kunne ikke oppdatere medlemssynlighet",
+      "edit": "Rediger teamserver",
+      "editTitle": "Rediger teamserver",
+      "editSuccess": "Teamserver oppdatert",
+      "editFailed": "Kunne ikke oppdatere teamserver",
+      "nameLabel": "Navn",
+      "namePlaceholder": "f.eks. Selskapets Grist-konto",
+      "nameRequired": "Navn er påkrevd",
+      "descriptionLabel": "Beskrivelse",
+      "descriptionPlaceholder": "Valgfri beskrivelse for teamet ditt",
+      "visibleToAll": "Synlig for alle medlemmer",
+      "visibleToAllDesc": "Alle teammedlemmer kan se og bruke denne serveren",
+      "adminOnly": "Kun admin",
+      "adminOnlyDesc": "Bare administratorer kan se denne legitimasjonen (brukes som reserve)",
+      "updateCredentials": "Oppdater legitimasjoner (valgfritt)",
+      "updateCredentialsHint": "La stå tomt for å beholde eksisterende verdier",
+      "leaveEmptyToKeep": "La stå tomt for å beholde nåværende verdi",
+      "howToGet": "Hvordan får du tak i dette?",
+      "cancel": "Avbryt",
+      "saving": "Lagrer...",
+      "saveChanges": "Lagre endringer"
+    }
+  },
+  "compositions": {
+    "title": "Komposisjoner",
+    "subtitle": "Administrer og kjør flerstegs verktøyarbeidsflyter",
+    "create": "Opprett komposisjon",
+    "edit": "Rediger komposisjon",
+    "delete": "Slett komposisjon",
+    "run": "Kjør",
+    "running": "Kjører...",
+    "execute": "Kjør",
+    "executing": "Kjører...",
+    "stop": "Stopp",
+    "name": "Navn på komposisjon",
+    "description": "Beskrivelse",
+    "workflow": "Arbeidsflyt",
+    "trigger": "Utløser",
+    "actions": "Handlinger",
+    "search": "Søk etter komposisjoner...",
+    "steps": "{{count}} steg",
+    "executedTimes": "Kjørt {{count}} ganger",
+    "created": "Opprettet {{date}}",
+    "canExecute": "Kan kjøre",
+    "noExecutePermission": "Ingen kjøretillatelse",
+    "validate": "Valider",
+    "promote": "Forfrem",
+    "shareWithTeam": "Del med team",
+    "makePrivate": "Gjør privat",
+    "cancel": "Avbryt",
+    "noSteps": "Ingen steg",
+    "parameters": "{{count}} parametere",
+    "runtimeParamsNote": "Kjøretidsparameterinndata kommer snart. Foreløpig bruker komposisjoner standardparametere.",
+    "promoteConfirm": "Forfrem \"{{name}}\" til {{status}}?",
+    "deleteConfirm": "Slett \"{{name}}\"? Denne handlingen kan ikke angres.",
+    "promotedSuccess": "Komposisjon forfremmet til {{status}}",
+    "deletedSuccess": "Komposisjon slettet",
+    "executedSuccess": "Komposisjon kjørt",
+    "sharedSuccess": "Komposisjon delt med team",
+    "madePrivate": "Komposisjon gjort privat",
+    "status": {
+      "temporary": "Midlertidig",
+      "validated": "Validert",
+      "production": "Produksjon",
+      "draft": "Utkast",
+      "active": "Aktiv",
+      "paused": "Pauset",
+      "error": "Feil"
+    },
+    "visibility": {
+      "private": "Privat",
+      "organization": "Team",
+      "public": "Offentlig"
+    },
+    "filters": {
+      "allStatus": "Alle statuser",
+      "allCompositions": "Alle komposisjoner",
+      "myCompositions": "Mine komposisjoner",
+      "teamShared": "Delt med team"
+    },
+    "empty": {
+      "title": "Ingen komposisjoner",
+      "description": "Komposisjoner opprettes når du orkestrerer flere verktøy sammen. Bruk AI-assistenten til å opprette din første arbeidsflyt.",
+      "noMatch": "Ingen komposisjoner matcher filtrene dine. Prøv å justere søket."
+    },
+    "executeModal": {
+      "title": "Kjør komposisjon",
+      "resultsTitle": "Kjøringsresultater",
+      "inputsTitle": "Inngangsparametere",
+      "stepsPreview": "Steg som skal kjøres",
+      "executingSteps": "Kjører {{count}} steg..."
+    },
+    "inputForm": {
+      "selectOption": "Velg...",
+      "noInputsRequired": "Ingen parametere kreves for denne komposisjonen",
+      "jsonFormat": "JSON-format ({{type}})"
+    },
+    "results": {
+      "title": "Resultater",
+      "success": "Vellykket",
+      "failed": "Mislyktes",
+      "duration": "Varighet",
+      "output": "Utdata",
+      "statusSuccess": "Kjøring vellykket",
+      "statusPartial": "Delvis kjøring",
+      "statusFailed": "Kjøring mislyktes",
+      "summary": "{{success}}/{{total}} steg vellykket • {{duration}}",
+      "globalError": "Global feil",
+      "stepsTitle": "Stegdetaljer",
+      "stepOutput": "Utdata",
+      "noOutput": "Ingen data returnert",
+      "error": "Feil",
+      "retries": "{{count}} nytt forsøk",
+      "finalOutput": "Endelig utdata",
+      "startedAt": "Startet kl.",
+      "completedAt": "Fullført kl.",
+      "unknownError": "Det oppstod en ukjent feil"
+    },
+    "close": "Lukk",
+    "executeAgain": "Kjør igjen"
+  },
+  "onboarding": {
+    "title": "Velkommen til BigMCP!",
+    "subtitle": "La oss komme i gang",
+    "steps": {
+      "welcome": {
+        "title": "Velkommen",
+        "description": "BigMCP hjelper deg å administrere og orkestrere MCP-servere"
+      },
+      "connect": {
+        "title": "Koble til en server",
+        "description": "Bla gjennom markedsplassen og koble til din første server"
+      },
+      "configure": {
+        "title": "Konfigurer legitimasjoner",
+        "description": "Sett opp legitimasjoner for de tilkoblede serverne dine"
+      },
+      "explore": {
+        "title": "Utforsk verktøy",
+        "description": "Oppdag verktøyene som er tilgjengelige fra serverne dine"
+      },
+      "complete": {
+        "title": "Du er klar!",
+        "description": "Begynn å bruke verktøyene dine og opprett komposisjoner"
+      }
+    },
+    "skip": "Hopp over introduksjonen",
+    "next": "Neste",
+    "previous": "Forrige",
+    "finish": "Kom i gang"
+  }
+}

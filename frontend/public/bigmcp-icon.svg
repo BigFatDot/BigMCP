@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .orange { fill: #D97757; }
+      .white { fill: #ffffff; }
+    </style>
+  </defs>
+  
+  <!-- Cercle central orange (centre: 32,32 - rayon: 28) -->
+  <circle cx="32" cy="32" r="28" class="orange"/>
+  
+  <!-- 12 billes blanches avec centres exactement sur le périmètre du cercle orange -->
+  <!-- Centre du cercle: (32, 32), Rayon: 28px -->
+  
+  <!-- Bille 0 - 12h (angle: -90°) -->
+  <circle cx="32" cy="4" r="3.5" class="white"/>
+  
+  <!-- Bille 1 - 1h (angle: -60°) -->
+  <circle cx="46" cy="7.75" r="3.5" class="white"/>
+  
+  <!-- Bille 2 - 2h (angle: -30°) -->
+  <circle cx="56.25" cy="18" r="3.5" class="white"/>
+  
+  <!-- Bille 3 - 3h (angle: 0°) -->
+  <circle cx="60" cy="32" r="3.5" class="white"/>
+  
+  <!-- Bille 4 - 4h (angle: 30°) -->
+  <circle cx="56.25" cy="46" r="3.5" class="white"/>
+  
+  <!-- Bille 5 - 5h (angle: 60°) -->
+  <circle cx="46" cy="56.25" r="3.5" class="white"/>
+  
+  <!-- Bille 6 - 6h (angle: 90°) -->
+  <circle cx="32" cy="60" r="3.5" class="white"/>
+  
+  <!-- Bille 7 - 7h (angle: 120°) -->
+  <circle cx="18" cy="56.25" r="3.5" class="white"/>
+  
+  <!-- Bille 8 - 8h (angle: 150°) -->
+  <circle cx="7.75" cy="46" r="3.5" class="white"/>
+  
+  <!-- Bille 9 - 9h (angle: 180°) -->
+  <circle cx="4" cy="32" r="3.5" class="white"/>
+  
+  <!-- Bille 10 - 10h (angle: 210°) -->
+  <circle cx="7.75" cy="18" r="3.5" class="white"/>
+  
+  <!-- Bille 11 - 11h (angle: 240°) -->
+  <circle cx="18" cy="7.75" r="3.5" class="white"/>
+</svg>

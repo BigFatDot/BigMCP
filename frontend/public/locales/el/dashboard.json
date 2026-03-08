@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Υπηρεσίες",
+    "subtitle": "Διαχειριστείτε τους MCP servers, τα εργαλεία και τα toolboxes σας",
+    "search": "Αναζήτηση εργαλείων...",
+    "noTools": "Δεν υπάρχουν διαθέσιμα εργαλεία",
+    "noToolsDescription": "Συνδεθείτε σε servers από το Marketplace για να δείτε εργαλεία εδώ",
+    "goToMarketplace": "Μετάβαση στο Marketplace",
+    "viewToggle": {
+      "servers": "Υπηρεσίες",
+      "toolboxes": "Toolboxes"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP Servers = Πηγές Εργαλείων",
+      "serversDescription": "Κάθε server που συνδέετε παρέχει εργαλεία που μπορεί να χρησιμοποιήσει το Claude. Εναλλάξτε ορατότητα για έλεγχο των διαθέσιμων εργαλείων.",
+      "visibleLabel": "Ορατό = Το Claude μπορεί να χρησιμοποιήσει",
+      "hiddenLabel": "Κρυφό = Απενεργοποιημένο για το Claude",
+      "toolboxesTitle": "Toolboxes = Οργανώστε τα Εργαλεία σας",
+      "toolboxesDescription": "Δημιουργήστε toolboxes για ομαδοποίηση συγκεκριμένων εργαλείων. Χρησιμοποιήστε toolboxes για έλεγχο των διαθέσιμων εργαλείων κατά τη σύνδεση εξωτερικών εφαρμογών.",
+      "forExternalIntegrations": "Για εξωτερικές ενσωματώσεις",
+      "manageConnections": "Διαχείριση Συνδέσεων →"
+    },
+    "serverState": {
+      "active": "Ενεργός",
+      "apiOnly": "Μόνο API",
+      "standby": "Αναμονή",
+      "disabled": "Απενεργοποιημένος",
+      "error": "Σφάλμα"
+    },
+    "serverActions": {
+      "visible": "Ορατός",
+      "hidden": "Κρυφός",
+      "stopServer": "Διακοπή server;",
+      "deleteServerConfirm": "Διαγραφή αυτού του server και των credentials του;",
+      "serverError": "Ο server αντιμετώπισε σφάλμα",
+      "availableTools": "Διαθέσιμα Εργαλεία ({{count}})",
+      "visibleToClaude": "Ορατό στο Claude",
+      "discoveringTools": "Ανακάλυψη εργαλείων...",
+      "startToDiscover": "Εκκινήστε τον server για ανακάλυψη εργαλείων"
+    },
+    "groups": {
+      "title": "Toolboxes",
+      "create": "Δημιουργία Toolbox",
+      "createToolbox": "Δημιουργία Toolbox",
+      "createFirst": "Δημιουργήστε το Πρώτο σας Toolbox",
+      "edit": "Επεξεργασία Toolbox",
+      "delete": "Διαγραφή Toolbox",
+      "name": "Όνομα toolbox",
+      "description": "Περιγραφή",
+      "tools": "Εργαλεία στο toolbox",
+      "empty": "Δεν υπάρχουν Toolboxes ακόμα",
+      "emptyDescription": "Δημιουργήστε toolboxes για οργάνωση των εργαλείων που είναι διαθέσιμα μέσω API keys.",
+      "noTools": "Δεν υπάρχουν εργαλεία σε αυτό το toolbox",
+      "deleteConfirm": "Διαγραφή «{{name}}»; Τα API keys που χρησιμοποιούν αυτό το toolbox θα χάσουν τους περιορισμούς τους.",
+      "active": "Ενεργό",
+      "inactive": "Ανενεργό",
+      "shared": "Κοινόχρηστο",
+      "private": "Ιδιωτικό",
+      "makePrivate": "Κλικ για ιδιωτικό",
+      "shareWithTeam": "Κλικ για κοινοποίηση με ομάδα",
+      "used": "Χρησιμοποιήθηκε {{count}} φορά",
+      "used_plural": "Χρησιμοποιήθηκε {{count}} φορές"
+    },
+    "createModal": {
+      "title": "Δημιουργία Toolbox",
+      "stepInfo": "Ονομάστε το toolbox σας",
+      "stepTools": "Επιλέξτε εργαλεία για συμπερίληψη",
+      "groupName": "Όνομα Toolbox *",
+      "groupNamePlaceholder": "π.χ., Μόνο Ανάγνωση, Παραγωγή, Περιβάλλον Ανάπτυξης",
+      "descriptionPlaceholder": "Για τι χρησιμεύει αυτό το toolbox;",
+      "color": "Χρώμα",
+      "visibility": "Ορατότητα",
+      "visibilityPrivate": "Ιδιωτικό",
+      "visibilityPrivateDesc": "Μόνο εσείς μπορείτε να χρησιμοποιήσετε αυτό το toolbox",
+      "visibilityOrganization": "Οργανισμός",
+      "visibilityOrganizationDesc": "Κοινοποίηση με την ομάδα σας",
+      "toolsSelected": "{{count}} εργαλείο επιλεγμένο",
+      "toolsSelected_plural": "{{count}} εργαλεία επιλεγμένα",
+      "clearAll": "Εκκαθάριση όλων",
+      "selectAll": "Επιλογή όλων",
+      "deselectAll": "Αποεπιλογή όλων",
+      "noToolsAvailable": "Δεν υπάρχουν διαθέσιμα εργαλεία",
+      "connectServersFirst": "Συνδέστε πρώτα servers για προσθήκη εργαλείων στα toolboxes",
+      "back": "Πίσω",
+      "cancel": "Ακύρωση",
+      "nextSelectTools": "Επόμενο: Επιλογή Εργαλείων",
+      "creating": "Δημιουργία...",
+      "createGroup": "Δημιουργία Toolbox ({{count}} εργαλεία)"
+    },
+    "server": {
+      "connected": "Συνδεδεμένος",
+      "disconnected": "Αποσυνδεδεμένος",
+      "error": "Σφάλμα",
+      "reconnect": "Επανασύνδεση",
+      "tools": "{{count}} εργαλείο",
+      "tools_plural": "{{count}} εργαλεία"
+    }
+  },
+  "myServers": {
+    "title": "Οι Υπηρεσίες μου",
+    "subtitle": "Διαχείριση υπηρεσιών και έλεγχος εργαλείων που εκτίθενται στο Claude",
+    "serversUsed": "servers σε χρήση",
+    "limitReached": "Το όριο επιτεύχθηκε",
+    "tabs": {
+      "personal": "Οι Υπηρεσίες μου",
+      "team": "Υπηρεσίες Ομάδας"
+    },
+    "stats": {
+      "servers": "Υπηρεσίες",
+      "connected": "Συνδεδεμένες",
+      "active": "Ενεργές",
+      "tools": "Εργαλεία"
+    },
+    "info": {
+      "title": "Ορατότητα & Ανακάλυψη Εργαλείων",
+      "description": "Οι ενεργοί servers εκθέτουν εργαλεία στο Claude. Χρησιμοποιήστε την εναλλαγή για έλεγχο ορατότητας.",
+      "hint": "Τα εργαλεία εμφανίζονται μετά την πρώτη εκκίνηση του server (μέσω κλήσης MCP)."
+    },
+    "empty": {
+      "title": "Δεν υπάρχουν συνδεδεμένοι servers ακόμα",
+      "description": "Ξεκινήστε συνδέοντας τον πρώτο σας MCP server από το marketplace.",
+      "browseMarketplace": "Περιήγηση στο Marketplace"
+    },
+    "orgCredentials": {
+      "title": "Διαθέσιμα Credentials Οργανισμού",
+      "description": "Αυτοί οι servers χρησιμοποιούν credentials οργανισμού. Μπορείτε να τους χρησιμοποιήσετε χωρίς να παρέχετε τα δικά σας credentials.",
+      "viewAll": "Δείτε όλους τους servers ομάδας →"
+    },
+    "visibility": {
+      "title": "Ορατότητα server",
+      "visibleOauth": "Ορατό στο OAuth",
+      "hiddenApiOnly": "Κρυφό (μόνο API)",
+      "disabled": "Απενεργοποιημένο"
+    },
+    "actions": {
+      "stop": "Διακοπή",
+      "start": "Εκκίνηση",
+      "restart": "Επανεκκίνηση",
+      "validate": "Επικύρωση",
+      "edit": "Επεξεργασία",
+      "delete": "Διαγραφή",
+      "expand": "Ανάπτυξη για εμφάνιση εργαλείων",
+      "collapse": "Σύμπτυξη"
+    },
+    "tools": {
+      "available": "Διαθέσιμα Εργαλεία ({{count}})",
+      "visibleToClaude": "Ορατό στο Claude",
+      "visible": "Ορατό",
+      "hidden": "Κρυφό",
+      "hideFromOauth": "Απόκρυψη από OAuth",
+      "showToOauth": "Εμφάνιση στο OAuth",
+      "discovering": "Ανακάλυψη εργαλείων...",
+      "discoveringNote": "Τα εργαλεία θα εμφανιστούν μετά την αρχικοποίηση του server",
+      "notConnected": "Ο server δεν είναι συνδεδεμένος",
+      "notConnectedNote": "Εκκινήστε τον server για ανακάλυψη διαθέσιμων εργαλείων"
+    },
+    "serverInfo": {
+      "created": "Δημιουργήθηκε:",
+      "lastUsed": "Τελευταία χρήση:",
+      "validated": "Επικυρωμένο"
+    },
+    "errors": {
+      "loadingCredentials": "Σφάλμα φόρτωσης credentials",
+      "failedToLoad": "Αποτυχία φόρτωσης credentials",
+      "deleteConfirm": "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το credential;",
+      "stopConfirm": "Είστε σίγουροι ότι θέλετε να διακόψετε αυτόν τον server;",
+      "visibilityUpdated": "Η ορατότητα του server ενημερώθηκε",
+      "visibilityFailed": "Αποτυχία ενημέρωσης ορατότητας server",
+      "toolVisibilityUpdated": "Η ορατότητα του εργαλείου ενημερώθηκε",
+      "toolVisibilityFailed": "Αποτυχία ενημέρωσης ορατότητας εργαλείου"
+    },
+    "team": {
+      "empty": {
+        "title": "Δεν υπάρχουν servers ομάδας ακόμα",
+        "description": "Οι servers ομάδας κοινοποιούνται με όλα τα μέλη του οργανισμού. Μόνο οι admins μπορούν να τους προσθέσουν.",
+        "hint": "Μεταβείτε στις Ρυθμίσεις Οργανισμού για διαχείριση κοινών credentials."
+      },
+      "orgSettings": "Ρυθμίσεις Οργανισμού",
+      "banner": {
+        "title": "Υπηρεσίες Ομάδας",
+        "description": "Αυτοί οι servers κοινοποιούνται με όλα τα μέλη του οργανισμού. Τα credentials διαχειρίζονται από τους admins."
+      },
+      "badge": "Ομάδα",
+      "teamServer": "Server Ομάδας",
+      "visibleToMembers": "Ορατό σε όλα τα μέλη",
+      "hiddenFromMembers": "Κρυφό από τα μέλη",
+      "showToMembers": "Εμφάνιση στα μέλη",
+      "hideFromMembers": "Απόκρυψη από τα μέλη",
+      "deleteConfirm": "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτό το credential ομάδας; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
+      "deleteSuccess": "Το credential ομάδας διαγράφηκε",
+      "deleteFailed": "Αποτυχία διαγραφής credential ομάδας",
+      "visibilityUpdated": "Η ορατότητα μελών ενημερώθηκε",
+      "visibilityFailed": "Αποτυχία ενημέρωσης ορατότητας μελών",
+      "edit": "Επεξεργασία server ομάδας",
+      "editTitle": "Επεξεργασία Server Ομάδας",
+      "editSuccess": "Ο server ομάδας ενημερώθηκε",
+      "editFailed": "Αποτυχία ενημέρωσης server ομάδας",
+      "nameLabel": "Όνομα",
+      "namePlaceholder": "π.χ., Εταιρικός Λογαριασμός Grist",
+      "nameRequired": "Το όνομα είναι υποχρεωτικό",
+      "descriptionLabel": "Περιγραφή",
+      "descriptionPlaceholder": "Προαιρετική περιγραφή για την ομάδα σας",
+      "visibleToAll": "Ορατό σε όλα τα μέλη",
+      "visibleToAllDesc": "Όλα τα μέλη ομάδας μπορούν να δουν και να χρησιμοποιήσουν αυτόν τον server",
+      "adminOnly": "Μόνο Admin",
+      "adminOnlyDesc": "Μόνο οι admins μπορούν να δουν αυτό το credential (χρησιμοποιείται ως εφεδρικό)",
+      "updateCredentials": "Ενημέρωση Credentials (προαιρετικό)",
+      "updateCredentialsHint": "Αφήστε κενό για διατήρηση υπαρχόντων τιμών",
+      "leaveEmptyToKeep": "Αφήστε κενό για διατήρηση τρέχουσας τιμής",
+      "howToGet": "Πώς να το αποκτήσετε;",
+      "cancel": "Ακύρωση",
+      "saving": "Αποθήκευση...",
+      "saveChanges": "Αποθήκευση Αλλαγών"
+    }
+  },
+  "compositions": {
+    "title": "Compositions",
+    "subtitle": "Διαχείριση και εκτέλεση ροών εργασίας πολλαπλών βημάτων",
+    "create": "Δημιουργία Composition",
+    "edit": "Επεξεργασία Composition",
+    "delete": "Διαγραφή Composition",
+    "run": "Εκτέλεση",
+    "running": "Εκτέλεση σε εξέλιξη...",
+    "execute": "Εκτέλεση",
+    "executing": "Εκτέλεση...",
+    "stop": "Διακοπή",
+    "name": "Όνομα composition",
+    "description": "Περιγραφή",
+    "workflow": "Ροή Εργασίας",
+    "trigger": "Ενεργοποιητής",
+    "actions": "Ενέργειες",
+    "search": "Αναζήτηση compositions...",
+    "steps": "{{count}} βήματα",
+    "executedTimes": "Εκτελέστηκε {{count}} φορές",
+    "created": "Δημιουργήθηκε {{date}}",
+    "canExecute": "Δυνατότητα εκτέλεσης",
+    "noExecutePermission": "Χωρίς δικαίωμα εκτέλεσης",
+    "validate": "Επικύρωση",
+    "promote": "Προώθηση",
+    "shareWithTeam": "Κοινοποίηση με ομάδα",
+    "makePrivate": "Ορισμός ως ιδιωτικό",
+    "cancel": "Ακύρωση",
+    "noSteps": "Χωρίς βήματα",
+    "parameters": "{{count}} παράμετροι",
+    "runtimeParamsNote": "Εισαγωγή παραμέτρων χρόνου εκτέλεσης σύντομα. Προς το παρόν, τα compositions χρησιμοποιούν προεπιλεγμένες παραμέτρους.",
+    "promoteConfirm": "Προώθηση «{{name}}» σε {{status}};",
+    "deleteConfirm": "Διαγραφή «{{name}}»; Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.",
+    "promotedSuccess": "Το composition προωθήθηκε σε {{status}}",
+    "deletedSuccess": "Το composition διαγράφηκε",
+    "executedSuccess": "Το composition εκτελέστηκε με επιτυχία",
+    "sharedSuccess": "Το composition κοινοποιήθηκε με την ομάδα",
+    "madePrivate": "Το composition ορίστηκε ως ιδιωτικό",
+    "status": {
+      "temporary": "Προσωρινό",
+      "validated": "Επικυρωμένο",
+      "production": "Παραγωγή",
+      "draft": "Πρόχειρο",
+      "active": "Ενεργό",
+      "paused": "Σε παύση",
+      "error": "Σφάλμα"
+    },
+    "visibility": {
+      "private": "Ιδιωτικό",
+      "organization": "Ομάδα",
+      "public": "Δημόσιο"
+    },
+    "filters": {
+      "allStatus": "Όλες οι Καταστάσεις",
+      "allCompositions": "Όλα τα Compositions",
+      "myCompositions": "Τα Compositions μου",
+      "teamShared": "Κοινόχρηστα Ομάδας"
+    },
+    "empty": {
+      "title": "Δεν υπάρχουν Compositions",
+      "description": "Τα compositions δημιουργούνται όταν ενορχηστρώνετε πολλαπλά εργαλεία μαζί. Χρησιμοποιήστε τον βοηθό AI για τη δημιουργία της πρώτης ροής εργασίας.",
+      "noMatch": "Κανένα composition δεν ταιριάζει με τα φίλτρα σας. Δοκιμάστε να προσαρμόσετε την αναζήτηση."
+    },
+    "executeModal": {
+      "title": "Εκτέλεση Composition",
+      "resultsTitle": "Αποτελέσματα Εκτέλεσης",
+      "inputsTitle": "Παράμετροι Εισόδου",
+      "stepsPreview": "Βήματα προς Εκτέλεση",
+      "executingSteps": "Εκτέλεση {{count}} βημάτων..."
+    },
+    "inputForm": {
+      "selectOption": "Επιλογή...",
+      "noInputsRequired": "Δεν απαιτούνται παράμετροι για αυτό το composition",
+      "jsonFormat": "Μορφή JSON ({{type}})"
+    },
+    "results": {
+      "title": "Αποτελέσματα",
+      "success": "Επιτυχία",
+      "failed": "Αποτυχία",
+      "duration": "Διάρκεια",
+      "output": "Έξοδος",
+      "statusSuccess": "Εκτέλεση Επιτυχής",
+      "statusPartial": "Μερική Εκτέλεση",
+      "statusFailed": "Αποτυχία Εκτέλεσης",
+      "summary": "{{success}}/{{total}} βήματα επιτυχή • {{duration}}",
+      "globalError": "Γενικό Σφάλμα",
+      "stepsTitle": "Λεπτομέρειες Βημάτων",
+      "stepOutput": "Έξοδος",
+      "noOutput": "Δεν επιστράφηκαν δεδομένα",
+      "error": "Σφάλμα",
+      "retries": "{{count}} επανάληψη(εις)",
+      "finalOutput": "Τελική Έξοδος",
+      "startedAt": "Ξεκίνησε στις",
+      "completedAt": "Ολοκληρώθηκε στις",
+      "unknownError": "Παρουσιάστηκε άγνωστο σφάλμα"
+    },
+    "close": "Κλείσιμο",
+    "executeAgain": "Εκτέλεση Ξανά"
+  },
+  "onboarding": {
+    "title": "Καλώς ορίσατε στο BigMCP!",
+    "subtitle": "Ας ξεκινήσουμε",
+    "steps": {
+      "welcome": {
+        "title": "Καλώς ορίσατε",
+        "description": "Το BigMCP σας βοηθά να διαχειριστείτε και να ενορχηστρώσετε MCP servers"
+      },
+      "connect": {
+        "title": "Σύνδεση Server",
+        "description": "Περιηγηθείτε στο marketplace και συνδέστε τον πρώτο σας server"
+      },
+      "configure": {
+        "title": "Διαμόρφωση Credentials",
+        "description": "Ρυθμίστε credentials για τους συνδεδεμένους servers"
+      },
+      "explore": {
+        "title": "Εξερεύνηση Εργαλείων",
+        "description": "Ανακαλύψτε τα εργαλεία που είναι διαθέσιμα από τους servers σας"
+      },
+      "complete": {
+        "title": "Είστε έτοιμοι!",
+        "description": "Αρχίστε να χρησιμοποιείτε τα εργαλεία σας και να δημιουργείτε compositions"
+      }
+    },
+    "skip": "Παράλειψη εισαγωγής",
+    "next": "Επόμενο",
+    "previous": "Προηγούμενο",
+    "finish": "Ξεκινήστε"
+  }
+}

@@ -1,0 +1,347 @@
+{
+  "tools": {
+    "title": "Usługi",
+    "subtitle": "Zarządzaj serwerami MCP, narzędziami i zestawami narzędzi",
+    "search": "Szukaj narzędzi...",
+    "noTools": "Brak dostępnych narzędzi",
+    "noToolsDescription": "Połącz się z serwerami w Marketplace, aby zobaczyć narzędzia",
+    "goToMarketplace": "Przejdź do Marketplace",
+    "viewToggle": {
+      "servers": "Usługi",
+      "toolboxes": "Zestawy narzędzi"
+    },
+    "infoBanner": {
+      "serversTitle": "Serwery MCP = Źródła narzędzi",
+      "serversDescription": "Każdy połączony serwer dostarcza narzędzia, których Claude może używać. Przełączaj widoczność, aby kontrolować dostępne narzędzia.",
+      "visibleLabel": "Widoczne = Claude może używać",
+      "hiddenLabel": "Ukryte = Wyłączone dla Claude",
+      "toolboxesTitle": "Zestawy narzędzi = Organizuj swoje narzędzia",
+      "toolboxesDescription": "Twórz zestawy narzędzi, aby grupować określone narzędzia razem. Używaj zestawów narzędzi, aby kontrolować, które narzędzia są dostępne podczas łączenia zewnętrznych aplikacji.",
+      "forExternalIntegrations": "Do integracji zewnętrznych",
+      "manageConnections": "Zarządzaj połączeniami →"
+    },
+    "serverState": {
+      "active": "Aktywny",
+      "apiOnly": "Tylko API",
+      "standby": "W gotowości",
+      "disabled": "Wyłączony",
+      "error": "Błąd"
+    },
+    "serverActions": {
+      "visible": "Widoczny",
+      "hidden": "Ukryty",
+      "stopServer": "Zatrzymać serwer?",
+      "deleteServerConfirm": "Usunąć ten serwer i jego dane uwierzytelniające?",
+      "serverError": "Serwer napotkał błąd",
+      "availableTools": "Dostępne narzędzia ({{count}})",
+      "visibleToClaude": "Widoczny dla Claude",
+      "discoveringTools": "Odkrywanie narzędzi...",
+      "startToDiscover": "Uruchom serwer, aby odkryć narzędzia"
+    },
+    "groups": {
+      "title": "Zestawy narzędzi",
+      "create": "Utwórz zestaw narzędzi",
+      "createToolbox": "Utwórz zestaw narzędzi",
+      "createFirst": "Utwórz swój pierwszy zestaw narzędzi",
+      "edit": "Edytuj zestaw narzędzi",
+      "delete": "Usuń zestaw narzędzi",
+      "name": "Nazwa zestawu narzędzi",
+      "description": "Opis",
+      "tools": "Narzędzia w zestawie",
+      "empty": "Brak zestawów narzędzi",
+      "emptyDescription": "Twórz zestawy narzędzi, aby organizować, które narzędzia są dostępne przez klucze API.",
+      "noTools": "Brak narzędzi w tym zestawie",
+      "deleteConfirm": "Usunąć \"{{name}}\"? Klucze API używające tego zestawu narzędzi utracą swoje ograniczenia.",
+      "active": "Aktywny",
+      "inactive": "Nieaktywny",
+      "shared": "Udostępniony",
+      "private": "Prywatny",
+      "makePrivate": "Kliknij, aby ustawić jako prywatny",
+      "shareWithTeam": "Kliknij, aby udostępnić zespołowi",
+      "used": "Użyty {{count}} raz",
+      "used_2": "Użyty {{count}} razy",
+      "used_plural": "Użyty {{count}} razy"
+    },
+    "createModal": {
+      "title": "Utwórz zestaw narzędzi",
+      "stepInfo": "Nazwij swój zestaw narzędzi",
+      "stepTools": "Wybierz narzędzia do uwzględnienia",
+      "groupName": "Nazwa zestawu narzędzi *",
+      "groupNamePlaceholder": "np. Tylko do odczytu, Produkcja, Środowisko deweloperskie",
+      "descriptionPlaceholder": "Do czego służy ten zestaw narzędzi?",
+      "color": "Kolor",
+      "visibility": "Widoczność",
+      "visibilityPrivate": "Prywatny",
+      "visibilityPrivateDesc": "Tylko Ty możesz używać tego zestawu narzędzi",
+      "visibilityOrganization": "Organizacja",
+      "visibilityOrganizationDesc": "Udostępnij swojemu zespołowi",
+      "toolsSelected": "{{count}} narzędzie wybrane",
+      "toolsSelected_2": "{{count}} narzędzia wybrane",
+      "toolsSelected_plural": "{{count}} narzędzi wybranych",
+      "clearAll": "Wyczyść wszystko",
+      "selectAll": "Zaznacz wszystko",
+      "deselectAll": "Odznacz wszystko",
+      "noToolsAvailable": "Brak dostępnych narzędzi",
+      "connectServersFirst": "Najpierw połącz serwery, aby dodawać narzędzia do zestawów",
+      "back": "Wstecz",
+      "cancel": "Anuluj",
+      "nextSelectTools": "Dalej: Wybierz narzędzia",
+      "creating": "Tworzenie...",
+      "createGroup": "Utwórz zestaw narzędzi ({{count}} narzędzi)"
+    },
+    "server": {
+      "connected": "Połączony",
+      "disconnected": "Rozłączony",
+      "error": "Błąd",
+      "reconnect": "Połącz ponownie",
+      "tools": "{{count}} narzędzie",
+      "tools_2": "{{count}} narzędzia",
+      "tools_plural": "{{count}} narzędzi"
+    }
+  },
+  "myServers": {
+    "title": "Moje usługi",
+    "subtitle": "Zarządzaj usługami i kontroluj narzędzia udostępniane Claude",
+    "serversUsed": "używanych serwerów",
+    "limitReached": "Osiągnięto limit",
+    "tabs": {
+      "personal": "Moje usługi",
+      "team": "Usługi zespołowe"
+    },
+    "stats": {
+      "servers": "Usługi",
+      "connected": "Połączone",
+      "active": "Aktywne",
+      "tools": "Narzędzia"
+    },
+    "info": {
+      "title": "Widoczność i odkrywanie narzędzi",
+      "description": "Aktywne serwery udostępniają narzędzia Claude. Używaj przełącznika, aby kontrolować widoczność.",
+      "hint": "Narzędzia pojawiają się po pierwszym uruchomieniu serwera (przez wywołanie MCP)."
+    },
+    "empty": {
+      "title": "Brak połączonych serwerów",
+      "description": "Zacznij od połączenia pierwszego serwera MCP z marketplace.",
+      "browseMarketplace": "Przeglądaj Marketplace"
+    },
+    "orgCredentials": {
+      "title": "Dostępne dane uwierzytelniające organizacji",
+      "description": "Te serwery używają danych uwierzytelniających organizacji. Możesz z nich korzystać bez podawania własnych danych.",
+      "viewAll": "Zobacz wszystkie serwery zespołu →"
+    },
+    "visibility": {
+      "title": "Widoczność serwera",
+      "visibleOauth": "Widoczny dla OAuth",
+      "hiddenApiOnly": "Ukryty (tylko API)",
+      "disabled": "Wyłączony"
+    },
+    "actions": {
+      "stop": "Zatrzymaj",
+      "start": "Uruchom",
+      "restart": "Uruchom ponownie",
+      "validate": "Zweryfikuj",
+      "edit": "Edytuj",
+      "delete": "Usuń",
+      "expand": "Rozwiń, aby zobaczyć narzędzia",
+      "collapse": "Zwiń"
+    },
+    "tools": {
+      "available": "Dostępne narzędzia ({{count}})",
+      "visibleToClaude": "Widoczne dla Claude",
+      "visible": "Widoczne",
+      "hidden": "Ukryte",
+      "hideFromOauth": "Ukryj przed OAuth",
+      "showToOauth": "Pokaż w OAuth",
+      "discovering": "Odkrywanie narzędzi...",
+      "discoveringNote": "Narzędzia pojawią się po inicjalizacji serwera",
+      "notConnected": "Serwer niepołączony",
+      "notConnectedNote": "Uruchom serwer, aby odkryć dostępne narzędzia"
+    },
+    "serverInfo": {
+      "created": "Utworzono:",
+      "lastUsed": "Ostatnio użyty:",
+      "validated": "Zweryfikowany"
+    },
+    "errors": {
+      "loadingCredentials": "Błąd podczas ładowania danych uwierzytelniających",
+      "failedToLoad": "Nie udało się załadować danych uwierzytelniających",
+      "deleteConfirm": "Czy na pewno chcesz usunąć te dane uwierzytelniające?",
+      "stopConfirm": "Czy na pewno chcesz zatrzymać ten serwer?",
+      "visibilityUpdated": "Widoczność serwera zaktualizowana",
+      "visibilityFailed": "Nie udało się zaktualizować widoczności serwera",
+      "toolVisibilityUpdated": "Widoczność narzędzia zaktualizowana",
+      "toolVisibilityFailed": "Nie udało się zaktualizować widoczności narzędzia"
+    },
+    "team": {
+      "empty": {
+        "title": "Brak serwerów zespołu",
+        "description": "Serwery zespołu są współdzielone ze wszystkimi członkami organizacji. Tylko administratorzy mogą je dodawać.",
+        "hint": "Przejdź do Ustawień organizacji, aby zarządzać współdzielonymi danymi uwierzytelniającymi."
+      },
+      "orgSettings": "Ustawienia organizacji",
+      "banner": {
+        "title": "Usługi zespołowe",
+        "description": "Te serwery są współdzielone ze wszystkimi członkami organizacji. Danymi uwierzytelniającymi zarządzają administratorzy."
+      },
+      "badge": "Zespół",
+      "teamServer": "Serwer zespołu",
+      "visibleToMembers": "Widoczny dla wszystkich członków",
+      "hiddenFromMembers": "Ukryty przed członkami",
+      "showToMembers": "Ustaw jako widoczny dla członków",
+      "hideFromMembers": "Ukryj przed członkami",
+      "deleteConfirm": "Czy na pewno chcesz usunąć te dane uwierzytelniające zespołu? Tej operacji nie można cofnąć.",
+      "deleteSuccess": "Dane uwierzytelniające zespołu usunięte",
+      "deleteFailed": "Nie udało się usunąć danych uwierzytelniających zespołu",
+      "visibilityUpdated": "Widoczność dla członków zaktualizowana",
+      "visibilityFailed": "Nie udało się zaktualizować widoczności dla członków",
+      "edit": "Edytuj serwer zespołu",
+      "editTitle": "Edytuj serwer zespołu",
+      "editSuccess": "Serwer zespołu zaktualizowany",
+      "editFailed": "Nie udało się zaktualizować serwera zespołu",
+      "nameLabel": "Nazwa",
+      "namePlaceholder": "np. Firmowe konto Grist",
+      "nameRequired": "Nazwa jest wymagana",
+      "descriptionLabel": "Opis",
+      "descriptionPlaceholder": "Opcjonalny opis dla Twojego zespołu",
+      "visibleToAll": "Widoczny dla wszystkich członków",
+      "visibleToAllDesc": "Wszyscy członkowie zespołu mogą widzieć i używać tego serwera",
+      "adminOnly": "Tylko dla administratora",
+      "adminOnlyDesc": "Tylko administratorzy mogą widzieć te dane uwierzytelniające (używane jako zapasowe)",
+      "updateCredentials": "Aktualizuj dane uwierzytelniające (opcjonalnie)",
+      "updateCredentialsHint": "Zostaw puste, aby zachować istniejące wartości",
+      "leaveEmptyToKeep": "Zostaw puste, aby zachować aktualną wartość",
+      "howToGet": "Jak to uzyskać?",
+      "cancel": "Anuluj",
+      "saving": "Zapisywanie...",
+      "saveChanges": "Zapisz zmiany"
+    }
+  },
+  "compositions": {
+    "title": "Kompozycje",
+    "subtitle": "Zarządzaj i wykonuj wieloetapowe przepływy pracy narzędzi",
+    "create": "Utwórz kompozycję",
+    "edit": "Edytuj kompozycję",
+    "delete": "Usuń kompozycję",
+    "run": "Uruchom",
+    "running": "Uruchamianie...",
+    "execute": "Wykonaj",
+    "executing": "Wykonywanie...",
+    "stop": "Zatrzymaj",
+    "name": "Nazwa kompozycji",
+    "description": "Opis",
+    "workflow": "Przepływ pracy",
+    "trigger": "Wyzwalacz",
+    "actions": "Akcje",
+    "search": "Szukaj kompozycji...",
+    "steps": "{{count}} kroków",
+    "executedTimes": "Wykonano {{count}} razy",
+    "created": "Utworzono {{date}}",
+    "canExecute": "Można wykonać",
+    "noExecutePermission": "Brak uprawnień do wykonania",
+    "validate": "Zweryfikuj",
+    "promote": "Promuj",
+    "shareWithTeam": "Udostępnij zespołowi",
+    "makePrivate": "Ustaw jako prywatną",
+    "cancel": "Anuluj",
+    "noSteps": "Brak kroków",
+    "parameters": "{{count}} parametrów",
+    "runtimeParamsNote": "Wprowadzanie parametrów w czasie wykonywania wkrótce dostępne. Na razie kompozycje używają domyślnych parametrów.",
+    "promoteConfirm": "Promować \"{{name}}\" do {{status}}?",
+    "deleteConfirm": "Usunąć \"{{name}}\"? Tej operacji nie można cofnąć.",
+    "promotedSuccess": "Kompozycja promowana do {{status}}",
+    "deletedSuccess": "Kompozycja usunięta",
+    "executedSuccess": "Kompozycja wykonana pomyślnie",
+    "sharedSuccess": "Kompozycja udostępniona zespołowi",
+    "madePrivate": "Kompozycja ustawiona jako prywatna",
+    "status": {
+      "temporary": "Tymczasowa",
+      "validated": "Zweryfikowana",
+      "production": "Produkcja",
+      "draft": "Szkic",
+      "active": "Aktywna",
+      "paused": "Wstrzymana",
+      "error": "Błąd"
+    },
+    "visibility": {
+      "private": "Prywatna",
+      "organization": "Zespół",
+      "public": "Publiczna"
+    },
+    "filters": {
+      "allStatus": "Wszystkie statusy",
+      "allCompositions": "Wszystkie kompozycje",
+      "myCompositions": "Moje kompozycje",
+      "teamShared": "Udostępnione zespołowi"
+    },
+    "empty": {
+      "title": "Brak kompozycji",
+      "description": "Kompozycje są tworzone podczas orkiestracji wielu narzędzi razem. Użyj asystenta AI, aby stworzyć swój pierwszy przepływ pracy.",
+      "noMatch": "Żadna kompozycja nie pasuje do Twoich filtrów. Spróbuj dostosować wyszukiwanie."
+    },
+    "executeModal": {
+      "title": "Wykonaj kompozycję",
+      "resultsTitle": "Wyniki wykonania",
+      "inputsTitle": "Parametry wejściowe",
+      "stepsPreview": "Kroki do wykonania",
+      "executingSteps": "Wykonywanie {{count}} kroków..."
+    },
+    "inputForm": {
+      "selectOption": "Wybierz...",
+      "noInputsRequired": "Ta kompozycja nie wymaga parametrów",
+      "jsonFormat": "Format JSON ({{type}})"
+    },
+    "results": {
+      "title": "Wyniki",
+      "success": "Sukces",
+      "failed": "Nieudane",
+      "duration": "Czas trwania",
+      "output": "Dane wyjściowe",
+      "statusSuccess": "Wykonanie zakończone powodzeniem",
+      "statusPartial": "Częściowe wykonanie",
+      "statusFailed": "Wykonanie nieudane",
+      "summary": "{{success}}/{{total}} kroków zakończonych • {{duration}}",
+      "globalError": "Błąd globalny",
+      "stepsTitle": "Szczegóły kroków",
+      "stepOutput": "Dane wyjściowe",
+      "noOutput": "Nie zwrócono żadnych danych",
+      "error": "Błąd",
+      "retries": "{{count}} ponowna(-e) próba(-y)",
+      "finalOutput": "Końcowe dane wyjściowe",
+      "startedAt": "Rozpoczęto o",
+      "completedAt": "Zakończono o",
+      "unknownError": "Wystąpił nieznany błąd"
+    },
+    "close": "Zamknij",
+    "executeAgain": "Wykonaj ponownie"
+  },
+  "onboarding": {
+    "title": "Witamy w BigMCP!",
+    "subtitle": "Zaczniemy od początku",
+    "steps": {
+      "welcome": {
+        "title": "Witamy",
+        "description": "BigMCP pomaga zarządzać i orkiestrować serwery MCP"
+      },
+      "connect": {
+        "title": "Połącz serwer",
+        "description": "Przeglądaj marketplace i połącz swój pierwszy serwer"
+      },
+      "configure": {
+        "title": "Skonfiguruj dane uwierzytelniające",
+        "description": "Skonfiguruj dane uwierzytelniające dla połączonych serwerów"
+      },
+      "explore": {
+        "title": "Odkrywaj narzędzia",
+        "description": "Odkryj narzędzia dostępne z Twoich serwerów"
+      },
+      "complete": {
+        "title": "Wszystko gotowe!",
+        "description": "Zacznij używać narzędzi i tworzyć kompozycje"
+      }
+    },
+    "skip": "Pomiń wprowadzenie",
+    "next": "Dalej",
+    "previous": "Poprzedni",
+    "finish": "Zacznij"
+  }
+}

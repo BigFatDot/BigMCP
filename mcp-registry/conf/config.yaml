@@ -1,0 +1,33 @@
+# MCP Registry Configuration
+app:
+  name: "MCP Registry Service"
+  version: "1.0.0"
+  description: "MCP server management service"
+  host: "0.0.0.0"
+  port: 8001
+
+registry:
+  discovery_interval: 300  # 5 minutes
+  discovery_enabled: true
+  cache_ttl: 3600  # 1 hour
+  manage_servers: false    # Enable server management
+  server_urls:            # URLs of known MCP servers for automatic discovery
+    # Servers are now managed via mcp_servers.json
+    # - "http://grist-mcp:8083/mcp"  # Grist MCP server URL in Docker via service name
+    # Alternative URL for host - uncomment if running an MCP server locally
+    # - "http://host.docker.internal:8083/mcp"
+
+# MCP endpoints configuration
+mcp:
+  endpoints:
+    base: "/mcp"               # Base endpoint for MCP requests
+    stream: "/mcp/stream"      # Endpoint for streamed exchanges
+    capabilities: "/capabilities" # Endpoint to get capabilities
+    discovery: "/discovery"    # Endpoint for server discovery
+
+# Embedding configuration
+embedding:
+  model: "mistral-embed"   # Default model (override via EMBEDDING_MODEL env var)
+  dimension: 1536          # Standard max dimension (OpenAI=1536, Mistral=1024 → zero-padded)
+  cache_dir: "./embeddings_cache"
+

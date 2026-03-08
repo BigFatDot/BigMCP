@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Servisler",
+    "subtitle": "MCP sunucularınızı, araçlarınızı ve araç kutularınızı yönetin",
+    "search": "Araç ara...",
+    "noTools": "Kullanılabilir araç yok",
+    "noToolsDescription": "Araçları burada görmek için Marketplace'teki sunuculara bağlanın",
+    "goToMarketplace": "Marketplace'e Git",
+    "viewToggle": {
+      "servers": "Servisler",
+      "toolboxes": "Araç Kutuları"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP Sunucuları = Araç Kaynakları",
+      "serversDescription": "Bağlandığınız her sunucu, Claude'un kullanabileceği araçlar sağlar. Hangi araçların kullanılabilir olduğunu kontrol etmek için görünürlüğü değiştirin.",
+      "visibleLabel": "Görünür = Claude kullanabilir",
+      "hiddenLabel": "Gizli = Claude için devre dışı",
+      "toolboxesTitle": "Araç Kutuları = Araçlarınızı Düzenleyin",
+      "toolboxesDescription": "Belirli araçları bir arada gruplamak için araç kutuları oluşturun. Harici uygulamaları bağlarken hangi araçların kullanılabilir olduğunu kontrol etmek için araç kutularını kullanın.",
+      "forExternalIntegrations": "Harici entegrasyonlar için",
+      "manageConnections": "Bağlantıları Yönet →"
+    },
+    "serverState": {
+      "active": "Aktif",
+      "apiOnly": "Yalnızca API",
+      "standby": "Bekleme",
+      "disabled": "Devre Dışı",
+      "error": "Hata"
+    },
+    "serverActions": {
+      "visible": "Görünür",
+      "hidden": "Gizli",
+      "stopServer": "Sunucu durdurulsun mu?",
+      "deleteServerConfirm": "Bu sunucu ve kimlik bilgileri silinsin mi?",
+      "serverError": "Sunucuda bir hata oluştu",
+      "availableTools": "Kullanılabilir Araçlar ({{count}})",
+      "visibleToClaude": "Claude'a görünür",
+      "discoveringTools": "Araçlar keşfediliyor...",
+      "startToDiscover": "Araçları keşfetmek için sunucuyu başlatın"
+    },
+    "groups": {
+      "title": "Araç Kutuları",
+      "create": "Araç Kutusu Oluştur",
+      "createToolbox": "Araç Kutusu Oluştur",
+      "createFirst": "İlk Araç Kutunuzu Oluşturun",
+      "edit": "Araç Kutusunu Düzenle",
+      "delete": "Araç Kutusunu Sil",
+      "name": "Araç kutusu adı",
+      "description": "Açıklama",
+      "tools": "Araç kutusundaki araçlar",
+      "empty": "Henüz Araç Kutusu Yok",
+      "emptyDescription": "API anahtarları aracılığıyla hangi araçların kullanılabileceğini düzenlemek için araç kutuları oluşturun.",
+      "noTools": "Bu araç kutusunda araç yok",
+      "deleteConfirm": "\"{{name}}\" silinsin mi? Bu araç kutusunu kullanan API anahtarları kısıtlamalarını kaybedecek.",
+      "active": "Aktif",
+      "inactive": "Pasif",
+      "shared": "Paylaşılan",
+      "private": "Özel",
+      "makePrivate": "Özel yapmak için tıklayın",
+      "shareWithTeam": "Ekiple paylaşmak için tıklayın",
+      "used": "{{count}} kez kullanıldı",
+      "used_plural": "{{count}} kez kullanıldı"
+    },
+    "createModal": {
+      "title": "Araç Kutusu Oluştur",
+      "stepInfo": "Araç kutunuzu adlandırın",
+      "stepTools": "Dahil edilecek araçları seçin",
+      "groupName": "Araç Kutusu Adı *",
+      "groupNamePlaceholder": "örn. Yalnızca Okuma, Üretim, Geliştirme Ortamı",
+      "descriptionPlaceholder": "Bu araç kutusu ne için?",
+      "color": "Renk",
+      "visibility": "Görünürlük",
+      "visibilityPrivate": "Özel",
+      "visibilityPrivateDesc": "Bu araç kutusunu yalnızca siz kullanabilirsiniz",
+      "visibilityOrganization": "Organizasyon",
+      "visibilityOrganizationDesc": "Ekibinizle paylaşın",
+      "toolsSelected": "{{count}} araç seçildi",
+      "toolsSelected_plural": "{{count}} araç seçildi",
+      "clearAll": "Tümünü temizle",
+      "selectAll": "Tümünü seç",
+      "deselectAll": "Tümünü kaldır",
+      "noToolsAvailable": "Kullanılabilir araç yok",
+      "connectServersFirst": "Araç kutularına araç eklemek için önce sunuculara bağlanın",
+      "back": "Geri",
+      "cancel": "İptal",
+      "nextSelectTools": "İleri: Araçları Seç",
+      "creating": "Oluşturuluyor...",
+      "createGroup": "Araç Kutusu Oluştur ({{count}} araç)"
+    },
+    "server": {
+      "connected": "Bağlandı",
+      "disconnected": "Bağlantı kesildi",
+      "error": "Hata",
+      "reconnect": "Yeniden bağlan",
+      "tools": "{{count}} araç",
+      "tools_plural": "{{count}} araç"
+    }
+  },
+  "myServers": {
+    "title": "Servislerim",
+    "subtitle": "Servisleri yönetin ve Claude'a açık araçları kontrol edin",
+    "serversUsed": "kullanılan sunucu",
+    "limitReached": "Limite ulaşıldı",
+    "tabs": {
+      "personal": "Servislerim",
+      "team": "Ekip Servisleri"
+    },
+    "stats": {
+      "servers": "Servisler",
+      "connected": "Bağlı",
+      "active": "Aktif",
+      "tools": "Araçlar"
+    },
+    "info": {
+      "title": "Araç Görünürlüğü ve Keşfi",
+      "description": "Aktif sunucular araçları Claude'a açar. Görünürlüğü kontrol etmek için geçiş düğmesini kullanın.",
+      "hint": "Araçlar sunucu ilk kez başlatıldıktan sonra görünür (MCP çağrısı aracılığıyla)."
+    },
+    "empty": {
+      "title": "Henüz bağlı sunucu yok",
+      "description": "Marketplace'ten ilk MCP sunucunuzu bağlayarak başlayın.",
+      "browseMarketplace": "Marketplace'e Gözat"
+    },
+    "orgCredentials": {
+      "title": "Organizasyon Kimlik Bilgileri Mevcut",
+      "description": "Bu sunucular organizasyon kimlik bilgilerini kullanır. Kendi kimlik bilgilerinizi sağlamadan kullanabilirsiniz.",
+      "viewAll": "Tüm ekip sunucularını görüntüle →"
+    },
+    "visibility": {
+      "title": "Sunucu görünürlüğü",
+      "visibleOauth": "OAuth'a görünür",
+      "hiddenApiOnly": "Gizli (yalnızca API)",
+      "disabled": "Devre Dışı"
+    },
+    "actions": {
+      "stop": "Durdur",
+      "start": "Başlat",
+      "restart": "Yeniden Başlat",
+      "validate": "Doğrula",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "expand": "Araçları görmek için genişlet",
+      "collapse": "Daralt"
+    },
+    "tools": {
+      "available": "Kullanılabilir Araçlar ({{count}})",
+      "visibleToClaude": "Claude'a görünür",
+      "visible": "Görünür",
+      "hidden": "Gizli",
+      "hideFromOauth": "OAuth'tan gizle",
+      "showToOauth": "OAuth'a göster",
+      "discovering": "Araçlar keşfediliyor...",
+      "discoveringNote": "Araçlar sunucu başlatıldıktan sonra görünecek",
+      "notConnected": "Sunucu bağlı değil",
+      "notConnectedNote": "Kullanılabilir araçları keşfetmek için sunucuyu başlatın"
+    },
+    "serverInfo": {
+      "created": "Oluşturuldu:",
+      "lastUsed": "Son kullanım:",
+      "validated": "Doğrulandı"
+    },
+    "errors": {
+      "loadingCredentials": "Kimlik bilgileri yüklenirken hata",
+      "failedToLoad": "Kimlik bilgileri yüklenemedi",
+      "deleteConfirm": "Bu kimlik bilgisini silmek istediğinizden emin misiniz?",
+      "stopConfirm": "Bu sunucuyu durdurmak istediğinizden emin misiniz?",
+      "visibilityUpdated": "Sunucu görünürlüğü güncellendi",
+      "visibilityFailed": "Sunucu görünürlüğü güncellenemedi",
+      "toolVisibilityUpdated": "Araç görünürlüğü güncellendi",
+      "toolVisibilityFailed": "Araç görünürlüğü güncellenemedi"
+    },
+    "team": {
+      "empty": {
+        "title": "Henüz ekip sunucusu yok",
+        "description": "Ekip sunucuları tüm organizasyon üyeleriyle paylaşılır. Yalnızca yöneticiler ekleyebilir.",
+        "hint": "Paylaşılan kimlik bilgilerini yönetmek için Organizasyon Ayarları'na gidin."
+      },
+      "orgSettings": "Organizasyon Ayarları",
+      "banner": {
+        "title": "Ekip Servisleri",
+        "description": "Bu sunucular tüm organizasyon üyeleriyle paylaşılır. Kimlik bilgileri yöneticiler tarafından yönetilir."
+      },
+      "badge": "Ekip",
+      "teamServer": "Ekip Sunucusu",
+      "visibleToMembers": "Tüm üyelere görünür",
+      "hiddenFromMembers": "Üyelerden gizli",
+      "showToMembers": "Üyelere görünür yap",
+      "hideFromMembers": "Üyelerden gizle",
+      "deleteConfirm": "Bu ekip kimlik bilgisini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+      "deleteSuccess": "Ekip kimlik bilgisi silindi",
+      "deleteFailed": "Ekip kimlik bilgisi silinemedi",
+      "visibilityUpdated": "Üye görünürlüğü güncellendi",
+      "visibilityFailed": "Üye görünürlüğü güncellenemedi",
+      "edit": "Ekip sunucusunu düzenle",
+      "editTitle": "Ekip Sunucusunu Düzenle",
+      "editSuccess": "Ekip sunucusu güncellendi",
+      "editFailed": "Ekip sunucusu güncellenemedi",
+      "nameLabel": "Ad",
+      "namePlaceholder": "örn. Şirket Grist Hesabı",
+      "nameRequired": "Ad zorunludur",
+      "descriptionLabel": "Açıklama",
+      "descriptionPlaceholder": "Ekibiniz için isteğe bağlı açıklama",
+      "visibleToAll": "Tüm üyelere görünür",
+      "visibleToAllDesc": "Tüm ekip üyeleri bu sunucuyu görebilir ve kullanabilir",
+      "adminOnly": "Yalnızca yönetici",
+      "adminOnlyDesc": "Yalnızca yöneticiler bu kimlik bilgisini görebilir (yedek olarak kullanılır)",
+      "updateCredentials": "Kimlik Bilgilerini Güncelle (isteğe bağlı)",
+      "updateCredentialsHint": "Mevcut değerleri korumak için boş bırakın",
+      "leaveEmptyToKeep": "Mevcut değeri korumak için boş bırakın",
+      "howToGet": "Bunu nasıl edinebilirim?",
+      "cancel": "İptal",
+      "saving": "Kaydediliyor...",
+      "saveChanges": "Değişiklikleri Kaydet"
+    }
+  },
+  "compositions": {
+    "title": "Komposizyonlar",
+    "subtitle": "Çok adımlı araç iş akışlarını yönetin ve çalıştırın",
+    "create": "Komposizyon Oluştur",
+    "edit": "Komposizyon Düzenle",
+    "delete": "Komposizyon Sil",
+    "run": "Çalıştır",
+    "running": "Çalışıyor...",
+    "execute": "Uygula",
+    "executing": "Uygulanıyor...",
+    "stop": "Durdur",
+    "name": "Komposizyon adı",
+    "description": "Açıklama",
+    "workflow": "İş Akışı",
+    "trigger": "Tetikleyici",
+    "actions": "Eylemler",
+    "search": "Komposizyon ara...",
+    "steps": "{{count}} adım",
+    "executedTimes": "{{count}} kez çalıştırıldı",
+    "created": "{{date}} tarihinde oluşturuldu",
+    "canExecute": "Çalıştırılabilir",
+    "noExecutePermission": "Çalıştırma izni yok",
+    "validate": "Doğrula",
+    "promote": "Terfi Ettir",
+    "shareWithTeam": "Ekiple paylaş",
+    "makePrivate": "Özel yap",
+    "cancel": "İptal",
+    "noSteps": "Adım yok",
+    "parameters": "{{count}} parametre",
+    "runtimeParamsNote": "Çalışma zamanı parametre girişi yakında geliyor. Şimdilik komposizyonlar varsayılan parametreleri kullanır.",
+    "promoteConfirm": "\"{{name}}\" {{status}} durumuna terfi ettirilsin mi?",
+    "deleteConfirm": "\"{{name}}\" silinsin mi? Bu işlem geri alınamaz.",
+    "promotedSuccess": "Komposizyon {{status}} durumuna terfi ettirildi",
+    "deletedSuccess": "Komposizyon silindi",
+    "executedSuccess": "Komposizyon başarıyla uygulandı",
+    "sharedSuccess": "Komposizyon ekiple paylaşıldı",
+    "madePrivate": "Komposizyon özel yapıldı",
+    "status": {
+      "temporary": "Geçici",
+      "validated": "Doğrulandı",
+      "production": "Üretim",
+      "draft": "Taslak",
+      "active": "Aktif",
+      "paused": "Duraklatıldı",
+      "error": "Hata"
+    },
+    "visibility": {
+      "private": "Özel",
+      "organization": "Ekip",
+      "public": "Genel"
+    },
+    "filters": {
+      "allStatus": "Tüm Durumlar",
+      "allCompositions": "Tüm Komposizyonlar",
+      "myCompositions": "Komposizyonlarım",
+      "teamShared": "Ekiple Paylaşılan"
+    },
+    "empty": {
+      "title": "Komposizyon Yok",
+      "description": "Komposizyonlar birden fazla aracı bir arada düzenlediğinizde oluşturulur. İlk iş akışınızı oluşturmak için yapay zeka asistanını kullanın.",
+      "noMatch": "Filtrelerinize uyan komposizyon bulunamadı. Aramanızı ayarlamayı deneyin."
+    },
+    "executeModal": {
+      "title": "Komposizyon Uygula",
+      "resultsTitle": "Uygulama Sonuçları",
+      "inputsTitle": "Giriş Parametreleri",
+      "stepsPreview": "Uygulanacak Adımlar",
+      "executingSteps": "{{count}} adım uygulanıyor..."
+    },
+    "inputForm": {
+      "selectOption": "Seçin...",
+      "noInputsRequired": "Bu komposizyon için parametre gerekmiyor",
+      "jsonFormat": "JSON formatı ({{type}})"
+    },
+    "results": {
+      "title": "Sonuçlar",
+      "success": "Başarılı",
+      "failed": "Başarısız",
+      "duration": "Süre",
+      "output": "Çıktı",
+      "statusSuccess": "Uygulama Başarılı",
+      "statusPartial": "Kısmi Uygulama",
+      "statusFailed": "Uygulama Başarısız",
+      "summary": "{{success}}/{{total}} adım başarılı • {{duration}}",
+      "globalError": "Genel Hata",
+      "stepsTitle": "Adım Detayları",
+      "stepOutput": "Çıktı",
+      "noOutput": "Veri döndürülmedi",
+      "error": "Hata",
+      "retries": "{{count}} yeniden deneme",
+      "finalOutput": "Son Çıktı",
+      "startedAt": "Başlangıç zamanı",
+      "completedAt": "Bitiş zamanı",
+      "unknownError": "Bilinmeyen bir hata oluştu"
+    },
+    "close": "Kapat",
+    "executeAgain": "Tekrar Uygula"
+  },
+  "onboarding": {
+    "title": "BigMCP'ye Hoş Geldiniz!",
+    "subtitle": "Başlamanıza yardımcı olalım",
+    "steps": {
+      "welcome": {
+        "title": "Hoş Geldiniz",
+        "description": "BigMCP, MCP sunucularını yönetmenize ve düzenlemenize yardımcı olur"
+      },
+      "connect": {
+        "title": "Sunucu Bağla",
+        "description": "Marketplace'e göz atın ve ilk sunucunuzu bağlayın"
+      },
+      "configure": {
+        "title": "Kimlik Bilgilerini Yapılandır",
+        "description": "Bağlı sunucularınız için kimlik bilgilerini ayarlayın"
+      },
+      "explore": {
+        "title": "Araçları Keşfet",
+        "description": "Sunucularınızdan kullanılabilir araçları keşfedin"
+      },
+      "complete": {
+        "title": "Hazırsınız!",
+        "description": "Araçlarınızı kullanmaya başlayın ve komposizyon oluşturun"
+      }
+    },
+    "skip": "Tanıtımı atla",
+    "next": "İleri",
+    "previous": "Geri",
+    "finish": "Başla"
+  }
+}

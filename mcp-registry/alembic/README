@@ -1,0 +1,59 @@
+# Alembic Migrations
+
+This directory contains database migrations for MCPHub using Alembic.
+
+## Creating a New Migration
+
+### Auto-generate from model changes
+```bash
+alembic revision --autogenerate -m "your message here"
+```
+
+### Create empty migration
+```bash
+alembic revision -m "your message here"
+```
+
+## Running Migrations
+
+### Upgrade to latest
+```bash
+alembic upgrade head
+```
+
+### Upgrade one version
+```bash
+alembic upgrade +1
+```
+
+### Downgrade one version
+```bash
+alembic downgrade -1
+```
+
+## Check Current Version
+
+```bash
+alembic current
+```
+
+## View Migration History
+
+```bash
+alembic history
+```
+
+## Docker Usage
+
+When running in Docker, ensure the database is ready before migrations:
+
+```bash
+docker-compose exec mcp-gateway alembic upgrade head
+```
+
+## Notes
+
+- Always review auto-generated migrations before applying
+- Test migrations with upgrade/downgrade cycles
+- Never modify existing migrations that have been applied to production
+- Use descriptive migration messages

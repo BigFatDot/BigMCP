@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Serviços",
+    "compositions": "Composições",
+    "documentation": "Documentação",
+    "signin": "Entrar",
+    "signup": "Criar conta",
+    "startTrial": "Começar Avaliação Gratuita"
+  },
+  "menu": {
+    "account": "Configurações da Conta",
+    "subscription": "Assinatura e Cobrança",
+    "apiKeys": "Chaves API",
+    "team": "Equipe",
+    "preferences": "Preferências",
+    "signout": "Sair"
+  },
+  "buttons": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "create": "Criar",
+    "close": "Fechar",
+    "confirm": "Confirmar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "submit": "Enviar",
+    "loading": "Carregando...",
+    "retry": "Tentar novamente",
+    "copy": "Copiar",
+    "copied": "Copiado!"
+  },
+  "status": {
+    "loading": "Carregando...",
+    "saving": "Salvando...",
+    "error": "Erro",
+    "success": "Sucesso"
+  },
+  "errors": {
+    "generic": "Ocorreu um erro",
+    "notFound": "Não encontrado",
+    "unauthorized": "Não autorizado",
+    "forbidden": "Acesso negado",
+    "networkError": "Erro de rede. Verifique sua conexão."
+  },
+  "trial": {
+    "badge": "Avaliação",
+    "daysLeft": "{{count}} dia restante na avaliação",
+    "daysLeft_plural": "{{count}} dias restantes na avaliação"
+  },
+  "empty": {
+    "noData": "Nenhum dado disponível",
+    "noResults": "Nenhum resultado encontrado"
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Služby",
+    "compositions": "Kompozice",
+    "documentation": "Dokumentace",
+    "signin": "Přihlásit se",
+    "signup": "Zaregistrovat se",
+    "startTrial": "Zahájit bezplatnou zkušební verzi"
+  },
+  "menu": {
+    "account": "Nastavení účtu",
+    "subscription": "Předplatné a fakturace",
+    "apiKeys": "API klíče",
+    "team": "Tým",
+    "preferences": "Předvolby",
+    "signout": "Odhlásit se"
+  },
+  "buttons": {
+    "save": "Uložit",
+    "cancel": "Zrušit",
+    "delete": "Smazat",
+    "edit": "Upravit",
+    "create": "Vytvořit",
+    "close": "Zavřít",
+    "confirm": "Potvrdit",
+    "back": "Zpět",
+    "next": "Další",
+    "submit": "Odeslat",
+    "loading": "Načítání...",
+    "retry": "Zkusit znovu",
+    "copy": "Kopírovat",
+    "copied": "Zkopírováno!"
+  },
+  "status": {
+    "loading": "Načítání...",
+    "saving": "Ukládání...",
+    "error": "Chyba",
+    "success": "Úspěch"
+  },
+  "errors": {
+    "generic": "Došlo k chybě",
+    "notFound": "Nenalezeno",
+    "unauthorized": "Neoprávněný přístup",
+    "forbidden": "Přístup odepřen",
+    "networkError": "Chyba sítě. Zkontrolujte prosím své připojení."
+  },
+  "trial": {
+    "badge": "Zkušební verze",
+    "daysLeft": "Zbývá {{count}} den zkušební verze",
+    "daysLeft_plural": "Zbývají {{count}} dny zkušební verze"
+  },
+  "empty": {
+    "noData": "Nejsou k dispozici žádná data",
+    "noResults": "Nebyly nalezeny žádné výsledky"
+  }
+}

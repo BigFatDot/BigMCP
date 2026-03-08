@@ -1,0 +1,217 @@
+{
+  "nav": {
+    "features": "Özellikler",
+    "howItWorks": "Nasıl Çalışır",
+    "pricing": "Fiyatlandırma",
+    "login": "Giriş Yap",
+    "getStarted": "Başla"
+  },
+  "hero": {
+    "badge": "MCP için Yönetişim Katmanı",
+    "title": "Tek Bir",
+    "titleHighlight": "Big MCP",
+    "titleEnd": "Tüm Araçlarınız İçin",
+    "subtitle": "Model Context Protocol araçlarınızı birleşik bir platformda merkezileştirin, yönetin ve düzenleyin. Her yerden erişin—masaüstü veya mobil.",
+    "cta": "Ücretsiz Denemeyi Başlat",
+    "ctaSecondary": "Nasıl Çalıştığını Gör"
+  },
+  "mobileDemo": {
+    "badge": "Tek Bağlayıcı",
+    "title": "Saatlik Manuel Çalışmayı",
+    "titleHighlight": "Saniyelik Otomasyona Dönüştürün",
+    "description": "BigMCP, tek bir komutla birden fazla servisi düzenleyen özel iş akışları oluşturmanızı sağlar. Çok araçlı komposizyonlarınızı bir kez oluşturun, ardından her yerden anında çalıştırın.",
+    "features": [
+      "Mevcut araçlarınızdan (HubSpot, Drive, Gmail, Slack...) iş akışları oluşturun",
+      "Doğal dil ile çok servisli işlemler uygulayın",
+      "Özel komposizyonlarınız tüm ekibiniz için çağrılabilir araçlara dönüşür",
+      "Claude'dan karmaşık iş akışları çalıştırın—masaüstü veya mobil"
+    ]
+  },
+  "phoneMockup": {
+    "userMessage": "Yeni müşteriyi ekle: Acme Corp (iletişim: john@acme.com, sektör: B2B SaaS)",
+    "thinkingTitle": "Düşünme süreci",
+    "thinkingText": "Kullanıcı tam müşteri ekleme için özel bir iş akışı oluşturdu. CRM, Drive, Gmail ve Slack sistemlerinde çalışacak.",
+    "workflowName": "client_onboarding_complete",
+    "workflowInfo": "Özel iş akışı • 5 servis",
+    "steps": {
+      "crm": "HubSpot: create_contact",
+      "drive": "Drive: create_folder",
+      "mail": "Gmail: send_welcome",
+      "sheet": "Sheets: add_tracking",
+      "chat": "Slack: notify_team"
+    },
+    "workflowCompleted": "İş akışı tamamlandı",
+    "resultTitle": "Müşteri başarıyla eklendi",
+    "resultIntro": "<strong>Acme Corp</strong>'u tüm sistemlerinize kurdum:",
+    "hubspotTitle": "HubSpot CRM",
+    "hubspotSubtitle": "Acme Corp • B2B SaaS Sektörü",
+    "hubspotDetails": "Birincil iletişim: John (john@acme.com)",
+    "driveTitle": "Google Drive",
+    "driveSubtitle": "📁 Clients/Acme_Corp_2025/",
+    "driveDetails": "Sözleşmeler ve faturalandırma ile eksiksiz yapı",
+    "statusItems": [
+      "John'a karşılama e-postası gönderildi",
+      "Satış takibi güncellendi",
+      "Ekip #sales kanalında bilgilendirildi"
+    ],
+    "conclusion": "Acme Corp ile işbirliğine başlamak için her şey hazır.",
+    "replyPlaceholder": "Yanıtla..."
+  },
+  "challenge": {
+    "badge": "Zorluk",
+    "title": "MCP Yönetişim Zorluğu",
+    "subtitle": "MCP ekosisteминiz büyüdükçe araçları yönetmek karmaşık ve riskli hale gelir",
+    "withoutTitle": "BigMCP Olmadan",
+    "withoutItems": [
+      "Her MCP sunucusu kendi kimlik bilgilerini yönetir",
+      "Merkezi erişim kontrolü veya denetim yok",
+      "Sunucular arasında manuel araç düzenleme",
+      "Yalnızca masaüstü, mobil erişim yok",
+      "Kullanım kalıplarında sıfır görünürlük",
+      "Yönetişim politikalarını uygulamak imkansız"
+    ],
+    "withTitle": "BigMCP İle",
+    "withItems": [
+      "Birleşik OAuth kimlik doğrulama",
+      "4 rol kademesiyle organizasyon düzeyinde RBAC",
+      "Otomatik araç kompozisyonu ve iş akışları",
+      "Masaüstü, mobil, her yerden erişim",
+      "Kapsamlı kullanım takibi ve metrikleri",
+      "Tüm MCP'ler için tek yönetişim katmanı"
+    ]
+  },
+  "howItWorks": {
+    "badge": "Basit Kurulum",
+    "title": "BigMCP Nasıl Çalışır",
+    "subtitle": "Birleşik MCP yönetişimine üç adımda ulaşın",
+    "steps": [
+      {
+        "title": "Hesabınızı Oluşturun",
+        "description": "E-postanızla kayıt olun. Kimlik bilgileriniz şifrelenir ve tüm cihazlarınızda senkronize edilir."
+      },
+      {
+        "title": "MCP Sunucularını Bağlayın",
+        "description": "Mevcut MCP sunucularınızı BigMCP'ye ekleyin. Her sunucu için kimlik bilgilerini ve erişim politikalarını yapılandırın."
+      },
+      {
+        "title": "Araçları Kullanın ve Oluşturun",
+        "description": "Araçları doğrudan kullanın ya da güçlü iş akışlarında birleştirin. Karmaşıklık yok, sadece anında sonuçlar."
+      }
+    ]
+  },
+  "features": {
+    "badge": "Özellikler",
+    "title": "İhtiyacınız Olan Her Şey",
+    "titleEnd": "MCP'yi Büyük Ölçekte Yönetin",
+    "subtitle": "MCP yönetişimini ciddiye alan ekipler için tasarlandı",
+    "items": [
+      {
+        "title": "Birleşik Kimlik Doğrulama",
+        "description": "Yapay zeka istemcileri için tek OAuth 2.0 + PKCE akışı. Organizasyon ve kullanıcı düzeyinde izolasyonla şifreli kimlik bilgisi depolama."
+      },
+      {
+        "title": "Araç Düzenleme",
+        "description": "Karmaşık işlemler için otomatik kimlik bilgisi enjeksiyonu ve hiyerarşik bağlamalarla çok araçlı iş akışları oluşturun."
+      },
+      {
+        "title": "Mobil Erişim",
+        "description": "MCP araçlarınız mobil, tablet, her yerde kullanılabilir. Aynı kimlik doğrulama, aynı deneyim, sıfır yapılandırma."
+      },
+      {
+        "title": "Kullanım Analitiği",
+        "description": "Kapsamlı kullanım takibiyle organizasyonunuz genelinde araç uygulamasını, başarı oranlarını ve kullanım kalıplarını izleyin."
+      }
+    ]
+  },
+  "pricing": {
+    "badge": "Fiyatlandırma",
+    "title": "Basit, Şeffaf Fiyatlandırma",
+    "subtitle": "Bulut yönetimli veya kendi sunucunuzda—siz seçin",
+    "cloudLabel": "☁️ Bulut = Biz barındırırız, siz kullanırsınız",
+    "selfHostedLabel": "💻 Kendi sunucunuzda = Her şey sizin",
+    "individual": {
+      "title": "Bireysel",
+      "subtitle": "Bulut",
+      "price": "€4.99",
+      "period": "/ay",
+      "features": [
+        "1 kullanıcı",
+        "Sınırsız MCP sunucusu",
+        "Yapay zeka düzenlemesi",
+        "Anlamsal arama",
+        "Komposizyonlar ve iş akışları",
+        "Yönetilen LLM dahil"
+      ],
+      "cta": "Ücretsiz Denemeyi Başlat"
+    },
+    "team": {
+      "title": "Ekip",
+      "subtitle": "Bulut",
+      "price": "€4.99",
+      "period": "/ay + €4.99/kullanıcı",
+      "badge": "En Popüler",
+      "features": [
+        "Bireysel'deki her şey",
+        "20'ye kadar kullanıcı",
+        "Organizasyonlar ve RBAC",
+        "Paylaşılan kimlik bilgileri",
+        "Gelişmiş denetim günlükleri"
+      ],
+      "cta": "Ücretsiz Denemeyi Başlat"
+    },
+    "enterprise": {
+      "title": "Enterprise",
+      "subtitle": "Kendi sunucunuzda",
+      "price": "Ücretsiz",
+      "period": "lansman teklifi • 3 ay",
+      "features": [
+        "Ekip'teki her şey",
+        "Sınırsız kullanıcı ve ekip",
+        "Tam yönetici kontrolü",
+        "Merkezi MCP sunucu havuzu",
+        "SSO (SAML, OIDC) - Yakında",
+        "Gelişmiş denetim ve uyumluluk",
+        "LLM seçiminiz",
+        "Süresiz lisans"
+      ],
+      "cta": "Enterprise Edinin"
+    },
+    "community": {
+      "title": "Topluluk",
+      "subtitle": "Kendi sunucunuzda",
+      "price": "Ücretsiz",
+      "period": "",
+      "features": [
+        "Bireysel'deki her şey",
+        "Yalnızca 1 kullanıcı",
+        "LLM seçiminiz",
+        "Docker dağıtımı"
+      ],
+      "cta": "Başla"
+    },
+    "comingSoon": "Yakında",
+    "note": "Bulut sürümleri artık yönetilen LLM dahil olarak kullanılabilir. Kendi sunucunuzda barındırma sürümleri LLM sağlayıcınızı seçmenize olanak tanır."
+  },
+  "finalCta": {
+    "title": "MCP Ekosisteминizi Yönetmeye Hazır mısınız?",
+    "subtitle": "Bugün ücretsiz denemenizi başlatın. Kredi kartı gerekmez.",
+    "cta": "Ücretsiz Denemeyi Başlat"
+  },
+  "footer": {
+    "tagline": "Model Context Protocol araçlarınız için yönetişim katmanı. MCP ekosisteминizi merkezileştirin, düzenleyin ve kontrol edin.",
+    "madeBy": "Bir ürün:",
+    "product": "Ürün",
+    "company": "Şirket",
+    "links": {
+      "features": "Özellikler",
+      "howItWorks": "Nasıl Çalışır",
+      "pricing": "Fiyatlandırma",
+      "documentation": "Dokümantasyon",
+      "about": "BigFatDot Hakkında",
+      "contact": "İletişim",
+      "privacy": "Gizlilik",
+      "terms": "Şartlar"
+    },
+    "copyright": "© 2026 BigMCP, BigFatDot tarafından. Tüm hakları saklıdır."
+  }
+}

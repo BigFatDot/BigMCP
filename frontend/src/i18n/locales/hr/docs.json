@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Pretraži dokumentaciju...",
+    "badge": "Dokumenti",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API dokumentacija"
+  },
+  "page": {
+    "breadcrumbDocs": "Dokumenti",
+    "previous": "Prethodno",
+    "next": "Dalje",
+    "notFoundTitle": "Stranica nije pronađena",
+    "notFoundDescription": "Stranica dokumentacije koju tražiš ne postoji.",
+    "goToHome": "Idi na početnu stranicu dokumentacije"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Početak rada",
+      "introduction": {
+        "title": "Uvod",
+        "description": "Što je BigMCP i zašto ga koristiti"
+      },
+      "quickstart": {
+        "title": "Brzi početak",
+        "description": "Postavi i pokreni za 5 minuta"
+      },
+      "firstServer": {
+        "title": "Poveži prvi server",
+        "description": "Dodaj MCP server na svoj račun"
+      }
+    },
+    "guides": {
+      "title": "Vodiči",
+      "marketplace": {
+        "title": "Otkrij servere",
+        "description": "Pregledaj i instaliraj MCP servere s marketplacea"
+      },
+      "credentials": {
+        "title": "Upravljaj uslugama",
+        "description": "Kontroliraj spojene servere i njihove alate"
+      },
+      "toolGroups": {
+        "title": "Organiziraj s kutijama s alatima",
+        "description": "Grupiraj alate za različite slučajeve upotrebe i kontrolu pristupa"
+      },
+      "apiKeys": {
+        "title": "Stvori API ključeve",
+        "description": "Generiraj ključeve za vanjske integracije i automatizaciju"
+      },
+      "compositions": {
+        "title": "Izradi kompozicije",
+        "description": "Poveži alate u složene radne tokove"
+      },
+      "teamServices": {
+        "title": "Timske usluge",
+        "description": "Upravljaj dijeljenim uslugama za tim (Timski plan)"
+      }
+    },
+    "integrations": {
+      "title": "Integracije",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Poveži BigMCP s Claude Desktopom putem OAuth-a"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Koristi BigMCP alate u Mistral Le Chatu"
+      },
+      "n8n": {
+        "title": "n8n automatizacija",
+        "description": "Koristi BigMCP alate u n8n radnim tokovima"
+      },
+      "customClients": {
+        "title": "Prilagođeni klijenti",
+        "description": "Izgradi vlastiti MCP klijent pomoću SDK-a"
+      }
+    },
+    "concepts": {
+      "title": "Osnovni koncepti",
+      "mcpOverview": {
+        "title": "MCP protokol",
+        "description": "Razumijevanje standarda Model Context Protocola"
+      },
+      "servers": {
+        "title": "MCP serveri",
+        "description": "Kako serveri izlažu alate, resurse i upite"
+      },
+      "tools": {
+        "title": "Alati i izvođenje",
+        "description": "Kako alati funkcioniraju i kako ih izvode AI agenti"
+      },
+      "security": {
+        "title": "Sigurnosni model",
+        "description": "Šifriranje, autentifikacija i kontrola pristupa"
+      }
+    },
+    "api": {
+      "title": "API referenca",
+      "apiOverview": {
+        "title": "Pregled API-ja",
+        "description": "Uvod u REST API i autentifikacija"
+      },
+      "apiMarketplace": {
+        "title": "Marketplace API",
+        "description": "Krajnje točke za otkrivanje servera"
+      },
+      "apiCredentials": {
+        "title": "Credentials API",
+        "description": "Programsko upravljanje korisničkim vjerodajnicama"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Poveži se s alatima putem pristupnika"
+      },
+      "apiTools": {
+        "title": "API za alate i izvođenje",
+        "description": "Izvodi alate, vezanja i kompozicije"
+      }
+    },
+    "selfHosting": {
+      "title": "Samohostiranje",
+      "selfHostOverview": {
+        "title": "Pregled",
+        "description": "Mogućnosti i zahtjevi za samohostiranje"
+      },
+      "dockerSetup": {
+        "title": "Postavljanje Dockera",
+        "description": "Implementacija s Docker Composeom"
+      },
+      "configuration": {
+        "title": "Konfiguracija",
+        "description": "Varijable okruženja i postavke"
+      },
+      "llmProviders": {
+        "title": "LLM pružatelji",
+        "description": "Konfiguriraj AI pozadinski sustav"
+      },
+      "customServers": {
+        "title": "Prilagođeni MCP serveri",
+        "description": "Dodaj vlastite MCP servere na Enterprise instance"
+      }
+    }
+  }
+}

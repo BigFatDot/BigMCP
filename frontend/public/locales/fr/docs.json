@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Rechercher dans la doc...",
+    "badge": "Docs",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API Docs"
+  },
+  "page": {
+    "breadcrumbDocs": "Docs",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "notFoundTitle": "Page introuvable",
+    "notFoundDescription": "La page de documentation que vous recherchez n'existe pas.",
+    "goToHome": "Retour à l'accueil de la documentation"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Premiers pas",
+      "introduction": {
+        "title": "Introduction",
+        "description": "Qu'est-ce que BigMCP et pourquoi l'utiliser"
+      },
+      "quickstart": {
+        "title": "Démarrage rapide",
+        "description": "Soyez opérationnel en 5 minutes"
+      },
+      "firstServer": {
+        "title": "Connecter votre premier serveur",
+        "description": "Ajouter un serveur MCP à votre compte"
+      }
+    },
+    "guides": {
+      "title": "Guides",
+      "marketplace": {
+        "title": "Découvrir les serveurs",
+        "description": "Parcourir et installer des serveurs MCP depuis le marketplace"
+      },
+      "credentials": {
+        "title": "Gérer les services",
+        "description": "Contrôler vos serveurs connectés et leurs outils"
+      },
+      "toolGroups": {
+        "title": "Organiser avec les Toolboxes",
+        "description": "Regrouper les outils pour différents cas d'usage et contrôle d'accès"
+      },
+      "apiKeys": {
+        "title": "Créer des clés API",
+        "description": "Générer des clés pour les intégrations externes et l'automatisation"
+      },
+      "compositions": {
+        "title": "Créer des compositions",
+        "description": "Chaîner les outils pour des workflows complexes"
+      },
+      "teamServices": {
+        "title": "Services d'équipe",
+        "description": "Gérer les services partagés pour votre équipe (Plan Team)"
+      }
+    },
+    "integrations": {
+      "title": "Intégrations",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Connecter BigMCP à Claude Desktop via OAuth"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Utiliser les outils BigMCP dans Mistral Le Chat"
+      },
+      "n8n": {
+        "title": "Automatisation n8n",
+        "description": "Utiliser les outils BigMCP dans les workflows n8n"
+      },
+      "customClients": {
+        "title": "Clients personnalisés",
+        "description": "Créer votre propre client MCP avec le SDK"
+      }
+    },
+    "concepts": {
+      "title": "Concepts fondamentaux",
+      "mcpOverview": {
+        "title": "Protocole MCP",
+        "description": "Comprendre le standard Model Context Protocol"
+      },
+      "servers": {
+        "title": "Serveurs MCP",
+        "description": "Comment les serveurs exposent outils, ressources et prompts"
+      },
+      "tools": {
+        "title": "Outils & Exécution",
+        "description": "Comment les outils fonctionnent et sont exécutés par les agents IA"
+      },
+      "security": {
+        "title": "Modèle de sécurité",
+        "description": "Chiffrement, authentification et contrôle d'accès"
+      }
+    },
+    "api": {
+      "title": "Référence API",
+      "apiOverview": {
+        "title": "Vue d'ensemble de l'API",
+        "description": "Introduction à l'API REST et authentification"
+      },
+      "apiMarketplace": {
+        "title": "API Marketplace",
+        "description": "Endpoints pour la découverte de serveurs"
+      },
+      "apiCredentials": {
+        "title": "API Identifiants",
+        "description": "Gérer les identifiants utilisateur de manière programmatique"
+      },
+      "apiMcp": {
+        "title": "API Gateway MCP",
+        "description": "Se connecter aux outils via la passerelle"
+      },
+      "apiTools": {
+        "title": "API Outils & Exécution",
+        "description": "Exécuter outils, bindings et compositions"
+      }
+    },
+    "selfHosting": {
+      "title": "Auto-hébergement",
+      "selfHostOverview": {
+        "title": "Vue d'ensemble",
+        "description": "Options et prérequis pour l'auto-hébergement"
+      },
+      "dockerSetup": {
+        "title": "Installation Docker",
+        "description": "Déployer avec Docker Compose"
+      },
+      "configuration": {
+        "title": "Configuration",
+        "description": "Variables d'environnement et paramètres"
+      },
+      "llmProviders": {
+        "title": "Fournisseurs LLM",
+        "description": "Configurer votre backend IA"
+      },
+      "customServers": {
+        "title": "Serveurs MCP personnalisés",
+        "description": "Ajouter vos propres serveurs MCP aux instances Enterprise"
+      }
+    }
+  }
+}

@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Dienste",
+    "subtitle": "Verwalten Sie Ihre MCP-Server, Tools und Toolboxes",
+    "search": "Tools suchen...",
+    "noTools": "Keine Tools verfügbar",
+    "noToolsDescription": "Verbinden Sie sich mit Servern im Marketplace, um Tools hier zu sehen",
+    "goToMarketplace": "Zum Marketplace",
+    "viewToggle": {
+      "servers": "Dienste",
+      "toolboxes": "Toolboxes"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP-Server = Tool-Quellen",
+      "serversDescription": "Jeder verbundene Server stellt Tools bereit, die Claude verwenden kann. Sichtbarkeit umschalten, um zu steuern, welche Tools verfügbar sind.",
+      "visibleLabel": "Sichtbar = Claude kann verwenden",
+      "hiddenLabel": "Ausgeblendet = Für Claude deaktiviert",
+      "toolboxesTitle": "Toolboxes = Tools organisieren",
+      "toolboxesDescription": "Erstellen Sie Toolboxes, um bestimmte Tools zu bündeln. Verwenden Sie Toolboxes, um zu steuern, welche Tools beim Verbinden externer Anwendungen verfügbar sind.",
+      "forExternalIntegrations": "Für externe Integrationen",
+      "manageConnections": "Verbindungen verwalten →"
+    },
+    "serverState": {
+      "active": "Aktiv",
+      "apiOnly": "Nur API",
+      "standby": "Standby",
+      "disabled": "Deaktiviert",
+      "error": "Fehler"
+    },
+    "serverActions": {
+      "visible": "Sichtbar",
+      "hidden": "Ausgeblendet",
+      "stopServer": "Server stoppen?",
+      "deleteServerConfirm": "Diesen Server und seine Credentials löschen?",
+      "serverError": "Beim Server ist ein Fehler aufgetreten",
+      "availableTools": "Verfügbare Tools ({{count}})",
+      "visibleToClaude": "Für Claude sichtbar",
+      "discoveringTools": "Tools werden ermittelt...",
+      "startToDiscover": "Server starten, um Tools zu ermitteln"
+    },
+    "groups": {
+      "title": "Toolboxes",
+      "create": "Toolbox erstellen",
+      "createToolbox": "Toolbox erstellen",
+      "createFirst": "Ihre erste Toolbox erstellen",
+      "edit": "Toolbox bearbeiten",
+      "delete": "Toolbox löschen",
+      "name": "Toolbox-Name",
+      "description": "Beschreibung",
+      "tools": "Tools in der Toolbox",
+      "empty": "Noch keine Toolboxes",
+      "emptyDescription": "Erstellen Sie Toolboxes, um zu organisieren, welche Tools über API-Schlüssel verfügbar sind.",
+      "noTools": "Keine Tools in dieser Toolbox",
+      "deleteConfirm": "\"{{name}}\" löschen? API-Schlüssel, die diese Toolbox verwenden, verlieren ihre Einschränkungen.",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "shared": "Geteilt",
+      "private": "Privat",
+      "makePrivate": "Klicken, um privat zu machen",
+      "shareWithTeam": "Klicken, um mit Team zu teilen",
+      "used": "{{count}} Mal verwendet",
+      "used_plural": "{{count}} Mal verwendet"
+    },
+    "createModal": {
+      "title": "Toolbox erstellen",
+      "stepInfo": "Toolbox benennen",
+      "stepTools": "Einzuschließende Tools auswählen",
+      "groupName": "Toolbox-Name *",
+      "groupNamePlaceholder": "z.B. Nur-Lese, Produktion, Entwicklungsumgebung",
+      "descriptionPlaceholder": "Wofür ist diese Toolbox?",
+      "color": "Farbe",
+      "visibility": "Sichtbarkeit",
+      "visibilityPrivate": "Privat",
+      "visibilityPrivateDesc": "Nur Sie können diese Toolbox verwenden",
+      "visibilityOrganization": "Organisation",
+      "visibilityOrganizationDesc": "Mit Ihrem Team teilen",
+      "toolsSelected": "{{count}} Tool ausgewählt",
+      "toolsSelected_plural": "{{count}} Tools ausgewählt",
+      "clearAll": "Alle abwählen",
+      "selectAll": "Alle auswählen",
+      "deselectAll": "Alle abwählen",
+      "noToolsAvailable": "Keine Tools verfügbar",
+      "connectServersFirst": "Zuerst Server verbinden, um Tools zu Toolboxes hinzuzufügen",
+      "back": "Zurück",
+      "cancel": "Abbrechen",
+      "nextSelectTools": "Weiter: Tools auswählen",
+      "creating": "Wird erstellt...",
+      "createGroup": "Toolbox erstellen ({{count}} Tools)"
+    },
+    "server": {
+      "connected": "Verbunden",
+      "disconnected": "Getrennt",
+      "error": "Fehler",
+      "reconnect": "Erneut verbinden",
+      "tools": "{{count}} Tool",
+      "tools_plural": "{{count}} Tools"
+    }
+  },
+  "myServers": {
+    "title": "Meine Dienste",
+    "subtitle": "Dienste verwalten und Tools steuern, die Claude zur Verfügung stehen",
+    "serversUsed": "verwendete Server",
+    "limitReached": "Limit erreicht",
+    "tabs": {
+      "personal": "Meine Dienste",
+      "team": "Team-Dienste"
+    },
+    "stats": {
+      "servers": "Dienste",
+      "connected": "Verbunden",
+      "active": "Aktiv",
+      "tools": "Tools"
+    },
+    "info": {
+      "title": "Tool-Sichtbarkeit & Erkennung",
+      "description": "Aktive Server stellen Claude Tools bereit. Verwenden Sie den Schalter, um die Sichtbarkeit zu steuern.",
+      "hint": "Tools erscheinen, nachdem der Server zum ersten Mal gestartet wurde (über MCP-Aufruf)."
+    },
+    "empty": {
+      "title": "Noch keine Server verbunden",
+      "description": "Beginnen Sie, indem Sie Ihren ersten MCP-Server aus dem Marketplace verbinden.",
+      "browseMarketplace": "Marketplace durchsuchen"
+    },
+    "orgCredentials": {
+      "title": "Organisations-Credentials verfügbar",
+      "description": "Diese Server verwenden Organisations-Credentials. Sie können sie verwenden, ohne eigene Credentials anzugeben.",
+      "viewAll": "Alle Team-Server anzeigen →"
+    },
+    "visibility": {
+      "title": "Server-Sichtbarkeit",
+      "visibleOauth": "Für OAuth sichtbar",
+      "hiddenApiOnly": "Ausgeblendet (nur API)",
+      "disabled": "Deaktiviert"
+    },
+    "actions": {
+      "stop": "Stoppen",
+      "start": "Starten",
+      "restart": "Neu starten",
+      "validate": "Validieren",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "expand": "Erweitern, um Tools zu sehen",
+      "collapse": "Minimieren"
+    },
+    "tools": {
+      "available": "Verfügbare Tools ({{count}})",
+      "visibleToClaude": "Für Claude sichtbar",
+      "visible": "Sichtbar",
+      "hidden": "Ausgeblendet",
+      "hideFromOauth": "Vor OAuth ausblenden",
+      "showToOauth": "In OAuth anzeigen",
+      "discovering": "Tools werden ermittelt...",
+      "discoveringNote": "Tools erscheinen nach der Server-Initialisierung",
+      "notConnected": "Server nicht verbunden",
+      "notConnectedNote": "Server starten, um verfügbare Tools zu ermitteln"
+    },
+    "serverInfo": {
+      "created": "Erstellt:",
+      "lastUsed": "Zuletzt verwendet:",
+      "validated": "Validiert"
+    },
+    "errors": {
+      "loadingCredentials": "Fehler beim Laden der Credentials",
+      "failedToLoad": "Credentials konnten nicht geladen werden",
+      "deleteConfirm": "Sind Sie sicher, dass Sie dieses Credential löschen möchten?",
+      "stopConfirm": "Sind Sie sicher, dass Sie diesen Server stoppen möchten?",
+      "visibilityUpdated": "Server-Sichtbarkeit aktualisiert",
+      "visibilityFailed": "Server-Sichtbarkeit konnte nicht aktualisiert werden",
+      "toolVisibilityUpdated": "Tool-Sichtbarkeit aktualisiert",
+      "toolVisibilityFailed": "Tool-Sichtbarkeit konnte nicht aktualisiert werden"
+    },
+    "team": {
+      "empty": {
+        "title": "Noch keine Team-Server",
+        "description": "Team-Server werden mit allen Organisationsmitgliedern geteilt. Nur Administratoren können sie hinzufügen.",
+        "hint": "Gehen Sie zu den Organisationseinstellungen, um geteilte Credentials zu verwalten."
+      },
+      "orgSettings": "Organisationseinstellungen",
+      "banner": {
+        "title": "Team-Dienste",
+        "description": "Diese Server werden mit allen Organisationsmitgliedern geteilt. Credentials werden von Administratoren verwaltet."
+      },
+      "badge": "Team",
+      "teamServer": "Team-Server",
+      "visibleToMembers": "Für alle Mitglieder sichtbar",
+      "hiddenFromMembers": "Vor Mitgliedern ausgeblendet",
+      "showToMembers": "Für Mitglieder sichtbar machen",
+      "hideFromMembers": "Vor Mitgliedern ausblenden",
+      "deleteConfirm": "Sind Sie sicher, dass Sie dieses Team-Credential löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.",
+      "deleteSuccess": "Team-Credential gelöscht",
+      "deleteFailed": "Team-Credential konnte nicht gelöscht werden",
+      "visibilityUpdated": "Mitglieder-Sichtbarkeit aktualisiert",
+      "visibilityFailed": "Mitglieder-Sichtbarkeit konnte nicht aktualisiert werden",
+      "edit": "Team-Server bearbeiten",
+      "editTitle": "Team-Server bearbeiten",
+      "editSuccess": "Team-Server aktualisiert",
+      "editFailed": "Team-Server konnte nicht aktualisiert werden",
+      "nameLabel": "Name",
+      "namePlaceholder": "z.B. Firmen-Grist-Konto",
+      "nameRequired": "Name ist erforderlich",
+      "descriptionLabel": "Beschreibung",
+      "descriptionPlaceholder": "Optionale Beschreibung für Ihr Team",
+      "visibleToAll": "Für alle Mitglieder sichtbar",
+      "visibleToAllDesc": "Alle Teammitglieder können diesen Server sehen und verwenden",
+      "adminOnly": "Nur für Administratoren",
+      "adminOnlyDesc": "Nur Administratoren können dieses Credential sehen (wird als Fallback verwendet)",
+      "updateCredentials": "Credentials aktualisieren (optional)",
+      "updateCredentialsHint": "Leer lassen, um bestehende Werte beizubehalten",
+      "leaveEmptyToKeep": "Leer lassen, um den aktuellen Wert beizubehalten",
+      "howToGet": "Wie erhalte ich das?",
+      "cancel": "Abbrechen",
+      "saving": "Wird gespeichert...",
+      "saveChanges": "Änderungen speichern"
+    }
+  },
+  "compositions": {
+    "title": "Compositions",
+    "subtitle": "Mehrstufige Tool-Workflows verwalten und ausführen",
+    "create": "Composition erstellen",
+    "edit": "Composition bearbeiten",
+    "delete": "Composition löschen",
+    "run": "Ausführen",
+    "running": "Wird ausgeführt...",
+    "execute": "Ausführen",
+    "executing": "Wird ausgeführt...",
+    "stop": "Stoppen",
+    "name": "Composition-Name",
+    "description": "Beschreibung",
+    "workflow": "Workflow",
+    "trigger": "Auslöser",
+    "actions": "Aktionen",
+    "search": "Compositions suchen...",
+    "steps": "{{count}} Schritte",
+    "executedTimes": "{{count}} Mal ausgeführt",
+    "created": "Erstellt am {{date}}",
+    "canExecute": "Kann ausgeführt werden",
+    "noExecutePermission": "Keine Ausführungsberechtigung",
+    "validate": "Validieren",
+    "promote": "Befördern",
+    "shareWithTeam": "Mit Team teilen",
+    "makePrivate": "Privat machen",
+    "cancel": "Abbrechen",
+    "noSteps": "Keine Schritte",
+    "parameters": "{{count}} Parameter",
+    "runtimeParamsNote": "Laufzeit-Parameter-Eingabe kommt bald. Derzeit verwenden Compositions Standard-Parameter.",
+    "promoteConfirm": "\"{{name}}\" auf {{status}} befördern?",
+    "deleteConfirm": "\"{{name}}\" löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
+    "promotedSuccess": "Composition auf {{status}} befördert",
+    "deletedSuccess": "Composition gelöscht",
+    "executedSuccess": "Composition erfolgreich ausgeführt",
+    "sharedSuccess": "Composition mit Team geteilt",
+    "madePrivate": "Composition als privat gesetzt",
+    "status": {
+      "temporary": "Temporär",
+      "validated": "Validiert",
+      "production": "Produktion",
+      "draft": "Entwurf",
+      "active": "Aktiv",
+      "paused": "Pausiert",
+      "error": "Fehler"
+    },
+    "visibility": {
+      "private": "Privat",
+      "organization": "Team",
+      "public": "Öffentlich"
+    },
+    "filters": {
+      "allStatus": "Alle Status",
+      "allCompositions": "Alle Compositions",
+      "myCompositions": "Meine Compositions",
+      "teamShared": "Team-geteilt"
+    },
+    "empty": {
+      "title": "Keine Compositions",
+      "description": "Compositions werden erstellt, wenn Sie mehrere Tools orchestrieren. Verwenden Sie den KI-Assistenten, um Ihren ersten Workflow zu erstellen.",
+      "noMatch": "Keine Compositions entsprechen Ihren Filtern. Versuchen Sie, Ihre Suche anzupassen."
+    },
+    "executeModal": {
+      "title": "Composition ausführen",
+      "resultsTitle": "Ausführungsergebnisse",
+      "inputsTitle": "Eingabeparameter",
+      "stepsPreview": "Auszuführende Schritte",
+      "executingSteps": "{{count}} Schritte werden ausgeführt..."
+    },
+    "inputForm": {
+      "selectOption": "Auswählen...",
+      "noInputsRequired": "Für diese Composition sind keine Parameter erforderlich",
+      "jsonFormat": "JSON-Format ({{type}})"
+    },
+    "results": {
+      "title": "Ergebnisse",
+      "success": "Erfolgreich",
+      "failed": "Fehlgeschlagen",
+      "duration": "Dauer",
+      "output": "Ausgabe",
+      "statusSuccess": "Ausführung erfolgreich",
+      "statusPartial": "Teilweise Ausführung",
+      "statusFailed": "Ausführung fehlgeschlagen",
+      "summary": "{{success}}/{{total}} Schritte erfolgreich • {{duration}}",
+      "globalError": "Globaler Fehler",
+      "stepsTitle": "Schrittdetails",
+      "stepOutput": "Ausgabe",
+      "noOutput": "Keine Daten zurückgegeben",
+      "error": "Fehler",
+      "retries": "{{count}} Wiederholung(en)",
+      "finalOutput": "Endergebnis",
+      "startedAt": "Gestartet um",
+      "completedAt": "Abgeschlossen um",
+      "unknownError": "Ein unbekannter Fehler ist aufgetreten"
+    },
+    "close": "Schließen",
+    "executeAgain": "Erneut ausführen"
+  },
+  "onboarding": {
+    "title": "Willkommen bei BigMCP!",
+    "subtitle": "Lassen Sie uns starten",
+    "steps": {
+      "welcome": {
+        "title": "Willkommen",
+        "description": "BigMCP hilft Ihnen, MCP-Server zu verwalten und zu orchestrieren"
+      },
+      "connect": {
+        "title": "Server verbinden",
+        "description": "Durchsuchen Sie den Marketplace und verbinden Sie Ihren ersten Server"
+      },
+      "configure": {
+        "title": "Credentials konfigurieren",
+        "description": "Credentials für Ihre verbundenen Server einrichten"
+      },
+      "explore": {
+        "title": "Tools erkunden",
+        "description": "Entdecken Sie die verfügbaren Tools Ihrer Server"
+      },
+      "complete": {
+        "title": "Alles bereit!",
+        "description": "Beginnen Sie, Ihre Tools zu verwenden und Compositions zu erstellen"
+      }
+    },
+    "skip": "Einführung überspringen",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "finish": "Loslegen"
+  }
+}

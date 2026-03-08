@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Etsi dokumentaatiosta...",
+    "badge": "Docs",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API Docs"
+  },
+  "page": {
+    "breadcrumbDocs": "Docs",
+    "previous": "Edellinen",
+    "next": "Seuraava",
+    "notFoundTitle": "Sivua ei löydy",
+    "notFoundDescription": "Etsimääsi dokumentaatiosivua ei ole olemassa.",
+    "goToHome": "Siirry dokumentaation etusivulle"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Aloittaminen",
+      "introduction": {
+        "title": "Johdanto",
+        "description": "Mikä on BigMCP ja miksi käyttää sitä"
+      },
+      "quickstart": {
+        "title": "Pikakäynnistys",
+        "description": "Pääse alkuun 5 minuutissa"
+      },
+      "firstServer": {
+        "title": "Yhdistä ensimmäinen palvelimesi",
+        "description": "Lisää MCP-palvelin tilillesi"
+      }
+    },
+    "guides": {
+      "title": "Oppaat",
+      "marketplace": {
+        "title": "Löydä palvelimia",
+        "description": "Selaa ja asenna MCP-palvelimia markkinapaikalta"
+      },
+      "credentials": {
+        "title": "Hallitse palveluja",
+        "description": "Hallitse yhdistettyjä palvelimiasi ja niiden työkaluja"
+      },
+      "toolGroups": {
+        "title": "Järjestä työkalulaatikoilla",
+        "description": "Kokoaa työkaluja eri käyttötarkoituksiin ja pääsynhallintaan"
+      },
+      "apiKeys": {
+        "title": "Luo API-avaimia",
+        "description": "Luo avaimia ulkoisiin integraatioihin ja automaatioon"
+      },
+      "compositions": {
+        "title": "Rakenna kompositioita",
+        "description": "Ketjuta työkaluja yhteen monimutkaisiin työnkulkuihin"
+      },
+      "teamServices": {
+        "title": "Tiimin palvelut",
+        "description": "Hallitse jaettuja palveluja tiimillesi (Tiimi-paketti)"
+      }
+    },
+    "integrations": {
+      "title": "Integraatiot",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Yhdistä BigMCP Claude Desktopiin OAuth:n kautta"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Käytä BigMCP-työkaluja Mistral Le Chatissa"
+      },
+      "n8n": {
+        "title": "n8n-automaatio",
+        "description": "Käytä BigMCP-työkaluja n8n-työnkuluissa"
+      },
+      "customClients": {
+        "title": "Mukautetut asiakasohjelmat",
+        "description": "Rakenna oma MCP-asiakasohjelmasi SDK:n avulla"
+      }
+    },
+    "concepts": {
+      "title": "Peruskäsitteet",
+      "mcpOverview": {
+        "title": "MCP-protokolla",
+        "description": "Model Context Protocol -standardin ymmärtäminen"
+      },
+      "servers": {
+        "title": "MCP-palvelimet",
+        "description": "Miten palvelimet tarjoavat työkaluja, resursseja ja kehotteita"
+      },
+      "tools": {
+        "title": "Työkalut ja suoritus",
+        "description": "Miten työkalut toimivat ja miten tekoälyagentit suorittavat niitä"
+      },
+      "security": {
+        "title": "Tietoturvamalli",
+        "description": "Salaus, todennus ja pääsynhallinta"
+      }
+    },
+    "api": {
+      "title": "API-viite",
+      "apiOverview": {
+        "title": "API-yleiskatsaus",
+        "description": "REST API -johdanto ja todennus"
+      },
+      "apiMarketplace": {
+        "title": "Marketplace API",
+        "description": "Päätepisteet palvelimen löydettävyyteen"
+      },
+      "apiCredentials": {
+        "title": "Credentials API",
+        "description": "Hallitse käyttäjän tunnistetietoja ohjelmallisesti"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Yhdistä työkaluihin yhdyskäytävän kautta"
+      },
+      "apiTools": {
+        "title": "Tools & Execution API",
+        "description": "Suorita työkaluja, sidoksia ja kompositioita"
+      }
+    },
+    "selfHosting": {
+      "title": "Omatoiminen isännöinti",
+      "selfHostOverview": {
+        "title": "Yleiskatsaus",
+        "description": "Omatoimisen isännöinnin vaihtoehdot ja vaatimukset"
+      },
+      "dockerSetup": {
+        "title": "Docker-asennus",
+        "description": "Ota käyttöön Docker Composella"
+      },
+      "configuration": {
+        "title": "Konfigurointi",
+        "description": "Ympäristömuuttujat ja asetukset"
+      },
+      "llmProviders": {
+        "title": "LLM-palveluntarjoajat",
+        "description": "Konfiguroi tekoälytaustapalvelusi"
+      },
+      "customServers": {
+        "title": "Mukautetut MCP-palvelimet",
+        "description": "Lisää omia MCP-palvelimia Enterprise-instansseihin"
+      }
+    }
+  }
+}

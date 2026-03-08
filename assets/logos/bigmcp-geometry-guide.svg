@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .orange { fill: #D97757; stroke: #D97757; }
+      .white { fill: #ffffff; stroke: #333; stroke-width: 0.5; }
+      .guide { fill: none; stroke: #999; stroke-width: 1; stroke-dasharray: 2,2; }
+      .center { fill: #333; }
+      .text { font-family: 'Arial', sans-serif; font-size: 10px; fill: #333; }
+      .title { font-family: 'Arial', sans-serif; font-size: 14px; font-weight: bold; fill: #333; }
+    </style>
+  </defs>
+  
+  <!-- Titre -->
+  <text x="200" y="20" class="title" text-anchor="middle">BigMCP Logo - Géométrie Exacte</text>
+  
+  <!-- Groupe principal centré -->
+  <g transform="translate(200, 150)">
+    
+    <!-- Cercle de référence (périmètre sur lequel sont placées les billes) -->
+    <circle cx="0" cy="0" r="80" class="guide"/>
+    
+    <!-- Cercle central orange -->
+    <circle cx="0" cy="0" r="80" class="orange" fill-opacity="0.7"/>
+    
+    <!-- Point central -->
+    <circle cx="0" cy="0" r="2" class="center"/>
+    
+    <!-- 12 billes blanches positionnées mathématiquement -->
+    <!-- Chaque bille espacée de 30° (360°/12 = 30°) -->
+    <!-- Formule: x = cx + r*cos(angle), y = cy + r*sin(angle) -->
+    
+    <!-- 12h (-90°) -->
+    <circle cx="0" cy="-80" r="10" class="white"/>
+    <line x1="0" y1="0" x2="0" y2="-80" class="guide"/>
+    <text x="5" y="-75" class="text">12h (-90°)</text>
+    
+    <!-- 1h (-60°) -->
+    <circle cx="40" cy="-69.28" r="10" class="white"/>
+    <line x1="0" y1="0" x2="40" y2="-69.28" class="guide"/>
+    <text x="45" y="-65" class="text">1h (-60°)</text>
+    
+    <!-- 2h (-30°) -->
+    <circle cx="69.28" cy="-40" r="10" class="white"/>
+    <line x1="0" y1="0" x2="69.28" y2="-40" class="guide"/>
+    
+    <!-- 3h (0°) -->
+    <circle cx="80" cy="0" r="10" class="white"/>
+    <line x1="0" y1="0" x2="80" y2="0" class="guide"/>
+    <text x="85" y="5" class="text">3h (0°)</text>
+    
+    <!-- 4h (30°) -->
+    <circle cx="69.28" cy="40" r="10" class="white"/>
+    <line x1="0" y1="0" x2="69.28" y2="40" class="guide"/>
+    
+    <!-- 5h (60°) -->
+    <circle cx="40" cy="69.28" r="10" class="white"/>
+    <line x1="0" y1="0" x2="40" y2="69.28" class="guide"/>
+    
+    <!-- 6h (90°) -->
+    <circle cx="0" cy="80" r="10" class="white"/>
+    <line x1="0" y1="0" x2="0" y2="80" class="guide"/>
+    <text x="5" y="85" class="text">6h (90°)</text>
+    
+    <!-- 7h (120°) -->
+    <circle cx="-40" cy="69.28" r="10" class="white"/>
+    <line x1="0" y1="0" x2="-40" y2="69.28" class="guide"/>
+    
+    <!-- 8h (150°) -->
+    <circle cx="-69.28" cy="40" r="10" class="white"/>
+    <line x1="0" y1="0" x2="-69.28" y2="40" class="guide"/>
+    
+    <!-- 9h (180°) -->
+    <circle cx="-80" cy="0" r="10" class="white"/>
+    <line x1="0" y1="0" x2="-80" y2="0" class="guide"/>
+    <text x="-95" y="5" class="text">9h (180°)</text>
+    
+    <!-- 10h (210°) -->
+    <circle cx="-69.28" cy="-40" r="10" class="white"/>
+    <line x1="0" y1="0" x2="-69.28" y2="-40" class="guide"/>
+    
+    <!-- 11h (240°) -->
+    <circle cx="-40" cy="-69.28" r="10" class="white"/>
+    <line x1="0" y1="0" x2="-40" y2="-69.28" class="guide"/>
+    
+    <!-- Annotations -->
+    <text x="-120" y="-100" class="text">Centre: (cx, cy)</text>
+    <text x="-120" y="-85" class="text">Rayon: r</text>
+    <text x="-120" y="-70" class="text">Angle: i * 30° - 90°</text>
+    <text x="-120" y="-55" class="text">x = cx + r * cos(angle)</text>
+    <text x="-120" y="-40" class="text">y = cy + r * sin(angle)</text>
+    
+    <!-- Rayon annoté -->
+    <line x1="0" y1="0" x2="56.56" y2="56.56" stroke="#D97757" stroke-width="2"/>
+    <text x="30" y="35" class="text" fill="#D97757">r = rayon</text>
+  </g>
+  
+  <!-- Légende -->
+  <text x="20" y="270" class="text">• 12 billes espacées uniformément de 30° (360°/12)</text>
+  <text x="20" y="285" class="text">• Centre de chaque bille exactement sur le périmètre du cercle central</text>
+</svg>

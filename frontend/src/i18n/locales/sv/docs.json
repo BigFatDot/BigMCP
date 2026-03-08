@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Sök i dokumentation...",
+    "badge": "Docs",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API Docs"
+  },
+  "page": {
+    "breadcrumbDocs": "Docs",
+    "previous": "Föregående",
+    "next": "Nästa",
+    "notFoundTitle": "Sidan hittades inte",
+    "notFoundDescription": "Dokumentationssidan du letar efter finns inte.",
+    "goToHome": "Gå till dokumentationens startsida"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Kom igång",
+      "introduction": {
+        "title": "Introduktion",
+        "description": "Vad är BigMCP och varför använda det"
+      },
+      "quickstart": {
+        "title": "Snabbstart",
+        "description": "Kom igång på 5 minuter"
+      },
+      "firstServer": {
+        "title": "Anslut din första server",
+        "description": "Lägg till en MCP-server på ditt konto"
+      }
+    },
+    "guides": {
+      "title": "Guider",
+      "marketplace": {
+        "title": "Hitta servrar",
+        "description": "Bläddra och installera MCP-servrar från marketplace"
+      },
+      "credentials": {
+        "title": "Hantera tjänster",
+        "description": "Styr dina anslutna servrar och deras verktyg"
+      },
+      "toolGroups": {
+        "title": "Organisera med verktygslådor",
+        "description": "Gruppera verktyg för olika användningsfall och åtkomstkontroll"
+      },
+      "apiKeys": {
+        "title": "Skapa API-nycklar",
+        "description": "Generera nycklar för externa integrationer och automatisering"
+      },
+      "compositions": {
+        "title": "Bygg kompositioner",
+        "description": "Länka samman verktyg för komplexa arbetsflöden"
+      },
+      "teamServices": {
+        "title": "Teamtjänster",
+        "description": "Hantera delade tjänster för ditt team (Teamplan)"
+      }
+    },
+    "integrations": {
+      "title": "Integrationer",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Anslut BigMCP till Claude Desktop via OAuth"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Använd BigMCP-verktyg i Mistral Le Chat"
+      },
+      "n8n": {
+        "title": "n8n Automatisering",
+        "description": "Använd BigMCP-verktyg i n8n-arbetsflöden"
+      },
+      "customClients": {
+        "title": "Anpassade klienter",
+        "description": "Bygg din egen MCP-klient med SDK:t"
+      }
+    },
+    "concepts": {
+      "title": "Grundläggande koncept",
+      "mcpOverview": {
+        "title": "MCP-protokollet",
+        "description": "Förstå Model Context Protocol-standarden"
+      },
+      "servers": {
+        "title": "MCP-servrar",
+        "description": "Hur servrar exponerar verktyg, resurser och promptar"
+      },
+      "tools": {
+        "title": "Verktyg & körning",
+        "description": "Hur verktyg fungerar och körs av AI-agenter"
+      },
+      "security": {
+        "title": "Säkerhetsmodell",
+        "description": "Kryptering, autentisering och åtkomstkontroll"
+      }
+    },
+    "api": {
+      "title": "API-referens",
+      "apiOverview": {
+        "title": "API-översikt",
+        "description": "REST API-introduktion och autentisering"
+      },
+      "apiMarketplace": {
+        "title": "Marketplace API",
+        "description": "Endpoints för serveridentifiering"
+      },
+      "apiCredentials": {
+        "title": "Credentials API",
+        "description": "Hantera användarcredentials programmatiskt"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Anslut till verktyg via gatewayen"
+      },
+      "apiTools": {
+        "title": "Verktyg & körnings-API",
+        "description": "Kör verktyg, bindningar och kompositioner"
+      }
+    },
+    "selfHosting": {
+      "title": "Självhosting",
+      "selfHostOverview": {
+        "title": "Översikt",
+        "description": "Alternativ och krav för självhosting"
+      },
+      "dockerSetup": {
+        "title": "Docker-konfiguration",
+        "description": "Driftsätt med Docker Compose"
+      },
+      "configuration": {
+        "title": "Konfiguration",
+        "description": "Miljövariabler och inställningar"
+      },
+      "llmProviders": {
+        "title": "LLM-leverantörer",
+        "description": "Konfigurera din AI-backend"
+      },
+      "customServers": {
+        "title": "Anpassade MCP-servrar",
+        "description": "Lägg till egna MCP-servrar i Enterprise-instanser"
+      }
+    }
+  }
+}

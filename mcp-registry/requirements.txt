@@ -1,0 +1,45 @@
+# Core web framework
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+email-validator>=2.0.0  # Required for pydantic email validation
+jinja2>=3.1.0  # Required for OAuth consent page templates
+
+# HTTP clients
+httpx>=0.26.0
+aiohttp>=3.9.0
+requests>=2.31.0
+
+# AI/ML dependencies
+# sentence-transformers - REMOVED: Uses LLM API instead of local models
+# faiss-cpu - REMOVED: Replaced by SimpleVectorStore with numpy cosine similarity
+numpy>=1.26.0  # Used for cosine similarity calculations in SimpleVectorStore
+
+# Configuration and utilities
+python-dotenv>=1.0.0
+pyyaml>=6.0
+tenacity>=8.2.0
+
+# Server-Sent Events
+sse-starlette>=1.8.0
+
+# Logging and monitoring
+python-json-logger>=2.0.0
+prometheus-client>=0.19.0  # Prometheus metrics endpoint
+
+# Database
+sqlalchemy>=2.0.0
+alembic>=1.13.0
+asyncpg>=0.29.0
+psycopg2-binary>=2.9.9
+
+# Redis cache
+redis[hiredis]>=5.0.0
+
+# Auth & Security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.6
+bcrypt>=4.1.2
+cryptography>=41.0.0
+pyotp>=2.9.0  # TOTP/MFA support (RFC 6238)

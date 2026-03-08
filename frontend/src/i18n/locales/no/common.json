@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Markedsplass",
+    "services": "Tjenester",
+    "compositions": "Komposisjoner",
+    "documentation": "Dokumentasjon",
+    "signin": "Logg inn",
+    "signup": "Registrer deg",
+    "startTrial": "Start gratis prøveperiode"
+  },
+  "menu": {
+    "account": "Kontoinnstillinger",
+    "subscription": "Abonnement og fakturering",
+    "apiKeys": "API-nøkler",
+    "team": "Team",
+    "preferences": "Preferanser",
+    "signout": "Logg ut"
+  },
+  "buttons": {
+    "save": "Lagre",
+    "cancel": "Avbryt",
+    "delete": "Slett",
+    "edit": "Rediger",
+    "create": "Opprett",
+    "close": "Lukk",
+    "confirm": "Bekreft",
+    "back": "Tilbake",
+    "next": "Neste",
+    "submit": "Send inn",
+    "loading": "Laster...",
+    "retry": "Prøv igjen",
+    "copy": "Kopier",
+    "copied": "Kopiert!"
+  },
+  "status": {
+    "loading": "Laster...",
+    "saving": "Lagrer...",
+    "error": "Feil",
+    "success": "Vellykket"
+  },
+  "errors": {
+    "generic": "Det oppstod en feil",
+    "notFound": "Ikke funnet",
+    "unauthorized": "Ikke autorisert",
+    "forbidden": "Tilgang nektet",
+    "networkError": "Nettverksfeil. Sjekk tilkoblingen din."
+  },
+  "trial": {
+    "badge": "Prøveperiode",
+    "daysLeft": "{{count}} dag igjen av prøveperioden",
+    "daysLeft_plural": "{{count}} dager igjen av prøveperioden"
+  },
+  "empty": {
+    "noData": "Ingen data tilgjengelig",
+    "noResults": "Ingen resultater funnet"
+  }
+}

@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Tjänster",
+    "subtitle": "Hantera dina MCP-servrar, verktyg och verktygslådor",
+    "search": "Sök verktyg...",
+    "noTools": "Inga verktyg tillgängliga",
+    "noToolsDescription": "Anslut till servrar i Marketplace för att se verktyg här",
+    "goToMarketplace": "Gå till Marketplace",
+    "viewToggle": {
+      "servers": "Tjänster",
+      "toolboxes": "Verktygslådor"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP-servrar = Källor till verktyg",
+      "serversDescription": "Varje server du ansluter tillhandahåller verktyg som Claude kan använda. Växla synlighet för att styra vilka verktyg som är tillgängliga.",
+      "visibleLabel": "Synlig = Claude kan använda",
+      "hiddenLabel": "Dold = Inaktiverad för Claude",
+      "toolboxesTitle": "Verktygslådor = Organisera dina verktyg",
+      "toolboxesDescription": "Skapa verktygslådor för att gruppera specifika verktyg. Använd verktygslådor för att styra vilka verktyg som är tillgängliga när du ansluter externa applikationer.",
+      "forExternalIntegrations": "För externa integrationer",
+      "manageConnections": "Hantera anslutningar →"
+    },
+    "serverState": {
+      "active": "Aktiv",
+      "apiOnly": "Endast API",
+      "standby": "Standby",
+      "disabled": "Inaktiverad",
+      "error": "Fel"
+    },
+    "serverActions": {
+      "visible": "Synlig",
+      "hidden": "Dold",
+      "stopServer": "Stoppa server?",
+      "deleteServerConfirm": "Ta bort den här servern och dess credentials?",
+      "serverError": "Servern stötte på ett fel",
+      "availableTools": "Tillgängliga verktyg ({{count}})",
+      "visibleToClaude": "Synlig för Claude",
+      "discoveringTools": "Identifierar verktyg...",
+      "startToDiscover": "Starta server för att identifiera verktyg"
+    },
+    "groups": {
+      "title": "Verktygslådor",
+      "create": "Skapa verktygslåda",
+      "createToolbox": "Skapa verktygslåda",
+      "createFirst": "Skapa din första verktygslåda",
+      "edit": "Redigera verktygslåda",
+      "delete": "Ta bort verktygslåda",
+      "name": "Verktygslådans namn",
+      "description": "Beskrivning",
+      "tools": "Verktyg i verktygslådan",
+      "empty": "Inga verktygslådor ännu",
+      "emptyDescription": "Skapa verktygslådor för att organisera vilka verktyg som är tillgängliga via API-nycklar.",
+      "noTools": "Inga verktyg i den här verktygslådan",
+      "deleteConfirm": "Ta bort \"{{name}}\"? API-nycklar som använder den här verktygslådan förlorar sina begränsningar.",
+      "active": "Aktiv",
+      "inactive": "Inaktiv",
+      "shared": "Delad",
+      "private": "Privat",
+      "makePrivate": "Klicka för att göra privat",
+      "shareWithTeam": "Klicka för att dela med team",
+      "used": "Använd {{count}} gång",
+      "used_plural": "Använd {{count}} gånger"
+    },
+    "createModal": {
+      "title": "Skapa verktygslåda",
+      "stepInfo": "Namnge din verktygslåda",
+      "stepTools": "Välj verktyg att inkludera",
+      "groupName": "Verktygslådans namn *",
+      "groupNamePlaceholder": "t.ex. Skrivskyddad, Produktion, Utvecklingsmiljö",
+      "descriptionPlaceholder": "Vad är den här verktygslådan till för?",
+      "color": "Färg",
+      "visibility": "Synlighet",
+      "visibilityPrivate": "Privat",
+      "visibilityPrivateDesc": "Endast du kan använda den här verktygslådan",
+      "visibilityOrganization": "Organisation",
+      "visibilityOrganizationDesc": "Dela med ditt team",
+      "toolsSelected": "{{count}} verktyg valt",
+      "toolsSelected_plural": "{{count}} verktyg valda",
+      "clearAll": "Rensa alla",
+      "selectAll": "Välj alla",
+      "deselectAll": "Avmarkera alla",
+      "noToolsAvailable": "Inga verktyg tillgängliga",
+      "connectServersFirst": "Anslut servrar först för att lägga till verktyg i verktygslådor",
+      "back": "Tillbaka",
+      "cancel": "Avbryt",
+      "nextSelectTools": "Nästa: Välj verktyg",
+      "creating": "Skapar...",
+      "createGroup": "Skapa verktygslåda ({{count}} verktyg)"
+    },
+    "server": {
+      "connected": "Ansluten",
+      "disconnected": "Frånkopplad",
+      "error": "Fel",
+      "reconnect": "Återanslut",
+      "tools": "{{count}} verktyg",
+      "tools_plural": "{{count}} verktyg"
+    }
+  },
+  "myServers": {
+    "title": "Mina tjänster",
+    "subtitle": "Hantera tjänster och styr verktyg som exponeras för Claude",
+    "serversUsed": "servrar använda",
+    "limitReached": "Gränsen nådd",
+    "tabs": {
+      "personal": "Mina tjänster",
+      "team": "Teamtjänster"
+    },
+    "stats": {
+      "servers": "Tjänster",
+      "connected": "Anslutna",
+      "active": "Aktiva",
+      "tools": "Verktyg"
+    },
+    "info": {
+      "title": "Verktygssynlighet & identifiering",
+      "description": "Aktiva servrar exponerar verktyg för Claude. Använd växeln för att styra synligheten.",
+      "hint": "Verktyg visas efter att servern startats för första gången (via MCP-anrop)."
+    },
+    "empty": {
+      "title": "Inga servrar anslutna ännu",
+      "description": "Kom igång genom att ansluta din första MCP-server från marketplace.",
+      "browseMarketplace": "Bläddra i Marketplace"
+    },
+    "orgCredentials": {
+      "title": "Organisationscredentials tillgängliga",
+      "description": "Dessa servrar använder organisationscredentials. Du kan använda dem utan att ange egna credentials.",
+      "viewAll": "Visa alla teamservrar →"
+    },
+    "visibility": {
+      "title": "Serversynlighet",
+      "visibleOauth": "Synlig för OAuth",
+      "hiddenApiOnly": "Dold (endast API)",
+      "disabled": "Inaktiverad"
+    },
+    "actions": {
+      "stop": "Stoppa",
+      "start": "Starta",
+      "restart": "Starta om",
+      "validate": "Validera",
+      "edit": "Redigera",
+      "delete": "Ta bort",
+      "expand": "Expandera för att se verktyg",
+      "collapse": "Fäll ihop"
+    },
+    "tools": {
+      "available": "Tillgängliga verktyg ({{count}})",
+      "visibleToClaude": "Synlig för Claude",
+      "visible": "Synlig",
+      "hidden": "Dold",
+      "hideFromOauth": "Dölj från OAuth",
+      "showToOauth": "Visa för OAuth",
+      "discovering": "Identifierar verktyg...",
+      "discoveringNote": "Verktyg visas efter serverinitiering",
+      "notConnected": "Servern är inte ansluten",
+      "notConnectedNote": "Starta servern för att identifiera tillgängliga verktyg"
+    },
+    "serverInfo": {
+      "created": "Skapad:",
+      "lastUsed": "Senast använd:",
+      "validated": "Validerad"
+    },
+    "errors": {
+      "loadingCredentials": "Fel vid laddning av credentials",
+      "failedToLoad": "Det gick inte att ladda credentials",
+      "deleteConfirm": "Är du säker på att du vill ta bort den här credentialen?",
+      "stopConfirm": "Är du säker på att du vill stoppa den här servern?",
+      "visibilityUpdated": "Serversynlighet uppdaterad",
+      "visibilityFailed": "Det gick inte att uppdatera serversynlighet",
+      "toolVisibilityUpdated": "Verktygssynlighet uppdaterad",
+      "toolVisibilityFailed": "Det gick inte att uppdatera verktygssynlighet"
+    },
+    "team": {
+      "empty": {
+        "title": "Inga teamservrar ännu",
+        "description": "Teamservrar delas med alla organisationsmedlemmar. Endast administratörer kan lägga till dem.",
+        "hint": "Gå till Organisationsinställningar för att hantera delade credentials."
+      },
+      "orgSettings": "Organisationsinställningar",
+      "banner": {
+        "title": "Teamtjänster",
+        "description": "Dessa servrar delas med alla organisationsmedlemmar. Credentials hanteras av administratörer."
+      },
+      "badge": "Team",
+      "teamServer": "Teamserver",
+      "visibleToMembers": "Synlig för alla medlemmar",
+      "hiddenFromMembers": "Dold från medlemmar",
+      "showToMembers": "Gör synlig för medlemmar",
+      "hideFromMembers": "Dölj från medlemmar",
+      "deleteConfirm": "Är du säker på att du vill ta bort den här teamcredentialen? Den här åtgärden kan inte ångras.",
+      "deleteSuccess": "Teamcredential borttagen",
+      "deleteFailed": "Det gick inte att ta bort teamcredentialen",
+      "visibilityUpdated": "Medlemssynlighet uppdaterad",
+      "visibilityFailed": "Det gick inte att uppdatera medlemssynlighet",
+      "edit": "Redigera teamserver",
+      "editTitle": "Redigera teamserver",
+      "editSuccess": "Teamservern uppdaterades",
+      "editFailed": "Det gick inte att uppdatera teamservern",
+      "nameLabel": "Namn",
+      "namePlaceholder": "t.ex. Företagets Grist-konto",
+      "nameRequired": "Namn är obligatoriskt",
+      "descriptionLabel": "Beskrivning",
+      "descriptionPlaceholder": "Valfri beskrivning för ditt team",
+      "visibleToAll": "Synlig för alla medlemmar",
+      "visibleToAllDesc": "Alla teammedlemmar kan se och använda den här servern",
+      "adminOnly": "Endast admin",
+      "adminOnlyDesc": "Endast administratörer kan se den här credentialen (används som reserv)",
+      "updateCredentials": "Uppdatera credentials (valfritt)",
+      "updateCredentialsHint": "Lämna tomt för att behålla befintliga värden",
+      "leaveEmptyToKeep": "Lämna tomt för att behålla nuvarande värde",
+      "howToGet": "Hur skaffar jag det här?",
+      "cancel": "Avbryt",
+      "saving": "Sparar...",
+      "saveChanges": "Spara ändringar"
+    }
+  },
+  "compositions": {
+    "title": "Kompositioner",
+    "subtitle": "Hantera och kör arbetsflöden med flera steg",
+    "create": "Skapa komposition",
+    "edit": "Redigera komposition",
+    "delete": "Ta bort komposition",
+    "run": "Kör",
+    "running": "Kör...",
+    "execute": "Utför",
+    "executing": "Utför...",
+    "stop": "Stoppa",
+    "name": "Kompositionens namn",
+    "description": "Beskrivning",
+    "workflow": "Arbetsflöde",
+    "trigger": "Utlösare",
+    "actions": "Åtgärder",
+    "search": "Sök kompositioner...",
+    "steps": "{{count}} steg",
+    "executedTimes": "Utförd {{count}} gånger",
+    "created": "Skapad {{date}}",
+    "canExecute": "Kan utföras",
+    "noExecutePermission": "Ingen körbehörighet",
+    "validate": "Validera",
+    "promote": "Befordra",
+    "shareWithTeam": "Dela med team",
+    "makePrivate": "Gör privat",
+    "cancel": "Avbryt",
+    "noSteps": "Inga steg",
+    "parameters": "{{count}} parametrar",
+    "runtimeParamsNote": "Inmatning av körningsparametrar kommer snart. För tillfället använder kompositioner standardparametrar.",
+    "promoteConfirm": "Befordra \"{{name}}\" till {{status}}?",
+    "deleteConfirm": "Ta bort \"{{name}}\"? Den här åtgärden kan inte ångras.",
+    "promotedSuccess": "Komposition befordrad till {{status}}",
+    "deletedSuccess": "Komposition borttagen",
+    "executedSuccess": "Komposition utförd",
+    "sharedSuccess": "Komposition delad med team",
+    "madePrivate": "Komposition gjord privat",
+    "status": {
+      "temporary": "Tillfällig",
+      "validated": "Validerad",
+      "production": "Produktion",
+      "draft": "Utkast",
+      "active": "Aktiv",
+      "paused": "Pausad",
+      "error": "Fel"
+    },
+    "visibility": {
+      "private": "Privat",
+      "organization": "Team",
+      "public": "Offentlig"
+    },
+    "filters": {
+      "allStatus": "Alla statusar",
+      "allCompositions": "Alla kompositioner",
+      "myCompositions": "Mina kompositioner",
+      "teamShared": "Teamdelade"
+    },
+    "empty": {
+      "title": "Inga kompositioner",
+      "description": "Kompositioner skapas när du orkestrerar flera verktyg tillsammans. Använd AI-assistenten för att skapa ditt första arbetsflöde.",
+      "noMatch": "Inga kompositioner matchar dina filter. Försök justera din sökning."
+    },
+    "executeModal": {
+      "title": "Utför komposition",
+      "resultsTitle": "Körningsresultat",
+      "inputsTitle": "Indataparametrar",
+      "stepsPreview": "Steg att utföra",
+      "executingSteps": "Utför {{count}} steg..."
+    },
+    "inputForm": {
+      "selectOption": "Välj...",
+      "noInputsRequired": "Inga parametrar krävs för den här kompositionen",
+      "jsonFormat": "JSON-format ({{type}})"
+    },
+    "results": {
+      "title": "Resultat",
+      "success": "Lyckades",
+      "failed": "Misslyckades",
+      "duration": "Varaktighet",
+      "output": "Utdata",
+      "statusSuccess": "Körning lyckades",
+      "statusPartial": "Partiell körning",
+      "statusFailed": "Körning misslyckades",
+      "summary": "{{success}}/{{total}} steg lyckades • {{duration}}",
+      "globalError": "Globalt fel",
+      "stepsTitle": "Stegdetaljer",
+      "stepOutput": "Utdata",
+      "noOutput": "Ingen data returnerades",
+      "error": "Fel",
+      "retries": "{{count}} försök",
+      "finalOutput": "Slutresultat",
+      "startedAt": "Startade",
+      "completedAt": "Slutförde",
+      "unknownError": "Ett okänt fel uppstod"
+    },
+    "close": "Stäng",
+    "executeAgain": "Utför igen"
+  },
+  "onboarding": {
+    "title": "Välkommen till BigMCP!",
+    "subtitle": "Låt oss komma igång",
+    "steps": {
+      "welcome": {
+        "title": "Välkommen",
+        "description": "BigMCP hjälper dig att hantera och orkestrera MCP-servrar"
+      },
+      "connect": {
+        "title": "Anslut en server",
+        "description": "Bläddra i marketplace och anslut din första server"
+      },
+      "configure": {
+        "title": "Konfigurera credentials",
+        "description": "Konfigurera credentials för dina anslutna servrar"
+      },
+      "explore": {
+        "title": "Utforska verktyg",
+        "description": "Upptäck verktygen som är tillgängliga från dina servrar"
+      },
+      "complete": {
+        "title": "Du är redo!",
+        "description": "Börja använda dina verktyg och skapa kompositioner"
+      }
+    },
+    "skip": "Hoppa över introduktionen",
+    "next": "Nästa",
+    "previous": "Föregående",
+    "finish": "Kom igång"
+  }
+}

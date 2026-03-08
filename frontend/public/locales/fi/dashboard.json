@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Palvelut",
+    "subtitle": "Hallitse MCP-palvelimia, työkaluja ja työkalulaatikoita",
+    "search": "Etsi työkaluja...",
+    "noTools": "Ei työkaluja saatavilla",
+    "noToolsDescription": "Yhdistä palvelimiin markkinapaikalla nähdäksesi työkalut täällä",
+    "goToMarketplace": "Siirry markkinapaikkaan",
+    "viewToggle": {
+      "servers": "Palvelut",
+      "toolboxes": "Työkalulaatikot"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP-palvelimet = Työkalujen lähteet",
+      "serversDescription": "Jokainen yhdistämäsi palvelin tarjoaa työkaluja, joita Claude voi käyttää. Vaihda näkyvyyttä hallitaksesi saatavilla olevia työkaluja.",
+      "visibleLabel": "Näkyvä = Claude voi käyttää",
+      "hiddenLabel": "Piilotettu = Poistettu käytöstä Claudelle",
+      "toolboxesTitle": "Työkalulaatikot = Järjestä työkalusi",
+      "toolboxesDescription": "Luo työkalulaatikoita kokoamaan tiettyjä työkaluja yhteen. Käytä työkalulaatikoita hallitaksesi saatavilla olevia työkaluja ulkoisia sovelluksia yhdistettäessä.",
+      "forExternalIntegrations": "Ulkoisille integraatioille",
+      "manageConnections": "Hallitse yhteyksiä →"
+    },
+    "serverState": {
+      "active": "Aktiivinen",
+      "apiOnly": "Vain API",
+      "standby": "Valmiustila",
+      "disabled": "Poistettu käytöstä",
+      "error": "Virhe"
+    },
+    "serverActions": {
+      "visible": "Näkyvä",
+      "hidden": "Piilotettu",
+      "stopServer": "Pysäytetäänkö palvelin?",
+      "deleteServerConfirm": "Poistetaanko tämä palvelin ja sen tunnistetiedot?",
+      "serverError": "Palvelimella tapahtui virhe",
+      "availableTools": "Saatavilla olevat työkalut ({{count}})",
+      "visibleToClaude": "Näkyvä Claudelle",
+      "discoveringTools": "Etsitään työkaluja...",
+      "startToDiscover": "Käynnistä palvelin löytääksesi työkalut"
+    },
+    "groups": {
+      "title": "Työkalulaatikot",
+      "create": "Luo työkalulaatikko",
+      "createToolbox": "Luo työkalulaatikko",
+      "createFirst": "Luo ensimmäinen työkalulaatikkosi",
+      "edit": "Muokkaa työkalulaatikkoa",
+      "delete": "Poista työkalulaatikko",
+      "name": "Työkalulaatikon nimi",
+      "description": "Kuvaus",
+      "tools": "Työkalut työkalulaatikossa",
+      "empty": "Ei vielä työkalulaatikoita",
+      "emptyDescription": "Luo työkalulaatikoita järjestääksesi, mitkä työkalut ovat saatavilla API-avainten kautta.",
+      "noTools": "Ei työkaluja tässä työkalulaatikossa",
+      "deleteConfirm": "Poistetaanko \"{{name}}\"? Tätä työkalulaatikkoa käyttävät API-avaimet menettävät rajoituksensa.",
+      "active": "Aktiivinen",
+      "inactive": "Ei aktiivinen",
+      "shared": "Jaettu",
+      "private": "Yksityinen",
+      "makePrivate": "Klikkaa tehdäksesi yksityiseksi",
+      "shareWithTeam": "Klikkaa jakaaksesi tiimin kanssa",
+      "used": "Käytetty {{count}} kerran",
+      "used_plural": "Käytetty {{count}} kertaa"
+    },
+    "createModal": {
+      "title": "Luo työkalulaatikko",
+      "stepInfo": "Nimeä työkalulaatikkosi",
+      "stepTools": "Valitse sisällytettävät työkalut",
+      "groupName": "Työkalulaatikon nimi *",
+      "groupNamePlaceholder": "esim. Vain luku, Tuotanto, Kehitysympäristö",
+      "descriptionPlaceholder": "Mihin tämä työkalulaatikko on tarkoitettu?",
+      "color": "Väri",
+      "visibility": "Näkyvyys",
+      "visibilityPrivate": "Yksityinen",
+      "visibilityPrivateDesc": "Vain sinä voit käyttää tätä työkalulaatikkoa",
+      "visibilityOrganization": "Organisaatio",
+      "visibilityOrganizationDesc": "Jaa tiimisi kanssa",
+      "toolsSelected": "{{count}} työkalu valittu",
+      "toolsSelected_plural": "{{count}} työkalua valittu",
+      "clearAll": "Tyhjennä kaikki",
+      "selectAll": "Valitse kaikki",
+      "deselectAll": "Poista kaikki valinnat",
+      "noToolsAvailable": "Ei työkaluja saatavilla",
+      "connectServersFirst": "Yhdistä palvelimet ensin lisätäksesi työkaluja työkalulaatikoihin",
+      "back": "Takaisin",
+      "cancel": "Peruuta",
+      "nextSelectTools": "Seuraava: Valitse työkalut",
+      "creating": "Luodaan...",
+      "createGroup": "Luo työkalulaatikko ({{count}} työkalua)"
+    },
+    "server": {
+      "connected": "Yhdistetty",
+      "disconnected": "Yhteys katkaistu",
+      "error": "Virhe",
+      "reconnect": "Yhdistä uudelleen",
+      "tools": "{{count}} työkalu",
+      "tools_plural": "{{count}} työkalua"
+    }
+  },
+  "myServers": {
+    "title": "Omat palvelut",
+    "subtitle": "Hallitse palveluja ja hallitse Claudelle näkyviä työkaluja",
+    "serversUsed": "palvelimia käytössä",
+    "limitReached": "Raja saavutettu",
+    "tabs": {
+      "personal": "Omat palvelut",
+      "team": "Tiimin palvelut"
+    },
+    "stats": {
+      "servers": "Palvelut",
+      "connected": "Yhdistetty",
+      "active": "Aktiivinen",
+      "tools": "Työkalut"
+    },
+    "info": {
+      "title": "Työkalujen näkyvyys ja löydettävyys",
+      "description": "Aktiiviset palvelimet näyttävät työkalut Claudelle. Käytä vaihtopainiketta näkyvyyden hallintaan.",
+      "hint": "Työkalut näkyvät, kun palvelin on käynnistetty ensimmäistä kertaa (MCP-kutsun kautta)."
+    },
+    "empty": {
+      "title": "Ei vielä yhdistettyjä palvelimia",
+      "description": "Aloita yhdistämällä ensimmäinen MCP-palvelimesi markkinapaikalta.",
+      "browseMarketplace": "Selaa markkinapaikkaa"
+    },
+    "orgCredentials": {
+      "title": "Organisaation tunnistetiedot saatavilla",
+      "description": "Nämä palvelimet käyttävät organisaation tunnistetietoja. Voit käyttää niitä ilman omia tunnistetietojasi.",
+      "viewAll": "Näytä kaikki tiimin palvelimet →"
+    },
+    "visibility": {
+      "title": "Palvelimen näkyvyys",
+      "visibleOauth": "Näkyvä OAuth:lle",
+      "hiddenApiOnly": "Piilotettu (vain API)",
+      "disabled": "Poistettu käytöstä"
+    },
+    "actions": {
+      "stop": "Pysäytä",
+      "start": "Käynnistä",
+      "restart": "Käynnistä uudelleen",
+      "validate": "Vahvista",
+      "edit": "Muokkaa",
+      "delete": "Poista",
+      "expand": "Laajenna nähdäksesi työkalut",
+      "collapse": "Pienennä"
+    },
+    "tools": {
+      "available": "Saatavilla olevat työkalut ({{count}})",
+      "visibleToClaude": "Näkyvä Claudelle",
+      "visible": "Näkyvä",
+      "hidden": "Piilotettu",
+      "hideFromOauth": "Piilota OAuth:lta",
+      "showToOauth": "Näytä OAuth:lle",
+      "discovering": "Etsitään työkaluja...",
+      "discoveringNote": "Työkalut näkyvät palvelimen alustamisen jälkeen",
+      "notConnected": "Palvelin ei yhdistetty",
+      "notConnectedNote": "Käynnistä palvelin löytääksesi saatavilla olevat työkalut"
+    },
+    "serverInfo": {
+      "created": "Luotu:",
+      "lastUsed": "Viimeksi käytetty:",
+      "validated": "Vahvistettu"
+    },
+    "errors": {
+      "loadingCredentials": "Virhe tunnistetietojen lataamisessa",
+      "failedToLoad": "Tunnistetietojen lataaminen epäonnistui",
+      "deleteConfirm": "Haluatko varmasti poistaa tämän tunnistetiedon?",
+      "stopConfirm": "Haluatko varmasti pysäyttää tämän palvelimen?",
+      "visibilityUpdated": "Palvelimen näkyvyys päivitetty",
+      "visibilityFailed": "Palvelimen näkyvyyden päivittäminen epäonnistui",
+      "toolVisibilityUpdated": "Työkalun näkyvyys päivitetty",
+      "toolVisibilityFailed": "Työkalun näkyvyyden päivittäminen epäonnistui"
+    },
+    "team": {
+      "empty": {
+        "title": "Ei vielä tiimin palvelimia",
+        "description": "Tiimin palvelimet jaetaan kaikkien organisaation jäsenten kesken. Vain ylläpitäjät voivat lisätä niitä.",
+        "hint": "Siirry organisaation asetuksiin hallitaksesi jaettuja tunnistetietoja."
+      },
+      "orgSettings": "Organisaation asetukset",
+      "banner": {
+        "title": "Tiimin palvelut",
+        "description": "Nämä palvelimet jaetaan kaikkien organisaation jäsenten kesken. Ylläpitäjät hallitsevat tunnistetietoja."
+      },
+      "badge": "Tiimi",
+      "teamServer": "Tiimin palvelin",
+      "visibleToMembers": "Näkyvä kaikille jäsenille",
+      "hiddenFromMembers": "Piilotettu jäseniltä",
+      "showToMembers": "Tee näkyväksi jäsenille",
+      "hideFromMembers": "Piilota jäseniltä",
+      "deleteConfirm": "Haluatko varmasti poistaa tämän tiimin tunnistetiedon? Tätä toimintoa ei voi kumota.",
+      "deleteSuccess": "Tiimin tunnistetiedot poistettu",
+      "deleteFailed": "Tiimin tunnistetietojen poistaminen epäonnistui",
+      "visibilityUpdated": "Jäsenten näkyvyys päivitetty",
+      "visibilityFailed": "Jäsenten näkyvyyden päivittäminen epäonnistui",
+      "edit": "Muokkaa tiimin palvelinta",
+      "editTitle": "Muokkaa tiimin palvelinta",
+      "editSuccess": "Tiimin palvelin päivitetty",
+      "editFailed": "Tiimin palvelimen päivittäminen epäonnistui",
+      "nameLabel": "Nimi",
+      "namePlaceholder": "esim. Yrityksen Grist-tili",
+      "nameRequired": "Nimi vaaditaan",
+      "descriptionLabel": "Kuvaus",
+      "descriptionPlaceholder": "Valinnainen kuvaus tiimillesi",
+      "visibleToAll": "Näkyvä kaikille jäsenille",
+      "visibleToAllDesc": "Kaikki tiimin jäsenet voivat nähdä ja käyttää tätä palvelinta",
+      "adminOnly": "Vain ylläpitäjille",
+      "adminOnlyDesc": "Vain ylläpitäjät voivat nähdä nämä tunnistetiedot (käytetään varavalintana)",
+      "updateCredentials": "Päivitä tunnistetiedot (valinnainen)",
+      "updateCredentialsHint": "Jätä tyhjäksi säilyttääksesi nykyiset arvot",
+      "leaveEmptyToKeep": "Jätä tyhjäksi säilyttääksesi nykyinen arvo",
+      "howToGet": "Miten saan tämän?",
+      "cancel": "Peruuta",
+      "saving": "Tallennetaan...",
+      "saveChanges": "Tallenna muutokset"
+    }
+  },
+  "compositions": {
+    "title": "Kompositiot",
+    "subtitle": "Hallitse ja suorita monivaiheisia työnkulkuja",
+    "create": "Luo kompositio",
+    "edit": "Muokkaa kompositiota",
+    "delete": "Poista kompositio",
+    "run": "Suorita",
+    "running": "Suoritetaan...",
+    "execute": "Suorita",
+    "executing": "Suoritetaan...",
+    "stop": "Pysäytä",
+    "name": "Kompositio nimi",
+    "description": "Kuvaus",
+    "workflow": "Työnkulku",
+    "trigger": "Laukaisin",
+    "actions": "Toiminnot",
+    "search": "Etsi kompositioita...",
+    "steps": "{{count}} vaihetta",
+    "executedTimes": "Suoritettu {{count}} kertaa",
+    "created": "Luotu {{date}}",
+    "canExecute": "Voidaan suorittaa",
+    "noExecutePermission": "Ei suoritusoikeutta",
+    "validate": "Vahvista",
+    "promote": "Ylennä",
+    "shareWithTeam": "Jaa tiimin kanssa",
+    "makePrivate": "Tee yksityiseksi",
+    "cancel": "Peruuta",
+    "noSteps": "Ei vaiheita",
+    "parameters": "{{count}} parametria",
+    "runtimeParamsNote": "Ajonaikaiset parametrit tulossa pian. Toistaiseksi kompositiot käyttävät oletusparametreja.",
+    "promoteConfirm": "Ylennetäänkö \"{{name}}\" tilaan {{status}}?",
+    "deleteConfirm": "Poistetaanko \"{{name}}\"? Tätä toimintoa ei voi kumota.",
+    "promotedSuccess": "Kompositio ylennetty tilaan {{status}}",
+    "deletedSuccess": "Kompositio poistettu",
+    "executedSuccess": "Kompositio suoritettu onnistuneesti",
+    "sharedSuccess": "Kompositio jaettu tiimin kanssa",
+    "madePrivate": "Kompositio tehty yksityiseksi",
+    "status": {
+      "temporary": "Väliaikainen",
+      "validated": "Vahvistettu",
+      "production": "Tuotanto",
+      "draft": "Luonnos",
+      "active": "Aktiivinen",
+      "paused": "Tauolla",
+      "error": "Virhe"
+    },
+    "visibility": {
+      "private": "Yksityinen",
+      "organization": "Tiimi",
+      "public": "Julkinen"
+    },
+    "filters": {
+      "allStatus": "Kaikki tilat",
+      "allCompositions": "Kaikki kompositiot",
+      "myCompositions": "Omat kompositiot",
+      "teamShared": "Tiimin jakamat"
+    },
+    "empty": {
+      "title": "Ei kompositioita",
+      "description": "Kompositiot luodaan, kun orkestraat useita työkaluja yhdessä. Käytä tekoälyavustajaa luodaksesi ensimmäisen työnkulkusi.",
+      "noMatch": "Mikään kompositio ei vastaa suodattimiasi. Kokeile muuttaa hakuasi."
+    },
+    "executeModal": {
+      "title": "Suorita kompositio",
+      "resultsTitle": "Suoritustulokset",
+      "inputsTitle": "Syöteparametrit",
+      "stepsPreview": "Suoritettavat vaiheet",
+      "executingSteps": "Suoritetaan {{count}} vaihetta..."
+    },
+    "inputForm": {
+      "selectOption": "Valitse...",
+      "noInputsRequired": "Tämä kompositio ei vaadi parametreja",
+      "jsonFormat": "JSON-muoto ({{type}})"
+    },
+    "results": {
+      "title": "Tulokset",
+      "success": "Onnistui",
+      "failed": "Epäonnistui",
+      "duration": "Kesto",
+      "output": "Tulos",
+      "statusSuccess": "Suoritus onnistui",
+      "statusPartial": "Osittainen suoritus",
+      "statusFailed": "Suoritus epäonnistui",
+      "summary": "{{success}}/{{total}} vaihetta onnistui • {{duration}}",
+      "globalError": "Yleinen virhe",
+      "stepsTitle": "Vaiheiden tiedot",
+      "stepOutput": "Tulos",
+      "noOutput": "Ei palautettua dataa",
+      "error": "Virhe",
+      "retries": "{{count}} uudelleenyritys(tä)",
+      "finalOutput": "Lopullinen tulos",
+      "startedAt": "Aloitettu",
+      "completedAt": "Valmistunut",
+      "unknownError": "Tapahtui tuntematon virhe"
+    },
+    "close": "Sulje",
+    "executeAgain": "Suorita uudelleen"
+  },
+  "onboarding": {
+    "title": "Tervetuloa BigMCP:hen!",
+    "subtitle": "Aloitetaan",
+    "steps": {
+      "welcome": {
+        "title": "Tervetuloa",
+        "description": "BigMCP auttaa sinua hallitsemaan ja orkestroimaan MCP-palvelimia"
+      },
+      "connect": {
+        "title": "Yhdistä palvelin",
+        "description": "Selaa markkinapaikkaa ja yhdistä ensimmäinen palvelimesi"
+      },
+      "configure": {
+        "title": "Määritä tunnistetiedot",
+        "description": "Aseta tunnistetiedot yhdistettyille palvelimillesi"
+      },
+      "explore": {
+        "title": "Tutustu työkaluihin",
+        "description": "Löydä palvelimiltasi saatavilla olevat työkalut"
+      },
+      "complete": {
+        "title": "Kaikki on valmista!",
+        "description": "Aloita työkalujen käyttö ja luo kompositioita"
+      }
+    },
+    "skip": "Ohita käyttöönotto",
+    "next": "Seuraava",
+    "previous": "Edellinen",
+    "finish": "Aloita"
+  }
+}

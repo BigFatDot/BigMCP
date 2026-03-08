@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Documentatie zoeken...",
+    "badge": "Docs",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API-documentatie"
+  },
+  "page": {
+    "breadcrumbDocs": "Docs",
+    "previous": "Vorige",
+    "next": "Volgende",
+    "notFoundTitle": "Pagina niet gevonden",
+    "notFoundDescription": "De documentatiepagina die je zoekt bestaat niet.",
+    "goToHome": "Naar de documentatiestartpagina"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Aan de slag",
+      "introduction": {
+        "title": "Introductie",
+        "description": "Wat is BigMCP en waarom gebruiken"
+      },
+      "quickstart": {
+        "title": "Snelstart",
+        "description": "In 5 minuten aan de slag"
+      },
+      "firstServer": {
+        "title": "Je eerste server verbinden",
+        "description": "Een MCP-server aan je account toevoegen"
+      }
+    },
+    "guides": {
+      "title": "Handleidingen",
+      "marketplace": {
+        "title": "Servers ontdekken",
+        "description": "MCP-servers verkennen en installeren vanuit de marketplace"
+      },
+      "credentials": {
+        "title": "Diensten beheren",
+        "description": "Je verbonden servers en hun tools beheren"
+      },
+      "toolGroups": {
+        "title": "Organiseren met toolboxen",
+        "description": "Tools bundelen voor verschillende toepassingen en toegangscontrole"
+      },
+      "apiKeys": {
+        "title": "API-sleutels aanmaken",
+        "description": "Sleutels genereren voor externe integraties en automatisering"
+      },
+      "compositions": {
+        "title": "Composities bouwen",
+        "description": "Tools koppelen voor complexe workflows"
+      },
+      "teamServices": {
+        "title": "Teamdiensten",
+        "description": "Gedeelde diensten beheren voor je team (Teamabonnement)"
+      }
+    },
+    "integrations": {
+      "title": "Integraties",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "BigMCP verbinden met Claude Desktop via OAuth"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "BigMCP-tools gebruiken in Mistral Le Chat"
+      },
+      "n8n": {
+        "title": "n8n-automatisering",
+        "description": "BigMCP-tools gebruiken in n8n-workflows"
+      },
+      "customClients": {
+        "title": "Aangepaste clients",
+        "description": "Je eigen MCP-client bouwen met de SDK"
+      }
+    },
+    "concepts": {
+      "title": "Kernconcepten",
+      "mcpOverview": {
+        "title": "MCP-protocol",
+        "description": "Begrip van de Model Context Protocol-standaard"
+      },
+      "servers": {
+        "title": "MCP-servers",
+        "description": "Hoe servers tools, bronnen en prompts beschikbaar stellen"
+      },
+      "tools": {
+        "title": "Tools & uitvoering",
+        "description": "Hoe tools werken en worden uitgevoerd door AI-agenten"
+      },
+      "security": {
+        "title": "Beveiligingsmodel",
+        "description": "Versleuteling, authenticatie en toegangscontrole"
+      }
+    },
+    "api": {
+      "title": "API-referentie",
+      "apiOverview": {
+        "title": "API-overzicht",
+        "description": "Introductie REST API en authenticatie"
+      },
+      "apiMarketplace": {
+        "title": "Marketplace API",
+        "description": "Endpoints voor serverontdekking"
+      },
+      "apiCredentials": {
+        "title": "Credentials API",
+        "description": "Gebruikerscredentials programmatisch beheren"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Verbinding maken met tools via de gateway"
+      },
+      "apiTools": {
+        "title": "Tools & uitvoering API",
+        "description": "Tools, bindingen en composities uitvoeren"
+      }
+    },
+    "selfHosting": {
+      "title": "Zelfhosting",
+      "selfHostOverview": {
+        "title": "Overzicht",
+        "description": "Zelfhostingopties en -vereisten"
+      },
+      "dockerSetup": {
+        "title": "Docker-installatie",
+        "description": "Implementeren met Docker Compose"
+      },
+      "configuration": {
+        "title": "Configuratie",
+        "description": "Omgevingsvariabelen en instellingen"
+      },
+      "llmProviders": {
+        "title": "LLM-providers",
+        "description": "Je AI-backend configureren"
+      },
+      "customServers": {
+        "title": "Aangepaste MCP-servers",
+        "description": "Je eigen MCP-servers toevoegen aan Enterprise-instanties"
+      }
+    }
+  }
+}

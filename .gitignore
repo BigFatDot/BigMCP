@@ -1,0 +1,229 @@
+# BigMCP Gateway - .gitignore
+# Professional Repository Configuration
+
+# ===========================================
+# ENVIRONMENT & SECRETS
+# ===========================================
+# Never commit actual secrets
+.env
+.env.local
+.env.development
+.env.staging
+# Keep example files
+!.env.example
+!.env.production.example
+
+# Edition system secrets (private keys, tokens)
+mcp-registry/secrets/
+secrets/
+
+# Internal scripts (deployment, license generation, ops)
+scripts/
+mcp-registry/scripts/
+
+# ===========================================
+# DEVELOPMENT ARCHIVES
+# ===========================================
+_legacy/
+_dev_archive/
+
+# ===========================================
+# PYTHON
+# ===========================================
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyc
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+.direnv/
+.envrc
+
+# IDEs
+.vscode/
+.idea/
+.DS_Store
+
+# MCP Registry runtime
+mcp-registry/embeddings_cache/
+mcp-registry/data/
+mcp-registry/logs/
+mcp-registry/.cache/
+
+# MCP Registry runtime config (contains user data, tokens, caches)
+mcp-registry/conf/mcp_servers.json
+mcp-registry/conf/server_visibility.json
+mcp-registry/conf/curated_servers_cache.json
+mcp-registry/conf/marketplace_registry.json
+mcp-registry/conf/source_config.json
+mcp-registry/conf/bigmcp_source.json
+
+# MCP Orchestrator runtime
+albert-mcp-orchestrator/logs/
+albert-mcp-orchestrator/metrics/
+albert-mcp-orchestrator/compositions/*.json
+albert-mcp-orchestrator/temp/
+
+# ===========================================
+# TESTING & COVERAGE
+# ===========================================
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+pytest_cache/
+
+# ===========================================
+# BUILD & DISTRIBUTION
+# ===========================================
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+*.whl
+*.manifest
+*.spec
+
+# ===========================================
+# CACHING
+# ===========================================
+.cache/
+.mypy_cache/
+.ruff_cache/
+*.pyc
+pip-wheel-metadata/
+
+# ===========================================
+# TEMPORARY FILES
+# ===========================================
+*.log
+*.tmp
+*~
+.~lock*#
+*.bak
+*.swp
+*.swo
+nul
+
+# ===========================================
+# DATABASES (Development)
+# ===========================================
+*.db
+*.sqlite
+*.sqlite3
+
+# ===========================================
+# DEVELOPMENT ARTIFACTS
+# ===========================================
+*.code-workspace
+analyze_full_response.json
+*.html
+!templates/*.html
+!frontend/**/*.html
+claude_desktop_config.json
+
+# Claude Code session files
+.claude/
+.claude-session
+.mcp.json
+CLAUDE.md
+
+# Test files and debug scripts in root (should be in tests/)
+/test_*.py
+/test_*.json
+/test_*.sh
+/verify_*.py
+/check_*.py
+/debug_*.py
+
+# ===========================================
+# NODE.JS
+# ===========================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn
+
+# ===========================================
+# DOCUMENTATION ARCHIVES
+# ===========================================
+docs/archive/
+mcp-registry/docs/archive/
+
+# ===========================================
+# OS GENERATED
+# ===========================================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ===========================================
+# DOCKER & DEPLOYMENT
+# ===========================================
+*.log
+docker-compose.yml
+docker-compose.prod.yml
+docker-compose.override.yml
+!docker-compose.example.yml
+nginx/
+certbot/
+
+# ===========================================
+# SAAS-ONLY (VPS /opt/bigmcp — never in public repo)
+# ===========================================
+# All SaaS production scripts live in saas/ on the VPS.
+# Self-hosted users don't need them; secrets would be exposed if committed.
+#
+# saas/
+# ├── generate-i18n-landing.py   # 22-language landing pages (SEO, full HTML)
+# ├── generate-changelog.py      # /changelog static page from CHANGELOG.md
+# ├── generate-integrations.py   # 184 /integrations/{slug} pages (+ Mistral LLM)
+# ├── post-deploy.sh             # Run after: docker compose up -d --build frontend
+# │                              #   → generates all static content + nginx reload
+# ├── seo-gen.log                # Cron output log
+# ├── i18n-html/                 # Generated: index.{lang}.html (22 files × 31 KB)
+# └── static/
+#     ├── changelog/index.html   # Generated: /changelog page
+#     ├── integrations/          # Generated: 184 server pages + index
+#     │   ├── index.html
+#     │   └── {slug}/index.html
+#     └── sitemap-integrations.xml
+#
+# Cron (root crontab on VPS):
+#   @reboot  sleep 60 && bash /opt/bigmcp/saas/post-deploy.sh >> saas/seo-gen.log 2>&1
+#   0 3 * * * bash /opt/bigmcp/saas/post-deploy.sh >> saas/seo-gen.log 2>&1
+#
+# docker-compose.override.yml (also gitignored) mounts:
+#   ./saas/i18n-html  → /var/www/i18n   (nginx)
+#   ./saas/static     → /var/www/static  (nginx)
+saas/
+marketplace_test.json
+
+# Third-party registry configs (VPS-only, not for public repo)
+smithery.yaml
+
+# SaaS-specific sitemaps (bigmcp.cloud URLs, generated on VPS)
+frontend/public/sitemap-main.xml
+
+# Build artifacts
+*.tar.gz
+
+# ===========================================
+# TWA BUILD
+# ===========================================
+twa/output/
+twa/build/
+twa/.env
+twa/keystore/

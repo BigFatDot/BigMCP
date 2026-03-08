@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Diensten",
+    "compositions": "Composities",
+    "documentation": "Documentatie",
+    "signin": "Inloggen",
+    "signup": "Registreren",
+    "startTrial": "Gratis proefperiode starten"
+  },
+  "menu": {
+    "account": "Accountinstellingen",
+    "subscription": "Abonnement & Facturering",
+    "apiKeys": "API-sleutels",
+    "team": "Team",
+    "preferences": "Voorkeuren",
+    "signout": "Uitloggen"
+  },
+  "buttons": {
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "create": "Aanmaken",
+    "close": "Sluiten",
+    "confirm": "Bevestigen",
+    "back": "Terug",
+    "next": "Volgende",
+    "submit": "Verzenden",
+    "loading": "Laden...",
+    "retry": "Opnieuw proberen",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd!"
+  },
+  "status": {
+    "loading": "Laden...",
+    "saving": "Opslaan...",
+    "error": "Fout",
+    "success": "Geslaagd"
+  },
+  "errors": {
+    "generic": "Er is een fout opgetreden",
+    "notFound": "Niet gevonden",
+    "unauthorized": "Niet geautoriseerd",
+    "forbidden": "Toegang geweigerd",
+    "networkError": "Netwerkfout. Controleer je verbinding."
+  },
+  "trial": {
+    "badge": "Proefperiode",
+    "daysLeft": "{{count}} dag resterend in proefperiode",
+    "daysLeft_plural": "{{count}} dagen resterend in proefperiode"
+  },
+  "empty": {
+    "noData": "Geen gegevens beschikbaar",
+    "noResults": "Geen resultaten gevonden"
+  }
+}

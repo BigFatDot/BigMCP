@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Hledat v dokumentaci...",
+    "badge": "Dokumentace",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API dokumentace"
+  },
+  "page": {
+    "breadcrumbDocs": "Dokumentace",
+    "previous": "Předchozí",
+    "next": "Další",
+    "notFoundTitle": "Stránka nenalezena",
+    "notFoundDescription": "Hledaná stránka dokumentace neexistuje.",
+    "goToHome": "Přejít na úvod dokumentace"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Začínáme",
+      "introduction": {
+        "title": "Úvod",
+        "description": "Co je BigMCP a proč ho používat"
+      },
+      "quickstart": {
+        "title": "Rychlý start",
+        "description": "Zprovoznění za 5 minut"
+      },
+      "firstServer": {
+        "title": "Připojte první server",
+        "description": "Přidejte MCP server do svého účtu"
+      }
+    },
+    "guides": {
+      "title": "Průvodci",
+      "marketplace": {
+        "title": "Objevit servery",
+        "description": "Procházejte a instalujte MCP servery z marketplace"
+      },
+      "credentials": {
+        "title": "Správa služeb",
+        "description": "Ovládejte připojené servery a jejich nástroje"
+      },
+      "toolGroups": {
+        "title": "Organizace pomocí sad nástrojů",
+        "description": "Sdružujte nástroje pro různé případy použití a řízení přístupu"
+      },
+      "apiKeys": {
+        "title": "Vytvoření API klíčů",
+        "description": "Generujte klíče pro externí integrace a automatizaci"
+      },
+      "compositions": {
+        "title": "Tvorba kompozic",
+        "description": "Řetězte nástroje pro komplexní pracovní postupy"
+      },
+      "teamServices": {
+        "title": "Týmové služby",
+        "description": "Správa sdílených služeb pro váš tým (plán Team)"
+      }
+    },
+    "integrations": {
+      "title": "Integrace",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Připojte BigMCP k Claude Desktop přes OAuth"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Používejte nástroje BigMCP v Mistral Le Chat"
+      },
+      "n8n": {
+        "title": "n8n automatizace",
+        "description": "Používejte nástroje BigMCP v pracovních postupech n8n"
+      },
+      "customClients": {
+        "title": "Vlastní klienti",
+        "description": "Vytvořte vlastního MCP klienta pomocí SDK"
+      }
+    },
+    "concepts": {
+      "title": "Základní koncepty",
+      "mcpOverview": {
+        "title": "MCP protokol",
+        "description": "Porozumění standardu Model Context Protocol"
+      },
+      "servers": {
+        "title": "MCP servery",
+        "description": "Jak servery vystavují nástroje, zdroje a výzvy"
+      },
+      "tools": {
+        "title": "Nástroje a spouštění",
+        "description": "Jak nástroje fungují a jsou spouštěny agenty AI"
+      },
+      "security": {
+        "title": "Bezpečnostní model",
+        "description": "Šifrování, ověřování a řízení přístupu"
+      }
+    },
+    "api": {
+      "title": "Referenční příručka API",
+      "apiOverview": {
+        "title": "Přehled API",
+        "description": "Úvod do REST API a ověřování"
+      },
+      "apiMarketplace": {
+        "title": "Marketplace API",
+        "description": "Endpointy pro zjišťování serverů"
+      },
+      "apiCredentials": {
+        "title": "API přihlašovacích údajů",
+        "description": "Správa přihlašovacích údajů uživatelů programově"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Připojení k nástrojům přes bránu"
+      },
+      "apiTools": {
+        "title": "API nástrojů a spouštění",
+        "description": "Spouštění nástrojů, vazeb a kompozic"
+      }
+    },
+    "selfHosting": {
+      "title": "Vlastní hosting",
+      "selfHostOverview": {
+        "title": "Přehled",
+        "description": "Možnosti vlastního hostingu a požadavky"
+      },
+      "dockerSetup": {
+        "title": "Nastavení Docker",
+        "description": "Nasazení pomocí Docker Compose"
+      },
+      "configuration": {
+        "title": "Konfigurace",
+        "description": "Proměnné prostředí a nastavení"
+      },
+      "llmProviders": {
+        "title": "Poskytovatelé LLM",
+        "description": "Konfigurace backendu AI"
+      },
+      "customServers": {
+        "title": "Vlastní MCP servery",
+        "description": "Přidejte vlastní MCP servery do instancí Enterprise"
+      }
+    }
+  }
+}

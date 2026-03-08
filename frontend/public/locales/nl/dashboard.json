@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Diensten",
+    "subtitle": "Beheer je MCP-servers, tools en toolboxen",
+    "search": "Tools zoeken...",
+    "noTools": "Geen tools beschikbaar",
+    "noToolsDescription": "Verbind met servers in de Marketplace om hier tools te zien",
+    "goToMarketplace": "Naar Marketplace",
+    "viewToggle": {
+      "servers": "Diensten",
+      "toolboxes": "Toolboxen"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP-servers = Bronnen van tools",
+      "serversDescription": "Elke server die je verbindt biedt tools die Claude kan gebruiken. Schakel zichtbaarheid in of uit om te bepalen welke tools beschikbaar zijn.",
+      "visibleLabel": "Zichtbaar = Claude kan gebruiken",
+      "hiddenLabel": "Verborgen = Uitgeschakeld voor Claude",
+      "toolboxesTitle": "Toolboxen = Organiseer je tools",
+      "toolboxesDescription": "Maak toolboxen om specifieke tools samen te bundelen. Gebruik toolboxen om te bepalen welke tools beschikbaar zijn bij het verbinden van externe applicaties.",
+      "forExternalIntegrations": "Voor externe integraties",
+      "manageConnections": "Verbindingen beheren →"
+    },
+    "serverState": {
+      "active": "Actief",
+      "apiOnly": "Alleen API",
+      "standby": "Stand-by",
+      "disabled": "Uitgeschakeld",
+      "error": "Fout"
+    },
+    "serverActions": {
+      "visible": "Zichtbaar",
+      "hidden": "Verborgen",
+      "stopServer": "Server stoppen?",
+      "deleteServerConfirm": "Deze server en zijn credentials verwijderen?",
+      "serverError": "Server heeft een fout ondervonden",
+      "availableTools": "Beschikbare tools ({{count}})",
+      "visibleToClaude": "Zichtbaar voor Claude",
+      "discoveringTools": "Tools ontdekken...",
+      "startToDiscover": "Start server om tools te ontdekken"
+    },
+    "groups": {
+      "title": "Toolboxen",
+      "create": "Toolbox aanmaken",
+      "createToolbox": "Toolbox aanmaken",
+      "createFirst": "Maak je eerste toolbox aan",
+      "edit": "Toolbox bewerken",
+      "delete": "Toolbox verwijderen",
+      "name": "Toolboxnaam",
+      "description": "Beschrijving",
+      "tools": "Tools in toolbox",
+      "empty": "Nog geen toolboxen",
+      "emptyDescription": "Maak toolboxen aan om te organiseren welke tools beschikbaar zijn via API-sleutels.",
+      "noTools": "Geen tools in deze toolbox",
+      "deleteConfirm": "\"{{name}}\" verwijderen? API-sleutels die deze toolbox gebruiken verliezen hun beperkingen.",
+      "active": "Actief",
+      "inactive": "Inactief",
+      "shared": "Gedeeld",
+      "private": "Privé",
+      "makePrivate": "Klik om privé te maken",
+      "shareWithTeam": "Klik om met team te delen",
+      "used": "{{count}} keer gebruikt",
+      "used_plural": "{{count}} keer gebruikt"
+    },
+    "createModal": {
+      "title": "Toolbox aanmaken",
+      "stepInfo": "Geef je toolbox een naam",
+      "stepTools": "Selecteer te includeren tools",
+      "groupName": "Toolboxnaam *",
+      "groupNamePlaceholder": "bijv. Alleen-lezen, Productie, Ontwikkelomgeving",
+      "descriptionPlaceholder": "Waarvoor is deze toolbox?",
+      "color": "Kleur",
+      "visibility": "Zichtbaarheid",
+      "visibilityPrivate": "Privé",
+      "visibilityPrivateDesc": "Alleen jij kunt deze toolbox gebruiken",
+      "visibilityOrganization": "Organisatie",
+      "visibilityOrganizationDesc": "Delen met je team",
+      "toolsSelected": "{{count}} tool geselecteerd",
+      "toolsSelected_plural": "{{count}} tools geselecteerd",
+      "clearAll": "Alles wissen",
+      "selectAll": "Alles selecteren",
+      "deselectAll": "Alles deselecteren",
+      "noToolsAvailable": "Geen tools beschikbaar",
+      "connectServersFirst": "Verbind eerst servers om tools aan toolboxen toe te voegen",
+      "back": "Terug",
+      "cancel": "Annuleren",
+      "nextSelectTools": "Volgende: Tools selecteren",
+      "creating": "Aanmaken...",
+      "createGroup": "Toolbox aanmaken ({{count}} tools)"
+    },
+    "server": {
+      "connected": "Verbonden",
+      "disconnected": "Niet verbonden",
+      "error": "Fout",
+      "reconnect": "Opnieuw verbinden",
+      "tools": "{{count}} tool",
+      "tools_plural": "{{count}} tools"
+    }
+  },
+  "myServers": {
+    "title": "Mijn diensten",
+    "subtitle": "Diensten beheren en tools bepalen die zichtbaar zijn voor Claude",
+    "serversUsed": "servers in gebruik",
+    "limitReached": "Limiet bereikt",
+    "tabs": {
+      "personal": "Mijn diensten",
+      "team": "Teamdiensten"
+    },
+    "stats": {
+      "servers": "Diensten",
+      "connected": "Verbonden",
+      "active": "Actief",
+      "tools": "Tools"
+    },
+    "info": {
+      "title": "Toolzichtbaarheid & -ontdekking",
+      "description": "Actieve servers stellen tools beschikbaar voor Claude. Gebruik de schakelaar om zichtbaarheid te bepalen.",
+      "hint": "Tools verschijnen nadat de server voor de eerste keer is gestart (via MCP-aanroep)."
+    },
+    "empty": {
+      "title": "Nog geen servers verbonden",
+      "description": "Aan de slag door je eerste MCP-server vanuit de marketplace te verbinden.",
+      "browseMarketplace": "Marketplace verkennen"
+    },
+    "orgCredentials": {
+      "title": "Organisatiecredentials beschikbaar",
+      "description": "Deze servers gebruiken organisatiecredentials. Je kunt ze gebruiken zonder je eigen credentials op te geven.",
+      "viewAll": "Alle teamservers bekijken →"
+    },
+    "visibility": {
+      "title": "Serverzichtbaarheid",
+      "visibleOauth": "Zichtbaar voor OAuth",
+      "hiddenApiOnly": "Verborgen (alleen API)",
+      "disabled": "Uitgeschakeld"
+    },
+    "actions": {
+      "stop": "Stoppen",
+      "start": "Starten",
+      "restart": "Herstarten",
+      "validate": "Valideren",
+      "edit": "Bewerken",
+      "delete": "Verwijderen",
+      "expand": "Uitvouwen om tools te zien",
+      "collapse": "Invouwen"
+    },
+    "tools": {
+      "available": "Beschikbare tools ({{count}})",
+      "visibleToClaude": "Zichtbaar voor Claude",
+      "visible": "Zichtbaar",
+      "hidden": "Verborgen",
+      "hideFromOauth": "Verbergen voor OAuth",
+      "showToOauth": "Tonen voor OAuth",
+      "discovering": "Tools ontdekken...",
+      "discoveringNote": "Tools verschijnen na serverinitialisatie",
+      "notConnected": "Server niet verbonden",
+      "notConnectedNote": "Start de server om beschikbare tools te ontdekken"
+    },
+    "serverInfo": {
+      "created": "Aangemaakt:",
+      "lastUsed": "Laatst gebruikt:",
+      "validated": "Gevalideerd"
+    },
+    "errors": {
+      "loadingCredentials": "Fout bij laden van credentials",
+      "failedToLoad": "Laden van credentials mislukt",
+      "deleteConfirm": "Weet je zeker dat je deze credential wilt verwijderen?",
+      "stopConfirm": "Weet je zeker dat je deze server wilt stoppen?",
+      "visibilityUpdated": "Serverzichtbaarheid bijgewerkt",
+      "visibilityFailed": "Bijwerken van serverzichtbaarheid mislukt",
+      "toolVisibilityUpdated": "Toolzichtbaarheid bijgewerkt",
+      "toolVisibilityFailed": "Bijwerken van toolzichtbaarheid mislukt"
+    },
+    "team": {
+      "empty": {
+        "title": "Nog geen teamservers",
+        "description": "Teamservers worden gedeeld met alle organisatieleden. Alleen beheerders kunnen ze toevoegen.",
+        "hint": "Ga naar Organisatie-instellingen om gedeelde credentials te beheren."
+      },
+      "orgSettings": "Organisatie-instellingen",
+      "banner": {
+        "title": "Teamdiensten",
+        "description": "Deze servers worden gedeeld met alle organisatieleden. Credentials worden beheerd door beheerders."
+      },
+      "badge": "Team",
+      "teamServer": "Teamserver",
+      "visibleToMembers": "Zichtbaar voor alle leden",
+      "hiddenFromMembers": "Verborgen voor leden",
+      "showToMembers": "Zichtbaar maken voor leden",
+      "hideFromMembers": "Verbergen voor leden",
+      "deleteConfirm": "Weet je zeker dat je deze teamcredential wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+      "deleteSuccess": "Teamcredential verwijderd",
+      "deleteFailed": "Verwijderen van teamcredential mislukt",
+      "visibilityUpdated": "Ledenzichtbaarheid bijgewerkt",
+      "visibilityFailed": "Bijwerken van ledenzichtbaarheid mislukt",
+      "edit": "Teamserver bewerken",
+      "editTitle": "Teamserver bewerken",
+      "editSuccess": "Teamserver bijgewerkt",
+      "editFailed": "Bijwerken van teamserver mislukt",
+      "nameLabel": "Naam",
+      "namePlaceholder": "bijv. Bedrijfs-Grist-account",
+      "nameRequired": "Naam is vereist",
+      "descriptionLabel": "Beschrijving",
+      "descriptionPlaceholder": "Optionele beschrijving voor je team",
+      "visibleToAll": "Zichtbaar voor alle leden",
+      "visibleToAllDesc": "Alle teamleden kunnen deze server zien en gebruiken",
+      "adminOnly": "Alleen beheerder",
+      "adminOnlyDesc": "Alleen beheerders kunnen deze credential zien (gebruikt als terugvaloptie)",
+      "updateCredentials": "Credentials bijwerken (optioneel)",
+      "updateCredentialsHint": "Laat leeg om bestaande waarden te bewaren",
+      "leaveEmptyToKeep": "Laat leeg om huidige waarde te bewaren",
+      "howToGet": "Hoe krijg ik dit?",
+      "cancel": "Annuleren",
+      "saving": "Opslaan...",
+      "saveChanges": "Wijzigingen opslaan"
+    }
+  },
+  "compositions": {
+    "title": "Composities",
+    "subtitle": "Meerstappige toolworkflows beheren en uitvoeren",
+    "create": "Compositie aanmaken",
+    "edit": "Compositie bewerken",
+    "delete": "Compositie verwijderen",
+    "run": "Uitvoeren",
+    "running": "Uitvoeren...",
+    "execute": "Uitvoeren",
+    "executing": "Uitvoeren...",
+    "stop": "Stoppen",
+    "name": "Compositienaam",
+    "description": "Beschrijving",
+    "workflow": "Workflow",
+    "trigger": "Trigger",
+    "actions": "Acties",
+    "search": "Composities zoeken...",
+    "steps": "{{count}} stappen",
+    "executedTimes": "{{count}} keer uitgevoerd",
+    "created": "Aangemaakt op {{date}}",
+    "canExecute": "Kan uitvoeren",
+    "noExecutePermission": "Geen uitvoeringsrecht",
+    "validate": "Valideren",
+    "promote": "Promoveren",
+    "shareWithTeam": "Delen met team",
+    "makePrivate": "Privé maken",
+    "cancel": "Annuleren",
+    "noSteps": "Geen stappen",
+    "parameters": "{{count}} parameters",
+    "runtimeParamsNote": "Runtimeparameter-invoer komt binnenkort. Composities gebruiken nu standaardparameters.",
+    "promoteConfirm": "\"{{name}}\" promoveren naar {{status}}?",
+    "deleteConfirm": "\"{{name}}\" verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+    "promotedSuccess": "Compositie gepromoveerd naar {{status}}",
+    "deletedSuccess": "Compositie verwijderd",
+    "executedSuccess": "Compositie succesvol uitgevoerd",
+    "sharedSuccess": "Compositie gedeeld met team",
+    "madePrivate": "Compositie privé gemaakt",
+    "status": {
+      "temporary": "Tijdelijk",
+      "validated": "Gevalideerd",
+      "production": "Productie",
+      "draft": "Concept",
+      "active": "Actief",
+      "paused": "Gepauzeerd",
+      "error": "Fout"
+    },
+    "visibility": {
+      "private": "Privé",
+      "organization": "Team",
+      "public": "Openbaar"
+    },
+    "filters": {
+      "allStatus": "Alle statussen",
+      "allCompositions": "Alle composities",
+      "myCompositions": "Mijn composities",
+      "teamShared": "Gedeeld met team"
+    },
+    "empty": {
+      "title": "Geen composities",
+      "description": "Composities worden aangemaakt wanneer je meerdere tools samen orkestreert. Gebruik de AI-assistent om je eerste workflow aan te maken.",
+      "noMatch": "Geen composities komen overeen met je filters. Pas je zoekopdracht aan."
+    },
+    "executeModal": {
+      "title": "Compositie uitvoeren",
+      "resultsTitle": "Uitvoeringsresultaten",
+      "inputsTitle": "Invoerparameters",
+      "stepsPreview": "Uit te voeren stappen",
+      "executingSteps": "{{count}} stappen uitvoeren..."
+    },
+    "inputForm": {
+      "selectOption": "Selecteren...",
+      "noInputsRequired": "Geen parameters vereist voor deze compositie",
+      "jsonFormat": "JSON-formaat ({{type}})"
+    },
+    "results": {
+      "title": "Resultaten",
+      "success": "Geslaagd",
+      "failed": "Mislukt",
+      "duration": "Duur",
+      "output": "Uitvoer",
+      "statusSuccess": "Uitvoering geslaagd",
+      "statusPartial": "Gedeeltelijke uitvoering",
+      "statusFailed": "Uitvoering mislukt",
+      "summary": "{{success}}/{{total}} stappen geslaagd • {{duration}}",
+      "globalError": "Algemene fout",
+      "stepsTitle": "Stapdetails",
+      "stepOutput": "Uitvoer",
+      "noOutput": "Geen gegevens teruggegeven",
+      "error": "Fout",
+      "retries": "{{count}} poging(en) opnieuw",
+      "finalOutput": "Eindresultaat",
+      "startedAt": "Gestart om",
+      "completedAt": "Voltooid om",
+      "unknownError": "Er is een onbekende fout opgetreden"
+    },
+    "close": "Sluiten",
+    "executeAgain": "Opnieuw uitvoeren"
+  },
+  "onboarding": {
+    "title": "Welkom bij BigMCP!",
+    "subtitle": "Laten we je op weg helpen",
+    "steps": {
+      "welcome": {
+        "title": "Welkom",
+        "description": "BigMCP helpt je MCP-servers te beheren en te orkestreren"
+      },
+      "connect": {
+        "title": "Een server verbinden",
+        "description": "Verken de marketplace en verbind je eerste server"
+      },
+      "configure": {
+        "title": "Credentials configureren",
+        "description": "Stel credentials in voor je verbonden servers"
+      },
+      "explore": {
+        "title": "Tools verkennen",
+        "description": "Ontdek de tools die beschikbaar zijn van je servers"
+      },
+      "complete": {
+        "title": "Je bent klaar!",
+        "description": "Begin je tools te gebruiken en maak composities aan"
+      }
+    },
+    "skip": "Onboarding overslaan",
+    "next": "Volgende",
+    "previous": "Vorige",
+    "finish": "Aan de slag"
+  }
+}

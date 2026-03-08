@@ -1,0 +1,344 @@
+{
+  "tools": {
+    "title": "Služby",
+    "subtitle": "Spravujte své MCP servery, nástroje a sady nástrojů",
+    "search": "Hledat nástroje...",
+    "noTools": "Nejsou k dispozici žádné nástroje",
+    "noToolsDescription": "Připojte se k serverům v Marketplace a nástroje se zobrazí zde",
+    "goToMarketplace": "Přejít na Marketplace",
+    "viewToggle": {
+      "servers": "Služby",
+      "toolboxes": "Sady nástrojů"
+    },
+    "infoBanner": {
+      "serversTitle": "MCP servery = zdroje nástrojů",
+      "serversDescription": "Každý server, ke kterému se připojíte, poskytuje nástroje, které může Claude používat. Přepínáním viditelnosti kontrolujete, které nástroje jsou dostupné.",
+      "visibleLabel": "Viditelné = Claude může používat",
+      "hiddenLabel": "Skryté = zakázáno pro Claude",
+      "toolboxesTitle": "Sady nástrojů = organizujte své nástroje",
+      "toolboxesDescription": "Vytvářejte sady nástrojů pro sdružování konkrétních nástrojů. Pomocí sad nástrojů kontrolujte, které nástroje jsou dostupné při připojování externích aplikací.",
+      "forExternalIntegrations": "Pro externí integrace",
+      "manageConnections": "Spravovat připojení →"
+    },
+    "serverState": {
+      "active": "Aktivní",
+      "apiOnly": "Pouze API",
+      "standby": "Pohotovostní režim",
+      "disabled": "Zakázáno",
+      "error": "Chyba"
+    },
+    "serverActions": {
+      "visible": "Viditelné",
+      "hidden": "Skryté",
+      "stopServer": "Zastavit server?",
+      "deleteServerConfirm": "Smazat tento server a jeho přihlašovací údaje?",
+      "serverError": "Server narazil na chybu",
+      "availableTools": "Dostupné nástroje ({{count}})",
+      "visibleToClaude": "Viditelné pro Claude",
+      "discoveringTools": "Zjišťování nástrojů...",
+      "startToDiscover": "Spusťte server pro zjištění nástrojů"
+    },
+    "groups": {
+      "title": "Sady nástrojů",
+      "create": "Vytvořit sadu nástrojů",
+      "createToolbox": "Vytvořit sadu nástrojů",
+      "createFirst": "Vytvořte svou první sadu nástrojů",
+      "edit": "Upravit sadu nástrojů",
+      "delete": "Smazat sadu nástrojů",
+      "name": "Název sady nástrojů",
+      "description": "Popis",
+      "tools": "Nástroje v sadě",
+      "empty": "Zatím žádné sady nástrojů",
+      "emptyDescription": "Vytvořte sady nástrojů pro organizaci nástrojů dostupných přes API klíče.",
+      "noTools": "V této sadě nejsou žádné nástroje",
+      "deleteConfirm": "Smazat \"{{name}}\"? API klíče používající tuto sadu přijdou o svá omezení.",
+      "active": "Aktivní",
+      "inactive": "Neaktivní",
+      "shared": "Sdílené",
+      "private": "Soukromé",
+      "makePrivate": "Kliknutím nastavte jako soukromé",
+      "shareWithTeam": "Kliknutím sdílejte s týmem",
+      "used": "Použito {{count}}×",
+      "used_plural": "Použito {{count}}×"
+    },
+    "createModal": {
+      "title": "Vytvořit sadu nástrojů",
+      "stepInfo": "Pojmenujte sadu nástrojů",
+      "stepTools": "Vyberte nástroje k zařazení",
+      "groupName": "Název sady nástrojů *",
+      "groupNamePlaceholder": "např. Pouze pro čtení, Produkce, Dev prostředí",
+      "descriptionPlaceholder": "K čemu tato sada nástrojů slouží?",
+      "color": "Barva",
+      "visibility": "Viditelnost",
+      "visibilityPrivate": "Soukromé",
+      "visibilityPrivateDesc": "Pouze vy můžete používat tuto sadu nástrojů",
+      "visibilityOrganization": "Organizace",
+      "visibilityOrganizationDesc": "Sdílet s vaším týmem",
+      "toolsSelected": "Vybrán {{count}} nástroj",
+      "toolsSelected_plural": "Vybráno {{count}} nástrojů",
+      "clearAll": "Zrušit vše",
+      "selectAll": "Vybrat vše",
+      "deselectAll": "Zrušit výběr všech",
+      "noToolsAvailable": "Nejsou k dispozici žádné nástroje",
+      "connectServersFirst": "Nejprve připojte servery pro přidání nástrojů do sad",
+      "back": "Zpět",
+      "cancel": "Zrušit",
+      "nextSelectTools": "Další: Vybrat nástroje",
+      "creating": "Vytváření...",
+      "createGroup": "Vytvořit sadu nástrojů ({{count}} nástrojů)"
+    },
+    "server": {
+      "connected": "Připojeno",
+      "disconnected": "Odpojeno",
+      "error": "Chyba",
+      "reconnect": "Znovu připojit",
+      "tools": "{{count}} nástroj",
+      "tools_plural": "{{count}} nástrojů"
+    }
+  },
+  "myServers": {
+    "title": "Moje služby",
+    "subtitle": "Spravujte služby a kontrolujte nástroje vystavené pro Claude",
+    "serversUsed": "použitých serverů",
+    "limitReached": "Dosažen limit",
+    "tabs": {
+      "personal": "Moje služby",
+      "team": "Týmové služby"
+    },
+    "stats": {
+      "servers": "Služby",
+      "connected": "Připojeno",
+      "active": "Aktivní",
+      "tools": "Nástroje"
+    },
+    "info": {
+      "title": "Viditelnost a zjišťování nástrojů",
+      "description": "Aktivní servery vystavují nástroje pro Claude. Přepínáním kontrolujte viditelnost.",
+      "hint": "Nástroje se zobrazí po prvním spuštění serveru (prostřednictvím MCP volání)."
+    },
+    "empty": {
+      "title": "Zatím nejsou připojeny žádné servery",
+      "description": "Začněte připojením prvního MCP serveru z marketplace.",
+      "browseMarketplace": "Procházet Marketplace"
+    },
+    "orgCredentials": {
+      "title": "K dispozici jsou přihlašovací údaje organizace",
+      "description": "Tyto servery používají přihlašovací údaje organizace. Můžete je používat bez poskytnutí vlastních přihlašovacích údajů.",
+      "viewAll": "Zobrazit všechny týmové servery →"
+    },
+    "visibility": {
+      "title": "Viditelnost serveru",
+      "visibleOauth": "Viditelné pro OAuth",
+      "hiddenApiOnly": "Skryté (pouze API)",
+      "disabled": "Zakázáno"
+    },
+    "actions": {
+      "stop": "Zastavit",
+      "start": "Spustit",
+      "restart": "Restartovat",
+      "validate": "Ověřit",
+      "edit": "Upravit",
+      "delete": "Smazat",
+      "expand": "Rozbalit pro zobrazení nástrojů",
+      "collapse": "Sbalit"
+    },
+    "tools": {
+      "available": "Dostupné nástroje ({{count}})",
+      "visibleToClaude": "Viditelné pro Claude",
+      "visible": "Viditelné",
+      "hidden": "Skryté",
+      "hideFromOauth": "Skrýt před OAuth",
+      "showToOauth": "Zobrazit pro OAuth",
+      "discovering": "Zjišťování nástrojů...",
+      "discoveringNote": "Nástroje se zobrazí po inicializaci serveru",
+      "notConnected": "Server není připojen",
+      "notConnectedNote": "Spusťte server pro zjištění dostupných nástrojů"
+    },
+    "serverInfo": {
+      "created": "Vytvořeno:",
+      "lastUsed": "Naposledy použito:",
+      "validated": "Ověřeno"
+    },
+    "errors": {
+      "loadingCredentials": "Chyba při načítání přihlašovacích údajů",
+      "failedToLoad": "Nepodařilo se načíst přihlašovací údaje",
+      "deleteConfirm": "Opravdu chcete smazat tyto přihlašovací údaje?",
+      "stopConfirm": "Opravdu chcete zastavit tento server?",
+      "visibilityUpdated": "Viditelnost serveru aktualizována",
+      "visibilityFailed": "Nepodařilo se aktualizovat viditelnost serveru",
+      "toolVisibilityUpdated": "Viditelnost nástroje aktualizována",
+      "toolVisibilityFailed": "Nepodařilo se aktualizovat viditelnost nástroje"
+    },
+    "team": {
+      "empty": {
+        "title": "Zatím žádné týmové servery",
+        "description": "Týmové servery jsou sdíleny se všemi členy organizace. Přidávat je mohou pouze správci.",
+        "hint": "Přejděte do Nastavení organizace pro správu sdílených přihlašovacích údajů."
+      },
+      "orgSettings": "Nastavení organizace",
+      "banner": {
+        "title": "Týmové služby",
+        "description": "Tyto servery jsou sdíleny se všemi členy organizace. Přihlašovací údaje spravují správci."
+      },
+      "badge": "Tým",
+      "teamServer": "Týmový server",
+      "visibleToMembers": "Viditelné pro všechny členy",
+      "hiddenFromMembers": "Skryté před členy",
+      "showToMembers": "Zviditelnit pro členy",
+      "hideFromMembers": "Skrýt před členy",
+      "deleteConfirm": "Opravdu chcete smazat tyto týmové přihlašovací údaje? Tuto akci nelze vrátit zpět.",
+      "deleteSuccess": "Týmové přihlašovací údaje smazány",
+      "deleteFailed": "Nepodařilo se smazat týmové přihlašovací údaje",
+      "visibilityUpdated": "Viditelnost pro členy aktualizována",
+      "visibilityFailed": "Nepodařilo se aktualizovat viditelnost pro členy",
+      "edit": "Upravit týmový server",
+      "editTitle": "Upravit týmový server",
+      "editSuccess": "Týmový server aktualizován",
+      "editFailed": "Nepodařilo se aktualizovat týmový server",
+      "nameLabel": "Název",
+      "namePlaceholder": "např. Firemní účet Grist",
+      "nameRequired": "Název je povinný",
+      "descriptionLabel": "Popis",
+      "descriptionPlaceholder": "Volitelný popis pro váš tým",
+      "visibleToAll": "Viditelné pro všechny členy",
+      "visibleToAllDesc": "Všichni členové týmu mohou vidět a používat tento server",
+      "adminOnly": "Pouze pro správce",
+      "adminOnlyDesc": "Tyto přihlašovací údaje vidí pouze správci (používají se jako záloha)",
+      "updateCredentials": "Aktualizovat přihlašovací údaje (volitelné)",
+      "updateCredentialsHint": "Nechte prázdné pro zachování stávajících hodnot",
+      "leaveEmptyToKeep": "Nechte prázdné pro zachování aktuální hodnoty",
+      "howToGet": "Jak to získat?",
+      "cancel": "Zrušit",
+      "saving": "Ukládání...",
+      "saveChanges": "Uložit změny"
+    }
+  },
+  "compositions": {
+    "title": "Kompozice",
+    "subtitle": "Spravujte a spouštějte víceúrovňové pracovní postupy nástrojů",
+    "create": "Vytvořit kompozici",
+    "edit": "Upravit kompozici",
+    "delete": "Smazat kompozici",
+    "run": "Spustit",
+    "running": "Probíhá spuštění...",
+    "execute": "Provést",
+    "executing": "Provádění...",
+    "stop": "Zastavit",
+    "name": "Název kompozice",
+    "description": "Popis",
+    "workflow": "Pracovní postup",
+    "trigger": "Spouštěč",
+    "actions": "Akce",
+    "search": "Hledat kompozice...",
+    "steps": "{{count}} kroků",
+    "executedTimes": "Provedeno {{count}}×",
+    "created": "Vytvořeno {{date}}",
+    "canExecute": "Lze provést",
+    "noExecutePermission": "Nemáte oprávnění k provedení",
+    "validate": "Ověřit",
+    "promote": "Povýšit",
+    "shareWithTeam": "Sdílet s týmem",
+    "makePrivate": "Nastavit jako soukromé",
+    "cancel": "Zrušit",
+    "noSteps": "Žádné kroky",
+    "parameters": "{{count}} parametrů",
+    "runtimeParamsNote": "Zadávání parametrů za běhu bude brzy k dispozici. Prozatím kompozice používají výchozí parametry.",
+    "promoteConfirm": "Povýšit \"{{name}}\" na {{status}}?",
+    "deleteConfirm": "Smazat \"{{name}}\"? Tuto akci nelze vrátit zpět.",
+    "promotedSuccess": "Kompozice povýšena na {{status}}",
+    "deletedSuccess": "Kompozice smazána",
+    "executedSuccess": "Kompozice úspěšně provedena",
+    "sharedSuccess": "Kompozice sdílena s týmem",
+    "madePrivate": "Kompozice nastavena jako soukromá",
+    "status": {
+      "temporary": "Dočasné",
+      "validated": "Ověřeno",
+      "production": "Produkce",
+      "draft": "Koncept",
+      "active": "Aktivní",
+      "paused": "Pozastaveno",
+      "error": "Chyba"
+    },
+    "visibility": {
+      "private": "Soukromé",
+      "organization": "Tým",
+      "public": "Veřejné"
+    },
+    "filters": {
+      "allStatus": "Všechny stavy",
+      "allCompositions": "Všechny kompozice",
+      "myCompositions": "Moje kompozice",
+      "teamShared": "Sdílené s týmem"
+    },
+    "empty": {
+      "title": "Žádné kompozice",
+      "description": "Kompozice se vytváří při orchestraci více nástrojů dohromady. Použijte asistenta AI k vytvoření prvního pracovního postupu.",
+      "noMatch": "Žádné kompozice neodpovídají vašim filtrům. Zkuste upravit vyhledávání."
+    },
+    "executeModal": {
+      "title": "Provést kompozici",
+      "resultsTitle": "Výsledky provedení",
+      "inputsTitle": "Vstupní parametry",
+      "stepsPreview": "Kroky k provedení",
+      "executingSteps": "Provádění {{count}} kroků..."
+    },
+    "inputForm": {
+      "selectOption": "Vyberte...",
+      "noInputsRequired": "Pro tuto kompozici nejsou vyžadovány žádné parametry",
+      "jsonFormat": "Formát JSON ({{type}})"
+    },
+    "results": {
+      "title": "Výsledky",
+      "success": "Úspěch",
+      "failed": "Selhalo",
+      "duration": "Trvání",
+      "output": "Výstup",
+      "statusSuccess": "Provedení úspěšné",
+      "statusPartial": "Částečné provedení",
+      "statusFailed": "Provedení selhalo",
+      "summary": "{{success}}/{{total}} kroků úspěšných • {{duration}}",
+      "globalError": "Globální chyba",
+      "stepsTitle": "Podrobnosti kroků",
+      "stepOutput": "Výstup",
+      "noOutput": "Nebyla vrácena žádná data",
+      "error": "Chyba",
+      "retries": "{{count}} opakování",
+      "finalOutput": "Konečný výstup",
+      "startedAt": "Zahájeno v",
+      "completedAt": "Dokončeno v",
+      "unknownError": "Došlo k neznámé chybě"
+    },
+    "close": "Zavřít",
+    "executeAgain": "Provést znovu"
+  },
+  "onboarding": {
+    "title": "Vítejte v BigMCP!",
+    "subtitle": "Pojďme vás uvést do provozu",
+    "steps": {
+      "welcome": {
+        "title": "Vítejte",
+        "description": "BigMCP vám pomáhá spravovat a orchestrovat MCP servery"
+      },
+      "connect": {
+        "title": "Připojit server",
+        "description": "Procházejte marketplace a připojte svůj první server"
+      },
+      "configure": {
+        "title": "Nakonfigurovat přihlašovací údaje",
+        "description": "Nastavte přihlašovací údaje pro připojené servery"
+      },
+      "explore": {
+        "title": "Prozkoumat nástroje",
+        "description": "Objevte nástroje dostupné z vašich serverů"
+      },
+      "complete": {
+        "title": "Vše je připraveno!",
+        "description": "Začněte používat nástroje a vytvářet kompozice"
+      }
+    },
+    "skip": "Přeskočit úvodní nastavení",
+    "next": "Další",
+    "previous": "Předchozí",
+    "finish": "Začít"
+  }
+}

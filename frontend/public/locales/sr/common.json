@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Servisi",
+    "compositions": "Kompozicije",
+    "documentation": "Dokumentacija",
+    "signin": "Prijava",
+    "signup": "Registracija",
+    "startTrial": "Pokrenite besplatnu probu"
+  },
+  "menu": {
+    "account": "Podešavanja naloga",
+    "subscription": "Pretplata i naplata",
+    "apiKeys": "API ključevi",
+    "team": "Tim",
+    "preferences": "Preference",
+    "signout": "Odjava"
+  },
+  "buttons": {
+    "save": "Sačuvaj",
+    "cancel": "Otkaži",
+    "delete": "Obriši",
+    "edit": "Izmeni",
+    "create": "Kreiraj",
+    "close": "Zatvori",
+    "confirm": "Potvrdi",
+    "back": "Nazad",
+    "next": "Sledeće",
+    "submit": "Pošalji",
+    "loading": "Učitavanje...",
+    "retry": "Pokušaj ponovo",
+    "copy": "Kopiraj",
+    "copied": "Kopirano!"
+  },
+  "status": {
+    "loading": "Učitavanje...",
+    "saving": "Čuvanje...",
+    "error": "Greška",
+    "success": "Uspešno"
+  },
+  "errors": {
+    "generic": "Došlo je do greške",
+    "notFound": "Nije pronađeno",
+    "unauthorized": "Neovlašćen pristup",
+    "forbidden": "Pristup odbijen",
+    "networkError": "Greška mreže. Molimo proverite vašu vezu."
+  },
+  "trial": {
+    "badge": "Proba",
+    "daysLeft": "Još {{count}} dan probe",
+    "daysLeft_plural": "Još {{count}} dana probe"
+  },
+  "empty": {
+    "noData": "Nema dostupnih podataka",
+    "noResults": "Nisu pronađeni rezultati"
+  }
+}

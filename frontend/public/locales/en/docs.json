@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Search docs...",
+    "badge": "Docs",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API Docs"
+  },
+  "page": {
+    "breadcrumbDocs": "Docs",
+    "previous": "Previous",
+    "next": "Next",
+    "notFoundTitle": "Page Not Found",
+    "notFoundDescription": "The documentation page you're looking for doesn't exist.",
+    "goToHome": "Go to documentation home"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Getting Started",
+      "introduction": {
+        "title": "Introduction",
+        "description": "What is BigMCP and why use it"
+      },
+      "quickstart": {
+        "title": "Quick Start",
+        "description": "Get up and running in 5 minutes"
+      },
+      "firstServer": {
+        "title": "Connect Your First Server",
+        "description": "Add an MCP server to your account"
+      }
+    },
+    "guides": {
+      "title": "Guides",
+      "marketplace": {
+        "title": "Discover Servers",
+        "description": "Browse and install MCP servers from the marketplace"
+      },
+      "credentials": {
+        "title": "Manage Services",
+        "description": "Control your connected servers and their tools"
+      },
+      "toolGroups": {
+        "title": "Organize with Toolboxes",
+        "description": "Bundle tools for different use cases and access control"
+      },
+      "apiKeys": {
+        "title": "Create API Keys",
+        "description": "Generate keys for external integrations and automation"
+      },
+      "compositions": {
+        "title": "Build Compositions",
+        "description": "Chain tools together for complex workflows"
+      },
+      "teamServices": {
+        "title": "Team Services",
+        "description": "Manage shared services for your team (Team plan)"
+      }
+    },
+    "integrations": {
+      "title": "Integrations",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Connect BigMCP to Claude Desktop via OAuth"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Use BigMCP tools in Mistral Le Chat"
+      },
+      "n8n": {
+        "title": "n8n Automation",
+        "description": "Use BigMCP tools in n8n workflows"
+      },
+      "customClients": {
+        "title": "Custom Clients",
+        "description": "Build your own MCP client with the SDK"
+      }
+    },
+    "concepts": {
+      "title": "Core Concepts",
+      "mcpOverview": {
+        "title": "MCP Protocol",
+        "description": "Understanding the Model Context Protocol standard"
+      },
+      "servers": {
+        "title": "MCP Servers",
+        "description": "How servers expose tools, resources, and prompts"
+      },
+      "tools": {
+        "title": "Tools & Execution",
+        "description": "How tools work and are executed by AI agents"
+      },
+      "security": {
+        "title": "Security Model",
+        "description": "Encryption, authentication, and access control"
+      }
+    },
+    "api": {
+      "title": "API Reference",
+      "apiOverview": {
+        "title": "API Overview",
+        "description": "REST API introduction and authentication"
+      },
+      "apiMarketplace": {
+        "title": "Marketplace API",
+        "description": "Endpoints for server discovery"
+      },
+      "apiCredentials": {
+        "title": "Credentials API",
+        "description": "Manage user credentials programmatically"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Connect to tools via the gateway"
+      },
+      "apiTools": {
+        "title": "Tools & Execution API",
+        "description": "Execute tools, bindings, and compositions"
+      }
+    },
+    "selfHosting": {
+      "title": "Self-Hosting",
+      "selfHostOverview": {
+        "title": "Overview",
+        "description": "Self-hosting options and requirements"
+      },
+      "dockerSetup": {
+        "title": "Docker Setup",
+        "description": "Deploy with Docker Compose"
+      },
+      "configuration": {
+        "title": "Configuration",
+        "description": "Environment variables and settings"
+      },
+      "llmProviders": {
+        "title": "LLM Providers",
+        "description": "Configure your AI backend"
+      },
+      "customServers": {
+        "title": "Custom MCP Servers",
+        "description": "Add your own MCP servers to Enterprise instances"
+      }
+    }
+  }
+}

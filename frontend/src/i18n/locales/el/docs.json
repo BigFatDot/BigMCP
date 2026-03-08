@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Αναζήτηση στα έγγραφα...",
+    "badge": "Έγγραφα",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API Docs"
+  },
+  "page": {
+    "breadcrumbDocs": "Έγγραφα",
+    "previous": "Προηγούμενο",
+    "next": "Επόμενο",
+    "notFoundTitle": "Η Σελίδα δεν Βρέθηκε",
+    "notFoundDescription": "Η σελίδα τεκμηρίωσης που αναζητάτε δεν υπάρχει.",
+    "goToHome": "Μετάβαση στην αρχική τεκμηρίωσης"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Ξεκινώντας",
+      "introduction": {
+        "title": "Εισαγωγή",
+        "description": "Τι είναι το BigMCP και γιατί να το χρησιμοποιήσετε"
+      },
+      "quickstart": {
+        "title": "Γρήγορη Εκκίνηση",
+        "description": "Ξεκινήστε σε 5 λεπτά"
+      },
+      "firstServer": {
+        "title": "Συνδέστε τον Πρώτο σας Server",
+        "description": "Προσθέστε έναν MCP server στον λογαριασμό σας"
+      }
+    },
+    "guides": {
+      "title": "Οδηγοί",
+      "marketplace": {
+        "title": "Ανακαλύψτε Servers",
+        "description": "Περιηγηθείτε και εγκαταστήστε MCP servers από το marketplace"
+      },
+      "credentials": {
+        "title": "Διαχείριση Υπηρεσιών",
+        "description": "Ελέγξτε τους συνδεδεμένους servers και τα εργαλεία τους"
+      },
+      "toolGroups": {
+        "title": "Οργάνωση με Toolboxes",
+        "description": "Ομαδοποιήστε εργαλεία για διαφορετικές περιπτώσεις χρήσης και έλεγχο πρόσβασης"
+      },
+      "apiKeys": {
+        "title": "Δημιουργία API Keys",
+        "description": "Δημιουργήστε keys για εξωτερικές ενσωματώσεις και αυτοματισμό"
+      },
+      "compositions": {
+        "title": "Δημιουργία Compositions",
+        "description": "Συνδέστε εργαλεία για σύνθετες ροές εργασίας"
+      },
+      "teamServices": {
+        "title": "Υπηρεσίες Ομάδας",
+        "description": "Διαχειριστείτε κοινόχρηστες υπηρεσίες για την ομάδα σας (πλάνο Team)"
+      }
+    },
+    "integrations": {
+      "title": "Ενσωματώσεις",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Συνδέστε το BigMCP στο Claude Desktop μέσω OAuth"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Χρησιμοποιήστε εργαλεία BigMCP στο Mistral Le Chat"
+      },
+      "n8n": {
+        "title": "n8n Automation",
+        "description": "Χρησιμοποιήστε εργαλεία BigMCP σε ροές εργασίας n8n"
+      },
+      "customClients": {
+        "title": "Προσαρμοσμένοι Clients",
+        "description": "Δημιουργήστε τον δικό σας MCP client με το SDK"
+      }
+    },
+    "concepts": {
+      "title": "Βασικές Έννοιες",
+      "mcpOverview": {
+        "title": "Πρωτόκολλο MCP",
+        "description": "Κατανόηση του προτύπου Model Context Protocol"
+      },
+      "servers": {
+        "title": "MCP Servers",
+        "description": "Πώς οι servers εκθέτουν εργαλεία, πόρους και prompts"
+      },
+      "tools": {
+        "title": "Εργαλεία & Εκτέλεση",
+        "description": "Πώς λειτουργούν τα εργαλεία και εκτελούνται από AI agents"
+      },
+      "security": {
+        "title": "Μοντέλο Ασφαλείας",
+        "description": "Κρυπτογράφηση, authentication και έλεγχος πρόσβασης"
+      }
+    },
+    "api": {
+      "title": "Αναφορά API",
+      "apiOverview": {
+        "title": "Επισκόπηση API",
+        "description": "Εισαγωγή REST API και authentication"
+      },
+      "apiMarketplace": {
+        "title": "Marketplace API",
+        "description": "Endpoints για ανακάλυψη servers"
+      },
+      "apiCredentials": {
+        "title": "Credentials API",
+        "description": "Διαχείριση credentials χρήστη μέσω κώδικα"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Σύνδεση σε εργαλεία μέσω του gateway"
+      },
+      "apiTools": {
+        "title": "Tools & Execution API",
+        "description": "Εκτέλεση εργαλείων, bindings και compositions"
+      }
+    },
+    "selfHosting": {
+      "title": "Ιδιωτική Φιλοξενία",
+      "selfHostOverview": {
+        "title": "Επισκόπηση",
+        "description": "Επιλογές και απαιτήσεις ιδιωτικής φιλοξενίας"
+      },
+      "dockerSetup": {
+        "title": "Ρύθμιση Docker",
+        "description": "Ανάπτυξη με Docker Compose"
+      },
+      "configuration": {
+        "title": "Διαμόρφωση",
+        "description": "Μεταβλητές περιβάλλοντος και ρυθμίσεις"
+      },
+      "llmProviders": {
+        "title": "Πάροχοι LLM",
+        "description": "Διαμορφώστε το AI backend σας"
+      },
+      "customServers": {
+        "title": "Προσαρμοσμένοι MCP Servers",
+        "description": "Προσθέστε τους δικούς σας MCP servers σε εγκαταστάσεις Enterprise"
+      }
+    }
+  }
+}

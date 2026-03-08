@@ -1,0 +1,145 @@
+{
+  "layout": {
+    "searchPlaceholder": "Søk i dokumentasjon...",
+    "badge": "Dokumentasjon",
+    "version": "BigMCP v1.0.0",
+    "github": "GitHub",
+    "apiDocs": "API-dokumentasjon"
+  },
+  "page": {
+    "breadcrumbDocs": "Dokumentasjon",
+    "previous": "Forrige",
+    "next": "Neste",
+    "notFoundTitle": "Side ikke funnet",
+    "notFoundDescription": "Dokumentasjonssiden du leter etter finnes ikke.",
+    "goToHome": "Gå til dokumentasjonsforsiden"
+  },
+  "sections": {
+    "gettingStarted": {
+      "title": "Kom i gang",
+      "introduction": {
+        "title": "Introduksjon",
+        "description": "Hva er BigMCP og hvorfor bruke det"
+      },
+      "quickstart": {
+        "title": "Hurtigstart",
+        "description": "Kom i gang på 5 minutter"
+      },
+      "firstServer": {
+        "title": "Koble til din første server",
+        "description": "Legg til en MCP-server på kontoen din"
+      }
+    },
+    "guides": {
+      "title": "Veiledninger",
+      "marketplace": {
+        "title": "Oppdag servere",
+        "description": "Bla gjennom og installer MCP-servere fra markedsplassen"
+      },
+      "credentials": {
+        "title": "Administrer tjenester",
+        "description": "Kontroller de tilkoblede serverne dine og verktøyene deres"
+      },
+      "toolGroups": {
+        "title": "Organiser med verktøykasser",
+        "description": "Samle verktøy for ulike brukstilfeller og tilgangskontroll"
+      },
+      "apiKeys": {
+        "title": "Opprett API-nøkler",
+        "description": "Generer nøkler for eksterne integrasjoner og automatisering"
+      },
+      "compositions": {
+        "title": "Bygg komposisjoner",
+        "description": "Kjed verktøy sammen for komplekse arbeidsflyter"
+      },
+      "teamServices": {
+        "title": "Teamtjenester",
+        "description": "Administrer delte tjenester for teamet ditt (Teamplan)"
+      }
+    },
+    "integrations": {
+      "title": "Integrasjoner",
+      "claudeDesktop": {
+        "title": "Claude Desktop",
+        "description": "Koble BigMCP til Claude Desktop via OAuth"
+      },
+      "mistralLechat": {
+        "title": "Mistral Le Chat",
+        "description": "Bruk BigMCP-verktøy i Mistral Le Chat"
+      },
+      "n8n": {
+        "title": "n8n-automatisering",
+        "description": "Bruk BigMCP-verktøy i n8n-arbeidsflyter"
+      },
+      "customClients": {
+        "title": "Egendefinerte klienter",
+        "description": "Bygg din egen MCP-klient med SDK-en"
+      }
+    },
+    "concepts": {
+      "title": "Kjernekonsepter",
+      "mcpOverview": {
+        "title": "MCP-protokoll",
+        "description": "Forstå Model Context Protocol-standarden"
+      },
+      "servers": {
+        "title": "MCP-servere",
+        "description": "Hvordan servere eksponerer verktøy, ressurser og forespørsler"
+      },
+      "tools": {
+        "title": "Verktøy og kjøring",
+        "description": "Hvordan verktøy fungerer og kjøres av AI-agenter"
+      },
+      "security": {
+        "title": "Sikkerhetsmodell",
+        "description": "Kryptering, autentisering og tilgangskontroll"
+      }
+    },
+    "api": {
+      "title": "API-referanse",
+      "apiOverview": {
+        "title": "API-oversikt",
+        "description": "REST API-introduksjon og autentisering"
+      },
+      "apiMarketplace": {
+        "title": "Markedsplass-API",
+        "description": "Endepunkter for serveroppdagelse"
+      },
+      "apiCredentials": {
+        "title": "Legitimasjons-API",
+        "description": "Administrer brukerlegitimasjoner programmatisk"
+      },
+      "apiMcp": {
+        "title": "MCP Gateway API",
+        "description": "Koble til verktøy via gatewayen"
+      },
+      "apiTools": {
+        "title": "Verktøy og kjørings-API",
+        "description": "Kjør verktøy, bindinger og komposisjoner"
+      }
+    },
+    "selfHosting": {
+      "title": "Selvhosting",
+      "selfHostOverview": {
+        "title": "Oversikt",
+        "description": "Selvhostingalternativer og krav"
+      },
+      "dockerSetup": {
+        "title": "Docker-oppsett",
+        "description": "Distribuer med Docker Compose"
+      },
+      "configuration": {
+        "title": "Konfigurasjon",
+        "description": "Miljøvariabler og innstillinger"
+      },
+      "llmProviders": {
+        "title": "LLM-leverandører",
+        "description": "Konfigurer AI-bakenden din"
+      },
+      "customServers": {
+        "title": "Egendefinerte MCP-servere",
+        "description": "Legg til egne MCP-servere i Enterprise-instanser"
+      }
+    }
+  }
+}

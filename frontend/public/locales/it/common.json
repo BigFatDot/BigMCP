@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Servizi",
+    "compositions": "Composizioni",
+    "documentation": "Documentazione",
+    "signin": "Accedi",
+    "signup": "Registrati",
+    "startTrial": "Inizia la Prova Gratuita"
+  },
+  "menu": {
+    "account": "Impostazioni Account",
+    "subscription": "Abbonamento e Fatturazione",
+    "apiKeys": "Chiavi API",
+    "team": "Team",
+    "preferences": "Preferenze",
+    "signout": "Esci"
+  },
+  "buttons": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "create": "Crea",
+    "close": "Chiudi",
+    "confirm": "Conferma",
+    "back": "Indietro",
+    "next": "Avanti",
+    "submit": "Invia",
+    "loading": "Caricamento...",
+    "retry": "Riprova",
+    "copy": "Copia",
+    "copied": "Copiato!"
+  },
+  "status": {
+    "loading": "Caricamento...",
+    "saving": "Salvataggio...",
+    "error": "Errore",
+    "success": "Operazione riuscita"
+  },
+  "errors": {
+    "generic": "Si è verificato un errore",
+    "notFound": "Non trovato",
+    "unauthorized": "Non autorizzato",
+    "forbidden": "Accesso negato",
+    "networkError": "Errore di rete. Verifichi la sua connessione."
+  },
+  "trial": {
+    "badge": "Prova",
+    "daysLeft": "{{count}} giorno rimanente nella prova",
+    "daysLeft_plural": "{{count}} giorni rimanenti nella prova"
+  },
+  "empty": {
+    "noData": "Nessun dato disponibile",
+    "noResults": "Nessun risultato trovato"
+  }
+}

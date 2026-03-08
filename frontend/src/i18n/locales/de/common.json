@@ -1,0 +1,57 @@
+{
+  "nav": {
+    "marketplace": "Marketplace",
+    "services": "Dienste",
+    "compositions": "Compositions",
+    "documentation": "Dokumentation",
+    "signin": "Anmelden",
+    "signup": "Registrieren",
+    "startTrial": "Kostenlose Testversion starten"
+  },
+  "menu": {
+    "account": "Kontoeinstellungen",
+    "subscription": "Abonnement & Abrechnung",
+    "apiKeys": "API-Schlüssel",
+    "team": "Team",
+    "preferences": "Einstellungen",
+    "signout": "Abmelden"
+  },
+  "buttons": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "create": "Erstellen",
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "submit": "Absenden",
+    "loading": "Wird geladen...",
+    "retry": "Erneut versuchen",
+    "copy": "Kopieren",
+    "copied": "Kopiert!"
+  },
+  "status": {
+    "loading": "Wird geladen...",
+    "saving": "Wird gespeichert...",
+    "error": "Fehler",
+    "success": "Erfolgreich"
+  },
+  "errors": {
+    "generic": "Ein Fehler ist aufgetreten",
+    "notFound": "Nicht gefunden",
+    "unauthorized": "Nicht autorisiert",
+    "forbidden": "Zugriff verweigert",
+    "networkError": "Netzwerkfehler. Bitte überprüfen Sie Ihre Verbindung."
+  },
+  "trial": {
+    "badge": "Testversion",
+    "daysLeft": "Noch {{count}} Tag in der Testversion",
+    "daysLeft_plural": "Noch {{count}} Tage in der Testversion"
+  },
+  "empty": {
+    "noData": "Keine Daten verfügbar",
+    "noResults": "Keine Ergebnisse gefunden"
+  }
+}
