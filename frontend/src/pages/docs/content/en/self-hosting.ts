@@ -11,16 +11,10 @@ BigMCP can be self-hosted for full control over your data and infrastructure.
 ## Editions
 
 ### Community Edition (Free)
-- Full platform features
-- 1 user
+- All platform features included
+- Unlimited users and organizations
 - Choose your LLM provider
-- Open source (Elastic License 2.0)
-
-### Enterprise Edition
-- Unlimited users and teams
-- Full admin control
-- Priority support
-- Perpetual license
+- Open source (AGPLv3)
 
 ## Requirements
 

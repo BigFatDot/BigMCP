@@ -26,11 +26,8 @@ We automatically collect:
 - Device information
 - Usage statistics and analytics
 
-### 1.4 Payment Information
-For paid plans, payment processing is handled by **LemonSqueezy**. We do not store your credit card information. We only receive:
-- Transaction confirmation
-- Subscription status
-- Customer ID for billing association
+### 1.4 Self-Hosted Instances
+Self-hosted BigMCP instances store all data locally on your infrastructure. No data is sent to BigMCP servers unless you explicitly enable marketplace features.
 
 ## 2. How We Use Your Information
 
@@ -63,7 +60,6 @@ We use collected information to:
 We do **not** sell your personal information. We may share data with:
 
 ### 4.1 Service Providers
-- **LemonSqueezy**: Payment processing
 - **Email provider**: Transactional emails (account verification, password reset)
 
 ### 4.2 Legal Requirements

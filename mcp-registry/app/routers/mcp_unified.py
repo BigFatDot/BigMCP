@@ -35,7 +35,7 @@ from starlette.requests import ClientDisconnect
 
 from ..dependencies import get_registry
 from ..api.models import ToolInfo, ServerInfo
-from ..api.dependencies import get_current_user_api_key, get_current_user, get_current_user_optional
+from ..api.dependencies import get_current_user_api_key, get_current_user, get_current_user_optional, _resolve_organization
 from ..orchestration.tools import OrchestrationTools
 from ..core.user_server_pool import UserServerPool
 
@@ -64,6 +64,18 @@ registry = get_registry()
 mcp_sessions: Dict[str, Dict[str, Any]] = {}
 SESSION_TIMEOUT_SECONDS = 600  # 10 minutes
 KEEPALIVE_INTERVAL_SECONDS = 30
+
+# Pending notifications for Streamable HTTP POST clients (no persistent SSE session).
+# Maps org_id_str → True when tools changed. Drained on next authenticated POST
+# response when client sends Accept: text/event-stream (MCP 2025-03-26 §6.3.2).
+pending_org_notifications: Dict[str, bool] = {}
+
+# Track recently active users per org (last tools/list request timestamp).
+# Used by notify_org_tools_changed to trigger background refresh even for users
+# without an active SSE session (e.g. Claude Desktop, which closes SSE after init).
+# Maps org_id_str → { user_id_str → unix timestamp }
+org_active_users: Dict[str, Dict[str, float]] = {}
+ORG_ACTIVE_USER_TTL_SECONDS = 600  # 10 minutes — matches SESSION_TIMEOUT_SECONDS
 
 # Protocol version
 MCP_PROTOCOL_VERSION = "2025-03-26"
@@ -147,74 +159,101 @@ async def broadcast_tools_changed_for_user(user_id) -> int:
     return notified
 
 
-async def notify_org_tools_changed(org_id) -> int:
+async def notify_org_tools_changed(org_id, user_id=None) -> int:
     """
-    Notify all connected MCP clients in an organization that tools have changed.
+    Notify connected MCP clients that tools have changed.
 
-    Called after visibility changes (server or tool level) to ensure MCP clients
-    (Claude Desktop, etc.) get updated tool lists.
-
-    Strategy:
-    1. ALWAYS invalidate the Redis cache for the org — so any client (SSE or
-       Streamable HTTP POST) gets fresh tools on its next tools/list request.
-    2. For users with active SSE sessions: also schedule a background refresh
-       so the cache is warm before they re-list, and push tools/list_changed.
+    Called after visibility changes (server or tool level). Since Claude Desktop
+    does not react to notifications/tools/list_changed, we close SSE sessions
+    to force a full re-initialization (initialize → tools/list).
 
     Args:
         org_id: Organization UUID (or string) whose tools changed
+        user_id: Optional user UUID — if provided, only close that user's sessions.
+                 If None, close all sessions in the org.
 
     Returns:
-        Number of SSE users scheduled for background refresh
+        Number of SSE sessions closed
     """
     from uuid import UUID
     org_id_str = str(org_id)
     org_uuid = org_id if isinstance(org_id, UUID) else UUID(org_id_str)
+    user_id_str = str(user_id) if user_id else None
 
-    # Step 1: ALWAYS invalidate the org cache (works for all client types,
-    # including Streamable HTTP POST clients that have no SSE session).
+    # Step 1: Invalidate cache
     try:
         from ..services.user_tool_cache import get_user_tool_cache
         tool_cache = get_user_tool_cache()
-        invalidated = await tool_cache.invalidate_organization(org_uuid)
-        if invalidated:
-            logger.info(
-                f"notify_org_tools_changed: invalidated cache for {invalidated} "
-                f"user(s) in org {org_id_str}"
-            )
+        if user_id:
+            await tool_cache.invalidate(UUID(user_id_str))
+            logger.info(f"notify_org_tools_changed: invalidated cache for user {user_id_str}")
         else:
-            logger.debug(f"notify_org_tools_changed: no cache entries to invalidate for org {org_id_str}")
+            invalidated = await tool_cache.invalidate_organization(org_uuid)
+            if invalidated:
+                logger.info(
+                    f"notify_org_tools_changed: invalidated cache for {invalidated} "
+                    f"user(s) in org {org_id_str}"
+                )
     except Exception as e:
-        logger.warning(f"notify_org_tools_changed: cache invalidation failed for org {org_id_str}: {e}")
+        logger.warning(f"notify_org_tools_changed: cache invalidation failed: {e}")
 
-    # Step 2: Find SSE-connected users and trigger background refresh + notification
-    user_ids = set()
-    for session in mcp_sessions.values():
-        if str(session.get("organization_id")) == org_id_str:
-            user_id = session.get("user_id")
-            if user_id:
-                user_ids.add(user_id)
+    # Step 2: Close SSE sessions to force client re-initialization.
+    # Claude Desktop re-initializes (initialize → tools/list) when SSE drops.
+    closed_sessions = []
+    for session_id in list(mcp_sessions.keys()):
+        session = mcp_sessions.get(session_id)
+        if not session:
+            continue
+        if str(session.get("organization_id")) != org_id_str:
+            continue
+        if user_id_str and str(session.get("user_id")) != user_id_str:
+            continue
+        del mcp_sessions[session_id]
+        closed_sessions.append(session_id)
 
-    if not user_ids:
-        logger.debug(
-            f"notify_org_tools_changed: no active SSE sessions for org {org_id_str} "
-            f"(cache was still invalidated above)"
+    scope = f"user {user_id_str}" if user_id_str else f"org {org_id_str}"
+    if closed_sessions:
+        logger.info(
+            f"notify_org_tools_changed: closed {len(closed_sessions)} SSE session(s) "
+            f"for {scope} to force client re-initialization"
         )
-        return 0
+    else:
+        logger.debug(f"notify_org_tools_changed: no active SSE sessions for {scope}")
 
-    for user_id in user_ids:
-        user_uuid = user_id if isinstance(user_id, UUID) else UUID(str(user_id))
+    # Step 3: Schedule background refresh to warm cache + notify new SSE sessions.
+    # Claude Desktop sometimes just reopens SSE without re-initializing (no tools/list).
+    # The background refresh detects the tool change, updates the cache, and sends
+    # tools/list_changed to any newly created SSE sessions.
+    target_user_ids = set()
+    if user_id:
+        target_user_ids.add(UUID(user_id_str))
+    else:
+        # Collect all users in org from remaining sessions + recently active users
+        for session in mcp_sessions.values():
+            if str(session.get("organization_id")) == org_id_str:
+                uid = session.get("user_id")
+                if uid:
+                    target_user_ids.add(uid if isinstance(uid, UUID) else UUID(str(uid)))
+        cutoff = time.time() - ORG_ACTIVE_USER_TTL_SECONDS
+        for uid_str, last_active in list(org_active_users.get(org_id_str, {}).items()):
+            if last_active >= cutoff:
+                try:
+                    target_user_ids.add(UUID(uid_str))
+                except Exception:
+                    pass
+
+    for user_uuid in target_user_ids:
         asyncio.create_task(
-            gateway._background_refresh_tools(
-                user_uuid=user_uuid,
-                org_uuid=org_uuid
-            )
+            gateway._background_refresh_tools(user_uuid=user_uuid, org_uuid=org_uuid)
         )
 
-    logger.info(
-        f"notify_org_tools_changed: org {org_id_str} — "
-        f"scheduled background refresh for {len(user_ids)} SSE user(s)"
-    )
-    return len(user_ids)
+    if target_user_ids:
+        logger.info(
+            f"notify_org_tools_changed: scheduled background refresh for "
+            f"{len(target_user_ids)} user(s) in {scope}"
+        )
+
+    return len(closed_sessions)
 
 
 async def broadcast_resources_changed(org_id=None) -> int:
@@ -589,8 +628,16 @@ class MCPUnifiedGateway:
                         server_ids=server_ids
                     )
 
-                    # 4b. Notify this user's SSE sessions
-                    notified = await broadcast_tools_changed_for_user(user_uuid)
+                    # 4b. Close user's SSE sessions to force re-initialization.
+                    # Claude Desktop ignores notifications/tools/list_changed but
+                    # re-initializes (with fresh tools/list) when SSE drops.
+                    closed = 0
+                    user_id_str = str(user_uuid)
+                    for sid in list(mcp_sessions.keys()):
+                        s = mcp_sessions.get(sid)
+                        if s and str(s.get("user_id")) == user_id_str:
+                            del mcp_sessions[sid]
+                            closed += 1
 
                     added = fresh_names - cached_names
                     removed = cached_names - fresh_names
@@ -598,7 +645,7 @@ class MCPUnifiedGateway:
                         f"Background refresh for user {user_uuid}: "
                         f"tools changed ({len(cached_names)}→{len(fresh_names)}, "
                         f"+{len(added)} -{len(removed)}), "
-                        f"cache updated, {notified} session(s) notified"
+                        f"cache updated, {closed} SSE session(s) closed"
                     )
                 else:
                     # Tools unchanged — update cache timestamp but don't notify
@@ -679,6 +726,15 @@ class MCPUnifiedGateway:
                 import asyncio
                 user_uuid = UUID(str(user_id))
                 org_uuid = UUID(str(organization_id))
+
+                # Track this user as recently active in their org so that
+                # notify_org_tools_changed can trigger background refresh even
+                # when they have no active SSE session (e.g. Claude Desktop).
+                org_id_str_track = str(organization_id)
+                user_id_str_track = str(user_id)
+                if org_id_str_track not in org_active_users:
+                    org_active_users[org_id_str_track] = {}
+                org_active_users[org_id_str_track][user_id_str_track] = time.time()
 
                 # =====================================================================
                 # CACHE CHECK: Return cached tools instantly if available
@@ -2663,40 +2719,56 @@ gateway = MCPUnifiedGateway()
 @router.get("/sse")
 async def mcp_sse_endpoint(
     request: Request,
-    auth: tuple = Depends(get_current_user_api_key)
+    auth: tuple = Depends(get_current_user)
 ):
     """
-    Primary SSE endpoint for MCP protocol.
+    Primary SSE endpoint for MCP protocol (MCP 2025-03-26).
 
-    Requires: Valid MCPHub API Key in Authorization header
-    Format: Authorization: Bearer mcphub_sk_xxx
+    Accepts: MCPHub API Key (mcphub_sk_*) or OAuth JWT access token
+    Format: Authorization: Bearer <token>
 
-    Implements Server-Sent Events stream for real-time communication.
+    Implements Server-Sent Events stream for server→client notifications.
     Supports:
-    - Tool discovery
-    - Tool execution
-    - Resource management
+    - Tool discovery notifications (notifications/tools/list_changed)
     - Session management
+    - Keepalive pings
     """
-    api_key, user = auth
+    user, api_key = auth  # get_current_user returns (user, api_key|None)
     session_id = str(uuid.uuid4())
 
-    # Log authenticated connection
-    logger.info(f"Authenticated MCP connection - User: {user.email}, API Key: {api_key.name}, Session: {session_id}")
+    # Resolve organization_id for both API Key and OAuth JWT clients.
+    # API Key: organization is fixed by the key.
+    # OAuth JWT: extracted from token org_id claim, or single-org fallback.
+    # This mirrors the pattern used in handle_mcp_message for POST requests.
+    organization_id = None
+    if api_key:
+        organization_id = api_key.organization_id
+    else:
+        # OAuth client: use _resolve_organization (handles JWT org_id claim + single-org fallback)
+        try:
+            _, organization_id = _resolve_organization(request, user, None)
+        except HTTPException:
+            # Last-resort fallback: single membership (avoids rejecting valid single-org OAuth users)
+            if user.organization_memberships:
+                organization_id = user.organization_memberships[0].organization_id
+
+    auth_info = f"API Key: {api_key.name}" if api_key else "OAuth token"
+    logger.info(f"Authenticated MCP connection - User: {user.email}, {auth_info}, Session: {session_id}")
 
     async def event_generator() -> AsyncGenerator[Dict[str, Any], None]:
         """Generate SSE events for the client."""
 
-        # Create session with auth context
+        # Create session with auth context.
+        # api_key_id and tool_group_id are None for OAuth clients (no API key restriction).
         mcp_sessions[session_id] = {
             "created_at": time.time(),
             "last_activity": time.time(),
             "message_queue": asyncio.Queue(),
             "user_id": user.id,
-            "organization_id": api_key.organization_id,
-            "api_key_id": api_key.id,
+            "organization_id": organization_id,
+            "api_key_id": api_key.id if api_key else None,
             "user_email": user.email,
-            "tool_group_id": api_key.tool_group_id  # For filtering tools if restricted
+            "tool_group_id": api_key.tool_group_id if api_key else None  # None = all visible tools (OAuth)
         }
 
         logger.info(f"New SSE connection: {session_id}")
@@ -2928,6 +3000,50 @@ async def handle_mcp_message(request: Request, auth: Optional[tuple]):
         resp_headers = {}
         if session_id:
             resp_headers["Mcp-Session-Id"] = session_id
+
+        # MCP 2025-03-26 §6.3.2 Streamable HTTP: if the client accepts SSE on POST,
+        # we can send the JSON-RPC response AND any pending notifications in the same
+        # stream. Claude Desktop uses per-request short-lived SSE sessions, so this
+        # is the only reliable way to deliver tools/list_changed notifications to it.
+        accept_header = request.headers.get("accept", "")
+        logger.info(
+            f"POST /{method} — Accept: '{accept_header}' | "
+            f"pending_notification: {pending_org_notifications.get(str(organization_id), False)}"
+        )
+        if "text/event-stream" in accept_header and user and organization_id:
+            org_id_str = str(organization_id)
+            # Atomically drain the pending flag (asyncio single-threaded → no race)
+            has_pending_notification = pending_org_notifications.pop(org_id_str, False)
+
+            if has_pending_notification:
+                logger.info(
+                    f"Streamable HTTP SSE: delivering tools/list_changed inline with "
+                    f"{method} response for user {user.email} (org {org_id_str})"
+                )
+
+            async def _sse_stream(
+                _response=response,
+                _notification=has_pending_notification,
+                _method=method,
+                _org=org_id_str,
+                _user_email=user.email if user else "unknown",
+            ) -> AsyncGenerator:
+                # Event 1: the actual JSON-RPC response
+                yield {"event": "message", "data": json.dumps(_response)}
+                # Event 2 (conditional): pending tools/list_changed notification
+                if _notification:
+                    tools_changed = {
+                        "jsonrpc": "2.0",
+                        "method": "notifications/tools/list_changed"
+                    }
+                    yield {"event": "message", "data": json.dumps(tools_changed)}
+                    logger.debug(
+                        f"Streamable HTTP SSE: tools/list_changed delivered for "
+                        f"user {_user_email} (org {_org})"
+                    )
+
+            return EventSourceResponse(_sse_stream(), headers=resp_headers)
+
         return JSONResponse(response, headers=resp_headers)
 
     except json.JSONDecodeError:

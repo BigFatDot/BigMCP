@@ -98,18 +98,14 @@
         "features": "Lizenzierte Funktionen"
       },
       "community": {
-        "badge": "Community Edition",
-        "title": "Einzelbenutzer",
-        "subtitle": "Kostenlose selbst gehostete Edition mit allen Kernfunktionen",
+        "badge": "Open Source",
+        "title": "Selbst gehostet",
+        "subtitle": "Alle Funktionen enthalten, unbegrenzte Benutzer",
         "included": "Enthalten",
         "marketplaceAccess": "Marketplace-Zugriff",
         "mcpServerManagement": "MCP-Server-Verwaltung",
         "aiOrchestration": "KI-Orchestrierung",
-        "instanceAdmin": "Instanz-Administrator",
-        "upgradeTitle": "Auf Enterprise upgraden",
-        "upgradeSubtitle": "Unbegrenzte Benutzer, SSO, Team-Funktionen und vorrangiger Support.",
-        "oneTime": "einmalig",
-        "upgrade": "Upgraden"
+        "instanceAdmin": "Instanz-Administrator"
       }
     },
     "danger": {
@@ -123,19 +119,19 @@
     }
   },
   "subscription": {
-    "title": "Abonnement",
+    "title": "Edition",
     "titleLicense": "Lizenz",
-    "subtitle": "Verwalten Sie Ihr Abonnement und sehen Sie Ihre Nutzung",
+    "subtitle": "Ihre BigMCP-Edition und Nutzung",
     "subtitleEnterprise": "Informationen zu Ihrer Enterprise-Lizenz",
-    "subtitleCommunity": "Auf Enterprise upgraden für unbegrenzte Benutzer",
-    "currentPlan": "Aktueller Tarif",
-    "freeTier": "Kostenlose Testversion",
-    "individualPlan": "Einzelperson-Tarif",
-    "teamPlan": "Team-Tarif",
+    "subtitleCommunity": "Open Source — alle Funktionen enthalten",
+    "currentPlan": "Aktuelle Edition",
+    "freeTier": "Kostenlose Demo",
+    "individualPlan": "Demo-Plattform",
+    "teamPlan": "Demo-Plattform",
     "enterprisePlan": "Enterprise",
-    "trialEndsIn": "Testversion endet in {{days}} Tagen",
-    "activeSubscription": "Aktives Abonnement",
-    "noActiveSubscription": "Kein aktives Abonnement",
+    "trialEndsIn": "Demo endet in {{days}} Tagen",
+    "activeSubscription": "Aktive Demo",
+    "noActiveSubscription": "Demo abgelaufen — Self-Hosting für unbegrenzten Zugang bereitstellen",
     "cancelsAtPeriodEnd": "Wird am Ende der Laufzeit gekündigt",
     "status": {
       "active": "Aktiv",
@@ -154,14 +150,14 @@
       "workflows": "Workflows",
       "users": "Benutzer"
     },
-    "upgrade": "Tarif upgraden",
+    "upgrade": "Selbst gehostet bereitstellen",
     "upgradeTo": "Upgrade auf {{plan}}",
     "manage": "Abrechnung verwalten",
     "cancel": "Abonnement kündigen",
     "reactivate": "Abonnement reaktivieren",
-    "availablePlans": "Verfügbare Tarife",
-    "currentPlanBadge": "Aktueller Tarif",
-    "mostPopular": "Am beliebtesten",
+    "availablePlans": "Bereitstellungsoptionen",
+    "currentPlanBadge": "Aktuell",
+    "mostPopular": "Empfohlen",
     "creatingCheckout": "Checkout wird erstellt...",
     "paymentSuccess": "Zahlung erfolgreich! Ihr Abonnement ist jetzt aktiv.",
     "loading": "Wird geladen...",
@@ -200,9 +196,9 @@
       "perpetual": "unbefristet"
     },
     "community": {
-      "title": "Community Edition",
-      "singleUser": "Einzelbenutzer",
-      "subtitle": "Kostenlose selbst gehostete Edition mit allen Kernfunktionen",
+      "title": "Selbst gehostet",
+      "singleUser": "Alle Funktionen enthalten",
+      "subtitle": "Open Source, unbegrenzte Benutzer und Organisationen",
       "included": "Enthalten",
       "marketplaceAccess": "Marketplace-Zugriff",
       "mcpServerManagement": "MCP-Server-Verwaltung",
@@ -214,42 +210,42 @@
     },
     "plans": {
       "individual": {
-        "name": "Einzelperson",
-        "subtitle": "Cloud",
-        "period": "/Monat",
+        "name": "Demo",
+        "subtitle": "bigmcp.cloud",
+        "period": "30 Tage",
         "features": [
-          "Unbegrenzte MCP-Server",
+          "Alle Funktionen enthalten",
           "KI-gestützte Orchestrierung",
           "Semantische Suche",
-          "Unbegrenzte Compositions",
-          "Verwaltetes LLM inklusive"
+          "180+ Marketplace-Server",
+          "Keine Installation erforderlich"
         ]
       },
       "team": {
-        "name": "Team",
-        "subtitle": "Cloud",
-        "period": "/Benutzer/Monat",
+        "name": "Selbst gehostet",
+        "subtitle": "Ihre Infrastruktur",
+        "period": "für immer (AGPLv3)",
         "features": [
-          "Alles aus dem Einzelperson-Tarif",
-          "Team-Zusammenarbeit",
-          "Geteilte Credentials",
-          "Rollenbasierte Zugriffskontrolle",
-          "Erweiterte Audit-Logs"
+          "Alles — ohne Limits",
+          "Unbegrenzte Benutzer und Organisationen",
+          "Eigene MCP-Server-Registrierung",
+          "Teamspezifische API-Schlüssel",
+          "Ihre Daten, Ihre Kontrolle"
         ]
       },
       "enterprise": {
-        "name": "Enterprise",
-        "subtitle": "Selbst gehostet",
-        "period": "einmalig",
+        "name": "Selbst gehostet für Organisationen",
+        "subtitle": "Open Source",
+        "period": "AGPLv3",
         "features": [
-          "Unbegrenzte Benutzer",
-          "SSO / SAML-Authentifizierung (demnächst)",
-          "Vollständige Audit-Logs",
-          "Individuelles Branding",
-          "Vorrangiger Support",
-          "Dedizierte Infrastruktur",
-          "API-Zugriff",
-          "Unbefristete Lizenz"
+          "Unbegrenzte Benutzer und Organisationen",
+          "Tool-Gruppen mit spezifischen API-Schlüsseln",
+          "Selektive Dienstfreigabe",
+          "Vollständige Audit-Logs und Compliance",
+          "Individuelles Branding (demnächst)",
+          "Vollständige Administratorkontrolle",
+          "Ihre Wahl des LLM",
+          "Docker-Deployment"
         ]
       }
     }
@@ -354,11 +350,11 @@
     "visibleToMembers": "Für Mitglieder sichtbar",
     "adminOnly": "Nur für Administratoren",
     "server": "Server",
-    "communityTitle": "Team-Funktionen nicht verfügbar",
-    "communityDescription": "Die Community Edition ist auf einen einzelnen Benutzer beschränkt. Upgraden Sie auf Enterprise für unbegrenzte Team-Zusammenarbeit mit rollenbasierter Zugriffskontrolle, geteilten Credentials und mehr.",
+    "communityTitle": "Teamverwaltung",
+    "communityDescription": "Verwalten Sie Ihre Teammitglieder, Rollen und gemeinsame Anmeldedaten.",
     "viewEnterprisePlans": "Enterprise-Tarife ansehen →",
-    "upgradeToTeam": "Auf Team-Tarif für Zusammenarbeit upgraden",
-    "individualPlanDescription": "Der Einzelperson-Tarif ist perfekt für Einzelarbeit, aber Sie können keine Teammitglieder einladen. Upgraden Sie auf Team für unbegrenzte Plätze für €4.99/Monat + €4.99/Benutzer/Monat.",
+    "upgradeToTeam": "Selbst gehostet bereitstellen für Team-Zusammenarbeit",
+    "individualPlanDescription": "Die Demo-Plattform enthält alle Funktionen kostenlos. Für den Produktiveinsatz mit Teams deployen Sie BigMCP auf Ihrer eigenen Infrastruktur.",
     "teamPlanIncludes": "Team-Tarif beinhaltet:",
     "teamFeatures": {
       "unlimitedMembers": "Unbegrenzte Teammitglieder",
@@ -367,11 +363,11 @@
       "teamInvitations": "Team-Einladungen per E-Mail",
       "allIndividualFeatures": "Alle Funktionen des Einzelperson-Tarifs"
     },
-    "upgradeToTeamButton": "Auf Team upgraden →",
+    "upgradeToTeamButton": "Selbst gehostet bereitstellen →",
     "billingTracker": {
       "title": "Team-Tarif - Unbegrenzte Plätze",
       "currentlyBilling": "Aktuell wird abgerechnet für",
-      "atRate": "zu €4.99/Benutzer/Monat",
+      "atRate": "kostenlos, unbegrenzt",
       "perMonth": "pro Monat"
     },
     "credentialVisibilityUpdated": "Credential-Sichtbarkeit aktualisiert",

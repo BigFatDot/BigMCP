@@ -98,18 +98,14 @@
         "features": "Recursos Licenciados"
       },
       "community": {
-        "badge": "Edição Community",
-        "title": "Usuário Único",
-        "subtitle": "Edição gratuita auto-hospedada com todos os recursos essenciais",
+        "badge": "Open Source",
+        "title": "Auto-hospedado",
+        "subtitle": "Todas as funcionalidades incluídas, utilizadores ilimitados",
         "included": "Incluído",
         "marketplaceAccess": "Acesso ao marketplace",
         "mcpServerManagement": "Gerenciamento de servidores MCP",
         "aiOrchestration": "Orquestração de IA",
-        "instanceAdmin": "Administrador da Instância",
-        "upgradeTitle": "Fazer Upgrade para Enterprise",
-        "upgradeSubtitle": "Usuários ilimitados, SSO, recursos de equipe e suporte prioritário.",
-        "oneTime": "pagamento único",
-        "upgrade": "Fazer Upgrade"
+        "instanceAdmin": "Administrador da Instância"
       }
     },
     "danger": {
@@ -123,19 +119,19 @@
     }
   },
   "subscription": {
-    "title": "Assinatura",
+    "title": "Edição",
     "titleLicense": "Licença",
-    "subtitle": "Gerencie sua assinatura e visualize o uso",
+    "subtitle": "Sua edição BigMCP e uso",
     "subtitleEnterprise": "Informações da sua licença Enterprise",
-    "subtitleCommunity": "Faça upgrade para Enterprise para usuários ilimitados",
-    "currentPlan": "Plano Atual",
-    "freeTier": "Avaliação Gratuita",
-    "individualPlan": "Plano Individual",
-    "teamPlan": "Plano Equipe",
+    "subtitleCommunity": "Open source — todas as funcionalidades incluídas",
+    "currentPlan": "Edição Atual",
+    "freeTier": "Demo Gratuita",
+    "individualPlan": "Plataforma Demo",
+    "teamPlan": "Plataforma Demo",
     "enterprisePlan": "Enterprise",
-    "trialEndsIn": "A avaliação termina em {{days}} dias",
-    "activeSubscription": "Assinatura ativa",
-    "noActiveSubscription": "Sem assinatura ativa",
+    "trialEndsIn": "A demo termina em {{days}} dias",
+    "activeSubscription": "Demo ativa",
+    "noActiveSubscription": "Demo expirada — implemente auto-hospedado para acesso ilimitado",
     "cancelsAtPeriodEnd": "Cancela no fim do período",
     "status": {
       "active": "Ativo",
@@ -154,14 +150,14 @@
       "workflows": "workflows",
       "users": "usuários"
     },
-    "upgrade": "Fazer Upgrade do Plano",
+    "upgrade": "Implantar Auto-Hospedado",
     "upgradeTo": "Fazer Upgrade para {{plan}}",
     "manage": "Gerenciar Cobrança",
     "cancel": "Cancelar Assinatura",
     "reactivate": "Reativar Assinatura",
-    "availablePlans": "Planos Disponíveis",
-    "currentPlanBadge": "Plano Atual",
-    "mostPopular": "Mais Popular",
+    "availablePlans": "Opções de Implantação",
+    "currentPlanBadge": "Atual",
+    "mostPopular": "Recomendado",
     "creatingCheckout": "Criando checkout...",
     "paymentSuccess": "Pagamento realizado com sucesso! Sua assinatura está ativa.",
     "loading": "Carregando...",
@@ -200,56 +196,53 @@
       "perpetual": "perpétua"
     },
     "community": {
-      "title": "Edição Community",
-      "singleUser": "Usuário Único",
-      "subtitle": "Edição gratuita auto-hospedada com todos os recursos essenciais",
+      "title": "Auto-hospedado",
+      "singleUser": "Todas as Funcionalidades Incluídas",
+      "subtitle": "Open source, utilizadores ilimitados e organizações",
       "included": "Incluído",
       "marketplaceAccess": "Acesso ao marketplace",
       "mcpServerManagement": "Gerenciamento de servidores MCP",
       "aiOrchestration": "Orquestração de IA",
-      "semanticSearch": "Busca semântica",
-      "upgradeTitle": "Fazer Upgrade para Enterprise",
-      "upgradeSubtitle": "Usuários ilimitados, SSO, recursos de equipe e suporte prioritário.",
-      "purchaseNote": "Compre no BigMCP Cloud, depois configure seu LICENSE_KEY para ativar."
+      "semanticSearch": "Busca semântica"
     },
     "plans": {
       "individual": {
-        "name": "Individual",
-        "subtitle": "Cloud",
-        "period": "/mês",
+        "name": "Demo",
+        "subtitle": "bigmcp.cloud",
+        "period": "30 dias",
         "features": [
-          "Servidores MCP ilimitados",
+          "Todas as funcionalidades incluídas",
           "Orquestração com IA",
           "Busca semântica",
-          "Composições ilimitadas",
-          "LLM gerenciado incluído"
+          "180+ servidores no marketplace",
+          "Sem instalação necessária"
         ]
       },
       "team": {
-        "name": "Equipe",
-        "subtitle": "Cloud",
-        "period": "/usuário/mês",
+        "name": "Auto-Hospedado",
+        "subtitle": "Sua infraestrutura",
+        "period": "para sempre (AGPLv3)",
         "features": [
-          "Tudo do plano Individual",
-          "Colaboração em equipe",
-          "Credenciais compartilhadas",
-          "Controle de acesso por função",
-          "Logs de auditoria avançados"
+          "Tudo — sem limites",
+          "Usuários e organizações ilimitados",
+          "Registro personalizado de servidores MCP",
+          "Chaves API por equipe",
+          "Seus dados, seu controle"
         ]
       },
       "enterprise": {
-        "name": "Enterprise",
-        "subtitle": "Auto-Hospedado",
-        "period": "pagamento único",
+        "name": "Auto-Hospedado para Organizações",
+        "subtitle": "Open Source",
+        "period": "AGPLv3",
         "features": [
-          "Usuários ilimitados",
-          "Autenticação SSO / SAML (Em breve)",
-          "Logs de auditoria completos",
-          "Identidade visual personalizada",
-          "Suporte prioritário",
-          "Infraestrutura dedicada",
-          "Acesso à API",
-          "Licença perpétua"
+          "Usuários e organizações ilimitados",
+          "Grupos de ferramentas com chaves API específicas",
+          "Exposição seletiva de serviços",
+          "Logs de auditoria completos e conformidade",
+          "Identidade visual personalizada (em breve)",
+          "Controle administrativo completo",
+          "Sua escolha de LLM",
+          "Implantação Docker"
         ]
       }
     }
@@ -354,11 +347,11 @@
     "visibleToMembers": "Visível para membros",
     "adminOnly": "Somente administradores",
     "server": "Servidor",
-    "communityTitle": "Recursos de Equipe Não Disponíveis",
-    "communityDescription": "A edição Community é limitada a um único usuário. Faça upgrade para Enterprise para colaboração ilimitada em equipe com controle de acesso por função, credenciais compartilhadas e muito mais.",
+    "communityTitle": "Gestão de Equipe",
+    "communityDescription": "Gerencie os membros da sua equipe, funções e credenciais compartilhadas.",
     "viewEnterprisePlans": "Ver Planos Enterprise →",
-    "upgradeToTeam": "Fazer Upgrade para Equipe e Colaborar",
-    "individualPlanDescription": "O plano Individual é perfeito para trabalho solo, mas você não pode convidar membros da equipe. Faça upgrade para Equipe com vagas ilimitadas por €4,99/mês + €4,99/usuário/mês.",
+    "upgradeToTeam": "Implante auto-hospedado para colaboração em equipe",
+    "individualPlanDescription": "A plataforma de demonstração inclui todas as funcionalidades gratuitamente. Para uso em produção com equipas, implemente o BigMCP na sua própria infraestrutura.",
     "teamPlanIncludes": "O Plano Equipe Inclui:",
     "teamFeatures": {
       "unlimitedMembers": "Membros de equipe ilimitados",
@@ -367,11 +360,11 @@
       "teamInvitations": "Convites para equipe por e-mail",
       "allIndividualFeatures": "Todos os recursos do plano Individual"
     },
-    "upgradeToTeamButton": "Fazer Upgrade para Equipe →",
+    "upgradeToTeamButton": "Implantar Auto-Hospedado →",
     "billingTracker": {
       "title": "Plano Equipe - Vagas Ilimitadas",
       "currentlyBilling": "Cobrança atual para",
-      "atRate": "a €4,99/usuário/mês",
+      "atRate": "gratuito, ilimitado",
       "perMonth": "por mês"
     },
     "credentialVisibilityUpdated": "Visibilidade da credencial atualizada",

@@ -2,17 +2,17 @@
   "nav": {
     "features": "Funcții",
     "howItWorks": "Cum funcționează",
-    "pricing": "Prețuri",
+    "pricing": "Deployment",
     "login": "Conectare",
-    "getStarted": "Începe"
+    "getStarted": "Încearcă Demo"
   },
   "hero": {
-    "badge": "Strat de guvernanță pentru MCP",
+    "badge": "Gateway MCP Open Source",
     "title": "Un singur",
     "titleHighlight": "Big MCP",
     "titleEnd": "pentru toate instrumentele tale",
-    "subtitle": "Centralizează, guvernează și orchestrează instrumentele Model Context Protocol într-o platformă unificată. Accesibil de oriunde—desktop sau mobil.",
-    "cta": "Începe perioada de probă gratuită",
+    "subtitle": "Înregistrează, guvernează și expune serviciile MCP echipelor tale. Open source, auto-găzduit, utilizatori nelimitați.",
+    "cta": "Încearcă Demo",
     "ctaSecondary": "Vezi cum funcționează"
   },
   "mobileDemo": {
@@ -124,78 +124,78 @@
     ]
   },
   "pricing": {
-    "badge": "Prețuri",
-    "title": "Prețuri simple și transparente",
-    "subtitle": "Cloud gestionat sau self-hosted—tu alegi",
-    "cloudLabel": "☁️ Cloud = Noi găzduim, tu folosești",
-    "selfHostedLabel": "💻 Self-hosted = Tu deții totul",
+    "badge": "Open Source",
+    "title": "Gratuit. Pentru Totdeauna. Pentru Toți.",
+    "subtitle": "BigMCP este open source sub licență AGPLv3. Auto-găzduire gratuită, utilizatori nelimitați, toate funcționalitățile incluse.",
+    "cloudLabel": "☁️ Demo = Încearcă fără să instalezi",
+    "selfHostedLabel": "💻 Auto-găzduit = Tu deții totul",
     "individual": {
-      "title": "Individual",
+      "title": "Platformă Demo",
       "subtitle": "Cloud",
-      "price": "€4,99",
-      "period": "/lună",
+      "price": "Gratuit",
+      "period": "",
       "features": [
-        "1 utilizator",
+        "Toate funcționalitățile incluse",
         "Servere MCP nelimitate",
         "Orchestrare AI",
         "Căutare semantică",
         "Compoziții și fluxuri de lucru",
         "LLM gestionat inclus"
       ],
-      "cta": "Începe perioada de probă gratuită"
+      "cta": "Încearcă Demo"
     },
     "team": {
-      "title": "Echipă",
-      "subtitle": "Cloud",
-      "price": "€4,99",
-      "period": "/lună + €4,99/utilizator",
-      "badge": "Cel mai popular",
+      "title": "Auto-găzduit",
+      "subtitle": "Recomandat",
+      "price": "Gratuit",
+      "period": "",
+      "badge": "Recomandat",
       "features": [
-        "Tot ce include Individual",
-        "Până la 20 de utilizatori",
+        "Toate funcționalitățile incluse",
+        "Utilizatori și echipe nelimitate",
         "Organizații și RBAC",
         "Credențiale partajate",
         "Jurnale de audit avansate"
       ],
-      "cta": "Începe perioada de probă gratuită"
+      "cta": "Începe"
     },
     "enterprise": {
-      "title": "Enterprise",
-      "subtitle": "Self-hosted",
+      "title": "Pentru Organizații",
+      "subtitle": "Auto-găzduit",
       "price": "Gratuit",
-      "period": "ofertă de lansare • 3 luni",
+      "period": "",
       "features": [
-        "Tot ce include Echipă",
+        "Toate funcționalitățile incluse",
         "Utilizatori și echipe nelimitate",
         "Control admin complet",
         "Pool central de servere MCP",
         "SSO (SAML, OIDC) - în curând",
         "Audit avansat și conformitate",
         "LLM-ul tău ales",
-        "Licență perpetuă"
+        "Deployment Docker / Kubernetes"
       ],
-      "cta": "Obține Enterprise"
+      "cta": "Începe"
     },
     "community": {
       "title": "Community",
-      "subtitle": "Self-hosted",
+      "subtitle": "Auto-găzduit",
       "price": "Gratuit",
       "period": "",
       "features": [
-        "Tot ce include Individual",
-        "Doar 1 utilizator",
+        "Toate funcționalitățile incluse",
+        "Utilizatori nelimitați",
         "LLM-ul tău ales",
-        "Implementare Docker"
+        "Deployment Docker"
       ],
       "cta": "Începe"
     },
     "comingSoon": "În curând",
-    "note": "Edițiile Cloud sunt disponibile acum cu LLM gestionat inclus. Edițiile self-hosted îți permit să alegi furnizorul de LLM."
+    "note": "BigMCP este licențiat sub AGPLv3. Codul sursă este disponibil pe GitHub. Auto-găzduire gratuită cu utilizatori nelimitați și toate funcționalitățile."
   },
   "finalCta": {
     "title": "Ești pregătit să-ți guvernezi ecosistemul MCP?",
-    "subtitle": "Începe perioada de probă gratuită astăzi. Nu este necesar un card de credit.",
-    "cta": "Începe perioada de probă gratuită"
+    "subtitle": "Open source, gratuit pentru totdeauna. Auto-găzduiește sau încearcă platforma noastră demo.",
+    "cta": "Încearcă Demo"
   },
   "footer": {
     "tagline": "Stratul de guvernanță pentru instrumentele tale Model Context Protocol. Centralizează, orchestrează și controlează-ți ecosistemul MCP.",

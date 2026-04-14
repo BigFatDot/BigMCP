@@ -6,11 +6,11 @@
     "documentation": "Documentație",
     "signin": "Conectare",
     "signup": "Înregistrare",
-    "startTrial": "Începe perioada de probă gratuită"
+    "startTrial": "Începe"
   },
   "menu": {
     "account": "Setări cont",
-    "subscription": "Abonament și facturare",
+    "subscription": "Ediție",
     "apiKeys": "Chei API",
     "team": "Echipă",
     "preferences": "Preferințe",

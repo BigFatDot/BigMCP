@@ -20,14 +20,17 @@ class TestMCPGatewayAuthentication:
         assert response.status_code == 401
 
     @pytest.mark.asyncio
-    async def test_mcp_gateway_rejects_jwt_token(self, client: AsyncClient, auth_headers: dict):
-        """Test that MCP Gateway rejects JWT tokens (requires API key)."""
-        # MCP Gateway should only accept API keys, not JWT tokens
+    async def test_mcp_gateway_accepts_oauth_jwt_token(self, client: AsyncClient, auth_headers: dict):
+        """Test that MCP Gateway accepts OAuth JWT tokens (MCP 2025-03-26 compliance).
+
+        Per MCP 2025-03-26 spec, GET /mcp/sse must support OAuth 2.0 Bearer tokens
+        in addition to API keys, enabling clients like Claude Desktop to receive
+        real-time tool change notifications via SSE.
+        """
         response = await client.get("/mcp/sse", headers=auth_headers)
 
-        # Might be 401 (unauthorized) or 403 (forbidden) depending on implementation
-        # The point is JWT tokens shouldn't work for MCP Gateway
-        assert response.status_code in [401, 403]
+        # JWT OAuth tokens are now accepted for SSE connections
+        assert response.status_code == 200
 
     @pytest.mark.asyncio
     async def test_mcp_gateway_accepts_valid_api_key(self, client: AsyncClient, api_key_headers: dict):

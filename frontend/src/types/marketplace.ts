@@ -2,7 +2,7 @@
  * Marketplace and MCP Server Type Definitions
  */
 
-export type DeploymentType = 'cloud' | 'self_hosted_community' | 'self_hosted_enterprise'
+export type DeploymentType = 'cloud' | 'self_hosted' | 'self_hosted_community' | 'self_hosted_enterprise'
 
 /**
  * Tool preview from static analysis

@@ -98,18 +98,14 @@
         "features": "Lisensierte funksjoner"
       },
       "community": {
-        "badge": "Community-utgave",
-        "title": "Enkeltbruker",
-        "subtitle": "Gratis selvhostet utgave med alle kjernefunksjoner",
+        "badge": "Open Source",
+        "title": "Selvhostet",
+        "subtitle": "Alle funksjoner inkludert, ubegrensede brukere",
         "included": "Inkludert",
         "marketplaceAccess": "Markedsplasstilgang",
         "mcpServerManagement": "MCP-serveradministrasjon",
         "aiOrchestration": "AI-orkestrering",
-        "instanceAdmin": "Instansadministrator",
-        "upgradeTitle": "Oppgrader til Enterprise",
-        "upgradeSubtitle": "Ubegrensede brukere, SSO, teamfunksjoner og prioritert støtte.",
-        "oneTime": "engangsbetaling",
-        "upgrade": "Oppgrader"
+        "instanceAdmin": "Instansadministrator"
       }
     },
     "danger": {
@@ -123,19 +119,19 @@
     }
   },
   "subscription": {
-    "title": "Abonnement",
+    "title": "Utgave",
     "titleLicense": "Lisens",
-    "subtitle": "Administrer abonnementet ditt og se bruk",
+    "subtitle": "Din BigMCP-utgave og bruk",
     "subtitleEnterprise": "Enterprise-lisensinformasjonen din",
-    "subtitleCommunity": "Oppgrader til Enterprise for ubegrensede brukere",
-    "currentPlan": "Nåværende plan",
-    "freeTier": "Gratis prøveperiode",
-    "individualPlan": "Individuell plan",
-    "teamPlan": "Teamplan",
+    "subtitleCommunity": "Open source — alle funksjoner inkludert",
+    "currentPlan": "Nåværende utgave",
+    "freeTier": "Gratis demo",
+    "individualPlan": "Demoplattform",
+    "teamPlan": "Demoplattform",
     "enterprisePlan": "Enterprise",
-    "trialEndsIn": "Prøveperioden avsluttes om {{days}} dager",
-    "activeSubscription": "Aktivt abonnement",
-    "noActiveSubscription": "Ingen aktiv abonnement",
+    "trialEndsIn": "Demoen avsluttes om {{days}} dager",
+    "activeSubscription": "Aktiv demo",
+    "noActiveSubscription": "Demo utløpt — deploy selvhostet for ubegrenset tilgang",
     "cancelsAtPeriodEnd": "Avsluttes ved periodeslutt",
     "status": {
       "active": "Aktiv",
@@ -154,14 +150,14 @@
       "workflows": "arbeidsflyter",
       "users": "brukere"
     },
-    "upgrade": "Oppgrader plan",
+    "upgrade": "Deploy selvhostet",
     "upgradeTo": "Oppgrader til {{plan}}",
     "manage": "Administrer fakturering",
     "cancel": "Kanseller abonnement",
     "reactivate": "Reaktiver abonnement",
-    "availablePlans": "Tilgjengelige planer",
-    "currentPlanBadge": "Nåværende plan",
-    "mostPopular": "Mest populær",
+    "availablePlans": "Distribusjonsalternativer",
+    "currentPlanBadge": "Nåværende",
+    "mostPopular": "Anbefalt",
     "creatingCheckout": "Oppretter kasse...",
     "paymentSuccess": "Betaling vellykket! Abonnementet ditt er nå aktivt.",
     "loading": "Laster...",
@@ -200,56 +196,53 @@
       "perpetual": "evigvarende"
     },
     "community": {
-      "title": "Community-utgave",
-      "singleUser": "Enkeltbruker",
-      "subtitle": "Gratis selvhostet utgave med alle kjernefunksjoner",
+      "title": "Selvhostet",
+      "singleUser": "Alle funksjoner inkludert",
+      "subtitle": "Open source, ubegrensede brukere og organisasjoner",
       "included": "Inkludert",
       "marketplaceAccess": "Markedsplasstilgang",
       "mcpServerManagement": "MCP-serveradministrasjon",
       "aiOrchestration": "AI-orkestrering",
-      "semanticSearch": "Semantisk søk",
-      "upgradeTitle": "Oppgrader til Enterprise",
-      "upgradeSubtitle": "Ubegrensede brukere, SSO, teamfunksjoner og prioritert støtte.",
-      "purchaseNote": "Kjøp på BigMCP Cloud, og konfigurer deretter LICENSE_KEY for å aktivere."
+      "semanticSearch": "Semantisk søk"
     },
     "plans": {
       "individual": {
-        "name": "Individuell",
-        "subtitle": "Cloud",
-        "period": "/måned",
+        "name": "Demo",
+        "subtitle": "bigmcp.cloud",
+        "period": "30 dager",
         "features": [
-          "Ubegrensede MCP-servere",
+          "Alle funksjoner inkludert",
           "AI-drevet orkestrering",
           "Semantisk søk",
-          "Ubegrensede komposisjoner",
-          "Administrert LLM inkludert"
+          "180+ marketplace-servere",
+          "Ingen installasjon nødvendig"
         ]
       },
       "team": {
-        "name": "Team",
-        "subtitle": "Cloud",
-        "period": "/bruker/måned",
+        "name": "Selvhostet",
+        "subtitle": "Din infrastruktur",
+        "period": "for alltid (AGPLv3)",
         "features": [
-          "Alt i Individuell",
-          "Teamsamarbeid",
-          "Delte legitimasjoner",
-          "Rollebasert tilgangskontroll",
-          "Avanserte revisionslogger"
+          "Alt — uten begrensninger",
+          "Ubegrensede brukere og organisasjoner",
+          "Tilpasset MCP-serverregistrering",
+          "Teamspesifikke API-nøkler",
+          "Dine data, din kontroll"
         ]
       },
       "enterprise": {
-        "name": "Enterprise",
-        "subtitle": "Selvhostet",
-        "period": "engangsbetaling",
+        "name": "Selvhostet for organisasjoner",
+        "subtitle": "Open Source",
+        "period": "AGPLv3",
         "features": [
-          "Ubegrensede brukere",
-          "SSO / SAML-autentisering (kommer snart)",
-          "Fullstendige revisionslogger",
-          "Egendefinert merkevarebygging",
-          "Prioritert støtte",
-          "Dedikert infrastruktur",
-          "API-tilgang",
-          "Evigvarende lisens"
+          "Ubegrensede brukere og organisasjoner",
+          "Verktøygrupper med spesifikke API-nøkler",
+          "Selektiv tjeneste-eksponering",
+          "Fullstendige revisjonslogger og samsvar",
+          "Egendefinert merkevarebygging (kommer snart)",
+          "Full administratorkontroll",
+          "Ditt valg av LLM",
+          "Docker-distribusjon"
         ]
       }
     }
@@ -354,11 +347,11 @@
     "visibleToMembers": "Synlig for medlemmer",
     "adminOnly": "Kun admin",
     "server": "Server",
-    "communityTitle": "Teamfunksjoner ikke tilgjengelig",
-    "communityDescription": "Community-utgaven er begrenset til enkeltbruker. Oppgrader til Enterprise for ubegrenset teamsamarbeid med rollebasert tilgangskontroll, delte legitimasjoner og mer.",
+    "communityTitle": "Teamadministrasjon",
+    "communityDescription": "Administrer teammedlemmene dine, roller og delte legitimasjoner.",
     "viewEnterprisePlans": "Se Enterprise-planer →",
-    "upgradeToTeam": "Oppgrader til Team for samarbeid",
-    "individualPlanDescription": "Individuell plan er perfekt for soloarbeid, men du kan ikke invitere teammedlemmer. Oppgrader til Team for ubegrensede plasser til €4,99/måned + €4,99/bruker/måned.",
+    "upgradeToTeam": "Deploy selvhostet for teamsamarbeid",
+    "individualPlanDescription": "Demoplattformen inkluderer alle funksjoner gratis. For produksjonsbruk med team, deploy BigMCP på din egen infrastruktur.",
     "teamPlanIncludes": "Teamplan inkluderer:",
     "teamFeatures": {
       "unlimitedMembers": "Ubegrensede teammedlemmer",
@@ -367,11 +360,11 @@
       "teamInvitations": "Teaminvitasjoner via e-post",
       "allIndividualFeatures": "Alle funksjoner i Individuell-planen"
     },
-    "upgradeToTeamButton": "Oppgrader til Team →",
+    "upgradeToTeamButton": "Deploy selvhostet →",
     "billingTracker": {
       "title": "Teamplan - Ubegrensede plasser",
       "currentlyBilling": "Fakturerer for øyeblikket for",
-      "atRate": "til €4,99/bruker/måned",
+      "atRate": "gratis, ubegrenset",
       "perMonth": "per måned"
     },
     "credentialVisibilityUpdated": "Legitimasjonssynlighet oppdatert",

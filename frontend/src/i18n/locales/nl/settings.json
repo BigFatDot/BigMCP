@@ -98,18 +98,14 @@
         "features": "Gelicentieerde functies"
       },
       "community": {
-        "badge": "Community-editie",
-        "title": "Enkele gebruiker",
-        "subtitle": "Gratis zelfgehoste editie met alle kernfuncties",
+        "badge": "Open Source",
+        "title": "Zelf gehost",
+        "subtitle": "Alle functies inbegrepen, onbeperkt aantal gebruikers",
         "included": "Inbegrepen",
         "marketplaceAccess": "Marketplace-toegang",
         "mcpServerManagement": "MCP-serverbeheer",
         "aiOrchestration": "AI-orkestratie",
-        "instanceAdmin": "Instantiebeheerder",
-        "upgradeTitle": "Upgraden naar Enterprise",
-        "upgradeSubtitle": "Onbeperkte gebruikers, SSO, teamfuncties en prioriteitssupport.",
-        "oneTime": "eenmalig",
-        "upgrade": "Upgraden"
+        "instanceAdmin": "Instantiebeheerder"
       }
     },
     "danger": {
@@ -123,19 +119,19 @@
     }
   },
   "subscription": {
-    "title": "Abonnement",
+    "title": "Editie",
     "titleLicense": "Licentie",
-    "subtitle": "Beheer je abonnement en bekijk het gebruik",
+    "subtitle": "Je BigMCP-editie en gebruik",
     "subtitleEnterprise": "Informatie over je Enterprise-licentie",
-    "subtitleCommunity": "Upgraden naar Enterprise voor onbeperkte gebruikers",
-    "currentPlan": "Huidig abonnement",
-    "freeTier": "Gratis proefperiode",
-    "individualPlan": "Individueel abonnement",
-    "teamPlan": "Teamabonnement",
+    "subtitleCommunity": "Open source — alle functies inbegrepen",
+    "currentPlan": "Huidige editie",
+    "freeTier": "Gratis demo",
+    "individualPlan": "Demoplatform",
+    "teamPlan": "Demoplatform",
     "enterprisePlan": "Enterprise",
-    "trialEndsIn": "Proefperiode eindigt over {{days}} dagen",
-    "activeSubscription": "Actief abonnement",
-    "noActiveSubscription": "Geen actief abonnement",
+    "trialEndsIn": "Demo eindigt over {{days}} dagen",
+    "activeSubscription": "Actieve demo",
+    "noActiveSubscription": "Demo verlopen — deploy zelf gehost voor onbeperkte toegang",
     "cancelsAtPeriodEnd": "Wordt geannuleerd aan het einde van de periode",
     "status": {
       "active": "Actief",
@@ -154,14 +150,14 @@
       "workflows": "workflows",
       "users": "gebruikers"
     },
-    "upgrade": "Abonnement upgraden",
+    "upgrade": "Zelf gehost deployen",
     "upgradeTo": "Upgraden naar {{plan}}",
     "manage": "Facturering beheren",
     "cancel": "Abonnement opzeggen",
     "reactivate": "Abonnement heractiveren",
-    "availablePlans": "Beschikbare abonnementen",
-    "currentPlanBadge": "Huidig abonnement",
-    "mostPopular": "Meest populair",
+    "availablePlans": "Implementatieopties",
+    "currentPlanBadge": "Huidig",
+    "mostPopular": "Aanbevolen",
     "creatingCheckout": "Afrekenen aanmaken...",
     "paymentSuccess": "Betaling geslaagd! Je abonnement is nu actief.",
     "loading": "Laden...",
@@ -200,56 +196,53 @@
       "perpetual": "eeuwigdurend"
     },
     "community": {
-      "title": "Community-editie",
-      "singleUser": "Enkele gebruiker",
-      "subtitle": "Gratis zelfgehoste editie met alle kernfuncties",
+      "title": "Zelf gehost",
+      "singleUser": "Alle functies inbegrepen",
+      "subtitle": "Open source, onbeperkt aantal gebruikers en organisaties",
       "included": "Inbegrepen",
       "marketplaceAccess": "Marketplace-toegang",
       "mcpServerManagement": "MCP-serverbeheer",
       "aiOrchestration": "AI-orkestratie",
-      "semanticSearch": "Semantisch zoeken",
-      "upgradeTitle": "Upgraden naar Enterprise",
-      "upgradeSubtitle": "Onbeperkte gebruikers, SSO, teamfuncties en prioriteitssupport.",
-      "purchaseNote": "Koop op BigMCP Cloud en configureer daarna je LICENSE_KEY om te activeren."
+      "semanticSearch": "Semantisch zoeken"
     },
     "plans": {
       "individual": {
-        "name": "Individueel",
-        "subtitle": "Cloud",
-        "period": "/maand",
+        "name": "Demo",
+        "subtitle": "bigmcp.cloud",
+        "period": "30 dagen",
         "features": [
-          "Onbeperkte MCP-servers",
+          "Alle functies inbegrepen",
           "AI-gestuurde orkestratie",
           "Semantisch zoeken",
-          "Onbeperkte composities",
-          "Beheerde LLM inbegrepen"
+          "180+ marketplace-servers",
+          "Geen installatie vereist"
         ]
       },
       "team": {
-        "name": "Team",
-        "subtitle": "Cloud",
-        "period": "/gebruiker/maand",
+        "name": "Zelf gehost",
+        "subtitle": "Jouw infrastructuur",
+        "period": "voor altijd (AGPLv3)",
         "features": [
-          "Alles in Individueel",
-          "Teamsamenwerking",
-          "Gedeelde credentials",
-          "Rolgebaseerde toegangscontrole",
-          "Geavanceerde auditlogboeken"
+          "Alles — zonder limieten",
+          "Onbeperkte gebruikers en organisaties",
+          "Aangepaste MCP-serverregistratie",
+          "Team-specifieke API-sleutels",
+          "Jouw gegevens, jouw controle"
         ]
       },
       "enterprise": {
-        "name": "Enterprise",
-        "subtitle": "Zelfgehost",
-        "period": "eenmalig",
+        "name": "Zelf gehost voor organisaties",
+        "subtitle": "Open Source",
+        "period": "AGPLv3",
         "features": [
-          "Onbeperkte gebruikers",
-          "SSO / SAML-authenticatie (Binnenkort beschikbaar)",
-          "Volledige auditlogboeken",
-          "Aangepaste huisstijl",
-          "Prioriteitssupport",
-          "Dedicated infrastructuur",
-          "API-toegang",
-          "Eeuwigdurende licentie"
+          "Onbeperkte gebruikers en organisaties",
+          "Toolgroepen met specifieke API-sleutels",
+          "Selectieve dienst-blootstelling",
+          "Volledige auditlogboeken en compliance",
+          "Aangepaste huisstijl (binnenkort)",
+          "Volledig beheerdersbeheer",
+          "Jouw keuze van LLM",
+          "Docker-deployment"
         ]
       }
     }
@@ -354,11 +347,11 @@
     "visibleToMembers": "Zichtbaar voor leden",
     "adminOnly": "Alleen beheerder",
     "server": "Server",
-    "communityTitle": "Teamfuncties niet beschikbaar",
-    "communityDescription": "De Community-editie is beperkt tot één gebruiker. Upgraden naar Enterprise voor onbeperkte teamsamenwerking met rolgebaseerde toegangscontrole, gedeelde credentials en meer.",
+    "communityTitle": "Teambeheer",
+    "communityDescription": "Beheer je teamleden, rollen en gedeelde credentials.",
     "viewEnterprisePlans": "Enterprise-abonnementen bekijken →",
-    "upgradeToTeam": "Upgraden naar Team voor samenwerking",
-    "individualPlanDescription": "Het individuele abonnement is ideaal voor solo werk, maar je kunt geen teamleden uitnodigen. Upgraden naar Team voor onbeperkte plekken vanaf €4,99/maand + €4,99/gebruiker/maand.",
+    "upgradeToTeam": "Deploy zelf gehost voor teamsamenwerking",
+    "individualPlanDescription": "Het demoplatform bevat alle functies gratis. Voor productiegebruik met teams, deploy BigMCP op uw eigen infrastructuur.",
     "teamPlanIncludes": "Teamabonnement omvat:",
     "teamFeatures": {
       "unlimitedMembers": "Onbeperkte teamleden",
@@ -367,11 +360,11 @@
       "teamInvitations": "Teamuitnodigingen via e-mail",
       "allIndividualFeatures": "Alle functies van het individuele abonnement"
     },
-    "upgradeToTeamButton": "Upgraden naar Team →",
+    "upgradeToTeamButton": "Zelf gehost deployen →",
     "billingTracker": {
       "title": "Teamabonnement - Onbeperkte plekken",
       "currentlyBilling": "Momenteel gefactureerd voor",
-      "atRate": "à €4,99/gebruiker/maand",
+      "atRate": "gratis, onbeperkt",
       "perMonth": "per maand"
     },
     "credentialVisibilityUpdated": "Zichtbaarheid van credential bijgewerkt",

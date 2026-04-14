@@ -586,29 +586,12 @@ def require_saas():
 
 def require_enterprise_or_saas():
     """
-    Dependency to require Enterprise or SaaS edition.
+    Dependency kept for backward compatibility. No longer blocks any edition.
 
-    Use for features available to paid customers (Enterprise license holders
-    and SaaS subscribers) but not Community edition.
-
-    Usage:
-        @app.get("/advanced-feature")
-        async def advanced_feature(
-            _: None = Depends(require_enterprise_or_saas())
-        ):
-            pass
-
-    Raises:
-        HTTPException: 403 if running on Community edition
+    All editions now have full feature access (open source model).
     """
-    from ..core.edition import is_community
 
     async def check_edition():
-        if is_community():
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="This feature requires Enterprise license or SaaS subscription. Visit bigmcp.cloud to upgrade."
-            )
         return None
 
     return check_edition
@@ -628,9 +611,9 @@ async def require_instance_admin(
     - Sync and curate marketplace
     - Access the admin interface
 
-    The check depends on the current edition:
-    - COMMUNITY: Always passes (single user = admin)
-    - ENTERPRISE/CLOUD_SAAS: Checks user.preferences["instance_admin"]
+    All editions check user.preferences["instance_admin"].
+    In Community, the first registered user is auto-promoted to admin.
+    Additional admins can be promoted via the /admin/validate-token endpoint.
 
     Usage:
         @app.post("/admin/marketplace/sources")

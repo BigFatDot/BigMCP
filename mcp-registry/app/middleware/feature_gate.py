@@ -2,6 +2,7 @@
 Feature Gating Middleware - Cloud SaaS Subscription Enforcement.
 
 Provides decorators and dependencies to restrict features based on subscription tier.
+In self-hosted editions, all features are available without subscription.
 """
 
 from typing import Optional, Callable
@@ -18,6 +19,7 @@ from app.services.subscription_service import (
     SubscriptionInactiveError,
 )
 from app.api.dependencies import get_current_user_jwt, _extract_org_id_from_jwt, _resolve_organization
+from app.core.edition import is_saas
 
 
 class FeatureGateError(HTTPException):
@@ -40,42 +42,30 @@ async def get_current_subscription(
     request: Request,
     user: User = Depends(get_current_user_jwt),
     db: AsyncSession = Depends(get_async_session),
-) -> Subscription:
+) -> Optional[Subscription]:
     """
-    Dependency: Get current user's active subscription.
+    Dependency: Get current user's subscription.
 
-    Raises:
-        HTTPException: If no active subscription found.
+    In self-hosted editions, returns None (no subscription required).
+    In Cloud SaaS, returns the subscription (active OR expired) without blocking.
+    The demo platform never blocks access — expired trials just show a banner.
     """
+    # Self-hosted: no subscription needed, all features available
+    if not is_saas():
+        return None
+
     # Get user's organization from membership
     if not user.organization_memberships:
-        raise HTTPException(
-            status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail={
-                "error": "subscription_required",
-                "message": "User has no organization",
-                "checkout_url": "/billing/checkout",
-            },
-        )
+        return None
 
     # Resolve organization from JWT context (supports multi-org users)
     membership, organization_id = _resolve_organization(request, user, None)
 
-    # Get organization subscription
-    try:
-        subscription = await SubscriptionService.get_active_subscription(
-            db, organization_id
-        )
-        return subscription
-    except (SubscriptionNotFoundError, SubscriptionInactiveError) as e:
-        raise HTTPException(
-            status_code=status.HTTP_402_PAYMENT_REQUIRED,
-            detail={
-                "error": "subscription_required",
-                "message": str(e),
-                "checkout_url": "/billing/checkout",
-            },
-        )
+    # Get organization subscription (any status — don't block)
+    subscription = await SubscriptionService.get_subscription_by_organization(
+        db, organization_id
+    )
+    return subscription  # May be None, active, or expired — frontend decides UI
 
 
 def require_subscription(tier: SubscriptionTier):
@@ -98,32 +88,8 @@ def require_subscription(tier: SubscriptionTier):
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            # Extract subscription from kwargs (injected by FastAPI)
-            subscription: Optional[Subscription] = kwargs.get("subscription")
-
-            if not subscription:
-                raise HTTPException(
-                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail="Subscription dependency not found. "
-                    "Add 'subscription: Subscription = Depends(get_current_subscription)' "
-                    "to endpoint parameters.",
-                )
-
-            # Check tier hierarchy: TEAM > INDIVIDUAL
-            tier_hierarchy = {
-                SubscriptionTier.INDIVIDUAL: 1,
-                SubscriptionTier.TEAM: 2,
-            }
-
-            user_tier_level = tier_hierarchy.get(subscription.tier, 0)
-            required_tier_level = tier_hierarchy.get(tier, 999)
-
-            if user_tier_level < required_tier_level:
-                raise FeatureGateError(
-                    feature=func.__name__, required_tier=tier
-                )
-
-            # User has sufficient tier, proceed
+            # Self-hosted or SaaS demo: never block access
+            # The demo platform is non-blocking — features work even after trial expires
             return await func(*args, **kwargs)
 
         return wrapper
@@ -155,17 +121,23 @@ async def check_user_limit(
     request: Request,
     user: User = Depends(get_current_user_jwt),
     db: AsyncSession = Depends(get_async_session),
-    subscription: Subscription = Depends(get_current_subscription),
+    subscription: Optional[Subscription] = Depends(get_current_subscription),
 ) -> bool:
     """
     Dependency: Check if user can add more team members.
+
+    In self-hosted editions, always returns True (no limit).
 
     Returns:
         True if within user limit.
 
     Raises:
-        HTTPException: If user limit would be exceeded.
+        HTTPException: If user limit would be exceeded (SaaS only).
     """
+    # Self-hosted: no user limits
+    if not is_saas():
+        return True
+
     from app.services.subscription_service import UserLimitExceededError
 
     # Get organization from membership

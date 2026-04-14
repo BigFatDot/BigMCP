@@ -6,11 +6,11 @@
     "documentation": "Documentation",
     "signin": "Sign in",
     "signup": "Sign up",
-    "startTrial": "Start Free Trial"
+    "startTrial": "Get Started"
   },
   "menu": {
     "account": "Account Settings",
-    "subscription": "Subscription & Billing",
+    "subscription": "Edition",
     "apiKeys": "API Keys",
     "team": "Team",
     "preferences": "Preferences",
@@ -46,9 +46,10 @@
     "networkError": "Network error. Please check your connection."
   },
   "trial": {
-    "badge": "Trial",
-    "daysLeft": "{{count}} day left in trial",
-    "daysLeft_plural": "{{count}} days left in trial"
+    "badge": "Demo",
+    "daysLeft": "{{count}} day left",
+    "daysLeft_plural": "{{count}} days left",
+    "expired": "Demo ended — Deploy self-hosted"
   },
   "empty": {
     "noData": "No data available",

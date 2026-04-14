@@ -43,51 +43,51 @@ interface UsageResponse {
 const PLANS = [
   {
     id: 'individual',
-    name: 'Individual',
-    subtitle: 'Cloud',
-    price: '4,99€',
-    period: '/month',
+    name: 'Demo',
+    subtitle: 'bigmcp.cloud',
+    price: 'Free',
+    period: '30 days',
     features: [
-      'Unlimited MCP servers',
+      'All features included',
       'AI-powered orchestration',
       'Semantic search',
       'Unlimited compositions',
-      'Managed LLM included',
+      '180+ marketplace servers',
     ],
   },
   {
     id: 'team',
-    name: 'Team',
-    subtitle: 'Cloud',
-    price: '4,99€',
-    period: '/month + €4.99/user',
+    name: 'Self-Hosted',
+    subtitle: 'Your infrastructure',
+    price: 'Free',
+    period: 'forever (AGPLv3)',
     features: [
-      'Everything in Individual',
-      'Team collaboration',
-      'Shared credentials',
-      'Role-based access control',
-      'Advanced audit logs',
+      'Everything — no limits',
+      'Unlimited users & organizations',
+      'Custom MCP server registration',
+      'Scoped API keys per team',
+      'Your data, your control',
     ],
     popular: true,
   },
 ]
 
-// Enterprise plan (separate - one-time purchase for self-hosted)
+// Enterprise plan (separate - self-hosted for organizations)
 const ENTERPRISE_PLAN = {
   id: 'enterprise',
-  name: 'Enterprise',
-  subtitle: 'Self-Hosted',
+  name: 'Self-Hosted for Organizations',
+  subtitle: 'Open Source',
   price: 'Free',
-  period: 'launch offer • 3 months',
+  period: 'AGPLv3',
   features: [
-    'Unlimited users',
-    'SSO / SAML authentication (Coming Soon)',
-    'Full audit logs',
-    'Custom branding',
-    'Priority support',
-    'Dedicated infrastructure',
-    'API access',
-    'Perpetual license',
+    'Unlimited users & organizations',
+    'Tool Groups with scoped API Keys',
+    'Selective service exposure per team',
+    'Full audit logs & compliance',
+    'Custom branding (coming soon)',
+    'Full admin control',
+    'Your choice of LLM',
+    'Docker deployment',
   ],
 }
 
@@ -170,12 +170,12 @@ function CommunityUpgradeSection() {
   return (
     <Card padding="lg" className="mb-6 border-gray-200">
       <div className="flex items-start gap-4">
-        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-          <BuildingOfficeIcon className="w-6 h-6 text-gray-600" />
+        <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+          <CheckCircleIcon className="w-6 h-6 text-green-600" />
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
-            <span className="inline-block text-xs font-medium uppercase px-2 py-1 rounded bg-gray-100 text-gray-700">
+            <span className="inline-block text-xs font-medium uppercase px-2 py-1 rounded bg-green-100 text-green-700">
               {t('subscription.community.title')}
             </span>
           </div>
@@ -184,7 +184,7 @@ function CommunityUpgradeSection() {
             {t('subscription.community.subtitle')}
           </p>
 
-          {/* Current Features */}
+          {/* Included Features */}
           <div className="mt-4 p-3 bg-gray-50 rounded-lg">
             <p className="text-xs font-medium text-gray-500 uppercase mb-2">{t('subscription.community.included')}</p>
             <ul className="grid md:grid-cols-2 gap-2">
@@ -205,33 +205,6 @@ function CommunityUpgradeSection() {
                 {t('subscription.community.semanticSearch')}
               </li>
             </ul>
-          </div>
-
-          {/* Upgrade CTA */}
-          <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
-            <div className="flex items-start justify-between">
-              <div>
-                <h4 className="font-semibold text-purple-900">{t('subscription.community.upgradeTitle')}</h4>
-                <p className="text-sm text-purple-700 mt-1">
-                  {t('subscription.community.upgradeSubtitle')}
-                </p>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-purple-900">{ENTERPRISE_PLAN.price}</span>
-                  <span className="text-sm text-purple-600">{t('subscription.enterprise.oneTime')} • {t('subscription.enterprise.perpetual')}</span>
-                </div>
-              </div>
-              <Button
-                variant="primary"
-                className="bg-purple-600 hover:bg-purple-700 flex-shrink-0"
-                onClick={() => window.open(`${SAAS_URL}/enterprise`, '_blank')}
-              >
-                <ArrowUpIcon className="w-4 h-4 mr-2" />
-                {t('subscription.upgrade')}
-              </Button>
-            </div>
-            <p className="text-xs text-purple-600 mt-3">
-              {t('subscription.community.purchaseNote')}
-            </p>
           </div>
         </div>
       </div>
@@ -432,7 +405,7 @@ export function SubscriptionPage() {
         <p className="text-lg text-gray-600 font-serif">
           {isCloudSaaS && t('subscription.subtitle')}
           {isEnterprise && t('subscription.subtitleEnterprise')}
-          {isCommunity && t('subscription.subtitleCommunity')}
+          {!isCloudSaaS && !isEnterprise && t('subscription.subtitleCommunity')}
         </p>
       </div>
 
@@ -451,8 +424,8 @@ export function SubscriptionPage() {
         <EnterpriseLicenseSection license={edition.license} />
       )}
 
-      {/* COMMUNITY Edition: Show upgrade CTA */}
-      {!editionLoading && isCommunity && (
+      {/* Self-hosted Edition: Show instance info */}
+      {!editionLoading && !isCloudSaaS && !isEnterprise && (
         <CommunityUpgradeSection />
       )}
 

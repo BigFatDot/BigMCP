@@ -54,13 +54,11 @@ ${urls.map(u => `  <url>
 `
 
 // sitemap.xml — sitemapindex referencing all sub-sitemaps
+// Note: sitemap-docs.xml excluded — docs are SPA-rendered (noindex until SSG)
 const indexXml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>${BASE_URL}/sitemap-main.xml</loc>
-  </sitemap>
-  <sitemap>
-    <loc>${BASE_URL}/sitemap-docs.xml</loc>
   </sitemap>
   <sitemap>
     <loc>${BASE_URL}/sitemap-blog.xml</loc>

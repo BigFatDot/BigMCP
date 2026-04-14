@@ -98,18 +98,16 @@
         "features": "Licensed Features"
       },
       "community": {
-        "badge": "Community Edition",
-        "title": "Single User",
-        "subtitle": "Free self-hosted edition with all core features",
+        "badge": "Open Source",
+        "title": "Self-Hosted",
+        "subtitle": "All features included, unlimited users",
         "included": "Included",
-        "marketplaceAccess": "Marketplace access",
-        "mcpServerManagement": "MCP server management",
-        "aiOrchestration": "AI orchestration",
+        "marketplaceAccess": "Marketplace access (180+ servers)",
+        "mcpServerManagement": "Custom MCP server management",
+        "aiOrchestration": "AI orchestration & compositions",
         "instanceAdmin": "Instance Admin",
-        "upgradeTitle": "Upgrade to Enterprise",
-        "upgradeSubtitle": "Unlimited users, SSO, team features, and priority support.",
-        "oneTime": "one-time",
-        "upgrade": "Upgrade"
+        "teamFeatures": "Unlimited users & organizations",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {
@@ -123,20 +121,20 @@
     }
   },
   "subscription": {
-    "title": "Subscription",
-    "titleLicense": "License",
-    "subtitle": "Manage your subscription and view usage",
+    "title": "Edition",
+    "titleLicense": "Your Instance",
+    "subtitle": "Your BigMCP edition and usage",
     "subtitleEnterprise": "Your Enterprise license information",
-    "subtitleCommunity": "Upgrade to Enterprise for unlimited users",
-    "currentPlan": "Current Plan",
-    "freeTier": "Free Trial",
-    "individualPlan": "Individual Plan",
-    "teamPlan": "Team Plan",
+    "subtitleCommunity": "Open source — all features included",
+    "currentPlan": "Current Edition",
+    "freeTier": "Free Demo",
+    "individualPlan": "Demo Platform",
+    "teamPlan": "Demo Platform",
     "enterprisePlan": "Enterprise",
-    "trialEndsIn": "Trial ends in {{days}} days",
-    "activeSubscription": "Active subscription",
-    "noActiveSubscription": "No active subscription",
-    "cancelsAtPeriodEnd": "Cancels at period end",
+    "trialEndsIn": "Demo ends in {{days}} days",
+    "activeSubscription": "Active demo",
+    "noActiveSubscription": "Demo expired — deploy self-hosted for unlimited access",
+    "cancelsAtPeriodEnd": "Demo ending soon",
     "status": {
       "active": "Active",
       "trial": "Trial",
@@ -154,16 +152,16 @@
       "workflows": "workflows",
       "users": "users"
     },
-    "upgrade": "Upgrade Plan",
-    "upgradeTo": "Upgrade to {{plan}}",
-    "manage": "Manage Billing",
-    "cancel": "Cancel Subscription",
-    "reactivate": "Reactivate Subscription",
-    "availablePlans": "Available Plans",
-    "currentPlanBadge": "Current Plan",
-    "mostPopular": "Most Popular",
-    "creatingCheckout": "Creating checkout...",
-    "paymentSuccess": "Payment successful! Your subscription is now active.",
+    "upgrade": "Deploy Self-Hosted",
+    "upgradeTo": "Deploy {{plan}}",
+    "manage": "Manage Account",
+    "cancel": "End Demo",
+    "reactivate": "Reactivate Demo",
+    "availablePlans": "Deployment Options",
+    "currentPlanBadge": "Current",
+    "mostPopular": "Recommended",
+    "creatingCheckout": "Loading...",
+    "paymentSuccess": "Setup complete!",
     "loading": "Loading...",
     "license": {
       "title": "License Key",
@@ -200,56 +198,53 @@
       "perpetual": "perpetual"
     },
     "community": {
-      "title": "Community Edition",
-      "singleUser": "Single User",
-      "subtitle": "Free self-hosted edition with all core features",
+      "title": "Self-Hosted",
+      "singleUser": "All Features Included",
+      "subtitle": "Open source, unlimited users and organizations",
       "included": "Included",
-      "marketplaceAccess": "Marketplace access",
-      "mcpServerManagement": "MCP server management",
-      "aiOrchestration": "AI orchestration",
-      "semanticSearch": "Semantic search",
-      "upgradeTitle": "Upgrade to Enterprise",
-      "upgradeSubtitle": "Unlimited users, SSO, team features, and priority support.",
-      "purchaseNote": "Purchase on BigMCP Cloud, then configure your LICENSE_KEY to activate."
+      "marketplaceAccess": "Marketplace access (180+ servers)",
+      "mcpServerManagement": "Custom MCP server management",
+      "aiOrchestration": "AI orchestration & compositions",
+      "semanticSearch": "Semantic search"
     },
     "plans": {
       "individual": {
-        "name": "Individual",
-        "subtitle": "Cloud",
-        "period": "/month",
+        "name": "Demo",
+        "subtitle": "bigmcp.cloud",
+        "period": "30 days",
         "features": [
-          "Unlimited MCP servers",
+          "All features included",
           "AI-powered orchestration",
           "Semantic search",
-          "Unlimited compositions",
-          "Managed LLM included"
+          "180+ marketplace servers",
+          "No installation required"
         ]
       },
       "team": {
-        "name": "Team",
-        "subtitle": "Cloud",
-        "period": "/user/month",
+        "name": "Self-Hosted",
+        "subtitle": "Your infrastructure",
+        "period": "forever (AGPLv3)",
         "features": [
-          "Everything in Individual",
-          "Team collaboration",
-          "Shared credentials",
-          "Role-based access control",
-          "Advanced audit logs"
+          "Everything — no limits",
+          "Unlimited users & organizations",
+          "Custom MCP server registration",
+          "Scoped API keys per team",
+          "Your data, your control"
         ]
       },
       "enterprise": {
-        "name": "Enterprise",
-        "subtitle": "Self-Hosted",
-        "period": "one-time",
+        "name": "Self-Hosted for Organizations",
+        "subtitle": "Open Source",
+        "period": "AGPLv3",
         "features": [
-          "Unlimited users",
-          "SSO / SAML authentication (Coming Soon)",
-          "Full audit logs",
-          "Custom branding",
-          "Priority support",
-          "Dedicated infrastructure",
-          "API access",
-          "Perpetual license"
+          "Unlimited users & organizations",
+          "Tool Groups with scoped API Keys",
+          "Selective service exposure",
+          "Full audit logs & compliance",
+          "Custom branding (coming soon)",
+          "Full admin control",
+          "Your choice of LLM",
+          "Docker deployment"
         ]
       }
     }
@@ -354,11 +349,11 @@
     "visibleToMembers": "Visible to members",
     "adminOnly": "Admin only",
     "server": "Server",
-    "communityTitle": "Team Features Not Available",
-    "communityDescription": "Community edition is limited to single-user. Upgrade to Enterprise for unlimited team collaboration with role-based access control, shared credentials, and more.",
-    "viewEnterprisePlans": "View Enterprise Plans →",
+    "communityTitle": "Team Management",
+    "communityDescription": "Manage your team members, roles, and shared credentials.",
+    "viewEnterprisePlans": "Learn More →",
     "upgradeToTeam": "Upgrade to Team for Collaboration",
-    "individualPlanDescription": "Individual plan is perfect for solo work, but you can't invite team members. Upgrade to Team for unlimited seats at €4.99/month + €4.99/user/month.",
+    "individualPlanDescription": "The demo platform includes all features for free. For production use with teams, deploy BigMCP on your own infrastructure.",
     "teamPlanIncludes": "Team Plan Includes:",
     "teamFeatures": {
       "unlimitedMembers": "Unlimited team members",
@@ -371,7 +366,7 @@
     "billingTracker": {
       "title": "Team Plan - Unlimited Seats",
       "currentlyBilling": "Currently billing for",
-      "atRate": "at €4.99/user/month",
+      "atRate": "free, unlimited",
       "perMonth": "per month"
     },
     "credentialVisibilityUpdated": "Credential visibility updated",

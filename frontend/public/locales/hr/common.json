@@ -6,11 +6,11 @@
     "documentation": "Dokumentacija",
     "signin": "Prijava",
     "signup": "Registracija",
-    "startTrial": "Počni besplatno probno razdoblje"
+    "startTrial": "Započnite"
   },
   "menu": {
     "account": "Postavke računa",
-    "subscription": "Pretplata i naplata",
+    "subscription": "Izdanje",
     "apiKeys": "API ključevi",
     "team": "Tim",
     "preferences": "Preferencije",

@@ -79,8 +79,6 @@ export function useFeatureAccess() {
     tier: subscription?.tier || null,
     isIndividual: subscription?.tier === 'individual',
     isTeam: subscription?.tier === 'team',
-    isCommunity: deploymentConfig.mode === 'self_hosted_community',
-    isEnterprise: deploymentConfig.mode === 'self_hosted_enterprise',
   }
 }
 

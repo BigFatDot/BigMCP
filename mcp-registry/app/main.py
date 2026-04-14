@@ -285,7 +285,7 @@ async def startup_event():
         org_name = get_license_org_name() or "Unknown"
         logger.info(f"🏢 Edition: ENTERPRISE (org: {org_name})")
     else:
-        logger.info("🏠 Edition: COMMUNITY (1 user limit)")
+        logger.info("🏠 Edition: COMMUNITY (self-hosted, all features)")
 
     # Initialize Prometheus metrics
     from .core.metrics import init_app_info
@@ -413,7 +413,7 @@ async def root_get(request: Request):
         if not authorization:
             return JSONResponse(
                 status_code=401,
-                content={"detail": "Missing API key"},
+                content={"detail": "Missing authentication token"},
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -428,24 +428,38 @@ async def root_get(request: Request):
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        # Resolve auth against the database (mirrors get_current_user_api_key logic)
+        # Resolve auth: try API Key first (mcphub_sk_*), fallback to OAuth JWT.
+        # Mirrors the dual-auth logic of get_current_user (dependencies.py).
+        # FastAPI Depends() is not injected when calling endpoint functions directly,
+        # so we resolve auth manually and pass it as a positional argument.
         from .db.database import get_async_session
         from .services.auth_service import AuthService
 
         auth = None
         async for db in get_async_session():
             auth_service = AuthService(db)
-            auth = await auth_service.validate_api_key(key)
+            # 1. Try API Key (mcphub_sk_*)
+            api_key_result = await auth_service.validate_api_key(key)
+            if api_key_result:
+                api_key_obj, user_obj = api_key_result  # validate_api_key returns (api_key, user)
+                auth = (user_obj, api_key_obj)           # convert to get_current_user format: (user, api_key)
+            else:
+                # 2. Fallback: try as OAuth JWT access token (Claude Desktop, MCP 2025-03-26)
+                user_obj = await auth_service.get_user_from_token(key)
+                if user_obj:
+                    auth = (user_obj, None)
             break
 
         if not auth:
             return JSONResponse(
                 status_code=401,
-                content={"detail": "Invalid or expired API key"},
+                content={"detail": "Invalid or expired token"},
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        logger.info(f"🔄 Proxying GET / → GET /mcp/sse (MCP request detected, user: {auth[1].email})")
+        user_obj, api_key_obj = auth
+        auth_info = f"API Key: {api_key_obj.name}" if api_key_obj else "OAuth token"
+        logger.info(f"🔄 Proxying GET / → GET /mcp/sse (MCP request detected, user: {user_obj.email}, auth: {auth_info})")
         from .routers.mcp_unified import mcp_sse_endpoint
         return await mcp_sse_endpoint(request, auth)
 
@@ -673,9 +687,9 @@ async def edition_status():
         },
         "features": {
             "billing": is_saas(),
-            "sso": edition != Edition.COMMUNITY,
-            "unlimited_users": edition != Edition.COMMUNITY,
-            "organizations": edition != Edition.COMMUNITY,
+            "sso": True,
+            "unlimited_users": True,
+            "organizations": True,
         }
     }
 

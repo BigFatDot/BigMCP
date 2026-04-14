@@ -2,7 +2,7 @@
  * Signup Page
  *
  * Handles user registration for BigMCP.
- * Cloud users get a 15-day trial. Self-hosted users register to get API keys.
+ * Cloud users access the free demo platform. Self-hosted users register to get started.
  */
 
 import { useState, FormEvent } from 'react'

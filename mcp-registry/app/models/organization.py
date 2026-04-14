@@ -56,12 +56,12 @@ class Organization(Base, UUIDMixin, TimestampMixin):
     # Settings (JSONB for flexibility)
     settings: Mapped[dict] = mapped_column(JSONType, default={}, nullable=False)
 
-    # Billing & Limits
+    # Limits (generous defaults for self-hosted)
     plan: Mapped[str] = mapped_column(String(50), default="free", nullable=False)
-    max_contexts: Mapped[int] = mapped_column(Integer, default=10, nullable=False)
-    max_tool_bindings: Mapped[int] = mapped_column(Integer, default=50, nullable=False)
-    max_api_keys: Mapped[int] = mapped_column(Integer, default=5, nullable=False)
-    max_mcp_servers: Mapped[int] = mapped_column(Integer, default=3, nullable=False)
+    max_contexts: Mapped[int] = mapped_column(Integer, default=100, nullable=False)
+    max_tool_bindings: Mapped[int] = mapped_column(Integer, default=500, nullable=False)
+    max_api_keys: Mapped[int] = mapped_column(Integer, default=50, nullable=False)
+    max_mcp_servers: Mapped[int] = mapped_column(Integer, default=100, nullable=False)
 
     # Relationships
     members: Mapped[List["OrganizationMember"]] = relationship(

@@ -98,18 +98,14 @@
         "features": "Αδειοδοτημένες Λειτουργίες"
       },
       "community": {
-        "badge": "Community Edition",
-        "title": "Μεμονωμένος Χρήστης",
-        "subtitle": "Δωρεάν έκδοση με ιδιωτική φιλοξενία και όλες τις βασικές λειτουργίες",
+        "badge": "Open Source",
+        "title": "Αυτο-φιλοξενούμενο",
+        "subtitle": "Όλες οι λειτουργίες περιλαμβάνονται, απεριόριστοι χρήστες",
         "included": "Συμπεριλαμβάνεται",
         "marketplaceAccess": "Πρόσβαση στο marketplace",
         "mcpServerManagement": "Διαχείριση MCP servers",
         "aiOrchestration": "Ενορχήστρωση AI",
-        "instanceAdmin": "Instance Admin",
-        "upgradeTitle": "Αναβάθμιση σε Enterprise",
-        "upgradeSubtitle": "Απεριόριστοι χρήστες, SSO, λειτουργίες ομάδας και προτεραιοτήτα υποστήριξης.",
-        "oneTime": "εφάπαξ",
-        "upgrade": "Αναβάθμιση"
+        "instanceAdmin": "Instance Admin"
       }
     },
     "danger": {
@@ -123,19 +119,19 @@
     }
   },
   "subscription": {
-    "title": "Συνδρομή",
+    "title": "Έκδοση",
     "titleLicense": "Άδεια",
-    "subtitle": "Διαχειριστείτε τη συνδρομή σας και δείτε τη χρήση",
+    "subtitle": "Η έκδοση BigMCP και η χρήση σας",
     "subtitleEnterprise": "Πληροφορίες άδειας Enterprise",
-    "subtitleCommunity": "Αναβαθμίστε σε Enterprise για απεριόριστους χρήστες",
-    "currentPlan": "Τρέχον Πλάνο",
-    "freeTier": "Δωρεάν Δοκιμή",
-    "individualPlan": "Ατομικό Πλάνο",
-    "teamPlan": "Πλάνο Ομάδας",
+    "subtitleCommunity": "Ανοιχτού κώδικα — όλες οι λειτουργίες περιλαμβάνονται",
+    "currentPlan": "Τρέχουσα Έκδοση",
+    "freeTier": "Δωρεάν Demo",
+    "individualPlan": "Πλατφόρμα Demo",
+    "teamPlan": "Πλατφόρμα Demo",
     "enterprisePlan": "Enterprise",
-    "trialEndsIn": "Η δοκιμή λήγει σε {{days}} ημέρες",
-    "activeSubscription": "Ενεργή συνδρομή",
-    "noActiveSubscription": "Δεν υπάρχει ενεργή συνδρομή",
+    "trialEndsIn": "Το demo λήγει σε {{days}} ημέρες",
+    "activeSubscription": "Ενεργό demo",
+    "noActiveSubscription": "Το demo έληξε — εγκαταστήστε αυτο-φιλοξενούμενο για απεριόριστη πρόσβαση",
     "cancelsAtPeriodEnd": "Ακυρώνεται στο τέλος της περιόδου",
     "status": {
       "active": "Ενεργή",
@@ -154,14 +150,14 @@
       "workflows": "ροές εργασίας",
       "users": "χρήστες"
     },
-    "upgrade": "Αναβάθμιση Πλάνου",
+    "upgrade": "Εγκατάσταση αυτο-φιλοξενούμενου",
     "upgradeTo": "Αναβάθμιση σε {{plan}}",
     "manage": "Διαχείριση Χρέωσης",
     "cancel": "Ακύρωση Συνδρομής",
     "reactivate": "Επανενεργοποίηση Συνδρομής",
-    "availablePlans": "Διαθέσιμα Πλάνα",
-    "currentPlanBadge": "Τρέχον Πλάνο",
-    "mostPopular": "Πιο Δημοφιλές",
+    "availablePlans": "Επιλογές Εγκατάστασης",
+    "currentPlanBadge": "Τρέχον",
+    "mostPopular": "Προτεινόμενο",
     "creatingCheckout": "Δημιουργία checkout...",
     "paymentSuccess": "Η πληρωμή ήταν επιτυχής! Η συνδρομή σας είναι πλέον ενεργή.",
     "loading": "Φόρτωση...",
@@ -200,56 +196,54 @@
       "perpetual": "μόνιμη"
     },
     "community": {
-      "title": "Community Edition",
-      "singleUser": "Μεμονωμένος Χρήστης",
-      "subtitle": "Δωρεάν έκδοση με ιδιωτική φιλοξενία και όλες τις βασικές λειτουργίες",
+      "title": "Αυτο-φιλοξενούμενο",
+      "singleUser": "Όλες οι Λειτουργίες Περιλαμβάνονται",
+      "subtitle": "Ανοιχτού κώδικα, απεριόριστοι χρήστες και οργανισμοί",
       "included": "Συμπεριλαμβάνεται",
       "marketplaceAccess": "Πρόσβαση στο marketplace",
       "mcpServerManagement": "Διαχείριση MCP servers",
       "aiOrchestration": "Ενορχήστρωση AI",
       "semanticSearch": "Σημασιολογική αναζήτηση",
-      "upgradeTitle": "Αναβάθμιση σε Enterprise",
-      "upgradeSubtitle": "Απεριόριστοι χρήστες, SSO, λειτουργίες ομάδας και προτεραιοτήτα υποστήριξης.",
       "purchaseNote": "Αγοράστε στο BigMCP Cloud, μετά διαμορφώστε το LICENSE_KEY για ενεργοποίηση."
     },
     "plans": {
       "individual": {
-        "name": "Ατομικό",
-        "subtitle": "Cloud",
-        "period": "/μήνα",
+        "name": "Demo",
+        "subtitle": "bigmcp.cloud",
+        "period": "30 ημέρες",
         "features": [
-          "Απεριόριστοι MCP servers",
+          "Όλες οι λειτουργίες περιλαμβάνονται",
           "Ενορχήστρωση βασισμένη σε AI",
           "Σημασιολογική αναζήτηση",
-          "Απεριόριστα compositions",
-          "Διαχειριζόμενο LLM συμπεριλαμβάνεται"
+          "180+ servers στο marketplace",
+          "Δεν απαιτείται εγκατάσταση"
         ]
       },
       "team": {
-        "name": "Ομάδα",
-        "subtitle": "Cloud",
-        "period": "/χρήστη/μήνα",
+        "name": "Αυτο-φιλοξενούμενο",
+        "subtitle": "Η υποδομή σας",
+        "period": "για πάντα (AGPLv3)",
         "features": [
-          "Όλα του Ατομικού πλάνου",
-          "Συνεργασία ομάδας",
-          "Κοινά credentials",
-          "Έλεγχος πρόσβασης βάσει ρόλων",
-          "Προηγμένα αρχεία καταγραφής"
+          "Τα πάντα — χωρίς όρια",
+          "Απεριόριστοι χρήστες και οργανισμοί",
+          "Προσαρμοσμένη εγγραφή MCP server",
+          "Κλειδιά API ανά ομάδα",
+          "Τα δεδομένα σας, ο έλεγχός σας"
         ]
       },
       "enterprise": {
-        "name": "Enterprise",
-        "subtitle": "Ιδιωτική Φιλοξενία",
-        "period": "εφάπαξ",
+        "name": "Αυτο-φιλοξενούμενο για Οργανισμούς",
+        "subtitle": "Open Source",
+        "period": "AGPLv3",
         "features": [
-          "Απεριόριστοι χρήστες",
-          "SSO / SAML authentication (Σύντομα)",
-          "Πλήρη αρχεία καταγραφής",
-          "Προσαρμοσμένη εμφάνιση",
-          "Προτεραιοτήτα υποστήριξης",
-          "Αποκλειστική υποδομή",
-          "Πρόσβαση API",
-          "Μόνιμη άδεια"
+          "Απεριόριστοι χρήστες και οργανισμοί",
+          "Ομάδες εργαλείων με ειδικά κλειδιά API",
+          "Επιλεκτική έκθεση υπηρεσιών",
+          "Πλήρη αρχεία καταγραφής και συμμόρφωση",
+          "Προσαρμοσμένη εμφάνιση (σύντομα)",
+          "Πλήρης διαχειριστικός έλεγχος",
+          "Η επιλογή σας σε LLM",
+          "Εγκατάσταση Docker"
         ]
       }
     }
@@ -354,11 +348,11 @@
     "visibleToMembers": "Ορατό στα μέλη",
     "adminOnly": "Μόνο Admin",
     "server": "Server",
-    "communityTitle": "Οι Λειτουργίες Ομάδας δεν είναι Διαθέσιμες",
-    "communityDescription": "Η Community edition περιορίζεται σε έναν χρήστη. Αναβαθμίστε σε Enterprise για απεριόριστη συνεργασία ομάδας με έλεγχο πρόσβασης βάσει ρόλων, κοινά credentials και άλλα.",
+    "communityTitle": "Διαχείριση Ομάδας",
+    "communityDescription": "Διαχειριστείτε τα μέλη της ομάδας σας, τους ρόλους και τα κοινά credentials.",
     "viewEnterprisePlans": "Δείτε τα Πλάνα Enterprise →",
-    "upgradeToTeam": "Αναβαθμίστε σε Team για Συνεργασία",
-    "individualPlanDescription": "Το Ατομικό πλάνο είναι ιδανικό για ατομική εργασία, αλλά δεν μπορείτε να προσκαλέσετε μέλη ομάδας. Αναβαθμίστε σε Team για απεριόριστες θέσεις στα €4.99/μήνα + €4.99/χρήστη/μήνα.",
+    "upgradeToTeam": "Εγκαταστήστε αυτο-φιλοξενούμενο για συνεργασία ομάδας",
+    "individualPlanDescription": "Η πλατφόρμα demo περιλαμβάνει όλες τις λειτουργίες δωρεάν. Για χρήση παραγωγής με ομάδες, εγκαταστήστε το BigMCP στη δική σας υποδομή.",
     "teamPlanIncludes": "Το Πλάνο Team Περιλαμβάνει:",
     "teamFeatures": {
       "unlimitedMembers": "Απεριόριστα μέλη ομάδας",
@@ -367,11 +361,11 @@
       "teamInvitations": "Προσκλήσεις ομάδας μέσω email",
       "allIndividualFeatures": "Όλες οι λειτουργίες του Ατομικού πλάνου"
     },
-    "upgradeToTeamButton": "Αναβάθμιση σε Team →",
+    "upgradeToTeamButton": "Εγκατάσταση αυτο-φιλοξενούμενου →",
     "billingTracker": {
       "title": "Πλάνο Team - Απεριόριστες Θέσεις",
       "currentlyBilling": "Τρέχουσα χρέωση για",
-      "atRate": "στα €4.99/χρήστη/μήνα",
+      "atRate": "δωρεάν, απεριόριστο",
       "perMonth": "ανά μήνα"
     },
     "credentialVisibilityUpdated": "Η ορατότητα των credentials ενημερώθηκε",

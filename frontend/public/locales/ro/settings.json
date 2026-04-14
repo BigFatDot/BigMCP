@@ -98,18 +98,14 @@
         "features": "Funcții licențiate"
       },
       "community": {
-        "badge": "Ediție Community",
-        "title": "Utilizator unic",
-        "subtitle": "Ediție gratuită self-hosted cu toate funcțiile principale",
+        "badge": "Open Source",
+        "title": "Auto-găzduit",
+        "subtitle": "Toate funcționalitățile incluse, utilizatori nelimitați",
         "included": "Inclus",
         "marketplaceAccess": "Acces la marketplace",
         "mcpServerManagement": "Gestionarea serverelor MCP",
         "aiOrchestration": "Orchestrare AI",
-        "instanceAdmin": "Admin instanță",
-        "upgradeTitle": "Upgrade la Enterprise",
-        "upgradeSubtitle": "Utilizatori nelimitați, SSO, funcții de echipă și suport prioritar.",
-        "oneTime": "o singură dată",
-        "upgrade": "Upgrade"
+        "instanceAdmin": "Admin instanță"
       }
     },
     "danger": {
@@ -123,19 +119,19 @@
     }
   },
   "subscription": {
-    "title": "Abonament",
+    "title": "Ediție",
     "titleLicense": "Licență",
-    "subtitle": "Gestionează-ți abonamentul și vizualizează utilizarea",
+    "subtitle": "Ediția și utilizarea ta BigMCP",
     "subtitleEnterprise": "Informațiile licenței tale Enterprise",
-    "subtitleCommunity": "Upgrade la Enterprise pentru utilizatori nelimitați",
-    "currentPlan": "Planul curent",
-    "freeTier": "Perioadă de probă gratuită",
-    "individualPlan": "Plan Individual",
-    "teamPlan": "Plan Echipă",
+    "subtitleCommunity": "Open source — toate funcționalitățile incluse",
+    "currentPlan": "Ediția curentă",
+    "freeTier": "Demo gratuită",
+    "individualPlan": "Platforma demo",
+    "teamPlan": "Platforma demo",
     "enterprisePlan": "Enterprise",
-    "trialEndsIn": "Perioada de probă se termină în {{days}} zile",
-    "activeSubscription": "Abonament activ",
-    "noActiveSubscription": "Niciun abonament activ",
+    "trialEndsIn": "Demo-ul se termină în {{days}} zile",
+    "activeSubscription": "Demo activă",
+    "noActiveSubscription": "Demo expirat — implementează auto-găzduit pentru acces nelimitat",
     "cancelsAtPeriodEnd": "Se anulează la sfârșitul perioadei",
     "status": {
       "active": "Activ",
@@ -154,14 +150,14 @@
       "workflows": "fluxuri de lucru",
       "users": "utilizatori"
     },
-    "upgrade": "Upgrade plan",
+    "upgrade": "Implementează auto-găzduit",
     "upgradeTo": "Upgrade la {{plan}}",
     "manage": "Gestionează facturarea",
     "cancel": "Anulează abonamentul",
     "reactivate": "Reactivează abonamentul",
-    "availablePlans": "Planuri disponibile",
-    "currentPlanBadge": "Planul curent",
-    "mostPopular": "Cel mai popular",
+    "availablePlans": "Opțiuni de implementare",
+    "currentPlanBadge": "Curent",
+    "mostPopular": "Recomandat",
     "creatingCheckout": "Se creează checkout-ul...",
     "paymentSuccess": "Plată reușită! Abonamentul tău este acum activ.",
     "loading": "Se încarcă...",
@@ -200,56 +196,53 @@
       "perpetual": "perpetuă"
     },
     "community": {
-      "title": "Ediție Community",
-      "singleUser": "Utilizator unic",
-      "subtitle": "Ediție gratuită self-hosted cu toate funcțiile principale",
+      "title": "Auto-găzduit",
+      "singleUser": "Toate Funcționalitățile Incluse",
+      "subtitle": "Open source, utilizatori nelimitați și organizații",
       "included": "Inclus",
       "marketplaceAccess": "Acces la marketplace",
       "mcpServerManagement": "Gestionarea serverelor MCP",
       "aiOrchestration": "Orchestrare AI",
-      "semanticSearch": "Căutare semantică",
-      "upgradeTitle": "Upgrade la Enterprise",
-      "upgradeSubtitle": "Utilizatori nelimitați, SSO, funcții de echipă și suport prioritar.",
-      "purchaseNote": "Cumpără pe BigMCP Cloud, apoi configurează LICENSE_KEY pentru activare."
+      "semanticSearch": "Căutare semantică"
     },
     "plans": {
       "individual": {
-        "name": "Individual",
-        "subtitle": "Cloud",
-        "period": "/lună",
+        "name": "Demo",
+        "subtitle": "bigmcp.cloud",
+        "period": "30 de zile",
         "features": [
-          "Servere MCP nelimitate",
+          "Toate funcționalitățile incluse",
           "Orchestrare bazată pe AI",
           "Căutare semantică",
-          "Compoziții nelimitate",
-          "LLM gestionat inclus"
+          "180+ servere marketplace",
+          "Fără instalare necesară"
         ]
       },
       "team": {
-        "name": "Echipă",
-        "subtitle": "Cloud",
-        "period": "/utilizator/lună",
+        "name": "Auto-găzduit",
+        "subtitle": "Infrastructura ta",
+        "period": "pentru totdeauna (AGPLv3)",
         "features": [
-          "Tot ce include Individual",
-          "Colaborare în echipă",
-          "Credențiale partajate",
-          "Control acces bazat pe roluri",
-          "Jurnale de audit avansate"
+          "Totul — fără limite",
+          "Utilizatori și organizații nelimitați",
+          "Înregistrare personalizată de servere MCP",
+          "Chei API per echipă",
+          "Datele tale, controlul tău"
         ]
       },
       "enterprise": {
-        "name": "Enterprise",
-        "subtitle": "Self-Hosted",
-        "period": "o singură dată",
+        "name": "Auto-găzduit pentru organizații",
+        "subtitle": "Open Source",
+        "period": "AGPLv3",
         "features": [
-          "Utilizatori nelimitați",
-          "Autentificare SSO / SAML (în curând)",
-          "Jurnale de audit complete",
-          "Branding personalizat",
-          "Suport prioritar",
-          "Infrastructură dedicată",
-          "Acces API",
-          "Licență perpetuă"
+          "Utilizatori și organizații nelimitați",
+          "Grupuri de instrumente cu chei API specifice",
+          "Expunere selectivă a serviciilor",
+          "Jurnale de audit complete și conformitate",
+          "Branding personalizat (în curând)",
+          "Control administrativ complet",
+          "Alegerea ta de LLM",
+          "Implementare Docker"
         ]
       }
     }
@@ -354,11 +347,11 @@
     "visibleToMembers": "Vizibil pentru membri",
     "adminOnly": "Doar admin",
     "server": "Server",
-    "communityTitle": "Funcții de echipă indisponibile",
-    "communityDescription": "Ediția Community este limitată la un singur utilizator. Fă upgrade la Enterprise pentru colaborare nelimitată în echipă cu control acces bazat pe roluri, credențiale partajate și mai mult.",
+    "communityTitle": "Gestionare Echipă",
+    "communityDescription": "Gestionează membrii echipei, rolurile și credențialele partajate.",
     "viewEnterprisePlans": "Vezi planurile Enterprise →",
-    "upgradeToTeam": "Fă upgrade la Echipă pentru colaborare",
-    "individualPlanDescription": "Planul Individual este perfect pentru lucrul individual, dar nu poți invita membri ai echipei. Fă upgrade la Echipă pentru locuri nelimitate la €4,99/lună + €4,99/utilizator/lună.",
+    "upgradeToTeam": "Implementează auto-găzduit pentru colaborarea echipei",
+    "individualPlanDescription": "Platforma demo include toate funcționalitățile gratuit. Pentru utilizare în producție cu echipe, implementați BigMCP pe propria infrastructură.",
     "teamPlanIncludes": "Planul Echipă include:",
     "teamFeatures": {
       "unlimitedMembers": "Membri nelimitați în echipă",
@@ -367,11 +360,11 @@
       "teamInvitations": "Invitații în echipă prin email",
       "allIndividualFeatures": "Toate funcțiile planului Individual"
     },
-    "upgradeToTeamButton": "Upgrade la Echipă →",
+    "upgradeToTeamButton": "Implementează auto-găzduit →",
     "billingTracker": {
       "title": "Plan Echipă - Locuri nelimitate",
       "currentlyBilling": "Facturare curentă pentru",
-      "atRate": "la €4,99/utilizator/lună",
+      "atRate": "gratuit, nelimitat",
       "perMonth": "pe lună"
     },
     "credentialVisibilityUpdated": "Vizibilitatea credențialei a fost actualizată",

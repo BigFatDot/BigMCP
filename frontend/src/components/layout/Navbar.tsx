@@ -15,15 +15,15 @@ import {
   UsersIcon,
   KeyIcon,
 } from '@heroicons/react/24/outline'
-import { useAuth, useSubscription, useFeatureAccess, useEdition } from '../../hooks/useAuth'
+import { useAuth, useSubscription, useEdition } from '../../hooks/useAuth'
 import { BigMCPLogoWithText } from '../brand/BigMCPLogo'
 
 export function Navbar() {
   const { t } = useTranslation('common')
   const { isAuthenticated, user, logout } = useAuth()
-  const { isInTrial, daysUntilTrialEnd } = useSubscription()
-  const { features } = useFeatureAccess()
-  const { isCloudSaaS, isEnterprise, isCommunity } = useEdition()
+  const { isInTrial, daysUntilTrialEnd, isActive, subscription } = useSubscription()
+  const { isCloudSaaS } = useEdition()
+  const isTrialExpired = isCloudSaaS && subscription && !isActive
   const [showUserMenu, setShowUserMenu] = useState(false)
 
   return (
@@ -69,7 +69,7 @@ export function Navbar() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-3">
-            {/* Trial Badge */}
+            {/* Trial Badge — active trial */}
             {isAuthenticated && isInTrial && daysUntilTrialEnd && daysUntilTrialEnd > 0 && (
               <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 rounded-full">
                 <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
@@ -83,6 +83,23 @@ export function Navbar() {
                   {t('trial.daysLeft', { count: daysUntilTrialEnd })}
                 </span>
               </div>
+            )}
+
+            {/* Post-trial Badge — trial expired, non-blocking */}
+            {isAuthenticated && isTrialExpired && (
+              <a
+                href="https://github.com/bigfatdot/BigMCP"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hidden md:flex items-center gap-2 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full hover:bg-amber-100 transition-colors"
+              >
+                <svg className="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <span className="text-xs font-medium text-amber-700">
+                  {t('trial.expired')}
+                </span>
+              </a>
             )}
 
             {/* Documentation link - mobile only (desktop uses the nav links above) */}
@@ -155,16 +172,14 @@ export function Navbar() {
                             {t('menu.apiKeys')}
                           </Link>
 
-                          {!isCommunity && (
-                            <Link
-                              to="/app/organization"
-                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                              onClick={() => setShowUserMenu(false)}
-                            >
-                              <UsersIcon className="h-5 w-5 text-gray-400" />
-                              {t('menu.team')}
-                            </Link>
-                          )}
+                          <Link
+                            to="/app/organization"
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            <UsersIcon className="h-5 w-5 text-gray-400" />
+                            {t('menu.team')}
+                          </Link>
 
                           <Link
                             to="/app/preferences"

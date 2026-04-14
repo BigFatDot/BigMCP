@@ -1,147 +1,47 @@
 # BigMCP Licensing
 
-BigMCP follows an **Open Core** licensing model, making the complete platform available for self-hosting while offering commercial options for teams and enterprises.
+BigMCP is **free and open source software** licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPLv3).
 
-## License Overview
+## What This Means
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                         LICENSE OPTIONS                              │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐   │
-│  │    Community     │  │   Cloud SaaS     │  │   Enterprise     │   │
-│  │   (Self-Hosted)  │  │    (Managed)     │  │  (Self-Hosted)   │   │
-│  ├──────────────────┤  ├──────────────────┤  ├──────────────────┤   │
-│  │ ELv2 License     │  │ Commercial       │  │ Commercial       │   │
-│  │ Free forever     │  │ €4.99+/month     │  │ One-time fee     │   │
-│  │ 1 user limit     │  │ Unlimited users  │  │ Unlimited users  │   │
-│  │ Full platform    │  │ Full platform    │  │ Full platform    │   │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘   │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+- **Use** BigMCP for any purpose, personal or commercial
+- **Deploy** on your own infrastructure with no restrictions
+- **Modify** the source code to fit your needs
+- **Distribute** your own versions
+- **No user limits** — unlimited users, organizations, and features
+- **No license keys** — just `docker compose up` and you're running
 
----
+## AGPLv3 Requirements
 
-## 1. Community Edition (Self-Hosted)
+If you modify BigMCP and expose it as a network service, you must make your modified source code available under the same license. This protects the open source ecosystem while allowing full freedom of use.
 
-**License**: Elastic License 2.0 (ELv2) - See [LICENSE](LICENSE)
+## BigMCP Cloud (bigmcp.cloud)
 
-### What's Included
-- Complete platform (backend + frontend)
-- MCP Gateway with full protocol support
-- AI-powered orchestration
-- Dynamic marketplace access
-- All security features (JWT, OAuth 2.0, encryption)
-- Limited to **1 user**
+[bigmcp.cloud](https://app.bigmcp.cloud) is a **free demo platform** operated by BigFatDot. Use it to try BigMCP before deploying on your own infrastructure.
 
-### Permitted Uses
-- Personal use and learning
-- Internal business use (single user)
-- Non-commercial projects
-- Contributing to the project
-- Building integrations
+## Self-Hosted (Recommended for Production)
 
-### Restrictions (ELv2)
-- Cannot provide BigMCP as a managed service to third parties
-- Cannot remove or modify license notices
-- Cannot use to compete with BigMCP's commercial offerings
+Self-hosted is the primary deployment model. All features are included:
 
-### Quick Start
+- MCP Gateway with full protocol support (MCP 2025-03-26)
+- Custom MCP server registration & auto-discovery
+- Marketplace access (180+ servers)
+- Unlimited users & organizations
+- RBAC (Owner/Admin/Member/Viewer)
+- OAuth 2.0 with PKCE
+- Encrypted credential vault
+- AI-powered orchestration & compositions
+- Tool Groups with scoped API keys
+- Audit logging
+
 ```bash
 git clone https://github.com/bigfatdot/bigmcp.git
 cd bigmcp && docker compose up -d
 ```
 
----
-
-## 2. Cloud SaaS (Managed Service)
-
-**License**: Commercial subscription
-
-### Plans
-| Plan | Price | Users | Features |
-|------|-------|-------|----------|
-| **Individual** | €4.99/month | 1 | All features, no infrastructure to manage |
-| **Team** | €4.99/month + €4.99/user/month | 2-20 | Organizations, RBAC, shared credentials |
-
-### What's Included
-- Fully managed hosting at [app.bigmcp.cloud](https://app.bigmcp.cloud)
-- Automatic updates and maintenance
-- 99.9% uptime SLA
-- Technical support
-- Marketplace API access
-
-**[Start Free Trial →](https://app.bigmcp.cloud)**
-
----
-
-## 3. Enterprise Edition (Self-Hosted)
-
-**License**: Commercial license (one-time fee)
-
-### What's Included
-- Complete platform (backend + frontend)
-- **Unlimited users**
-- Organizations & RBAC
-- SSO/SAML integration
-- Air-gapped deployment support
-- Offline marketplace sync
-- Priority support
-- Custom integrations
-
-### Ideal For
-- Large organizations
-- Regulated industries
-- On-premise requirements
-- Data sovereignty needs
-
-**[Contact Sales →](mailto:enterprise@bigmcp.cloud)**
-
----
-
-## Public Sector Program
-
-Enterprise licenses are provided **free of charge** to public sector entities worldwide.
-
-### Eligible Organizations
-- Government ministries and agencies (e.g., `*.gouv.fr`, `*.gov.uk`)
-- Local and regional authorities (e.g., `*.paris.fr`, `*.berlin.de`)
-- Public establishments and institutions
-- Public hospitals and healthcare systems
-- Public educational institutions (e.g., `*.edu`, `*.ac-*.fr`)
-- Non-profit organizations serving the public
-
-### How It Works
-
-1. **Automatic Detection**: Register with your official public sector email
-2. **Instant Access**: If your domain is in our whitelist, you get a free Enterprise license automatically
-3. **New Domains**: Not whitelisted yet? Contact us to add your organization
-
-### Request Domain Addition
-
-If your public sector domain isn't recognized:
-
-1. Contact [enterprise@bigmcp.cloud](mailto:enterprise@bigmcp.cloud)
-2. Provide:
-   - Your organization's official name
-   - Email domain to whitelist
-   - Brief description of public service mission
-3. We verify and add your domain (usually within 24-48 hours)
-4. All users from your domain can then get free Enterprise licenses
-
-### Security
-
-- Verification is performed server-side against our curated whitelist
-- Parent domain matching (e.g., `education.gouv.fr` → recognized under `gouv.fr`)
-- Discount applied automatically during checkout - no coupon codes exposed
-
----
-
 ## Third-Party Licenses
 
-BigMCP integrates with open source components. Key dependencies:
+BigMCP integrates with open source components:
 
 | Component | License | Usage |
 |-----------|---------|-------|
@@ -154,25 +54,15 @@ Full dependency licenses are listed in:
 - `mcp-registry/requirements.txt` (Python)
 - `frontend/package.json` (Node.js)
 
----
+## Contributing
 
-## Contributor License Agreement (CLA)
-
-By contributing to BigMCP:
-
-1. **Community contributions** are licensed under ELv2
-2. **Enterprise feature contributions** grant BigFatDot a non-exclusive license to include them in commercial editions
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for full contribution guidelines.
-
----
+Contributions are welcome under the AGPLv3 license. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Questions?
 
 | Topic | Contact |
 |-------|---------|
-| Licensing | [licensing@bigmcp.cloud](mailto:licensing@bigmcp.cloud) |
-| Enterprise | [enterprise@bigmcp.cloud](mailto:enterprise@bigmcp.cloud) |
+| General | [contact@bigmcp.cloud](mailto:contact@bigmcp.cloud) |
 | Support | [support@bigmcp.cloud](mailto:support@bigmcp.cloud) |
 
 ---

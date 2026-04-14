@@ -37,7 +37,7 @@ from ...schemas.organization import (
     UserRoleEnum,
 )
 from ..dependencies import get_current_user, get_current_user_jwt
-from ...core.edition import is_community, is_saas, is_enterprise
+from ...core.edition import is_saas
 
 logger = logging.getLogger(__name__)
 
@@ -582,39 +582,8 @@ async def create_invitation(
     """
     user, _ = auth
 
-    # Edition validation: Community edition doesn't support team features
-    if is_community():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Team features are not available in Community edition. "
-                   "Upgrade to Enterprise for team collaboration with unlimited users."
-        )
-
-    # SaaS validation: Check subscription tier
-    if is_saas():
-        from ..v1.subscriptions import get_organization_subscription
-        from ...models.subscription import SubscriptionTier
-
-        subscription = await get_organization_subscription(db, organization_id)
-
-        if not subscription:
-            raise HTTPException(
-                status_code=status.HTTP_402_PAYMENT_REQUIRED,
-                detail="No active subscription found. Please subscribe to continue."
-            )
-
-        if not subscription.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_402_PAYMENT_REQUIRED,
-                detail=f"Subscription {subscription.status.value}. Please renew to invite members."
-            )
-
-        if subscription.tier == SubscriptionTier.INDIVIDUAL:
-            raise HTTPException(
-                status_code=status.HTTP_402_PAYMENT_REQUIRED,
-                detail="Individual plan is limited to 1 user. "
-                       "Upgrade to Team (€4.99/month + €4.99/user/month) for unlimited team members."
-            )
+    # SaaS: demo platform is non-blocking — invitations always allowed
+    # (trial auto-created with Team tier on email verification)
 
     # Check admin permission
     await require_org_admin(db, user.id, organization_id)
@@ -1075,28 +1044,6 @@ async def register_and_accept_invitation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="An account with this email already exists. Please login and accept the invitation from your dashboard."
         )
-
-    # Community edition: enforce user limit
-    from ...core.edition import get_edition, Edition
-    from sqlalchemy import func as sql_func
-
-    edition = get_edition()
-    if edition == Edition.COMMUNITY:
-        user_count_result = await db.execute(select(sql_func.count(User.id)))
-        user_count = user_count_result.scalar()
-
-        if user_count >= 1:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "error": "user_limit_exceeded",
-                    "message": "Community edition is limited to 1 user. Upgrade to Enterprise for unlimited users.",
-                    "edition": "community",
-                    "current_users": user_count,
-                    "max_users": 1,
-                    "upgrade_url": "https://bigmcp.cloud/pricing"
-                }
-            )
 
     # Create the user
     auth_service = AuthService(db)

@@ -28,17 +28,16 @@ import { LocalRegistryManager } from './LocalRegistryManager'
 import { marketplaceApi, adminRegistryApi } from '@/services/marketplace'
 import type { SourceInfo, AdminServerInfo } from '@/services/marketplace'
 import { useInstanceAdmin } from '@/hooks/useInstanceAdmin'
-import { useAuth } from '@/hooks/useAuth'
+// useAuth import removed — edition gating no longer needed here
 import type { MCPServer, MarketplaceFilters } from '@/types/marketplace'
 
 export function MarketplaceBrowser() {
   const { t } = useTranslation('marketplace')
   const { isInstanceAdmin, isLoading: adminLoading } = useInstanceAdmin()
-  const { isEnterprise, isCloudSaaS, editionLoading } = useAuth()
   const queryClient = useQueryClient()
 
-  // Team services only available for Enterprise and Cloud SaaS editions
-  const supportsTeamServices = isEnterprise || isCloudSaaS
+  // Team services available in all editions
+  const supportsTeamServices = true
 
   const [filters, setFilters] = useState<MarketplaceFilters>({
     search: '',

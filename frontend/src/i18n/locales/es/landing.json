@@ -2,17 +2,17 @@
   "nav": {
     "features": "Funciones",
     "howItWorks": "Cómo funciona",
-    "pricing": "Precios",
+    "pricing": "Desplegar",
     "login": "Iniciar sesión",
-    "getStarted": "Empezar"
+    "getStarted": "Probar la demo"
   },
   "hero": {
-    "badge": "Capa de gobernanza para MCP",
+    "badge": "Open Source MCP Gateway",
     "title": "Un",
     "titleHighlight": "Big MCP",
     "titleEnd": "para todas tus herramientas",
-    "subtitle": "Centraliza, gobierna y orquesta tus herramientas Model Context Protocol en una plataforma unificada. Accede desde cualquier lugar: escritorio o móvil.",
-    "cta": "Iniciar prueba gratuita",
+    "subtitle": "Registra, gobierna y expone tus servicios MCP a tus equipos. Open source, auto-alojado, usuarios ilimitados.",
+    "cta": "Probar la demo",
     "ctaSecondary": "Ver cómo funciona"
   },
   "mobileDemo": {
@@ -124,57 +124,55 @@
     ]
   },
   "pricing": {
-    "badge": "Precios",
-    "title": "Precios simples y transparentes",
-    "subtitle": "Gestionado en la nube o auto-alojado: tú decides",
-    "cloudLabel": "☁️ Cloud = Nosotros alojamos, tú usas",
-    "selfHostedLabel": "💻 Auto-alojado = Tú controlas todo",
+    "badge": "Open Source",
+    "title": "Gratis. Para siempre. Para todos.",
+    "subtitle": "Prueba la demo aquí, luego despliega en tu propia infraestructura",
+    "cloudLabel": "☁️ Pruébalo ahora — Plataforma de demo gratuita",
+    "selfHostedLabel": "💻 Auto-alojado — Tú controlas todo",
     "individual": {
-      "title": "Individual",
-      "subtitle": "Cloud",
-      "price": "€4.99",
-      "period": "/mes",
+      "title": "Plataforma demo",
+      "subtitle": "bigmcp.cloud",
+      "price": "Gratis",
+      "period": "",
       "features": [
-        "1 usuario",
-        "Servidores MCP ilimitados",
+        "Prueba todas las funciones al instante",
+        "Sin instalación requerida",
+        "Acceso al marketplace (más de 180 servidores)",
         "Orquestación de IA",
-        "Búsqueda semántica",
-        "Composiciones y flujos de trabajo",
-        "LLM gestionado incluido"
+        "Búsqueda semántica"
       ],
-      "cta": "Iniciar prueba gratuita"
+      "cta": "Probar la demo"
     },
     "team": {
-      "title": "Team",
-      "subtitle": "Cloud",
-      "price": "€4.99",
-      "period": "/mes + €4.99/usuario",
-      "badge": "Más popular",
+      "title": "Auto-alojado",
+      "subtitle": "Tu infraestructura",
+      "price": "Gratis",
+      "period": "open source (AGPLv3)",
+      "badge": "Recomendado",
       "features": [
-        "Todo lo del plan Individual",
-        "Hasta 20 usuarios",
-        "Organizaciones y RBAC",
-        "Credenciales compartidas",
-        "Registros de auditoría avanzados"
+        "Todas las funciones incluidas",
+        "Usuarios y organizaciones ilimitados",
+        "RBAC, OAuth 2.0, credenciales de equipo",
+        "Registro personalizado de servidores MCP",
+        "Tu elección de LLM",
+        "Despliegue con Docker"
       ],
-      "cta": "Iniciar prueba gratuita"
+      "cta": "Empezar en GitHub"
     },
     "enterprise": {
-      "title": "Enterprise",
-      "subtitle": "Auto-alojado",
+      "title": "Auto-alojado",
+      "subtitle": "Para organizaciones",
       "price": "Gratis",
-      "period": "oferta de lanzamiento • 3 meses",
+      "period": "open source",
       "features": [
-        "Todo lo del plan Team",
-        "Usuarios y equipos ilimitados",
-        "Control de admin completo",
-        "Pool central de servidores MCP",
-        "SSO (SAML, OIDC) - Próximamente",
-        "Auditoría y cumplimiento avanzados",
-        "Tu elección de LLM",
-        "Licencia perpetua"
+        "Todo lo de Auto-alojado",
+        "Grupos de herramientas con claves API específicas",
+        "Exposición selectiva de servicios por equipo",
+        "Registros de auditoría y cumplimiento",
+        "Marca personalizada (próximamente)",
+        "Control de admin completo"
       ],
-      "cta": "Obtener Enterprise"
+      "cta": "Desplegar ahora"
     },
     "community": {
       "title": "Community",
@@ -182,20 +180,20 @@
       "price": "Gratis",
       "period": "",
       "features": [
-        "Todo lo del plan Individual",
-        "Solo 1 usuario",
+        "Todas las funciones incluidas",
+        "Usuarios ilimitados",
         "Tu elección de LLM",
         "Despliegue con Docker"
       ],
       "cta": "Empezar"
     },
     "comingSoon": "Próximamente",
-    "note": "Las ediciones Cloud están disponibles ahora con LLM gestionado incluido. Las ediciones auto-alojadas te permiten elegir tu proveedor de LLM."
+    "note": "BigMCP es open source (AGPLv3). La plataforma demo te permite probar antes de desplegar. Auto-alojado te da control total."
   },
   "finalCta": {
     "title": "¿Listo para gobernar tu ecosistema MCP?",
-    "subtitle": "Inicia tu prueba gratuita hoy. No se requiere tarjeta de crédito.",
-    "cta": "Iniciar prueba gratuita"
+    "subtitle": "Prueba la demo o despliega en tu infraestructura en minutos.",
+    "cta": "Probar la demo"
   },
   "footer": {
     "tagline": "La capa de gobernanza para tus herramientas Model Context Protocol. Centraliza, orquesta y controla tu ecosistema MCP.",

@@ -6,11 +6,11 @@
     "documentation": "Τεκμηρίωση",
     "signin": "Σύνδεση",
     "signup": "Εγγραφή",
-    "startTrial": "Έναρξη Δωρεάν Δοκιμής"
+    "startTrial": "Ξεκινήστε"
   },
   "menu": {
     "account": "Ρυθμίσεις Λογαριασμού",
-    "subscription": "Συνδρομή & Χρέωση",
+    "subscription": "Έκδοση",
     "apiKeys": "API Keys",
     "team": "Ομάδα",
     "preferences": "Προτιμήσεις",

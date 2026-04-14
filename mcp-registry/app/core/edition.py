@@ -2,9 +2,14 @@
 Edition detection and license validation for BigMCP.
 
 This module determines which edition of BigMCP is running:
-- COMMUNITY: Free, self-hosted, single-user (default)
-- ENTERPRISE: Licensed, self-hosted, unlimited users
+- COMMUNITY: Free, self-hosted, unlimited users (default)
+- ENTERPRISE: Licensed, self-hosted, unlimited users (with signed license)
 - CLOUD_SAAS: BigFatDot's managed service at bigmcp.cloud
+
+All editions have full feature access. The distinction is:
+- COMMUNITY: No license required, all features enabled
+- ENTERPRISE: Validated via signed JWT license (for orgs wanting formal licensing)
+- CLOUD_SAAS: BigFatDot's demo/trial platform
 
 Security:
 - Uses ECDSA P-256 (ES256) for license/token verification
@@ -301,24 +306,15 @@ def has_feature(feature: str) -> bool:
     """
     Check if a feature is available in the current edition.
 
+    All editions now have full feature access (open source model).
+
     Args:
         feature: Feature identifier (e.g., "sso", "saml", "unlimited_users")
 
     Returns:
-        True if feature is available, False otherwise
+        True — all features are available in all editions
     """
-    edition = get_edition()
-
-    # Cloud SaaS has all features
-    if edition == Edition.CLOUD_SAAS:
-        return True
-
-    # Enterprise has features from license
-    if edition == Edition.ENTERPRISE:
-        return feature in get_license_features()
-
-    # Community has no premium features
-    return False
+    return True
 
 
 def is_saas() -> bool:
@@ -345,17 +341,9 @@ def get_max_users() -> int:
     Get maximum number of users for current edition.
 
     Returns:
-        User limit (1 for Community, unlimited for others)
+        999999 (unlimited) for all editions
     """
-    edition = get_edition()
-
-    if edition == Edition.COMMUNITY:
-        return 1
-    elif edition == Edition.ENTERPRISE:
-        return 999999  # Effectively unlimited
-    else:  # CLOUD_SAAS
-        # SaaS uses subscription-based limits, not edition limits
-        return 999999
+    return 999999
 
 
 def get_max_organizations() -> int:
@@ -363,11 +351,6 @@ def get_max_organizations() -> int:
     Get maximum number of organizations for current edition.
 
     Returns:
-        Organization limit (1 for Community, unlimited for others)
+        999999 (unlimited) for all editions
     """
-    edition = get_edition()
-
-    if edition == Edition.COMMUNITY:
-        return 1
-    else:
-        return 999999  # Effectively unlimited
+    return 999999

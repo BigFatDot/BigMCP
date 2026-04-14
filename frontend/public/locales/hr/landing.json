@@ -2,17 +2,17 @@
   "nav": {
     "features": "Značajke",
     "howItWorks": "Kako funkcionira",
-    "pricing": "Cijene",
+    "pricing": "Implementacija",
     "login": "Prijava",
-    "getStarted": "Počni"
+    "getStarted": "Isprobajte demo"
   },
   "hero": {
-    "badge": "Upravljački sloj za MCP",
+    "badge": "Open Source MCP Gateway",
     "title": "Jedan",
     "titleHighlight": "Big MCP",
     "titleEnd": "za sve tvoje alate",
-    "subtitle": "Centraliziraj, upravljaj i orkestriraj alate Model Context Protocola na jedinstvenoj platformi. Pristup s bilo kojeg mjesta — desktop ili mobitel.",
-    "cta": "Počni besplatno probno razdoblje",
+    "subtitle": "Registrirajte, upravljajte i izložite svoje MCP usluge timovima. Otvoreni kôd, vlastiti hosting, neograničen broj korisnika.",
+    "cta": "Isprobajte demo",
     "ctaSecondary": "Pogledaj kako funkcionira"
   },
   "mobileDemo": {
@@ -124,78 +124,76 @@
     ]
   },
   "pricing": {
-    "badge": "Cijene",
-    "title": "Jednostavne, transparentne cijene",
-    "subtitle": "Cloud upravljano ili samohostovano — ti biraš",
-    "cloudLabel": "☁️ Cloud = Mi hostiramo, ti koristiš",
-    "selfHostedLabel": "💻 Samohostovano = Ti posjeduješ sve",
+    "badge": "Otvoreni kôd",
+    "title": "Besplatno. Zauvijek. Za sve.",
+    "subtitle": "Isprobajte demo ovdje, zatim implementirajte na vlastitoj infrastrukturi",
+    "cloudLabel": "☁️ Isprobajte odmah — Besplatna demo platforma",
+    "selfHostedLabel": "💻 Vlastiti hosting — Vi posjedujete sve",
     "individual": {
-      "title": "Individualni",
-      "subtitle": "Cloud",
-      "price": "€4.99",
-      "period": "/mj.",
-      "features": [
-        "1 korisnik",
-        "Neograničeni MCP serveri",
-        "AI orkestracija",
-        "Semantička pretraga",
-        "Kompozicije i radni tokovi",
-        "Upravljani LLM uključen"
-      ],
-      "cta": "Počni besplatno probno razdoblje"
-    },
-    "team": {
-      "title": "Tim",
-      "subtitle": "Cloud",
-      "price": "€4.99",
-      "period": "/mj. + €4.99/korisnik",
-      "badge": "Najpopularnije",
-      "features": [
-        "Sve iz Individualnog plana",
-        "Do 20 korisnika",
-        "Organizacije i RBAC",
-        "Dijeljeni vjerodajnici",
-        "Napredni revizijski zapisi"
-      ],
-      "cta": "Počni besplatno probno razdoblje"
-    },
-    "enterprise": {
-      "title": "Enterprise",
-      "subtitle": "Samohostovano",
-      "price": "Besplatno",
-      "period": "ponuda za lansiranje • 3 mjeseca",
-      "features": [
-        "Sve iz Timskog plana",
-        "Neograničeni korisnici i timovi",
-        "Potpuna administratorska kontrola",
-        "Centralni MCP server pool",
-        "SSO (SAML, OIDC) — Uskoro",
-        "Napredna revizija i usklađenost",
-        "Tvoj odabir LLM-a",
-        "Trajna licenca"
-      ],
-      "cta": "Preuzmi Enterprise"
-    },
-    "community": {
-      "title": "Community",
-      "subtitle": "Samohostovano",
+      "title": "Demo",
+      "subtitle": "bigmcp.cloud",
       "price": "Besplatno",
       "period": "",
       "features": [
-        "Sve iz Individualnog plana",
-        "Samo 1 korisnik",
-        "Tvoj odabir LLM-a",
+        "Isprobajte sve značajke odmah",
+        "Nije potrebna instalacija",
+        "Pristup marketplaceu (180+ servera)",
+        "AI orkestracija",
+        "Semantička pretraga"
+      ],
+      "cta": "Isprobajte demo"
+    },
+    "team": {
+      "title": "Vlastiti hosting",
+      "subtitle": "Vaša infrastruktura",
+      "price": "Besplatno",
+      "period": "otvoreni kôd (AGPLv3)",
+      "badge": "Preporučeno",
+      "features": [
+        "Sve značajke uključene",
+        "Neograničen broj korisnika i organizacija",
+        "RBAC, OAuth 2.0, dijeljene vjerodajnice tima",
+        "Prilagođena registracija MCP servera",
+        "Vaš odabir LLM-a",
         "Docker implementacija"
       ],
-      "cta": "Počni"
+      "cta": "Započnite na GitHubu"
+    },
+    "enterprise": {
+      "title": "Vlastiti hosting",
+      "subtitle": "Za organizacije",
+      "price": "Besplatno",
+      "period": "otvoreni kôd",
+      "features": [
+        "Sve iz Vlastitog hostinga",
+        "Grupe alata s API ključevima po opsegu",
+        "Selektivno izlaganje usluga po timu",
+        "Revizijski zapisi i usklađenost",
+        "Prilagođeni branding (uskoro)",
+        "Potpuna administratorska kontrola"
+      ],
+      "cta": "Implementirajte odmah"
+    },
+    "community": {
+      "title": "Community",
+      "subtitle": "Vlastiti hosting",
+      "price": "Besplatno",
+      "period": "",
+      "features": [
+        "Sve značajke uključene",
+        "Neograničen broj korisnika",
+        "Vaš odabir LLM-a",
+        "Docker implementacija"
+      ],
+      "cta": "Započnite"
     },
     "comingSoon": "Uskoro",
-    "note": "Cloud izdanja su dostupna odmah s upravljanim LLM-om uključenim. Samohostovana izdanja ti omogućuju odabir vlastitog LLM pružatelja."
+    "note": "BigMCP je otvorenog kôda (AGPLv3). Demo platforma vam omogućuje isprobati prije implementacije. Vlastiti hosting daje punu kontrolu."
   },
   "finalCta": {
-    "title": "Spreman/spremna za upravljanje MCP eksustavom?",
-    "subtitle": "Počni besplatno probno razdoblje danas. Nije potrebna kreditna kartica.",
-    "cta": "Počni besplatno probno razdoblje"
+    "title": "Spremni za upravljanje MCP ekosustavom?",
+    "subtitle": "Isprobajte demo ili implementirajte na vlastitoj infrastrukturi u nekoliko minuta.",
+    "cta": "Isprobajte demo"
   },
   "footer": {
     "tagline": "Upravljački sloj za tvoje alate Model Context Protocola. Centraliziraj, orkestriraj i kontroliraj svoj MCP ekosustav.",

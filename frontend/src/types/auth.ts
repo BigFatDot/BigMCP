@@ -176,9 +176,9 @@ export interface PublicSectorEligibility {
 
 /**
  * Backend edition type.
- * - community: Free self-hosted, 1 user limit
- * - enterprise: Licensed self-hosted, unlimited users
- * - cloud_saas: BigMCP Cloud (bigmcp.cloud)
+ * - community: Free self-hosted, all features, unlimited users
+ * - enterprise: Self-hosted with signed license (optional)
+ * - cloud_saas: BigMCP Cloud demo platform (bigmcp.cloud)
  */
 export type EditionType = 'community' | 'enterprise' | 'cloud_saas'
 

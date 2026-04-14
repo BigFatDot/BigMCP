@@ -101,17 +101,9 @@ Feature requests are welcome! Please:
 - Clearly describe the use case
 - Explain why this would benefit other users
 
-## Contributor License Agreement (CLA)
+## License
 
-By contributing to BigMCP, you agree to the following:
-
-### Community Contributions
-Contributions to the Community Edition are licensed under the Elastic License 2.0 (ELv2).
-
-### Enterprise Contributions
-If you wish to contribute features that may be included in the Enterprise Edition, you agree to grant BigFatDot a non-exclusive, perpetual, royalty-free license to use, modify, and redistribute your contribution under any license, including commercial licenses.
-
-See [LICENSE](LICENSE) for full licensing details.
+By contributing to BigMCP, you agree that your contributions will be licensed under the [AGPLv3 License](LICENSE), the same license that covers the project.
 
 ## Questions?
 

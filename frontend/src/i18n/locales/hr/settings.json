@@ -98,18 +98,14 @@
         "features": "Licencirane značajke"
       },
       "community": {
-        "badge": "Community izdanje",
-        "title": "Jedan korisnik",
-        "subtitle": "Besplatno samohostovano izdanje sa svim osnovnim značajkama",
+        "badge": "Open Source",
+        "title": "Vlastiti hosting",
+        "subtitle": "Sve značajke uključene, neograničen broj korisnika",
         "included": "Uključeno",
         "marketplaceAccess": "Pristup marketplaceu",
         "mcpServerManagement": "Upravljanje MCP serverima",
         "aiOrchestration": "AI orkestracija",
-        "instanceAdmin": "Administrator instance",
-        "upgradeTitle": "Nadogradi na Enterprise",
-        "upgradeSubtitle": "Neograničeni korisnici, SSO, timske značajke i prioritetna podrška.",
-        "oneTime": "jednokratno",
-        "upgrade": "Nadogradi"
+        "instanceAdmin": "Administrator instance"
       }
     },
     "danger": {
@@ -123,19 +119,19 @@
     }
   },
   "subscription": {
-    "title": "Pretplata",
+    "title": "Izdanje",
     "titleLicense": "Licenca",
-    "subtitle": "Upravljaj pretplatom i pregledaj korištenje",
+    "subtitle": "Tvoje BigMCP izdanje i korištenje",
     "subtitleEnterprise": "Informacije o tvojoj Enterprise licenci",
-    "subtitleCommunity": "Nadogradi na Enterprise za neograničene korisnike",
-    "currentPlan": "Trenutni plan",
-    "freeTier": "Besplatno probno razdoblje",
-    "individualPlan": "Individualni plan",
-    "teamPlan": "Timski plan",
+    "subtitleCommunity": "Otvoreni kôd — sve značajke uključene",
+    "currentPlan": "Trenutno izdanje",
+    "freeTier": "Besplatni demo",
+    "individualPlan": "Demo platforma",
+    "teamPlan": "Demo platforma",
     "enterprisePlan": "Enterprise",
-    "trialEndsIn": "Probno razdoblje završava za {{days}} dana",
-    "activeSubscription": "Aktivna pretplata",
-    "noActiveSubscription": "Nema aktivne pretplate",
+    "trialEndsIn": "Demo završava za {{days}} dana",
+    "activeSubscription": "Aktivan demo",
+    "noActiveSubscription": "Demo je istekao — postavi vlastiti hosting za neograničen pristup",
     "cancelsAtPeriodEnd": "Otkazuje se na kraju perioda",
     "status": {
       "active": "Aktivno",
@@ -154,14 +150,14 @@
       "workflows": "radnih tokova",
       "users": "korisnika"
     },
-    "upgrade": "Nadogradi plan",
+    "upgrade": "Postavi vlastiti hosting",
     "upgradeTo": "Nadogradi na {{plan}}",
     "manage": "Upravljaj naplatom",
     "cancel": "Otkaži pretplatu",
     "reactivate": "Reaktiviraj pretplatu",
-    "availablePlans": "Dostupni planovi",
-    "currentPlanBadge": "Trenutni plan",
-    "mostPopular": "Najpopularnije",
+    "availablePlans": "Opcije postavljanja",
+    "currentPlanBadge": "Trenutno",
+    "mostPopular": "Preporučeno",
     "creatingCheckout": "Stvaranje naplate...",
     "paymentSuccess": "Plaćanje uspješno! Tvoja pretplata je sada aktivna.",
     "loading": "Učitavanje...",
@@ -200,56 +196,54 @@
       "perpetual": "trajno"
     },
     "community": {
-      "title": "Community izdanje",
-      "singleUser": "Jedan korisnik",
-      "subtitle": "Besplatno samohostovano izdanje sa svim osnovnim značajkama",
+      "title": "Vlastiti hosting",
+      "singleUser": "Sve značajke uključene",
+      "subtitle": "Otvoreni kôd, neograničen broj korisnika i organizacija",
       "included": "Uključeno",
       "marketplaceAccess": "Pristup marketplaceu",
       "mcpServerManagement": "Upravljanje MCP serverima",
       "aiOrchestration": "AI orkestracija",
       "semanticSearch": "Semantička pretraga",
-      "upgradeTitle": "Nadogradi na Enterprise",
-      "upgradeSubtitle": "Neograničeni korisnici, SSO, timske značajke i prioritetna podrška.",
       "purchaseNote": "Kupi na BigMCP Cloudu, zatim konfiguriraj LICENSE_KEY za aktivaciju."
     },
     "plans": {
       "individual": {
-        "name": "Individualni",
-        "subtitle": "Cloud",
-        "period": "/mj.",
+        "name": "Demo",
+        "subtitle": "bigmcp.cloud",
+        "period": "30 dana",
         "features": [
-          "Neograničeni MCP serveri",
+          "Sve značajke uključene",
           "AI orkestracija",
           "Semantička pretraga",
-          "Neograničene kompozicije",
-          "Upravljani LLM uključen"
+          "180+ marketplace servera",
+          "Nije potrebna instalacija"
         ]
       },
       "team": {
-        "name": "Tim",
-        "subtitle": "Cloud",
-        "period": "/korisnik/mj.",
+        "name": "Vlastiti hosting",
+        "subtitle": "Tvoja infrastruktura",
+        "period": "zauvijek (AGPLv3)",
         "features": [
-          "Sve iz Individualnog plana",
-          "Timska suradnja",
-          "Dijeljeni vjerodajnici",
-          "Kontrola pristupa temeljena na ulogama",
-          "Napredni revizijski zapisi"
+          "Sve — bez ograničenja",
+          "Neograničeni korisnici i organizacije",
+          "Prilagođena registracija MCP servera",
+          "API ključevi po timu",
+          "Tvoji podaci, tvoja kontrola"
         ]
       },
       "enterprise": {
-        "name": "Enterprise",
-        "subtitle": "Samohostovano",
-        "period": "jednokratno",
+        "name": "Vlastiti hosting za organizacije",
+        "subtitle": "Open Source",
+        "period": "AGPLv3",
         "features": [
-          "Neograničeni korisnici",
-          "SSO / SAML autentifikacija (Uskoro)",
-          "Potpuni revizijski zapisi",
-          "Prilagođeni branding",
-          "Prioritetna podrška",
-          "Namjenska infrastruktura",
-          "API pristup",
-          "Trajna licenca"
+          "Neograničeni korisnici i organizacije",
+          "Grupe alata s API ključevima",
+          "Selektivno izlaganje usluga",
+          "Potpuni revizijski zapisi i usklađenost",
+          "Prilagođeni branding (uskoro)",
+          "Puna administratorska kontrola",
+          "Tvoj izbor LLM-a",
+          "Docker postavljanje"
         ]
       }
     }
@@ -354,11 +348,11 @@
     "visibleToMembers": "Vidljivo članovima",
     "adminOnly": "Samo admini",
     "server": "Server",
-    "communityTitle": "Timske značajke nisu dostupne",
-    "communityDescription": "Community izdanje je ograničeno na jednog korisnika. Nadogradi na Enterprise za neograničenu timsku suradnju s kontrolom pristupa temeljenom na ulogama, dijeljenim vjerodajnicama i više.",
+    "communityTitle": "Upravljanje timom",
+    "communityDescription": "Upravljajte članovima tima, ulogama i dijeljenim vjerodajnicama.",
     "viewEnterprisePlans": "Pogledaj Enterprise planove →",
-    "upgradeToTeam": "Nadogradi na Tim za suradnju",
-    "individualPlanDescription": "Individualni plan je savršen za samostalni rad, ali ne možeš pozivati članove tima. Nadogradi na Tim za neograničena mjesta po €4.99/mj. + €4.99/korisnik/mj.",
+    "upgradeToTeam": "Postavi vlastiti hosting za timsku suradnju",
+    "individualPlanDescription": "Demo platforma uključuje sve značajke besplatno. Za produkcijsku upotrebu s timovima, postavite BigMCP na vlastitu infrastrukturu.",
     "teamPlanIncludes": "Timski plan uključuje:",
     "teamFeatures": {
       "unlimitedMembers": "Neograničeni članovi tima",
@@ -367,11 +361,11 @@
       "teamInvitations": "Timske pozivnice putem e-maila",
       "allIndividualFeatures": "Sve značajke Individualnog plana"
     },
-    "upgradeToTeamButton": "Nadogradi na Tim →",
+    "upgradeToTeamButton": "Postavi vlastiti hosting →",
     "billingTracker": {
       "title": "Timski plan - Neograničena mjesta",
       "currentlyBilling": "Trenutno se naplaćuje za",
-      "atRate": "po €4.99/korisnik/mj.",
+      "atRate": "besplatno, neograničeno",
       "perMonth": "mjesečno"
     },
     "credentialVisibilityUpdated": "Vidljivost vjerodajnice ažurirana",

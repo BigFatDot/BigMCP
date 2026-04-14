@@ -6,11 +6,11 @@
     "documentation": "Documentación",
     "signin": "Iniciar sesión",
     "signup": "Registrarse",
-    "startTrial": "Iniciar prueba gratuita"
+    "startTrial": "Comenzar"
   },
   "menu": {
     "account": "Configuración de cuenta",
-    "subscription": "Suscripción y facturación",
+    "subscription": "Edición",
     "apiKeys": "Claves API",
     "team": "Equipo",
     "preferences": "Preferencias",

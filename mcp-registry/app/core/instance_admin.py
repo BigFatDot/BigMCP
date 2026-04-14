@@ -2,7 +2,7 @@
 Instance Admin management for BigMCP.
 
 This module handles instance-level administration across all editions:
-- COMMUNITY: Single user is automatically instance admin
+- COMMUNITY: First user is automatically instance admin, others via promotion
 - ENTERPRISE: Admin token from LICENSE_KEY JWT
 - CLOUD_SAAS: Admin token from PLATFORM_ADMIN_TOKEN env var
 
@@ -31,9 +31,9 @@ def is_instance_admin(user) -> bool:
     """
     Check if a user is an instance admin.
 
-    The check depends on the current edition:
-    - COMMUNITY: Always True (single user = admin)
-    - ENTERPRISE/CLOUD_SAAS: Check user.preferences["instance_admin"]
+    All editions use user.preferences["instance_admin"] to track admin status.
+    In Community edition, the first registered user is auto-promoted to admin
+    (handled during registration). Additional users must be promoted manually.
 
     Args:
         user: User model instance with preferences attribute
@@ -48,13 +48,7 @@ def is_instance_admin(user) -> bool:
             # Show admin UI
             pass
     """
-    edition = get_edition()
-
-    # Community: single user is always admin
-    if edition == Edition.COMMUNITY:
-        return True
-
-    # Enterprise/SaaS: check user preference (set after token validation)
+    # All editions: check user preference
     if hasattr(user, 'preferences') and user.preferences:
         return user.preferences.get("instance_admin") is True
 

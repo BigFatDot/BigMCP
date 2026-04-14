@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-04-14
+
+### Open Source Pivot
+- **License**: Changed from Elastic License v2 (ELv2) to **AGPLv3** — BigMCP is now fully open source
+- **No more user limits**: Community edition now supports unlimited users and organizations
+- **All features unlocked**: RBAC, OAuth 2.0, Team Credentials, Tool Groups, Compositions — all available in every edition
+- **Self-hosted first**: BigMCP is designed to be deployed on your own infrastructure
+- **bigmcp.cloud**: Now a free demo/trial platform (no paid subscriptions)
+
+### Improvements
+- **Instance Admin**: First registered user is auto-promoted to admin; additional admins via token validation
+- **Organization defaults**: Raised limits — 100 MCP servers, 100 contexts, 500 tool bindings, 50 API keys per org
+- **Frontend**: Removed all "Upgrade to Enterprise" paywalls for self-hosted users
+- **Feature gates**: All subscription-based restrictions bypassed in self-hosted mode
+- **MCP 2025-03-26**: OAuth JWT tokens now accepted for MCP SSE connections (Claude Desktop compatibility)
+
+### Migration Notes
+- Existing Community Edition users: restart to get unlimited users (no migration needed)
+- Existing organizations: run `alembic upgrade head` to update resource limits
+- The first user on a fresh instance becomes instance admin automatically
+
+---
+
+## [1.2.0] - 2026-04-13
+
+### MCP Gateway
+- **OAuth JWT for SSE**: MCP SSE connections now accept both API Keys and OAuth JWT tokens (MCP 2025-03-26 compliance)
+- **Improved tool change notifications**: SSE sessions are closed and re-initialized when tools change, ensuring Claude Desktop picks up changes
+
+---
+
 ## [1.1.0] - 2026-02-21
 
 ### Core Platform

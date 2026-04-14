@@ -100,12 +100,18 @@ async def validate_token(
     user, _ = auth
     edition = get_edition()
 
-    # Community edition: auto-admin, no validation needed
+    # Community edition: token validation always succeeds, persist admin status
     if edition == Edition.COMMUNITY:
-        logger.info(f"Community edition: user {user.email} is automatically instance admin")
+        if user.preferences is None:
+            user.preferences = {}
+        user.preferences["instance_admin"] = True
+        flag_modified(user, "preferences")
+        db.add(user)
+        await db.commit()
+        logger.info(f"Community edition: user {user.email} granted instance admin")
         return AdminTokenResponse(
             success=True,
-            message="Community edition: you are automatically an instance admin"
+            message="Community edition: you are now an instance admin"
         )
 
     # Check if already admin
@@ -154,17 +160,8 @@ async def revoke_admin(
     Revoke instance admin privileges from the current user.
 
     This allows an admin to voluntarily give up their admin status.
-    Not available on Community edition (always admin).
     """
     user, _ = auth
-    edition = get_edition()
-
-    # Community edition: cannot revoke
-    if edition == Edition.COMMUNITY:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot revoke admin on Community edition"
-        )
 
     # Check if actually admin
     if not is_instance_admin(user):

@@ -98,18 +98,14 @@
         "features": "Licencjonowane funkcje"
       },
       "community": {
-        "badge": "Edycja Community",
-        "title": "Pojedynczy użytkownik",
-        "subtitle": "Bezpłatna edycja do samodzielnego hostowania ze wszystkimi podstawowymi funkcjami",
+        "badge": "Open Source",
+        "title": "Self-hosted",
+        "subtitle": "Wszystkie funkcje w zestawie, nieograniczona liczba użytkowników",
         "included": "Zawarte",
         "marketplaceAccess": "Dostęp do marketplace",
         "mcpServerManagement": "Zarządzanie serwerami MCP",
         "aiOrchestration": "Orkiestracja AI",
-        "instanceAdmin": "Administrator instancji",
-        "upgradeTitle": "Przejdź na Enterprise",
-        "upgradeSubtitle": "Nieograniczona liczba użytkowników, SSO, funkcje zespołowe i wsparcie priorytetowe.",
-        "oneTime": "jednorazowo",
-        "upgrade": "Uaktualnij"
+        "instanceAdmin": "Administrator instancji"
       }
     },
     "danger": {
@@ -123,19 +119,19 @@
     }
   },
   "subscription": {
-    "title": "Subskrypcja",
+    "title": "Edycja",
     "titleLicense": "Licencja",
-    "subtitle": "Zarządzaj subskrypcją i przeglądaj wykorzystanie",
+    "subtitle": "Twoja edycja BigMCP i wykorzystanie",
     "subtitleEnterprise": "Informacje o licencji Enterprise",
-    "subtitleCommunity": "Przejdź na Enterprise, aby uzyskać nieograniczoną liczbę użytkowników",
-    "currentPlan": "Aktualny plan",
-    "freeTier": "Okres próbny",
-    "individualPlan": "Plan Indywidualny",
-    "teamPlan": "Plan Zespołowy",
+    "subtitleCommunity": "Open source — wszystkie funkcje w zestawie",
+    "currentPlan": "Aktualna edycja",
+    "freeTier": "Darmowe demo",
+    "individualPlan": "Platforma demo",
+    "teamPlan": "Platforma demo",
     "enterprisePlan": "Enterprise",
-    "trialEndsIn": "Okres próbny kończy się za {{days}} dni",
-    "activeSubscription": "Aktywna subskrypcja",
-    "noActiveSubscription": "Brak aktywnej subskrypcji",
+    "trialEndsIn": "Demo kończy się za {{days}} dni",
+    "activeSubscription": "Aktywne demo",
+    "noActiveSubscription": "Demo wygasło — wdróż self-hosted dla nieograniczonego dostępu",
     "cancelsAtPeriodEnd": "Anulowanie na koniec okresu rozliczeniowego",
     "status": {
       "active": "Aktywna",
@@ -154,14 +150,14 @@
       "workflows": "przepływy pracy",
       "users": "użytkownicy"
     },
-    "upgrade": "Uaktualnij plan",
+    "upgrade": "Wdróż self-hosted",
     "upgradeTo": "Przejdź na {{plan}}",
     "manage": "Zarządzaj płatnościami",
     "cancel": "Anuluj subskrypcję",
     "reactivate": "Reaktywuj subskrypcję",
-    "availablePlans": "Dostępne plany",
-    "currentPlanBadge": "Aktualny plan",
-    "mostPopular": "Najpopularniejszy",
+    "availablePlans": "Opcje wdrożenia",
+    "currentPlanBadge": "Aktualny",
+    "mostPopular": "Zalecany",
     "creatingCheckout": "Tworzenie kasy...",
     "paymentSuccess": "Płatność zakończona pomyślnie! Twoja subskrypcja jest teraz aktywna.",
     "loading": "Ładowanie...",
@@ -200,56 +196,54 @@
       "perpetual": "wieczysta"
     },
     "community": {
-      "title": "Edycja Community",
-      "singleUser": "Pojedynczy użytkownik",
-      "subtitle": "Bezpłatna edycja do samodzielnego hostowania ze wszystkimi podstawowymi funkcjami",
+      "title": "Self-hosted",
+      "singleUser": "Wszystkie funkcje w zestawie",
+      "subtitle": "Open source, nieograniczona liczba użytkowników i organizacji",
       "included": "Zawarte",
       "marketplaceAccess": "Dostęp do marketplace",
       "mcpServerManagement": "Zarządzanie serwerami MCP",
       "aiOrchestration": "Orkiestracja AI",
       "semanticSearch": "Wyszukiwanie semantyczne",
-      "upgradeTitle": "Przejdź na Enterprise",
-      "upgradeSubtitle": "Nieograniczona liczba użytkowników, SSO, funkcje zespołowe i wsparcie priorytetowe.",
       "purchaseNote": "Kup na BigMCP Cloud, a następnie skonfiguruj LICENSE_KEY, aby aktywować."
     },
     "plans": {
       "individual": {
-        "name": "Indywidualny",
-        "subtitle": "Cloud",
-        "period": "/miesiąc",
+        "name": "Demo",
+        "subtitle": "bigmcp.cloud",
+        "period": "30 dni",
         "features": [
-          "Nieograniczona liczba serwerów MCP",
+          "Wszystkie funkcje w zestawie",
           "Orkiestracja oparta na AI",
           "Wyszukiwanie semantyczne",
-          "Nieograniczone kompozycje",
-          "Zarządzany LLM w zestawie"
+          "180+ serwerów marketplace",
+          "Bez potrzeby instalacji"
         ]
       },
       "team": {
-        "name": "Zespołowy",
-        "subtitle": "Cloud",
-        "period": "/użytkownik/miesiąc",
+        "name": "Self-hosted",
+        "subtitle": "Twoja infrastruktura",
+        "period": "na zawsze (AGPLv3)",
         "features": [
-          "Wszystko z planu Indywidualnego",
-          "Współpraca zespołowa",
-          "Współdzielone dane uwierzytelniające",
-          "Kontrola dostępu oparta na rolach",
-          "Zaawansowane dzienniki audytu"
+          "Wszystko — bez ograniczeń",
+          "Nieograniczona liczba użytkowników i organizacji",
+          "Niestandardowa rejestracja serwerów MCP",
+          "Klucze API per zespół",
+          "Twoje dane, Twoja kontrola"
         ]
       },
       "enterprise": {
-        "name": "Enterprise",
-        "subtitle": "Samodzielnie hostowana",
-        "period": "jednorazowo",
+        "name": "Self-hosted dla organizacji",
+        "subtitle": "Open Source",
+        "period": "AGPLv3",
         "features": [
-          "Nieograniczona liczba użytkowników",
-          "Uwierzytelnianie SSO / SAML (wkrótce)",
-          "Pełne dzienniki audytu",
-          "Niestandardowy branding",
-          "Wsparcie priorytetowe",
-          "Dedykowana infrastruktura",
-          "Dostęp do API",
-          "Licencja wieczysta"
+          "Nieograniczona liczba użytkowników i organizacji",
+          "Grupy narzędzi z kluczami API",
+          "Selektywne udostępnianie usług",
+          "Pełne dzienniki audytu i zgodność",
+          "Niestandardowy branding (wkrótce)",
+          "Pełna kontrola administracyjna",
+          "Twój wybór LLM",
+          "Wdrożenie Docker"
         ]
       }
     }
@@ -354,11 +348,11 @@
     "visibleToMembers": "Widoczne dla członków",
     "adminOnly": "Tylko dla administratora",
     "server": "Serwer",
-    "communityTitle": "Funkcje zespołowe niedostępne",
-    "communityDescription": "Edycja Community jest ograniczona do jednego użytkownika. Przejdź na Enterprise, aby uzyskać nieograniczoną współpracę zespołową z kontrolą dostępu opartą na rolach, współdzielonymi danymi uwierzytelniającymi i nie tylko.",
+    "communityTitle": "Zarządzanie zespołem",
+    "communityDescription": "Zarządzaj członkami zespołu, rolami i współdzielonymi danymi uwierzytelniającymi.",
     "viewEnterprisePlans": "Zobacz plany Enterprise →",
-    "upgradeToTeam": "Przejdź na plan Zespołowy w celu współpracy",
-    "individualPlanDescription": "Plan Indywidualny jest idealny do samodzielnej pracy, ale nie można zapraszać członków zespołu. Przejdź na plan Zespołowy, aby uzyskać nieograniczoną liczbę miejsc za €4,99/miesiąc + €4,99/użytkownik/miesiąc.",
+    "upgradeToTeam": "Wdróż self-hosted dla współpracy zespołowej",
+    "individualPlanDescription": "Platforma demo zawiera wszystkie funkcje bezpłatnie. Do użytku produkcyjnego z zespołami, wdróż BigMCP na własnej infrastrukturze.",
     "teamPlanIncludes": "Plan Zespołowy obejmuje:",
     "teamFeatures": {
       "unlimitedMembers": "Nieograniczona liczba członków zespołu",
@@ -367,11 +361,11 @@
       "teamInvitations": "Zaproszenia do zespołu via e-mail",
       "allIndividualFeatures": "Wszystkie funkcje planu Indywidualnego"
     },
-    "upgradeToTeamButton": "Przejdź na Zespołowy →",
+    "upgradeToTeamButton": "Wdróż self-hosted →",
     "billingTracker": {
       "title": "Plan Zespołowy - Nieograniczona liczba miejsc",
       "currentlyBilling": "Aktualnie rozliczane za",
-      "atRate": "w cenie €4,99/użytkownik/miesiąc",
+      "atRate": "bezpłatnie, bez ograniczeń",
       "perMonth": "miesięcznie"
     },
     "credentialVisibilityUpdated": "Widoczność danych uwierzytelniających zaktualizowana",

@@ -21,28 +21,15 @@ By using BigMCP, you agree to these Terms. If you do not agree, do not use the s
 
 ## 2. Editions and Licensing
 
-### 2.1 Community Edition (Free)
+### 2.1 Self-Hosted (Open Source)
 - Self-hosted on your infrastructure
-- Single user
-- Licensed under Elastic License 2.0 (ELv2)
-- No support included
+- Licensed under AGPLv3
+- All features included, unlimited users
+- Community support via GitHub
 
-### 2.2 Cloud Edition (SaaS)
-- Hosted by BigMCP at bigmcp.cloud
-- Subscription-based pricing
-- Support via email and documentation
-
-### 2.3 Enterprise Edition
-- Self-hosted on your infrastructure
-- Unlimited users
-- Licensed per-seat or site-wide
-- Priority support included
-
-### 2.4 License Restrictions
-Under Elastic License 2.0, you may NOT:
-- Provide BigMCP as a managed service to third parties
-- Remove or alter license notices
-- Circumvent license key verification
+### 2.2 BigMCP Cloud (Demo Platform)
+- Free demo platform hosted at bigmcp.cloud
+- Operated by BigFatDot
 
 See [LICENSING.md](LICENSING.md) for full license details.
 
@@ -83,7 +70,7 @@ We may suspend or terminate accounts that:
 - Use BigMCP for illegal activities
 - Store credentials for unauthorized access to third-party services
 - Attempt to bypass security measures or rate limits
-- Reverse engineer, decompile, or extract source code (beyond ELv2 allowances)
+- Attempt to reverse engineer security mechanisms
 - Use the Service to send spam or malicious content
 - Resell access to BigMCP without authorization
 - Overload or interfere with Service infrastructure
@@ -137,28 +124,22 @@ If you provide feedback or suggestions, you grant us the right to use them witho
 - Your use of third-party services is subject to their terms
 
 ### 7.2 Payment Processing
-- Payments are processed by LemonSqueezy
-- Payment disputes should be directed to LemonSqueezy
-- Subscription terms are governed by your plan selection
+- BigMCP self-hosted is free and open source
+- The BigMCP Cloud demo platform is free
 
 ---
 
 ## 8. Service Level
 
-### 8.1 Cloud Edition Availability
+### 8.1 BigMCP Cloud Availability
 - Target uptime: 99.9%
 - Scheduled maintenance with advance notice
-- No SLA for free trials or Community edition
+- No SLA (free demo platform)
 
-### 8.2 Enterprise Edition SLA
-- Custom SLA available with Enterprise agreements
-- Contact sales@bigmcp.cloud for details
-
-### 8.3 Service Changes
+### 8.2 Service Changes
 We may:
 - Modify features with reasonable notice
 - Deprecate features with migration path
-- Update pricing with 30 days notice (existing subscriptions honored)
 
 ---
 
@@ -242,13 +223,11 @@ For sales: sales@bigmcp.cloud
 
 ---
 
-## Summary by Edition
+## Summary
 
-| Aspect | Community | Cloud | Enterprise |
-|--------|-----------|-------|------------|
-| Cost | Free | Subscription | License fee |
-| Hosting | Self-hosted | BigMCP servers | Self-hosted |
-| Support | Community only | Email | Priority |
-| SLA | None | 99.9% target | Custom |
-| Data location | Your servers | EU (BigMCP) | Your servers |
-| License | ELv2 | Subscription | Perpetual |
+| Aspect | Self-Hosted | BigMCP Cloud |
+|--------|-------------|--------------|
+| Cost | Free (AGPLv3) | Free (demo) |
+| Hosting | Your servers | BigMCP servers |
+| Support | GitHub community | GitHub community |
+| Data location | Your servers | EU (BigMCP) |

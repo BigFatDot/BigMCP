@@ -336,7 +336,7 @@ export function ToolsDashboard() {
   const { t } = useTranslation('dashboard')
   const queryClient = useQueryClient()
   const { organizationName, hasOrganization, isTeamOrg } = useOrganization()
-  const { features, isTeam, isEnterprise } = useFeatureAccess()
+  const { features } = useFeatureAccess()
   const [viewMode, setViewMode] = useState<ViewMode>('servers')
   const [serverTab, setServerTab] = useState<ServerTabType>('personal')
   const [expandedServers, setExpandedServers] = useState<Set<string>>(new Set())
@@ -346,8 +346,8 @@ export function ToolsDashboard() {
     return localStorage.getItem('services-info-banner-dismissed') !== 'true'
   })
 
-  // Can share with organization if user has Team/Enterprise plan and organizations feature
-  const canShareWithOrg = (isTeam || isEnterprise) && features.organizations && hasOrganization
+  // Can share with organization if organizations feature is enabled
+  const canShareWithOrg = features.organizations && hasOrganization
 
   // Fetch credentials (servers)
   const { data: credentials = [], isLoading: isLoadingCredentials, error: credentialsError } = useQuery({

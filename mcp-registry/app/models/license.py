@@ -26,9 +26,9 @@ class LicenseEdition(str, enum.Enum):
     """
     License edition tiers.
 
-    - COMMUNITY: Free, self-hosted, single-user only
-    - PROFESSIONAL: Paid, multi-user, organizations, RBAC
-    - ENTERPRISE: Paid, SSO, audit, AI orchestration, LLM dedicated
+    - COMMUNITY: Free, self-hosted, all features, unlimited users
+    - PROFESSIONAL: Multi-user with organizations and RBAC
+    - ENTERPRISE: SSO, audit, AI orchestration, LLM dedicated
     """
     COMMUNITY = "community"
     PROFESSIONAL = "professional"

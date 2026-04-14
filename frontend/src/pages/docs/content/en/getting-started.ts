@@ -133,11 +133,11 @@ Get up and running with BigMCP in 5 minutes.
 ## Step 1: Create an Account
 
 1. Visit [bigmcp.cloud](https://bigmcp.cloud)
-2. Click **Start Free Trial**
+2. Click **Get Started**
 3. Enter your email and create a password
 4. Verify your email address (check your inbox)
 
-> **Note:** All new accounts include a 15-day free trial with full access to all features.
+> **Note:** The demo platform is free and includes full access to all features. For production use, [self-host BigMCP](../self-hosting/introduction) on your own infrastructure.
 
 ## Step 2: Explore the Marketplace
 

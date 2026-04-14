@@ -6,11 +6,11 @@
     "documentation": "Documentatie",
     "signin": "Inloggen",
     "signup": "Registreren",
-    "startTrial": "Gratis proefperiode starten"
+    "startTrial": "Aan de slag"
   },
   "menu": {
     "account": "Accountinstellingen",
-    "subscription": "Abonnement & Facturering",
+    "subscription": "Edition",
     "apiKeys": "API-sleutels",
     "team": "Team",
     "preferences": "Voorkeuren",

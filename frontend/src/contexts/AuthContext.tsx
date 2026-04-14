@@ -89,6 +89,10 @@ function detectDeploymentMode(): DeploymentType {
   // Check environment variable first (set during build)
   const envMode = import.meta.env.VITE_DEPLOYMENT_MODE as DeploymentType | undefined
   if (envMode) {
+    // Support legacy values
+    if (envMode === 'self_hosted_community' || envMode === 'self_hosted_enterprise') {
+      return 'self_hosted' as DeploymentType
+    }
     return envMode
   }
 
@@ -100,14 +104,8 @@ function detectDeploymentMode(): DeploymentType {
     return 'cloud'
   }
 
-  // Check localStorage for self-hosted configuration
-  const storedMode = localStorage.getItem(STORAGE_KEYS.DEPLOYMENT_MODE) as DeploymentType | null
-  if (storedMode === 'self_hosted_enterprise') {
-    return 'self_hosted_enterprise'
-  }
-
-  // Default to self-hosted community
-  return 'self_hosted_community'
+  // Default to self-hosted
+  return 'self_hosted' as DeploymentType
 }
 
 /**
@@ -129,7 +127,8 @@ function getDeploymentConfig(mode: DeploymentType): DeploymentConfig {
     mode,
     is_cloud: isCloud,
     requires_subscription: isCloud,
-    supports_organizations: mode === 'cloud' || mode === 'self_hosted_enterprise',
+    // All self-hosted editions support organizations (features driven by backend /edition/status)
+    supports_organizations: true,
     // Always use local backend - it handles marketplace proxy to cloud if needed
     marketplace_api_url: apiBaseUrl,
   }
@@ -154,9 +153,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [editionLoading, setEditionLoading] = useState(true)
 
   // Computed edition flags
-  const isCloudSaaS = edition?.edition === 'cloud_saas'
+  // If edition not loaded yet but we know we're cloud (from hostname), treat as cloud_saas
+  const isCloudSaaS = edition?.edition === 'cloud_saas' || (!editionLoading && edition === null && deploymentConfig.is_cloud)
   const isEnterprise = edition?.edition === 'enterprise'
-  const isCommunity = edition?.edition === 'community' || (!editionLoading && edition === null)
+  const isCommunity = edition?.edition === 'community' || (!editionLoading && edition === null && !deploymentConfig.is_cloud)
 
   // ============================================================================
   // Token Management
@@ -420,19 +420,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const hasFeature = useCallback(
     (feature: keyof FeatureLimits): boolean => {
-      // Self-hosted community: limited features
-      if (deploymentConfig.mode === 'self_hosted_community') {
-        const communityFeatures: Array<keyof FeatureLimits> = [
-          'marketplace_access',
-          'unlimited_ai_features',
-          'unlimited_semantic_search',
-          'unlimited_compositions',
-        ]
-        return communityFeatures.includes(feature)
-      }
-
-      // Self-hosted enterprise: all features
-      if (deploymentConfig.mode === 'self_hosted_enterprise') {
+      // Self-hosted (any edition): use backend edition features
+      if (!deploymentConfig.is_cloud) {
+        // If edition loaded from backend, use its features
+        if (edition?.features) {
+          // Map feature names to edition feature flags
+          const featureMap: Record<string, boolean> = {
+            'marketplace_access': true,
+            'unlimited_ai_features': true,
+            'unlimited_semantic_search': true,
+            'unlimited_compositions': true,
+            'organizations': edition.features.organizations ?? true,
+            'rbac': edition.features.organizations ?? true,
+            'oauth': edition.features.sso ?? true,
+            'team_credentials': edition.features.organizations ?? true,
+          }
+          return featureMap[feature] ?? true
+        }
+        // Edition not loaded yet — default to all features enabled
         return true
       }
 
@@ -456,7 +461,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // All other features are available to all paid tiers
       return true
     },
-    [deploymentConfig.mode, subscription]
+    [deploymentConfig.is_cloud, subscription, edition]
   )
 
   const canAddUser = useCallback((): boolean => {

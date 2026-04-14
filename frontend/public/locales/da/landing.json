@@ -2,17 +2,17 @@
   "nav": {
     "features": "Funktioner",
     "howItWorks": "Sådan fungerer det",
-    "pricing": "Priser",
+    "pricing": "Installér",
     "login": "Log ind",
-    "getStarted": "Kom i gang"
+    "getStarted": "Prøv demoen"
   },
   "hero": {
-    "badge": "Governance-lag for MCP",
+    "badge": "Open Source MCP Gateway",
     "title": "Én",
     "titleHighlight": "Big MCP",
     "titleEnd": "til alle dine værktøjer",
-    "subtitle": "Centralisér, styr og orkestrér dine Model Context Protocol-værktøjer i én samlet platform. Adgang fra overalt — desktop eller mobil.",
-    "cta": "Start gratis prøveperiode",
+    "subtitle": "Centralisér, styr og orkestrér dine Model Context Protocol-værktøjer i én samlet platform. Open source, gratis og selvhostet.",
+    "cta": "Prøv demoen",
     "ctaSecondary": "Se hvordan det fungerer"
   },
   "mobileDemo": {
@@ -124,57 +124,57 @@
     ]
   },
   "pricing": {
-    "badge": "Priser",
-    "title": "Enkle, gennemsigtige priser",
+    "badge": "Open Source",
+    "title": "Gratis. For altid. For alle.",
     "subtitle": "Cloud-administreret eller selvhostet — du vælger",
     "cloudLabel": "☁️ Cloud = vi hoster, du bruger",
     "selfHostedLabel": "💻 Selvhostet = du ejer alt",
     "individual": {
-      "title": "Individuel",
+      "title": "Demoplatform",
       "subtitle": "Cloud",
-      "price": "€4,99",
-      "period": "/måned",
+      "price": "Gratis",
+      "period": "",
       "features": [
         "1 bruger",
-        "Ubegrænsede MCP-servere",
+        "Alle funktioner inkluderet",
         "AI-orkestrering",
         "Semantisk søgning",
         "Kompositioner og arbejdsforløb",
         "Administreret LLM inkluderet"
       ],
-      "cta": "Start gratis prøveperiode"
+      "cta": "Prøv demoen"
     },
     "team": {
-      "title": "Team",
-      "subtitle": "Cloud",
-      "price": "€4,99",
-      "period": "/måned + €4,99/bruger",
-      "badge": "Mest populære",
+      "title": "Selvhostet",
+      "subtitle": "Anbefalet",
+      "price": "Gratis",
+      "period": "",
+      "badge": "Anbefalet",
       "features": [
-        "Alt i Individuel",
-        "Op til 20 brugere",
+        "Ubegrænsede brugere",
+        "Ubegrænsede organisationer",
         "Organisationer og RBAC",
         "Delte legitimationsoplysninger",
         "Avancerede revisionslogfiler"
       ],
-      "cta": "Start gratis prøveperiode"
+      "cta": "Kom i gang"
     },
     "enterprise": {
       "title": "Enterprise",
-      "subtitle": "Selvhostet",
+      "subtitle": "For organisationer",
       "price": "Gratis",
-      "period": "lanceringtilbud • 3 måneder",
+      "period": "",
       "features": [
-        "Alt i Team",
+        "Alt i Selvhostet",
         "Ubegrænsede brugere og teams",
         "Fuld administratorkontrol",
         "Centralt MCP-serverpulje",
         "SSO (SAML, OIDC) – kommer snart",
         "Avanceret revision og compliance",
         "Dit valg af LLM",
-        "Evig licens"
+        "Prioritetssupport"
       ],
-      "cta": "Hent Enterprise"
+      "cta": "Kom i gang"
     },
     "community": {
       "title": "Community",
@@ -190,12 +190,12 @@
       "cta": "Kom i gang"
     },
     "comingSoon": "Kommer snart",
-    "note": "Cloud-udgaver er tilgængelige nu med administreret LLM inkluderet. Selvhostede udgaver lader dig vælge din LLM-udbyder."
+    "note": "BigMCP er open source under AGPLv3-licensen. Selvhosting er gratis og inkluderer alle funktioner. Demoplatformen hostes af BigFatDot, så du kan prøve den."
   },
   "finalCta": {
     "title": "Klar til at styre dit MCP-økosystem?",
-    "subtitle": "Start din gratis prøveperiode i dag. Intet kreditkort kræves.",
-    "cta": "Start gratis prøveperiode"
+    "subtitle": "Open source og gratis. Installér selv eller prøv demoen.",
+    "cta": "Prøv demoen"
   },
   "footer": {
     "tagline": "Governance-laget til dine Model Context Protocol-værktøjer. Centralisér, orkestrér og kontrollér dit MCP-økosystem.",

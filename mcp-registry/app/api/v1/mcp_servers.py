@@ -195,10 +195,10 @@ async def update_mcp_server(
         )
 
         # Notify connected MCP clients if visibility or enabled state changed
-        # This triggers cache refresh + SSE notification for all connected users in the org
+        # Close user's SSE sessions to force Claude Desktop re-initialization
         if server_data.is_visible_to_oauth_clients is not None or server_data.enabled is not None:
             from ...routers.mcp_unified import notify_org_tools_changed
-            asyncio.create_task(notify_org_tools_changed(organization_id))
+            asyncio.create_task(notify_org_tools_changed(organization_id, user_id=membership.user_id))
 
         return MCPServerResponse.model_validate(updated_server)
     except RuntimeError as e:

@@ -2,17 +2,17 @@
   "nav": {
     "features": "Functies",
     "howItWorks": "Hoe het werkt",
-    "pricing": "Prijzen",
+    "pricing": "Installeren",
     "login": "Inloggen",
-    "getStarted": "Aan de slag"
+    "getStarted": "Demo proberen"
   },
   "hero": {
-    "badge": "Governance-laag voor MCP",
+    "badge": "Open Source MCP Gateway",
     "title": "Één",
     "titleHighlight": "Big MCP",
     "titleEnd": "voor al je tools",
-    "subtitle": "Centraliseer, beheer en orkestreer je Model Context Protocol-tools in één unified platform. Toegankelijk overal—desktop of mobiel.",
-    "cta": "Gratis proefperiode starten",
+    "subtitle": "Centraliseer, beheer en orkestreer je Model Context Protocol-tools in één unified platform. Open source, gratis en zelf te hosten.",
+    "cta": "Demo proberen",
     "ctaSecondary": "Zie hoe het werkt"
   },
   "mobileDemo": {
@@ -124,57 +124,57 @@
     ]
   },
   "pricing": {
-    "badge": "Prijzen",
-    "title": "Eenvoudige, transparante prijzen",
+    "badge": "Open Source",
+    "title": "Gratis. Voor altijd. Voor iedereen.",
     "subtitle": "Cloudbeheerd of zelfgehost—jij kiest",
     "cloudLabel": "☁️ Cloud = Wij hosten, jij gebruikt",
     "selfHostedLabel": "💻 Zelfgehost = Jij bezit alles",
     "individual": {
-      "title": "Individueel",
+      "title": "Demoplatform",
       "subtitle": "Cloud",
-      "price": "€4,99",
-      "period": "/maand",
+      "price": "Gratis",
+      "period": "",
       "features": [
         "1 gebruiker",
-        "Onbeperkte MCP-servers",
+        "Alle functies inbegrepen",
         "AI-orkestratie",
         "Semantisch zoeken",
         "Composities & workflows",
         "Beheerde LLM inbegrepen"
       ],
-      "cta": "Gratis proefperiode starten"
+      "cta": "Demo proberen"
     },
     "team": {
-      "title": "Team",
-      "subtitle": "Cloud",
-      "price": "€4,99",
-      "period": "/maand + €4,99/gebruiker",
-      "badge": "Meest populair",
+      "title": "Zelf gehost",
+      "subtitle": "Aanbevolen",
+      "price": "Gratis",
+      "period": "",
+      "badge": "Aanbevolen",
       "features": [
-        "Alles in Individueel",
-        "Tot 20 gebruikers",
+        "Onbeperkt aantal gebruikers",
+        "Onbeperkte organisaties",
         "Organisaties & RBAC",
         "Gedeelde credentials",
         "Geavanceerde auditlogboeken"
       ],
-      "cta": "Gratis proefperiode starten"
+      "cta": "Aan de slag"
     },
     "enterprise": {
       "title": "Enterprise",
-      "subtitle": "Zelfgehost",
+      "subtitle": "Voor organisaties",
       "price": "Gratis",
-      "period": "lanceringaanbieding • 3 maanden",
+      "period": "",
       "features": [
-        "Alles in Team",
+        "Alles in Zelf gehost",
         "Onbeperkte gebruikers & teams",
         "Volledig beheerbeheer",
         "Centrale MCP-serverpool",
         "SSO (SAML, OIDC) - Binnenkort beschikbaar",
         "Geavanceerde audit & compliance",
         "Jouw keuze van LLM",
-        "Eeuwigdurende licentie"
+        "Prioriteitssupport"
       ],
-      "cta": "Enterprise ophalen"
+      "cta": "Aan de slag"
     },
     "community": {
       "title": "Community",
@@ -190,12 +190,12 @@
       "cta": "Aan de slag"
     },
     "comingSoon": "Binnenkort beschikbaar",
-    "note": "Cloud-edities zijn nu beschikbaar met beheerde LLM inbegrepen. Zelfgehoste edities laten je je eigen LLM-provider kiezen."
+    "note": "BigMCP is open source onder de AGPLv3-licentie. Zelf hosten is gratis en bevat alle functies. Het demoplatform wordt gehost door BigFatDot zodat je het kunt uitproberen."
   },
   "finalCta": {
     "title": "Klaar om je MCP-ecosysteem te beheren?",
-    "subtitle": "Start vandaag nog je gratis proefperiode. Geen creditcard vereist.",
-    "cta": "Gratis proefperiode starten"
+    "subtitle": "Open source en gratis. Installeer zelf of probeer de demo.",
+    "cta": "Demo proberen"
   },
   "footer": {
     "tagline": "De governance-laag voor je Model Context Protocol-tools. Centraliseer, orkestreer en beheer je MCP-ecosysteem.",

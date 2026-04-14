@@ -52,7 +52,7 @@ const ROLE_COLORS: Record<MemberRole, string> = {
 export function TeamPage() {
   const { t } = useTranslation('settings')
   const { organization, organizationName, organizationId } = useOrganization()
-  const { user, isCommunity, isCloudSaaS, editionLoading } = useAuth()
+  const { user, isCloudSaaS, editionLoading } = useAuth()
   const { tier } = useSubscription()
   const [members, setMembers] = useState<OrganizationMember[]>([])
   const [invitations, setInvitations] = useState<Invitation[]>([])
@@ -74,30 +74,6 @@ export function TeamPage() {
     return (
       <div className="container py-8">
         <div className="text-center text-gray-600">{t('team.loading')}</div>
-      </div>
-    )
-  }
-
-  if (isCommunity) {
-    return (
-      <div className="container py-8">
-        <Card className="max-w-2xl mx-auto p-8 text-center">
-          <UserGroupIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            {t('team.communityTitle')}
-          </h2>
-          <p className="text-gray-600 mb-6">
-            {t('team.communityDescription')}
-          </p>
-          <a
-            href="https://bigmcp.cloud/welcome#pricing"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block bg-orange hover:bg-orange-dark text-white font-medium py-2 px-6 rounded-lg transition-colors"
-          >
-            {t('team.viewEnterprisePlans')}
-          </a>
-        </Card>
       </div>
     )
   }

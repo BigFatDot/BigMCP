@@ -476,16 +476,16 @@ export function AccountPage() {
         </Card>
       )}
 
-      {/* License Section - Community Edition */}
-      {!editionLoading && isCommunity && (
+      {/* License Section - Self-Hosted (Community) Edition */}
+      {!editionLoading && !isCloudSaaS && !isEnterprise && (
         <Card padding="lg" className="mb-6 border-gray-200">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <BuildingOfficeIcon className="w-6 h-6 text-gray-600" />
+            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <CheckCircleIcon className="w-6 h-6 text-green-600" />
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <span className="inline-block text-xs font-medium uppercase px-2 py-1 rounded bg-gray-100 text-gray-700">
+                <span className="inline-block text-xs font-medium uppercase px-2 py-1 rounded bg-green-100 text-green-700">
                   {t('account.license.community.badge')}
                 </span>
               </div>
@@ -515,30 +515,6 @@ export function AccountPage() {
                     {t('account.license.community.instanceAdmin')}
                   </li>
                 </ul>
-              </div>
-
-              {/* Upgrade CTA */}
-              <div className="mt-4 p-4 bg-purple-50 rounded-lg border border-purple-200">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="font-semibold text-purple-900">{t('account.license.community.upgradeTitle')}</h4>
-                    <p className="text-sm text-purple-700 mt-1">
-                      {t('account.license.community.upgradeSubtitle')}
-                    </p>
-                    <div className="mt-2 flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-purple-900">{ENTERPRISE_PLAN.price}</span>
-                      <span className="text-sm text-purple-600">{t('account.license.community.oneTime')}</span>
-                    </div>
-                  </div>
-                  <Button
-                    variant="primary"
-                    className="bg-purple-600 hover:bg-purple-700 flex-shrink-0"
-                    onClick={() => window.open(`${SAAS_URL}/enterprise`, '_blank')}
-                  >
-                    <ArrowUpIcon className="w-4 h-4 mr-2" />
-                    {t('account.license.community.upgrade')}
-                  </Button>
-                </div>
               </div>
             </div>
           </div>

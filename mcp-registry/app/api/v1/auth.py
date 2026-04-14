@@ -73,28 +73,13 @@ async def register(
             detail="Email already registered"
         )
 
-    # Community edition: enforce 1 user limit
+    # Check if this is the first user (for auto-admin promotion)
     from ...core.edition import get_edition, Edition
     from sqlalchemy import func
 
-    edition = get_edition()
-    if edition == Edition.COMMUNITY:
-        # Count existing users
-        user_count_result = await db.execute(select(func.count(User.id)))
-        user_count = user_count_result.scalar()
-
-        if user_count >= 1:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "error": "user_limit_exceeded",
-                    "message": "Community edition is limited to 1 user. Upgrade to Enterprise for unlimited users.",
-                    "edition": "community",
-                    "current_users": user_count,
-                    "max_users": 1,
-                    "upgrade_url": "https://bigmcp.cloud/pricing"
-                }
-            )
+    user_count_result = await db.execute(select(func.count(User.id)))
+    user_count = user_count_result.scalar()
+    is_first_user = user_count == 0
 
     # Hash password
     password_hash = auth_service.hash_password(data.password)
@@ -107,6 +92,10 @@ async def register(
         password_hash=password_hash,
         email_verified=False
     )
+    # First user on the instance is auto-promoted to instance admin
+    if is_first_user:
+        user.preferences = {"instance_admin": True}
+
     db.add(user)
     await db.flush()  # Flush to get user.id
 
@@ -1055,6 +1044,52 @@ async def verify_email(
     # Mark email as verified
     user.email_verified = True
     verification_token.mark_verified()
+
+    # SaaS: auto-create 30-day free trial subscription
+    from ...core.edition import is_saas
+    if is_saas():
+        from ...models.subscription import Subscription, SubscriptionTier, SubscriptionStatus
+        from datetime import timedelta
+        import uuid
+
+        # Find user's organization
+        membership_for_trial = None
+        if user.organization_memberships:
+            membership_for_trial = sorted(
+                user.organization_memberships,
+                key=lambda m: m.created_at if m.created_at else datetime.min
+            )[0]
+        else:
+            mem_result = await db.execute(
+                select(OrganizationMember)
+                .where(OrganizationMember.user_id == user.id)
+                .limit(1)
+            )
+            membership_for_trial = mem_result.scalar_one_or_none()
+
+        if membership_for_trial:
+            # Check if subscription already exists for this org
+            existing_sub = await db.execute(
+                select(Subscription).where(
+                    Subscription.organization_id == membership_for_trial.organization_id
+                )
+            )
+            if not existing_sub.scalar_one_or_none():
+                now = datetime.now(tz=datetime.now().astimezone().tzinfo)
+                trial_end = now + timedelta(days=30)
+                trial_sub = Subscription(
+                    organization_id=membership_for_trial.organization_id,
+                    tier=SubscriptionTier.TEAM,
+                    status=SubscriptionStatus.TRIALING,
+                    max_users=0,  # 0 = unlimited
+                    lemonsqueezy_subscription_id=f"demo-trial-{uuid.uuid4().hex[:12]}",
+                    current_period_start=now,
+                    current_period_end=trial_end,
+                    trial_ends_at=trial_end,
+                    subscription_metadata={"source": "auto_trial", "demo_platform": True}
+                )
+                db.add(trial_sub)
+                logger.info(f"Auto-created 30-day demo trial for user {user.email}")
 
     await db.commit()
 

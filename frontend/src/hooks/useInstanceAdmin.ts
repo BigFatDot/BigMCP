@@ -3,7 +3,7 @@
  *
  * Provides access to instance admin status and actions.
  * Edition-aware behavior:
- * - Community: Auto-admin, no token needed
+ * - Community: First user is auto-admin, others can be promoted via token
  * - Enterprise: Token validation, stored in preferences
  * - Cloud SaaS: Platform owner only (no UI exposed)
  */
@@ -32,7 +32,7 @@ interface UseInstanceAdminResult {
 }
 
 export function useInstanceAdmin(): UseInstanceAdminResult {
-  const { isAuthenticated, isCommunity, isEnterprise, isCloudSaaS } = useAuth()
+  const { isAuthenticated } = useAuth()
 
   const [status, setStatus] = useState<AdminStatus | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -63,13 +63,8 @@ export function useInstanceAdmin(): UseInstanceAdminResult {
     fetchStatus()
   }, [fetchStatus])
 
-  // Validate admin token (Enterprise only)
+  // Validate admin token (all editions — backend handles edition-specific validation)
   const validateToken = useCallback(async (token: string): Promise<boolean> => {
-    if (!isEnterprise) {
-      setError('Token validation is only available for Enterprise edition')
-      return false
-    }
-
     try {
       setError(null)
       const result = await instanceAdminApi.validateToken(token)
@@ -84,15 +79,10 @@ export function useInstanceAdmin(): UseInstanceAdminResult {
       setError(err.response?.data?.detail || 'Invalid admin token')
       return false
     }
-  }, [isEnterprise, fetchStatus])
+  }, [fetchStatus])
 
-  // Revoke admin privileges (Enterprise only)
+  // Revoke admin privileges (all editions)
   const revokeAdmin = useCallback(async (): Promise<boolean> => {
-    if (isCommunity) {
-      setError('Cannot revoke admin on Community edition')
-      return false
-    }
-
     try {
       setError(null)
       const result = await instanceAdminApi.revokeAdmin()
@@ -106,7 +96,7 @@ export function useInstanceAdmin(): UseInstanceAdminResult {
       setError(err.response?.data?.detail || 'Failed to revoke admin privileges')
       return false
     }
-  }, [isCommunity, fetchStatus])
+  }, [fetchStatus])
 
   return {
     // Status

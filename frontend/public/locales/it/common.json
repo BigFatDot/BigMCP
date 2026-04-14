@@ -6,11 +6,11 @@
     "documentation": "Documentazione",
     "signin": "Accedi",
     "signup": "Registrati",
-    "startTrial": "Inizia la Prova Gratuita"
+    "startTrial": "Inizia"
   },
   "menu": {
     "account": "Impostazioni Account",
-    "subscription": "Abbonamento e Fatturazione",
+    "subscription": "Edizione",
     "apiKeys": "Chiavi API",
     "team": "Team",
     "preferences": "Preferenze",

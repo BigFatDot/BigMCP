@@ -299,8 +299,8 @@ export function LandingPage() {
             </span>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-            {/* Cloud Individual */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Demo Platform */}
             <PricingCard
               title={t('pricing.individual.title')}
               subtitle={t('pricing.individual.subtitle')}
@@ -311,7 +311,7 @@ export function LandingPage() {
               ctaLink="/signup"
             />
 
-            {/* Cloud Team - Featured */}
+            {/* Self-Hosted - Featured */}
             <PricingCard
               title={t('pricing.team.title')}
               subtitle={t('pricing.team.subtitle')}
@@ -321,28 +321,6 @@ export function LandingPage() {
               badge={t('pricing.team.badge')}
               features={t('pricing.team.features', { returnObjects: true }) as string[]}
               ctaText={t('pricing.team.cta')}
-              ctaLink="/signup"
-            />
-
-            {/* Self-hosted Enterprise */}
-            <PricingCard
-              title={t('pricing.enterprise.title')}
-              subtitle={t('pricing.enterprise.subtitle')}
-              price={t('pricing.enterprise.price')}
-              period={t('pricing.enterprise.period')}
-              features={t('pricing.enterprise.features', { returnObjects: true }) as string[]}
-              ctaText={t('pricing.enterprise.cta')}
-              ctaLink="/app/subscription"
-            />
-
-            {/* Self-hosted Community */}
-            <PricingCard
-              title={t('pricing.community.title')}
-              subtitle={t('pricing.community.subtitle')}
-              price={t('pricing.community.price')}
-              period={t('pricing.community.period')}
-              features={t('pricing.community.features', { returnObjects: true }) as string[]}
-              ctaText={t('pricing.community.cta')}
               ctaLink="https://github.com/bigfatdot/BigMCP"
             />
           </div>
@@ -474,7 +452,7 @@ function PricingCard({
       )}
       {subtitle && (
         <span className={`inline-block text-xs font-medium uppercase px-2 py-1 rounded mb-2 ${
-          subtitle === 'Cloud' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
+          featured ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
         }`}>
           {subtitle}
         </span>

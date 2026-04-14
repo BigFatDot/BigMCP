@@ -6,11 +6,11 @@
     "documentation": "Dokumentation",
     "signin": "Log ind",
     "signup": "Opret konto",
-    "startTrial": "Start gratis prøveperiode"
+    "startTrial": "Kom i gang"
   },
   "menu": {
     "account": "Kontoindstillinger",
-    "subscription": "Abonnement & fakturering",
+    "subscription": "Edition",
     "apiKeys": "API-nøgler",
     "team": "Team",
     "preferences": "Præferencer",

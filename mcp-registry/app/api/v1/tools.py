@@ -245,9 +245,9 @@ async def update_tool_visibility(
             f"{update.is_visible_to_oauth_clients} by user {user.id}, caches invalidated"
         )
 
-        # Notify connected MCP clients (cache refresh + SSE notification)
+        # Close user's SSE sessions to force Claude Desktop re-initialization
         from ...routers.mcp_unified import notify_org_tools_changed
-        asyncio.create_task(notify_org_tools_changed(updated_tool.organization_id))
+        asyncio.create_task(notify_org_tools_changed(updated_tool.organization_id, user_id=user.id))
 
         # Return response
         return ToolResponse(
