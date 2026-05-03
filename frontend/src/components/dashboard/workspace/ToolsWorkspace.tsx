@@ -85,6 +85,7 @@ export function ToolsWorkspace() {
   const [activeDrag, setActiveDrag] = useState<DragPayload | null>(null)
   const [showAssistant, setShowAssistant] = useState(false)
   const [seedToolForNewToolbox, setSeedToolForNewToolbox] = useState<ToolCardData | null>(null)
+  const [mobileColumn, setMobileColumn] = useState<'catalog' | 'pool' | 'toolboxes'>('catalog')
 
   // ---- Queries ----
   const credentialsQuery = useQuery({
@@ -427,12 +428,36 @@ export function ToolsWorkspace() {
           </div>
         )}
 
+        {/* Mobile tab switcher (md:hidden) */}
+        <div className="mb-3 flex md:hidden bg-gray-100 rounded-lg p-1 text-sm">
+          {(['catalog', 'pool', 'toolboxes'] as const).map((col) => (
+            <button
+              key={col}
+              type="button"
+              onClick={() => setMobileColumn(col)}
+              className={cn(
+                'flex-1 px-3 py-1.5 rounded-md font-medium transition',
+                mobileColumn === col ? 'bg-white shadow-sm text-gray-900' : 'text-gray-600',
+              )}
+            >
+              {col === 'catalog'
+                ? t('workspace.catalog', { defaultValue: 'Catalog' })
+                : col === 'pool'
+                  ? t('workspace.pool', { defaultValue: 'Pool' })
+                  : t('tools.viewToggle.toolboxes', { defaultValue: 'Toolboxes' })}
+            </button>
+          ))}
+        </div>
+
         {/* Three columns */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
           {/* Catalog */}
           <DropZone
             id="catalog-drop"
-            className="rounded-xl border border-gray-200 bg-gray-50/50 p-3 min-h-[400px]"
+            className={cn(
+              'rounded-xl border border-gray-200 bg-gray-50/50 p-3 min-h-[400px]',
+              mobileColumn !== 'catalog' && 'hidden md:block',
+            )}
           >
             <div className="flex items-baseline justify-between mb-3">
               <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide">
@@ -473,7 +498,10 @@ export function ToolsWorkspace() {
           {/* Pool */}
           <DropZone
             id="pool-drop"
-            className="rounded-xl border-2 border-dashed border-emerald-300 bg-emerald-50/30 p-3 min-h-[400px]"
+            className={cn(
+              'rounded-xl border-2 border-dashed border-emerald-300 bg-emerald-50/30 p-3 min-h-[400px]',
+              mobileColumn !== 'pool' && 'hidden md:block',
+            )}
             activeClassName="bg-emerald-100/60 border-emerald-500"
           >
             <div className="flex items-baseline justify-between mb-3">
@@ -516,7 +544,12 @@ export function ToolsWorkspace() {
           </DropZone>
 
           {/* Toolboxes */}
-          <div className="rounded-xl border border-gray-200 bg-gray-50/50 p-3 min-h-[400px]">
+          <div
+            className={cn(
+              'rounded-xl border border-gray-200 bg-gray-50/50 p-3 min-h-[400px]',
+              mobileColumn !== 'toolboxes' && 'hidden md:block',
+            )}
+          >
             <div className="flex items-baseline justify-between mb-3">
               <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wide flex items-center gap-1">
                 <ArchiveBoxIcon className="w-4 h-4" />
