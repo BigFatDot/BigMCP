@@ -188,54 +188,152 @@ export function ToolsWorkspace() {
   }, [toolGroupsQuery.data])
 
   // ---- Mutations ----
+  const toolsQueryKey = ['workspace-tools', currentOrgId] as const
+  const poolStateKey = ['pool-state'] as const
+
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ['workspace-tools'] })
     queryClient.invalidateQueries({ queryKey: ['pool-state'] })
     queryClient.invalidateQueries({ queryKey: ['tool-groups'] })
   }
 
+  // Optimistic helper: flip `is_visible_to_oauth_clients` for a set of
+  // tool IDs in the cached catalog so the UI moves instantly. We snapshot
+  // the previous value to roll back if the server rejects.
+  function flipPoolFlagOptimistic(toolIds: string[], next: boolean) {
+    const previous = queryClient.getQueryData<any[]>(toolsQueryKey)
+    queryClient.setQueryData<any[]>(toolsQueryKey, (old) => {
+      if (!old) return old
+      const set = new Set(toolIds)
+      return old.map((row) =>
+        set.has(String(row.id))
+          ? { ...row, is_visible_to_oauth_clients: next }
+          : row,
+      )
+    })
+    // Pool size stays approximate during the round-trip (we don't know how
+    // many were already in the pool); bump the cached counter optimistically.
+    queryClient.setQueryData<any>(poolStateKey, (old) => {
+      if (!old) return old
+      const delta = next
+        ? toolIds.filter((id) => {
+            const row = (previous || []).find((r) => String(r.id) === id)
+            return row && !row.is_visible_to_oauth_clients
+          }).length
+        : -toolIds.filter((id) => {
+            const row = (previous || []).find((r) => String(r.id) === id)
+            return row && row.is_visible_to_oauth_clients
+          }).length
+      return { ...old, pool_size: Math.max(0, (old.pool_size ?? 0) + delta) }
+    })
+    return previous
+  }
+
   const loadMutation = useMutation({
     mutationFn: (toolIds: string[]) => poolApi.load(toolIds, 'append'),
+    onMutate: async (toolIds) => {
+      await queryClient.cancelQueries({ queryKey: toolsQueryKey })
+      const previous = flipPoolFlagOptimistic(toolIds, true)
+      return { previous }
+    },
+    onError: (e: any, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(toolsQueryKey, context.previous)
+      toast.error(e.response?.data?.detail || 'Load failed')
+    },
     onSuccess: () => {
-      invalidateAll()
       toast.success(t('workspace.toast.loaded', { defaultValue: 'Loaded into pool' }))
     },
-    onError: (e: any) => toast.error(e.response?.data?.detail || 'Load failed'),
+    onSettled: invalidateAll,
   })
 
   const unloadMutation = useMutation({
     mutationFn: (toolIds: string[]) => poolApi.unload(toolIds),
+    onMutate: async (toolIds) => {
+      await queryClient.cancelQueries({ queryKey: toolsQueryKey })
+      const previous = flipPoolFlagOptimistic(toolIds, false)
+      return { previous }
+    },
+    onError: (e: any, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(toolsQueryKey, context.previous)
+      toast.error(e.response?.data?.detail || 'Unload failed')
+    },
     onSuccess: () => {
-      invalidateAll()
       toast.success(t('workspace.toast.unloaded', { defaultValue: 'Removed from pool' }))
     },
-    onError: (e: any) => toast.error(e.response?.data?.detail || 'Unload failed'),
+    onSettled: invalidateAll,
   })
 
   const clearMutation = useMutation({
     mutationFn: () => poolApi.clear(),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: toolsQueryKey })
+      const previous = queryClient.getQueryData<any[]>(toolsQueryKey)
+      queryClient.setQueryData<any[]>(toolsQueryKey, (old) =>
+        (old || []).map((row) => ({ ...row, is_visible_to_oauth_clients: false })),
+      )
+      queryClient.setQueryData<any>(poolStateKey, (old) =>
+        old ? { ...old, pool_size: 0 } : old,
+      )
+      return { previous }
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(toolsQueryKey, ctx.previous)
+    },
     onSuccess: () => {
-      invalidateAll()
       toast.success(t('workspace.toast.cleared', { defaultValue: 'Pool cleared' }))
     },
+    onSettled: invalidateAll,
   })
 
   const addToToolboxMutation = useMutation({
     mutationFn: ({ groupId, toolId }: { groupId: string; toolId: string }) =>
       toolGroupsApi.addTool(groupId, toolId),
+    onMutate: async ({ groupId, toolId }) => {
+      await queryClient.cancelQueries({ queryKey: ['tool-groups'] })
+      const previous = queryClient.getQueryData<any[]>(['tool-groups'])
+      queryClient.setQueryData<any[]>(['tool-groups'], (old) =>
+        (old || []).map((g) => {
+          if (g.id !== groupId) return g
+          if ((g.items || []).some((i: any) => i.tool_id === toolId)) return g
+          return {
+            ...g,
+            items: [
+              ...(g.items || []),
+              { id: `tmp-${toolId}`, tool_group_id: groupId, item_type: 'tool', tool_id: toolId, order: 0, config: {} },
+            ],
+          }
+        }),
+      )
+      return { previous }
+    },
+    onError: (e: any, _v, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(['tool-groups'], ctx.previous)
+      toast.error(e.response?.data?.detail || 'Add to toolbox failed')
+    },
     onSuccess: () => {
-      invalidateAll()
       toast.success(t('workspace.toast.toolboxAdded', { defaultValue: 'Added to toolbox' }))
     },
-    onError: (e: any) => toast.error(e.response?.data?.detail || 'Add to toolbox failed'),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['tool-groups'] }),
   })
 
   const loadToolboxMutation = useMutation({
     mutationFn: (groupId: string) => poolApi.loadToolbox(groupId),
+    onMutate: async (groupId) => {
+      await queryClient.cancelQueries({ queryKey: toolsQueryKey })
+      const tg = (toolGroupsQuery.data || []).find((g: any) => g.id === groupId)
+      const ids = (tg?.items || [])
+        .filter((i: any) => i.item_type === 'tool' && i.tool_id)
+        .map((i: any) => String(i.tool_id))
+      const previous = flipPoolFlagOptimistic(ids, true)
+      return { previous }
+    },
+    onError: (_e, _v, ctx) => {
+      if (ctx?.previous) queryClient.setQueryData(toolsQueryKey, ctx.previous)
+    },
     onSuccess: () => {
-      invalidateAll()
       toast.success(t('workspace.toast.toolboxLoaded', { defaultValue: 'Toolbox loaded into pool' }))
     },
+    onSettled: invalidateAll,
   })
 
   // ---- DnD callbacks ----
