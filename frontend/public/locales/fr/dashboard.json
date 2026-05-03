@@ -284,7 +284,8 @@
       "createAndLoad": "Créer + charger dans le pool",
       "cancel": "Annuler",
       "toolboxCreated": "Boîte à outils créée.",
-      "toolboxCreatedAndLoaded": "Boîte créée et {{count}} outils chargés dans le pool."
+      "toolboxCreatedAndLoaded": "Boîte créée et {{count}} outils chargés dans le pool.",
+      "toolboxRenamed": "Une boîte du même nom existait déjà — sauvegardée comme « {{name}} »."
     },
     "newToolbox": {
       "title": "Nouvelle boîte à outils",

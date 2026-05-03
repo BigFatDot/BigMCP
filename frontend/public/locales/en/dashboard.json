@@ -284,7 +284,8 @@
       "createAndLoad": "Create + load into pool",
       "cancel": "Cancel",
       "toolboxCreated": "Toolbox created.",
-      "toolboxCreatedAndLoaded": "Toolbox created and {{count}} tools loaded into the pool."
+      "toolboxCreatedAndLoaded": "Toolbox created and {{count}} tools loaded into the pool.",
+      "toolboxRenamed": "A toolbox with the same name existed — saved as \"{{name}}\"."
     },
     "newToolbox": {
       "title": "New toolbox",

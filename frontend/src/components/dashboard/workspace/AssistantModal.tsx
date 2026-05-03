@@ -73,23 +73,51 @@ export function AssistantModal({ isOpen, onClose, onLoaded }: AssistantModalProp
   // Hooks must run on every render — keep early-return AFTER all hooks.
   const createMutation = useMutation({
     mutationFn: async ({ alsoLoad }: { alsoLoad: boolean }) => {
-      const group = await toolGroupsApi.create({
-        name: name.trim() || (draft?.name ?? 'Toolbox'),
-        description: description.trim() || undefined,
-        color: color || 'orange',
-        visibility: 'private',
-      })
+      const baseName = name.trim() || (draft?.name ?? 'Toolbox')
+      // Backend rejects duplicate names with 400. If the user regenerated
+      // a draft and re-saved without renaming, transparently suffix the
+      // name with " (2)", " (3)", … up to a small cap.
+      let candidate = baseName
+      let group: any = null
+      let lastErr: any = null
+      for (let attempt = 1; attempt <= 5; attempt++) {
+        try {
+          group = await toolGroupsApi.create({
+            name: candidate,
+            description: description.trim() || undefined,
+            color: color || 'orange',
+            visibility: 'private',
+          })
+          break
+        } catch (err: any) {
+          lastErr = err
+          const detail = String(err?.response?.data?.detail || '').toLowerCase()
+          const isDup =
+            err?.response?.status === 400 &&
+            (detail.includes('already exists') || detail.includes('exist'))
+          if (!isDup) throw err
+          attempt += 0
+          candidate = `${baseName} (${attempt + 1})`
+        }
+      }
+      if (!group) throw lastErr || new Error('Failed to create toolbox')
+
       const toolIds = Array.from(selectedIds)
-      // Sequential to keep order stable; the API doesn't expose bulk-add.
       for (let i = 0; i < toolIds.length; i++) {
         await toolGroupsApi.addTool(group.id, toolIds[i], i)
       }
       if (alsoLoad && toolIds.length > 0) {
         await poolApi.load(toolIds, 'append')
       }
-      return { groupId: group.id, count: toolIds.length, alsoLoaded: alsoLoad }
+      return {
+        groupId: group.id,
+        count: toolIds.length,
+        alsoLoaded: alsoLoad,
+        finalName: candidate,
+        renamed: candidate !== baseName,
+      }
     },
-    onSuccess: ({ count, alsoLoaded }) => {
+    onSuccess: ({ count, alsoLoaded, finalName, renamed }) => {
       queryClient.invalidateQueries({ queryKey: ['tool-groups'] })
       queryClient.invalidateQueries({ queryKey: ['workspace-tools'] })
       queryClient.invalidateQueries({ queryKey: ['pool-state'] })
@@ -105,6 +133,15 @@ export function AssistantModal({ isOpen, onClose, onLoaded }: AssistantModalProp
         toast.success(
           t('workspace.assistant.toolboxCreated', {
             defaultValue: 'Toolbox created.',
+          }) as string,
+        )
+      }
+      if (renamed) {
+        toast(
+          t('workspace.assistant.toolboxRenamed', {
+            name: finalName,
+            defaultValue:
+              'A toolbox with the same name existed — saved as "{{name}}".',
           }) as string,
         )
       }
@@ -199,6 +236,14 @@ export function AssistantModal({ isOpen, onClose, onLoaded }: AssistantModalProp
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
+
+        {errorMsg && (
+          <div className="px-6 pt-4">
+            <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3">
+              {errorMsg}
+            </div>
+          </div>
+        )}
 
         <div className="p-6 overflow-y-auto flex-1 space-y-5">
           <div>
@@ -380,11 +425,6 @@ export function AssistantModal({ isOpen, onClose, onLoaded }: AssistantModalProp
             </div>
           )}
 
-          {errorMsg && (
-            <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-md p-3">
-              {errorMsg}
-            </div>
-          )}
         </div>
 
         <div className="p-6 border-t border-gray-200 flex flex-col sm:flex-row sm:justify-end gap-2 flex-shrink-0">
