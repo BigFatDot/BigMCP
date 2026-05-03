@@ -1615,6 +1615,38 @@ export const poolApi = {
     const { data } = await api.post('/pool/load', { tool_ids: toolIds, mode })
     return data
   },
+  async unload(
+    toolIds: string[]
+  ): Promise<{ unloaded_count: number; pool_size: number }> {
+    const { data } = await api.post('/pool/unload', { tool_ids: toolIds })
+    return data
+  },
+  async suggest(
+    goal: string,
+    limit = 8
+  ): Promise<{
+    goal: string
+    suggestions: Array<{
+      tool_id: string
+      name: string
+      server: string | null
+      description: string
+      score: number
+      in_pool: boolean
+    }>
+    note?: string | null
+  }> {
+    const { data } = await api.post('/pool/suggest', { goal, limit })
+    return data
+  },
+  async loadToolbox(
+    toolGroupId: string
+  ): Promise<{ tool_group_id: string; loaded_count: number; pool_size: number }> {
+    const { data } = await api.post(
+      `/pool/tool-groups/${toolGroupId}/load-into-pool`
+    )
+    return data
+  },
 }
 
 /**
