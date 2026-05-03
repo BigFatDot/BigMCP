@@ -42,7 +42,6 @@ import { Button, Badge } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import {
   poolApi,
-  toolsApi,
   toolGroupsApi,
   compositionsApi,
   credentialsApi,
@@ -93,9 +92,13 @@ export function ToolsWorkspace() {
     queryFn: () => credentialsApi.listUserCredentials(),
   })
 
+  // The /tool-groups/available-tools endpoint is the canonical, org-scoped
+  // tool catalog: persisted Tool rows from every enabled MCP server, with
+  // their server name and current pool flag attached. No runtime status
+  // dependency, no cache shape mismatch (unlike /api/v1/tools).
   const toolsQuery = useQuery({
     queryKey: ['workspace-tools', currentOrgId],
-    queryFn: () => toolsApi.listTools(currentOrgId || '', true),
+    queryFn: () => toolGroupsApi.listAvailableTools(),
     enabled: !!currentOrgId,
     refetchInterval: 30000,
   })
@@ -121,12 +124,16 @@ export function ToolsWorkspace() {
     const rows: any[] = (toolsQuery.data as any[]) || []
     return rows.map((r) => ({
       id: String(r.id),
-      name: r.tool_name || r.name,
+      name: r.display_name || r.tool_name || r.name,
       serverId: r.server_id ?? null,
+      // The endpoint returns server_name directly. Fall back to the user
+      // credential lookup for legacy callers that don't carry it inline.
       serverName:
+        r.server_name ??
         (credentialsQuery.data || []).find(
           (c: any) => c.server_id === r.server_id || c.id === r.server_id,
-        )?.name ?? null,
+        )?.name ??
+        null,
       description: r.description ?? null,
       kind: 'tool' as const,
       inPool: !!r.is_visible_to_oauth_clients,
