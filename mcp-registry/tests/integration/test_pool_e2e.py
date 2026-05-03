@@ -17,6 +17,7 @@ in the repo's conftest.
 from __future__ import annotations
 
 import asyncio
+import os
 import sys
 from typing import Any, Dict
 
@@ -159,3 +160,27 @@ async def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(asyncio.run(main()))
+
+
+# ---------------------------------------------------------------------------
+# pytest entry point — same scenario, collectable by `pytest tests/integration`.
+# Skipped by default because the script boots its own FastAPI app and writes
+# to the live DB; the surrounding conftest swaps in a SQLite backend that is
+# incompatible. To run in CI, add a dedicated integration job that sets
+# E2E_RUN_LIVE=1 against a clean staging instance.
+# ---------------------------------------------------------------------------
+try:
+    import pytest as _pytest  # noqa: F401
+except ImportError:  # pragma: no cover
+    _pytest = None  # type: ignore
+
+
+if _pytest is not None:
+    @_pytest.mark.asyncio
+    @_pytest.mark.skipif(
+        os.environ.get("E2E_RUN_LIVE") != "1",
+        reason="Standalone E2E — set E2E_RUN_LIVE=1 to enable",
+    )
+    async def test_pool_e2e_smoke() -> None:
+        rc = await main()
+        assert rc == 0

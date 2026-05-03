@@ -81,6 +81,32 @@ class ToolboxLoadResponse(BaseModel):
     pool_size: int
 
 
+async def _audit_pool(
+    db: AsyncSession,
+    *,
+    action,
+    user_id: UUID,
+    org_id: UUID,
+    resource_id: Optional[str] = None,
+    details: Optional[dict] = None,
+) -> None:
+    """Fire-and-forget audit row for a pool mutation. Never raises."""
+    try:
+        from ...services.audit_service import AuditService
+
+        audit = AuditService(db)
+        await audit.log_action(
+            action=action,
+            actor_id=user_id,
+            organization_id=org_id,
+            resource_type="pool",
+            resource_id=resource_id,
+            details=details or {},
+        )
+    except Exception as e:  # noqa: BLE001
+        logger.warning(f"pool audit log failed: {e}")
+
+
 async def _invalidate_and_notify(org_uuid: UUID, user_uuid: UUID) -> None:
     try:
         from ...services.organization_tool_cache import tool_cache
@@ -151,6 +177,9 @@ async def clear_pool(
     await db.commit()
     await _invalidate_and_notify(org_id, user.id)
 
+    from ...models.audit_log import AuditAction
+    await _audit_pool(db, action=AuditAction.POOL_CLEAR, user_id=user.id, org_id=org_id)
+
     return PoolStateResponse(pool_size=0, composition_count=await _composition_count(db, org_id))
 
 
@@ -212,6 +241,15 @@ async def load_pool(
     await db.commit()
     await _invalidate_and_notify(org_id, user.id)
 
+    from ...models.audit_log import AuditAction
+    await _audit_pool(
+        db,
+        action=AuditAction.POOL_LOAD,
+        user_id=user.id,
+        org_id=org_id,
+        details={"loaded_count": len(owned_ids), "mode": payload.mode},
+    )
+
     return PoolLoadResponse(
         loaded_count=len(owned_ids),
         pool_size=await _pool_size(db, org_id),
@@ -259,6 +297,15 @@ async def unload_pool(
     )
     await db.commit()
     await _invalidate_and_notify(org_id, user.id)
+
+    from ...models.audit_log import AuditAction
+    await _audit_pool(
+        db,
+        action=AuditAction.POOL_UNLOAD,
+        user_id=user.id,
+        org_id=org_id,
+        details={"unloaded_count": len(owned_ids)},
+    )
 
     return PoolUnloadResponse(
         unloaded_count=len(owned_ids),
@@ -393,6 +440,16 @@ async def load_toolbox_into_pool(
             )
         await db.commit()
         await _invalidate_and_notify(org_id, user.id)
+
+        from ...models.audit_log import AuditAction
+        await _audit_pool(
+            db,
+            action=AuditAction.POOL_TOOLBOX_LOAD,
+            user_id=user.id,
+            org_id=org_id,
+            resource_id=str(tool_group_id),
+            details={"loaded_count": len(owned_ids)},
+        )
 
     return ToolboxLoadResponse(
         tool_group_id=str(tool_group_id),

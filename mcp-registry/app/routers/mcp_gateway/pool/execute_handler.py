@@ -187,22 +187,27 @@ async def _extract_composition_params(
     entry: PoolEntry,
     goal: str,
     explicit_params: Dict[str, Any],
-) -> Dict[str, Any]:
+) -> Tuple[Dict[str, Any], Optional[str]]:
     """Build the parameter dict for a composition.
 
-    If the caller passed explicit params, we use them verbatim. Otherwise we
-    ask the LLM (the same client `IntentAnalyzer` uses) to fill the
-    composition's `input_schema` from the natural-language goal. This is a
-    single light-weight call producing a JSON object — no orchestration plan.
+    Returns ``(params, error)``. On success ``error`` is ``None``. On a
+    failure that callers should surface (LLM unreachable, malformed JSON,
+    or extracted dict missing fields the composition marks required), we
+    return a non-None ``error`` so the caller can stop instead of running
+    the composition with bogus parameters and producing a confusing
+    downstream failure.
+
+    The "no input schema declared" case is treated as success with empty
+    params — that's the legitimate null-arg composition.
     """
     if explicit_params:
-        return explicit_params
+        return explicit_params, None
 
     schema = entry.parameters_schema or {}
     properties = schema.get("properties") if isinstance(schema, dict) else None
     if not isinstance(properties, dict) or not properties:
         # Composition declares no inputs — call directly with empty params.
-        return {}
+        return {}, None
 
     required = schema.get("required") or []
     analyzer = gateway.orchestration_tools.intent_analyzer
@@ -221,6 +226,9 @@ async def _extract_composition_params(
         "JSON:"
     )
 
+    extracted: Dict[str, Any] = {}
+    extraction_error: Optional[str] = None
+
     try:
         chat_url = (
             f"{analyzer.llm_url}/chat/completions"
@@ -238,23 +246,35 @@ async def _extract_composition_params(
         )
         response.raise_for_status()
         raw = response.json()["choices"][0]["message"]["content"].strip()
-        # Strip optional ```json fences just in case.
         if raw.startswith("```"):
             raw = raw.split("```", 2)[-2] if raw.count("```") >= 2 else raw
             if raw.startswith("json"):
                 raw = raw[4:]
             raw = raw.strip()
-        # Slice from first { to last } to be tolerant.
         start, end = raw.find("{"), raw.rfind("}")
         if start >= 0 and end > start:
             raw = raw[start : end + 1]
-        extracted = _json.loads(raw)
-        if isinstance(extracted, dict):
-            return extracted
+        candidate = _json.loads(raw) if raw else {}
+        if isinstance(candidate, dict):
+            extracted = candidate
+        else:
+            extraction_error = "LLM returned a non-object JSON value"
     except Exception as e:  # noqa: BLE001
         logger.warning(f"composition param extraction failed: {e}")
+        extraction_error = f"LLM extraction failed: {e}"
 
-    return {}
+    # If the composition has required fields, refuse to run with a partial
+    # set rather than failing later with an opaque executor error.
+    if required:
+        missing = [k for k in required if k not in extracted or extracted.get(k) in (None, "")]
+        if missing:
+            return extracted, (
+                extraction_error
+                or "The LLM could not infer the required parameters: " + ", ".join(missing)
+                + ". Retry passing explicit `params`."
+            )
+
+    return extracted, None
 
 
 async def _run_with_single_entry(
@@ -279,9 +299,17 @@ async def _run_with_single_entry(
         # We extract params from the goal via a dedicated, lightweight LLM
         # call against the composition's input_schema, then invoke the
         # composition directly through the existing orchestration path.
-        extracted = await _extract_composition_params(
+        extracted, extract_error = await _extract_composition_params(
             gateway, entry, goal, params
         )
+        if extract_error:
+            return {
+                "level": "L1_or_L2_composition_extraction_failed",
+                "composition_id": entry.id,
+                "composition_name": entry.name,
+                "extracted_params": extracted,
+                "error": extract_error,
+            }
         result = await _run_composition(
             gateway, entry.id, extracted, user_id, organization_id
         )

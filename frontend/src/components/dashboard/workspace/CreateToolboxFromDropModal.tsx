@@ -49,21 +49,35 @@ export function CreateToolboxFromDropModal({ isOpen, seedTool, canShareWithOrg, 
         description: description.trim() || undefined,
         visibility: canShareWithOrg ? visibility : 'private',
       })
+      let seedAddError: string | null = null
       if (seedTool) {
         try {
           await toolGroupsApi.addTool(created.id, seedTool.id)
-        } catch (e) {
-          // Log but don't fail the toolbox creation.
+        } catch (e: any) {
+          seedAddError =
+            e?.response?.data?.detail || e?.message || 'Failed to add the dropped tool'
           console.warn('Failed to add seed tool to new toolbox', e)
         }
       }
-      return created
+      return { created, seedAddError }
     },
-    onSuccess: () => {
+    onSuccess: ({ seedAddError }) => {
       queryClient.invalidateQueries({ queryKey: ['tool-groups'] })
-      toast.success(
-        t('workspace.newToolbox.created', { defaultValue: 'Toolbox created.' }),
-      )
+      if (seedAddError) {
+        // Toolbox saved, but the dropped tool didn't make it in. Surface
+        // both so the user knows to drop it again manually.
+        toast(
+          t('workspace.newToolbox.createdButSeedFailed', {
+            defaultValue:
+              'Toolbox created, but the dropped tool could not be added. Drop it again on the toolbox to retry.',
+          }) as string,
+          { icon: '⚠️' },
+        )
+      } else {
+        toast.success(
+          t('workspace.newToolbox.created', { defaultValue: 'Toolbox created.' }),
+        )
+      }
       onClose()
     },
     onError: (e: any) => setErrorMsg(e.response?.data?.detail || e.message || 'Failed'),

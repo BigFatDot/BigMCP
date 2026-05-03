@@ -59,6 +59,15 @@ class AuditAction(str, enum.Enum):
     SERVER_UPDATE = "server.update"
     SERVER_DELETE = "server.delete"
 
+    # Pool (dynamic OAuth-client tool surface)
+    POOL_CLEAR = "pool.clear"
+    POOL_LOAD = "pool.load"
+    POOL_UNLOAD = "pool.unload"
+    POOL_TOOLBOX_LOAD = "pool.toolbox_load"
+
+    # Toolboxes (LLM-first proposals)
+    TOOLBOX_PROPOSE = "toolbox.propose"
+
     # Security Events
     SECURITY_ALERT = "security.alert"
     UNAUTHORIZED_ACCESS = "security.unauthorized_access"

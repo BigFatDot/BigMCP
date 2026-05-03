@@ -5,11 +5,14 @@ Allows users to create specialized tool groups for AI agents,
 controlling which tools are exposed to Claude Desktop.
 """
 
+import logging
 from uuid import UUID
 from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+
+logger = logging.getLogger(__name__)
 
 from ...db.database import get_async_session
 from ...models.user import User
@@ -584,6 +587,27 @@ async def propose_toolbox(
             description=str(composition_block.get("description", ""))[:400],
             rationale=composition_block.get("rationale"),
         )
+
+    # Audit the LLM call (read-only proposal — no DB mutation, but it
+    # consumes external LLM quota and the intent is user data we want a
+    # trace of for compliance / debugging).
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+
+        await AuditService(db).log_action(
+            action=AuditAction.TOOLBOX_PROPOSE,
+            actor_id=user.id,
+            organization_id=org_id,
+            resource_type="toolbox",
+            details={
+                "candidate_count": len(top),
+                "selected_count": len(tools_out),
+                "intent_length": len(payload.intent),
+            },
+        )
+    except Exception as e:  # noqa: BLE001
+        logger.warning(f"toolbox propose audit failed: {e}")
 
     return ToolGroupProposeResponse(
         name=str(parsed.get("name") or "Custom toolbox")[:60],
