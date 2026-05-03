@@ -1547,15 +1547,72 @@ export const compositionsApi = {
   },
 
   /**
-   * Execute a composition
+   * Execute a composition.
+   *
+   * Pass `goal` (NL prompt) to delegate to the same path used by the
+   * `execute` MCP tool — the backend extracts inputs from the prompt via
+   * the IntentAnalyzer. Pass `inputs` (form values) for a deterministic run.
    */
   async execute(
     compositionId: string,
-    inputs: Record<string, unknown> = {}
+    inputs: Record<string, unknown> = {},
+    goal?: string
   ): Promise<CompositionExecuteResponse> {
-    const { data } = await api.post(`/compositions/${compositionId}/execute`, {
-      inputs,
+    const body: Record<string, unknown> = { inputs }
+    if (goal && goal.trim()) {
+      body.goal = goal.trim()
+    }
+    const { data } = await api.post(`/compositions/${compositionId}/execute`, body)
+    return data
+  },
+
+  /**
+   * Propose a draft composition from a NL description.
+   * Reuses the IntentAnalyzer over every tool from the org's enabled servers.
+   */
+  async propose(
+    query: string,
+    options: { feedback?: string; previous_proposal?: Record<string, unknown> } = {}
+  ): Promise<{
+    name: string
+    description: string
+    steps: Array<Record<string, unknown>>
+    input_schema: Record<string, unknown>
+    output_schema?: Record<string, unknown> | null
+    confidence?: number | null
+    intent?: string | null
+    available_tool_count: number
+  }> {
+    const { data } = await api.post('/compositions/propose', {
+      query,
+      feedback: options.feedback,
+      previous_proposal: options.previous_proposal,
     })
+    return data
+  },
+}
+
+/**
+ * Pool API — manage the dynamic OAuth-client tool pool.
+ *
+ * The pool is the set of tools that are currently loaded for the org's MCP
+ * clients. The MCP client itself drives this via `search`/`execute`; these
+ * REST endpoints let the web UI inspect and bulk-mutate the pool state.
+ */
+export const poolApi = {
+  async getState(): Promise<{ pool_size: number; composition_count: number }> {
+    const { data } = await api.get('/pool/state')
+    return data
+  },
+  async clear(): Promise<{ pool_size: number; composition_count: number }> {
+    const { data } = await api.post('/pool/clear')
+    return data
+  },
+  async load(
+    toolIds: string[],
+    mode: 'append' | 'replace' = 'append'
+  ): Promise<{ loaded_count: number; pool_size: number; mode: string }> {
+    const { data } = await api.post('/pool/load', { tool_ids: toolIds, mode })
     return data
   },
 }

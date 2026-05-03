@@ -7,7 +7,9 @@ Provides database operations for compositions with:
 - RBAC execution control via allowed_roles
 """
 
+import json
 import logging
+import re
 from typing import List, Optional, Tuple
 from uuid import UUID
 from datetime import datetime
@@ -20,6 +22,45 @@ from ..models.composition import Composition, CompositionStatus, CompositionVisi
 from ..models.organization import OrganizationMember, UserRole
 
 logger = logging.getLogger(__name__)
+
+
+_PARAM_REF_RE = re.compile(r"\$\{parameters\.([a-zA-Z0-9_]+)\}")
+
+
+def _validate_input_schema_for_production(composition: Composition) -> Optional[str]:
+    """Ensure a production composition declares every parameter it references.
+
+    Production compositions are exposed as MCP tools (`composition_<name>`) so
+    their `input_schema` doubles as the JSON Schema published to clients.
+    Promoting a composition that uses `${parameters.foo}` in a step but does
+    not declare `foo` in `input_schema.properties` would yield a tool that
+    looks parameter-free but actually requires `foo` — fail fast instead.
+    """
+    schema = composition.input_schema
+    if schema is None:
+        return "input_schema is required for production (got null)"
+    if not isinstance(schema, dict):
+        return "input_schema must be a JSON object"
+    declared_type = schema.get("type")
+    if declared_type is not None and declared_type != "object":
+        return f"input_schema.type must be 'object' (got {declared_type!r})"
+    declared_properties = schema.get("properties") or {}
+    if not isinstance(declared_properties, dict):
+        return "input_schema.properties must be an object"
+
+    try:
+        steps_blob = json.dumps(composition.steps or [])
+    except (TypeError, ValueError):
+        steps_blob = ""
+    referenced = set(_PARAM_REF_RE.findall(steps_blob))
+    missing = sorted(referenced - set(declared_properties.keys()))
+    if missing:
+        return (
+            "input_schema is missing declared properties for parameters "
+            f"referenced in steps: {missing}. Add them to input_schema.properties "
+            "(and to required[] if needed) before promoting to production."
+        )
+    return None
 
 
 class CompositionService:
@@ -415,6 +456,13 @@ class CompositionService:
         if new_status in [CompositionStatus.VALIDATED.value, CompositionStatus.PRODUCTION.value]:
             if user_role not in [UserRole.ADMIN, UserRole.OWNER]:
                 return (None, "Only admin or owner can promote to validated/production")
+
+        # Production compositions become first-class MCP tools — enforce that
+        # input_schema declares everything the steps reference.
+        if new_status == CompositionStatus.PRODUCTION.value:
+            schema_error = _validate_input_schema_for_production(composition)
+            if schema_error:
+                return (None, schema_error)
 
         composition.status = new_status
         composition.ttl = None  # Remove TTL when promoted

@@ -9,9 +9,10 @@ import asyncio
 import logging
 from datetime import datetime
 from uuid import UUID
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
@@ -348,8 +349,13 @@ async def promote_composition(
     )
 
     if error:
-        if "not found" in error.lower():
+        err_lower = error.lower()
+        if "not found" in err_lower:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error)
+        if "input_schema" in err_lower:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=error
+            )
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=error)
 
     can_exec, _ = await service.can_execute(composition, user.id, org_id)
@@ -409,31 +415,60 @@ async def execute_composition(
     from ...orchestration.composition_executor import CompositionExecutor
     from ...routers.mcp_unified import gateway
 
-    # Instantiate executor with global registry
-    executor = CompositionExecutor(registry=gateway.registry)
+    # When the caller passes a NL `goal` (and no full inputs), delegate to the
+    # same execute path used by the `execute` MCP tool. This lets the web UI
+    # offer a "test with prompt" panel that mirrors the agent experience.
+    nl_goal = (data.goal or "").strip()
+    if nl_goal and not data.inputs:
+        from ...routers.mcp_gateway.pool.execute_handler import handle_execute
 
-    # Execute with multi-tenant context
-    try:
-        result = await executor.execute(
-            composition_id=str(composition_id),
-            parameters=data.inputs,
+        nl_payload = await handle_execute(
+            arguments={"composition_id": str(composition_id), "goal": nl_goal},
             user_id=str(user.id),
             organization_id=str(org_id),
-            user_server_pool=gateway.user_server_pool
+            gateway=gateway,
         )
-    except Exception as e:
-        logger.error(f"Composition execution failed: {e}", exc_info=True)
-        return CompositionExecuteResponse(
-            composition_id=composition_id,
-            execution_id=None,
-            status="failed",
-            outputs={},
-            duration_ms=0,
-            step_results=[],
-            started_at=datetime.now(),
-            completed_at=datetime.now(),
-            error=str(e)
-        )
+        # Surface the inner executor result so the response shape stays the
+        # same as a regular execution. handle_execute wraps in {"result": ...}.
+        result = nl_payload.get("result") if isinstance(nl_payload, dict) else None
+        if not isinstance(result, dict):
+            return CompositionExecuteResponse(
+                composition_id=composition_id,
+                execution_id=None,
+                status="failed",
+                outputs={},
+                duration_ms=0,
+                step_results=[],
+                started_at=datetime.now(),
+                completed_at=datetime.now(),
+                error=(nl_payload.get("error") if isinstance(nl_payload, dict) else "NL execution failed"),
+            )
+    else:
+        # Instantiate executor with global registry
+        executor = CompositionExecutor(registry=gateway.registry)
+
+        # Execute with multi-tenant context
+        try:
+            result = await executor.execute(
+                composition_id=str(composition_id),
+                parameters=data.inputs,
+                user_id=str(user.id),
+                organization_id=str(org_id),
+                user_server_pool=gateway.user_server_pool
+            )
+        except Exception as e:
+            logger.error(f"Composition execution failed: {e}", exc_info=True)
+            return CompositionExecuteResponse(
+                composition_id=composition_id,
+                execution_id=None,
+                status="failed",
+                outputs={},
+                duration_ms=0,
+                step_results=[],
+                started_at=datetime.now(),
+                completed_at=datetime.now(),
+                error=str(e)
+            )
 
     # Map executor result to response schema
     # Parse timestamps if they are strings
@@ -523,4 +558,149 @@ def _composition_to_response(
         updated_at=composition.updated_at,
         can_execute=can_execute,
         can_edit=can_edit
+    )
+
+
+
+# =============================================================================
+# LLM-FIRST COMPOSITION PROPOSAL
+# =============================================================================
+
+
+class CompositionProposeRequest(BaseModel):
+    """Request a draft composition from a natural-language description."""
+
+    query: str = Field(..., min_length=4, description="What the composed tool should do")
+    feedback: Optional[str] = Field(
+        None,
+        description="Optional iteration feedback on a previous proposal",
+    )
+    previous_proposal: Optional[Dict[str, Any]] = Field(
+        None, description="Previous proposal to refine (kept for next iteration)"
+    )
+
+
+class CompositionProposeResponse(BaseModel):
+    """Draft composition proposed by the LLM."""
+
+    name: str
+    description: str
+    steps: List[Dict[str, Any]]
+    input_schema: Dict[str, Any]
+    output_schema: Optional[Dict[str, Any]] = None
+    confidence: Optional[float] = None
+    intent: Optional[str] = None
+    available_tool_count: int
+
+
+@router.post(
+    "/propose",
+    response_model=CompositionProposeResponse,
+    summary="Propose a composition draft from a NL description",
+    description=(
+        "LLM-first composition builder. Reuses the IntentAnalyzer over every "
+        "tool from the org's enabled servers (NOT limited to the dynamic "
+        "session pool) to produce a draft the user can save or iterate on."
+    ),
+)
+async def propose_composition(
+    payload: CompositionProposeRequest,
+    user: User = Depends(get_current_user_jwt),
+    org_context: tuple = Depends(get_current_organization_jwt),
+    db: AsyncSession = Depends(get_async_session),
+):
+    _membership, org_id = org_context
+
+    # Build available_tools: every tool whose server is enabled in this org.
+    from sqlalchemy import select as _select
+    from ...models.mcp_server import MCPServer
+    from ...models.tool import Tool
+    import re as _re
+
+    stmt = (
+        _select(Tool, MCPServer)
+        .join(MCPServer, Tool.server_id == MCPServer.id)
+        .where(
+            Tool.organization_id == org_id,
+            MCPServer.enabled.is_(True),
+        )
+    )
+    rows = (await db.execute(stmt)).all()
+    available_tools: List[Dict[str, Any]] = []
+    for tool, server in rows:
+        prefix = _re.sub(r"_+", "_", _re.sub(r"[^a-zA-Z0-9_]", "_", server.name or "")).strip("_")
+        prefixed = f"{prefix}__{tool.tool_name}" if prefix else tool.tool_name
+        available_tools.append(
+            {
+                "id": str(tool.id),
+                "name": prefixed,
+                "description": tool.description or "",
+                "parameters": tool.parameters_schema or {"type": "object"},
+                "metadata": {
+                    "server_uuid": str(server.id),
+                    "server_display_name": server.name,
+                    "original_tool_name": tool.tool_name,
+                },
+            }
+        )
+
+    if not available_tools:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "No enabled servers in your organization. Connect at least one "
+                "MCP server before composing tools."
+            ),
+        )
+
+    # If iterating, augment the query with the feedback context.
+    composed_query = payload.query
+    if payload.feedback and payload.feedback.strip():
+        previous_summary = ""
+        if payload.previous_proposal:
+            try:
+                steps_summary = ", ".join(
+                    s.get("tool", "?") for s in (payload.previous_proposal.get("steps") or [])
+                )
+                previous_summary = f"\nPrevious draft used tools: {steps_summary}."
+            except Exception:  # noqa: BLE001
+                previous_summary = ""
+        composed_query = (
+            f"{payload.query}\n\nUser feedback on previous proposal: "
+            f"{payload.feedback}{previous_summary}"
+        )
+
+    from ...routers.mcp_unified import gateway
+
+    analyzer = gateway.orchestration_tools.intent_analyzer
+    analysis = await analyzer.analyze(
+        query=composed_query,
+        context={
+            "source": "web_propose",
+            "user_id": str(user.id),
+            "organization_id": str(org_id),
+        },
+        available_tools=available_tools,
+    )
+
+    proposed = (analysis or {}).get("proposed_composition") or {}
+    if not proposed or not proposed.get("steps"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=(
+                analysis.get("message")
+                if isinstance(analysis, dict) and analysis.get("message")
+                else "The LLM could not build a coherent draft from this description."
+            ),
+        )
+
+    return CompositionProposeResponse(
+        name=proposed.get("name") or f"Workflow: {payload.query[:60]}",
+        description=proposed.get("description") or payload.query,
+        steps=proposed.get("steps") or [],
+        input_schema=proposed.get("input_schema") or {"type": "object", "properties": {}, "required": []},
+        output_schema=proposed.get("output_schema"),
+        confidence=analysis.get("confidence") if isinstance(analysis, dict) else None,
+        intent=analysis.get("intent") if isinstance(analysis, dict) else None,
+        available_tool_count=len(available_tools),
     )

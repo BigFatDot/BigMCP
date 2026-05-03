@@ -272,11 +272,20 @@ class CompositionExecuteRequest(BaseModel):
         default_factory=dict,
         description="Input values for the composition"
     )
+    goal: Optional[str] = Field(
+        None,
+        description=(
+            "Optional natural-language goal. If provided (with empty/partial "
+            "`inputs`), the backend extracts parameters from this prompt via "
+            "the same LLM path used by the `execute` MCP tool."
+        ),
+    )
 
     class Config:
         json_schema_extra = {
             "example": {
-                "inputs": {"record_id": "123", "project_name": "MyProject"}
+                "inputs": {"record_id": "123", "project_name": "MyProject"},
+                "goal": "Run the daily sync for project MyProject",
             }
         }
 

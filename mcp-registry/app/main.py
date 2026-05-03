@@ -23,6 +23,7 @@ from .api.v1.marketplace_keys import router as marketplace_keys_router
 from .api.v1.marketplace import router as marketplace_router
 from .api.v1.organizations import router as organizations_router
 from .api.v1.compositions import router as compositions_router
+from .api.v1.pool import router as pool_router
 from .api.v1.admin import router as admin_router
 from .api.v1.mfa import router as mfa_router
 from .api.well_known import router as well_known_router
@@ -237,6 +238,7 @@ app.include_router(marketplace_keys_router, prefix="/api/v1", tags=["Marketplace
 app.include_router(marketplace_router, prefix="/api/v1", tags=["Marketplace"])
 app.include_router(organizations_router, prefix="/api/v1", tags=["Organizations"])
 app.include_router(compositions_router, prefix="/api/v1", tags=["Compositions"])
+app.include_router(pool_router, prefix="/api/v1", tags=["Pool"])
 app.include_router(admin_router, prefix="/api/v1", tags=["Instance Admin"])
 app.include_router(mfa_router, prefix="/api/v1", tags=["MFA"])
 
@@ -319,9 +321,19 @@ async def startup_event():
     init_cache_backend(redis_client=redis_client, prefix=core_settings.REDIS_PREFIX)
 
     # Load marketplace cache before starting services
-    from .services.marketplace_service import get_marketplace_service
+    from .services.marketplace_service import get_marketplace_service, load_custom_servers_from_registry
     marketplace_service = get_marketplace_service()
     await marketplace_service.load_from_cache_file()
+    # Also load custom servers from conf/mcp_servers.json so they show up in the marketplace
+    # without requiring a full sync against external sources (npm/github).
+    try:
+        custom_servers = await load_custom_servers_from_registry()
+        for cs in custom_servers:
+            marketplace_service._servers[cs.id] = cs
+        if custom_servers:
+            logger.info(f"Loaded {len(custom_servers)} custom servers from local registry into marketplace cache")
+    except Exception as e:
+        logger.warning(f"Failed to load custom servers at startup: {e}")
     logger.info("Marketplace cache loading completed")
 
     # Get the shared registry instance

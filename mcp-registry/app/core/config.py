@@ -117,6 +117,25 @@ class Settings:
     lemonsqueezy_enterprise_variant_id: Optional[str] = os.getenv("LEMONSQUEEZY_ENTERPRISE_VARIANT_ID")
 
     # =====================================
+    # Pool / Surface flags
+    # =====================================
+    # Backward-compat flag for the legacy `orchestrator_*` MCP meta-tools.
+    # The new surface (`search` + `execute`) supersedes them; we keep the
+    # dispatch alive for clients that still call these names directly, but
+    # they no longer appear in `tools/list` by default. Set to "true" if you
+    # need the legacy tools advertised again during a transition window.
+    LEGACY_ORCHESTRATOR_TOOLS_VISIBLE: bool = (
+        os.getenv("LEGACY_ORCHESTRATOR_TOOLS_VISIBLE", "false").lower() == "true"
+    )
+
+    # Hard kill-switch for the entire dynamic-pool redesign. When true,
+    # `tools/list` reverts to the legacy surface (orchestrator_* visible,
+    # `search`/`execute` hidden). Reserved for emergency rollback.
+    LEGACY_POOL_BEHAVIOR: bool = (
+        os.getenv("LEGACY_POOL_BEHAVIOR", "false").lower() == "true"
+    )
+
+    # =====================================
     # Edition System
     # =====================================
     # Explicit edition override (optional, auto-detected if not set)

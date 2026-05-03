@@ -47,6 +47,12 @@ from .mcp_gateway.utils import (
     _normalize_parameters,
 )
 from .mcp_gateway.orchestration import get_orchestration_tools
+from .mcp_gateway.pool import (
+    POOL_TOOL_NAMES,
+    get_pool_tools,
+    handle_execute,
+    handle_search,
+)
 
 # Configure logging
 logger = logging.getLogger("mcp_unified")
@@ -1000,9 +1006,20 @@ class MCPUnifiedGateway:
 
                 mcp_tools.append(mcp_tool)
 
-            # Add orchestration tools
-            orchestration_tools = self._get_orchestration_tools()
-            mcp_tools.extend(orchestration_tools)
+            # Surface selection driven by feature flags so we can roll back
+            # in production without redeploying:
+            #   - LEGACY_POOL_BEHAVIOR=true       → expose ONLY orchestrator_*
+            #   - LEGACY_ORCHESTRATOR_TOOLS_VISIBLE=true → also expose
+            #     orchestrator_* alongside search/execute (transition mode)
+            #   - default                          → only search + execute
+            from ..core.config import settings as _settings
+
+            if _settings.LEGACY_POOL_BEHAVIOR:
+                mcp_tools.extend(self._get_orchestration_tools())
+            else:
+                mcp_tools.extend(get_pool_tools())
+                if _settings.LEGACY_ORCHESTRATOR_TOOLS_VISIBLE:
+                    mcp_tools.extend(self._get_orchestration_tools())
 
             # Add production compositions as dynamic tools
             # IMPORTANT: Read from DATABASE (not file store) for persistence across restarts
@@ -1151,8 +1168,14 @@ class MCPUnifiedGateway:
 
         try:
             # Validate tool access if restricted to ToolGroup
-            # Skip validation for orchestration tools (always allowed) and workflows
-            if tool_group_id and not tool_name.startswith("orchestrator_") and not tool_name.startswith("workflow_"):
+            # Skip validation for pool meta-tools (search/execute), orchestration
+            # tools, and workflows — these are always allowed.
+            if (
+                tool_group_id
+                and tool_name not in POOL_TOOL_NAMES
+                and not tool_name.startswith("orchestrator_")
+                and not tool_name.startswith("workflow_")
+            ):
                 allowed_tool_ids = await self._get_tools_in_group(tool_group_id)
                 # For non-grouped tools, we need to check by getting all tools first
                 # This is a simplified check - ideally we'd have tool_id in the request
@@ -1167,8 +1190,23 @@ class MCPUnifiedGateway:
                         f"Tool '{tool_name}' not accessible with this API key (empty ToolGroup)"
                     )
 
+            # New dynamic pool surface (preferred path going forward).
+            if tool_name == "search":
+                result = await handle_search(
+                    tool_arguments,
+                    user_id=user_id,
+                    organization_id=organization_id,
+                )
+            elif tool_name == "execute":
+                result = await handle_execute(
+                    tool_arguments,
+                    user_id=user_id,
+                    organization_id=organization_id,
+                    gateway=self,
+                    session_id=session_id,
+                )
             # Check if it's an orchestration tool
-            if tool_name.startswith("orchestrator_"):
+            elif tool_name.startswith("orchestrator_"):
                 result = await self._execute_orchestration_tool(
                     tool_name,
                     tool_arguments,

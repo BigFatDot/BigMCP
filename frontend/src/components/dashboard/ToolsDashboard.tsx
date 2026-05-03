@@ -43,7 +43,7 @@ import {
   CenteredSpinner,
 } from '@/components/ui'
 import { cn } from '@/utils/cn'
-import { credentialsApi, serverControlApi, toolGroupsApi, orgCredentialsApi } from '@/services/marketplace'
+import { credentialsApi, serverControlApi, toolGroupsApi, orgCredentialsApi, poolApi } from '@/services/marketplace'
 import type { UserCredential, ToolInfo, ToolGroup, OrganizationCredential } from '@/types/marketplace'
 import { useOrganization, useFeatureAccess } from '@/hooks/useAuth'
 
@@ -63,6 +63,61 @@ const GROUP_COLORS = [
 ]
 
 type ViewMode = 'servers' | 'groups'
+
+function PoolHeaderWidget() {
+  const { t } = useTranslation('dashboard')
+  const queryClient = useQueryClient()
+  const { data, isLoading } = useQuery({
+    queryKey: ['pool-state'],
+    queryFn: () => poolApi.getState(),
+    refetchInterval: 15000,
+    staleTime: 5000,
+  })
+  const clearMutation = useMutation({
+    mutationFn: () => poolApi.clear(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pool-state'] })
+      queryClient.invalidateQueries({ queryKey: ['credentials'] })
+    },
+  })
+
+  const poolSize = data?.pool_size ?? 0
+  const compositionCount = data?.composition_count ?? 0
+
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
+      <div className="flex flex-col">
+        <span className="text-xs uppercase tracking-wide text-gray-500">
+          {t('tools.pool.label', { defaultValue: 'Active pool' })}
+        </span>
+        <span className="text-2xl font-semibold text-gray-900">
+          {isLoading ? '…' : poolSize}{' '}
+          <span className="text-sm font-normal text-gray-500">
+            {t('tools.pool.toolsLoaded', { defaultValue: 'tools loaded' })}
+          </span>
+        </span>
+        {compositionCount > 0 && (
+          <span className="text-xs text-gray-500">
+            +{compositionCount} {t('tools.pool.composedTools', { defaultValue: 'composed tools always-on' })}
+          </span>
+        )}
+      </div>
+      <Button
+        variant="secondary"
+        onClick={() => {
+          if (window.confirm(t('tools.pool.clearConfirm', { defaultValue: 'Clear the active pool? Your MCP client will need to call `search` again.' }))) {
+            clearMutation.mutate()
+          }
+        }}
+        disabled={clearMutation.isPending || poolSize === 0}
+      >
+        <TrashIcon className="w-4 h-4 mr-1.5" />
+        {t('tools.pool.clear', { defaultValue: 'Clear pool' })}
+      </Button>
+    </div>
+  )
+}
+
 
 interface CreateGroupModalProps {
   isOpen: boolean
@@ -610,6 +665,7 @@ export function ToolsDashboard() {
               {t('tools.subtitle')}
             </p>
           </div>
+          <PoolHeaderWidget />
         </div>
       </div>
 

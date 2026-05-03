@@ -21,6 +21,8 @@ import {
   BuildingOfficeIcon,
   EyeIcon,
   EyeSlashIcon,
+  PlusIcon,
+  SparklesIcon,
 } from '@heroicons/react/24/outline'
 import { Button, Card, Badge } from '@/components/ui'
 import { DynamicInputForm, ExecutionResultDisplay } from '@/components/compositions'
@@ -179,11 +181,15 @@ function CompositionCard({
 
 type ExecutePhase = 'input' | 'executing' | 'result'
 
+type ExecuteMode = 'form' | 'nl'
+
 function ExecuteModal({ composition, isOpen, onClose, onExecute }: ExecuteModalProps) {
   const { t } = useTranslation('dashboard')
   const [phase, setPhase] = useState<ExecutePhase>('input')
   const [inputs, setInputs] = useState<Record<string, unknown>>({})
   const [result, setResult] = useState<CompositionExecuteResponse | null>(null)
+  const [mode, setMode] = useState<ExecuteMode>('form')
+  const [nlGoal, setNlGoal] = useState<string>('')
 
   // Reset state when modal opens/closes or composition changes
   useEffect(() => {
@@ -191,6 +197,8 @@ function ExecuteModal({ composition, isOpen, onClose, onExecute }: ExecuteModalP
       setPhase('input')
       setInputs({})
       setResult(null)
+      setMode('form')
+      setNlGoal('')
 
       // Pre-fill defaults from input_schema
       const schema = composition?.input_schema as InputSchema | undefined
@@ -215,12 +223,17 @@ function ExecuteModal({ composition, isOpen, onClose, onExecute }: ExecuteModalP
   const handleExecute = async () => {
     setPhase('executing')
     try {
-      const response = await compositionsApi.execute(composition.id, inputs)
+      const isNL = mode === 'nl' && nlGoal.trim().length > 0
+      const response = await compositionsApi.execute(
+        composition.id,
+        isNL ? {} : inputs,
+        isNL ? nlGoal : undefined
+      )
       setResult(response)
       setPhase('result')
 
       // Call parent onExecute for stats update
-      onExecute(inputs)
+      onExecute(isNL ? { _goal: nlGoal } : inputs)
     } catch (error: any) {
       setResult({
         composition_id: composition.id,
@@ -269,8 +282,48 @@ function ExecuteModal({ composition, isOpen, onClose, onExecute }: ExecuteModalP
           {/* Phase: Input */}
           {phase === 'input' && (
             <>
+              {/* Mode toggle: form (deterministic) vs prompt NL (LLM-extracted) */}
+              <div className="mb-4 inline-flex rounded-lg border border-gray-200 p-1 bg-gray-50">
+                <button
+                  type="button"
+                  onClick={() => setMode('form')}
+                  className={`px-3 py-1.5 text-sm rounded-md transition ${
+                    mode === 'form' ? 'bg-white shadow text-gray-900' : 'text-gray-500'
+                  }`}
+                >
+                  {t('compositions.modeForm')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode('nl')}
+                  className={`px-3 py-1.5 text-sm rounded-md transition ${
+                    mode === 'nl' ? 'bg-white shadow text-gray-900' : 'text-gray-500'
+                  }`}
+                >
+                  {t('compositions.modeNL')}
+                </button>
+              </div>
+
+              {mode === 'nl' && (
+                <div className="mb-6">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                    {t('compositions.testWithPrompt')}
+                  </h3>
+                  <p className="text-xs text-gray-500 mb-2">
+                    {t('compositions.testWithPromptHint')}
+                  </p>
+                  <textarea
+                    value={nlGoal}
+                    onChange={e => setNlGoal(e.target.value)}
+                    rows={4}
+                    className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange focus:border-transparent"
+                    placeholder="e.g. Run the daily sync for project X"
+                  />
+                </div>
+              )}
+
               {/* Input form if has inputs */}
-              {hasInputs && (
+              {mode === 'form' && hasInputs && (
                 <div className="mb-6">
                   <h3 className="text-sm font-semibold text-gray-700 mb-3">
                     {t('compositions.executeModal.inputsTitle')}
@@ -338,7 +391,11 @@ function ExecuteModal({ composition, isOpen, onClose, onExecute }: ExecuteModalP
               <Button
                 variant="primary"
                 onClick={handleExecute}
-                disabled={hasInputs && !isValid}
+                disabled={
+                  mode === 'nl'
+                    ? nlGoal.trim().length === 0
+                    : hasInputs && !isValid
+                }
               >
                 {t('compositions.execute')}
               </Button>
@@ -367,6 +424,204 @@ function ExecuteModal({ composition, isOpen, onClose, onExecute }: ExecuteModalP
   )
 }
 
+type ProposalDraft = {
+  name: string
+  description: string
+  steps: Array<Record<string, unknown>>
+  input_schema: Record<string, unknown>
+  output_schema?: Record<string, unknown> | null
+  confidence?: number | null
+  intent?: string | null
+  available_tool_count: number
+}
+
+interface ProposeModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onSaved: (composition: Composition) => void
+}
+
+function ProposeCompositionModal({ isOpen, onClose, onSaved }: ProposeModalProps) {
+  const { t } = useTranslation('dashboard')
+  const [query, setQuery] = useState('')
+  const [feedback, setFeedback] = useState('')
+  const [draft, setDraft] = useState<ProposalDraft | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      setQuery('')
+      setFeedback('')
+      setDraft(null)
+      setErrorMsg(null)
+      setIsLoading(false)
+    }
+  }, [isOpen])
+
+  if (!isOpen) return null
+
+  const askLLM = async () => {
+    setIsLoading(true)
+    setErrorMsg(null)
+    try {
+      const data = await compositionsApi.propose(query, {
+        feedback: draft && feedback.trim() ? feedback : undefined,
+        previous_proposal: draft && feedback.trim() ? { steps: draft.steps, name: draft.name } : undefined,
+      })
+      setDraft(data as ProposalDraft)
+      setFeedback('')
+    } catch (e: any) {
+      setErrorMsg(e.response?.data?.detail || e.message || 'Failed to propose')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const saveDraft = async () => {
+    if (!draft) return
+    setIsLoading(true)
+    setErrorMsg(null)
+    try {
+      const created = await compositionsApi.create({
+        name: draft.name,
+        description: draft.description,
+        steps: draft.steps as unknown as Composition['steps'],
+        input_schema: draft.input_schema,
+        output_schema: draft.output_schema || undefined,
+        visibility: 'private',
+        status: 'temporary',
+      } as any)
+      toast.success(t('compositions.proposeSavedSuccess', { defaultValue: 'Draft saved.' }))
+      onSaved(created)
+      onClose()
+    } catch (e: any) {
+      setErrorMsg(e.response?.data?.detail || e.message || 'Failed to save')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] flex flex-col">
+        <div className="p-6 border-b border-gray-200 flex-shrink-0">
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <SparklesIcon className="w-5 h-5 text-orange" />
+            {t('compositions.proposeTitle', { defaultValue: 'Propose a composed tool' })}
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
+            {t('compositions.proposeHint', {
+              defaultValue:
+                'Describe what your composed tool should do. The LLM will draft the steps and input schema from the tools available in your enabled servers.',
+            })}
+          </p>
+        </div>
+
+        <div className="p-6 overflow-y-auto flex-1 space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              {t('compositions.proposeQueryLabel', { defaultValue: 'What should this composed tool do?' })}
+            </label>
+            <textarea
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              rows={4}
+              className="w-full p-3 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange focus:border-transparent"
+              placeholder={t('compositions.proposeQueryPlaceholder', {
+                defaultValue: 'e.g. Fetch the DNS records of a given domain and notify a Slack channel if any TTL is below 300 seconds.',
+              }) as string}
+            />
+          </div>
+
+          {draft && (
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+              <div className="flex items-baseline justify-between gap-2 mb-2">
+                <h3 className="text-sm font-semibold text-gray-900">{draft.name}</h3>
+                {typeof draft.confidence === 'number' && (
+                  <Badge variant="default">
+                    {Math.round(draft.confidence * 100)}% confidence
+                  </Badge>
+                )}
+              </div>
+              <p className="text-sm text-gray-700 mb-3">{draft.description}</p>
+              <div className="text-xs text-gray-600 mb-2">
+                {t('compositions.proposeStepsHeader', {
+                  defaultValue: 'Proposed steps',
+                })}{' '}
+                ({draft.steps.length})
+              </div>
+              <ol className="list-decimal list-inside space-y-1 mb-3">
+                {draft.steps.map((s: any, i) => (
+                  <li key={i} className="text-sm text-gray-700">
+                    <code className="bg-white px-1 py-0.5 rounded border border-gray-200 text-xs">
+                      {s.tool || s.name || `step_${i + 1}`}
+                    </code>
+                  </li>
+                ))}
+              </ol>
+              <details className="text-xs">
+                <summary className="cursor-pointer text-gray-600">
+                  {t('compositions.proposeInputSchema', { defaultValue: 'Input schema' })}
+                </summary>
+                <pre className="mt-1 p-2 bg-white border border-gray-200 rounded overflow-auto max-h-40">
+                  {JSON.stringify(draft.input_schema, null, 2)}
+                </pre>
+              </details>
+
+              <div className="mt-4">
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  {t('compositions.proposeFeedbackLabel', { defaultValue: 'Iterate? Tell the LLM what to change.' })}
+                </label>
+                <input
+                  type="text"
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-orange focus:border-transparent"
+                  placeholder={
+                    t('compositions.proposeFeedbackPlaceholder', {
+                      defaultValue: 'e.g. Use Slack instead of email.',
+                    }) as string
+                  }
+                />
+              </div>
+            </div>
+          )}
+
+          {errorMsg && (
+            <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3">
+              {errorMsg}
+            </div>
+          )}
+        </div>
+
+        <div className="p-6 border-t border-gray-200 flex justify-end gap-2 flex-shrink-0">
+          <Button variant="secondary" onClick={onClose} disabled={isLoading}>
+            {t('compositions.cancel')}
+          </Button>
+          <Button
+            variant="secondary"
+            onClick={askLLM}
+            disabled={isLoading || query.trim().length < 4}
+          >
+            {isLoading
+              ? t('compositions.proposing', { defaultValue: 'Asking the LLM…' })
+              : draft
+                ? t('compositions.proposeIterate', { defaultValue: 'Iterate' })
+                : t('compositions.propose', { defaultValue: 'Propose' })}
+          </Button>
+          {draft && (
+            <Button variant="primary" onClick={saveDraft} disabled={isLoading}>
+              {t('compositions.proposeSaveDraft', { defaultValue: 'Save as draft' })}
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+
 export function CompositionsPage() {
   const { t } = useTranslation('dashboard')
   const { isTeamOrg } = useOrganization()
@@ -377,6 +632,7 @@ export function CompositionsPage() {
   const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'mine' | 'team'>('all')
   const [selectedComposition, setSelectedComposition] = useState<Composition | null>(null)
   const [showExecuteModal, setShowExecuteModal] = useState(false)
+  const [showProposeModal, setShowProposeModal] = useState(false)
 
   // Load compositions from API
   const loadCompositions = useCallback(async () => {
@@ -479,11 +735,17 @@ export function CompositionsPage() {
   return (
     <div className="container py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">{t('compositions.title')}</h1>
-        <p className="text-lg text-gray-600 font-serif">
-          {t('compositions.subtitle')}
-        </p>
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">{t('compositions.title')}</h1>
+          <p className="text-lg text-gray-600 font-serif">
+            {t('compositions.subtitle')}
+          </p>
+        </div>
+        <Button variant="primary" onClick={() => setShowProposeModal(true)}>
+          <PlusIcon className="w-5 h-5 mr-2" />
+          {t('compositions.create', { defaultValue: 'Create Composed Tool' })}
+        </Button>
       </div>
 
       {/* Filters */}
@@ -567,6 +829,13 @@ export function CompositionsPage() {
           setSelectedComposition(null)
         }}
         onExecute={handleExecuteConfirm}
+      />
+
+      {/* Propose Composition Modal (LLM-first) */}
+      <ProposeCompositionModal
+        isOpen={showProposeModal}
+        onClose={() => setShowProposeModal(false)}
+        onSaved={(saved) => setCompositions((prev) => [saved, ...prev])}
       />
     </div>
   )

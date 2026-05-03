@@ -71,9 +71,9 @@ class Tool(Base, UUIDMixin, TimestampMixin):
     meta: Mapped[dict] = mapped_column(JSONType, default={}, nullable=False)
     is_visible_to_oauth_clients: Mapped[bool] = mapped_column(
         Boolean,
-        default=True,
+        default=False,
         nullable=False,
-        comment="If False, tool is hidden from OAuth clients but available via API keys"
+        comment="True iff this tool is currently in the user's active session pool (managed dynamically by the `search` MCP tool). API keys bypass this flag."
     )
 
     # Vector embedding for semantic search
