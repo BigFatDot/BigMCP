@@ -32,6 +32,7 @@ import {
   ArrowPathIcon,
   BoltIcon,
   MagnifyingGlassIcon,
+  PencilSquareIcon,
   PlusIcon,
   SparklesIcon,
   TrashIcon,
@@ -53,6 +54,7 @@ import { useOrganization } from '@/hooks/useAuth'
 import { ToolCard, type ToolCardData } from './ToolCard'
 import { AssistantModal } from './AssistantModal'
 import { CreateToolboxFromDropModal } from './CreateToolboxFromDropModal'
+import { ToolboxEditModal } from './ToolboxEditModal'
 import type { CatalogTool, DragPayload, ToolboxSummary } from './types'
 
 interface DropZoneProps {
@@ -84,6 +86,7 @@ export function ToolsWorkspace() {
   const [activeDrag, setActiveDrag] = useState<DragPayload | null>(null)
   const [showAssistant, setShowAssistant] = useState(false)
   const [seedToolForNewToolbox, setSeedToolForNewToolbox] = useState<ToolCardData | null>(null)
+  const [editingToolboxId, setEditingToolboxId] = useState<string | null>(null)
   const [mobileColumn, setMobileColumn] = useState<'catalog' | 'pool' | 'toolboxes'>('catalog')
 
   // ---- Queries ----
@@ -152,12 +155,42 @@ export function ToolsWorkspace() {
   }, [compositionsQuery.data])
 
   const allServers = useMemo(() => {
-    const map = new Map<string, string>()
+    const map = new Map<string, { name: string; toolIds: string[] }>()
     for (const t of allTools) {
-      if (t.serverId) map.set(t.serverId, t.serverName || t.serverId)
+      if (!t.serverId) continue
+      const entry = map.get(t.serverId) || { name: t.serverName || t.serverId, toolIds: [] }
+      entry.toolIds.push(t.id)
+      map.set(t.serverId, entry)
     }
-    return Array.from(map.entries()).map(([id, name]) => ({ id, name }))
-  }, [allTools])
+    return Array.from(map.entries()).map(([id, { name, toolIds }]) => {
+      // Match the server with the user's credential (so we can revoke it).
+      const credential = (credentialsQuery.data || []).find(
+        (c: any) => String(c.server_id) === String(id) || String(c.id) === String(id),
+      )
+      return {
+        id,
+        name,
+        toolIds,
+        credentialId: credential?.id ?? null,
+      }
+    })
+  }, [allTools, credentialsQuery.data])
+
+  const revokeServerMutation = useMutation({
+    mutationFn: (credentialId: string) => credentialsApi.deleteUserCredential(credentialId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['credentials'] })
+      queryClient.invalidateQueries({ queryKey: ['workspace-tools'] })
+      queryClient.invalidateQueries({ queryKey: ['pool-state'] })
+      toast.success(
+        t('workspace.servers.revokedToast', {
+          defaultValue: 'Service revoked.',
+        }) as string,
+      )
+    },
+    onError: (e: any) =>
+      toast.error(e.response?.data?.detail || e.message || 'Failed to revoke'),
+  })
 
   const filteredCatalog = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -498,29 +531,75 @@ export function ToolsWorkspace() {
           </Button>
         </div>
 
-        {/* Server filter chips */}
+        {/* Server filter chips with hover actions: load-all-into-pool + revoke */}
         {allServers.length > 0 && (
           <div className="mb-4 flex flex-wrap gap-2">
-            {allServers.map((s) => (
-              <button
-                key={s.id}
-                type="button"
-                onClick={() => {
-                  const next = new Set(serverFilter)
-                  if (next.has(s.id)) next.delete(s.id)
-                  else next.add(s.id)
-                  setServerFilter(next)
-                }}
-                className={cn(
-                  'text-xs px-2.5 py-1 rounded-full border transition',
-                  serverFilter.has(s.id)
-                    ? 'border-orange bg-orange/10 text-orange-dark'
-                    : 'border-gray-200 text-gray-600 hover:border-gray-300',
-                )}
-              >
-                {s.name}
-              </button>
-            ))}
+            {allServers.map((s) => {
+              const active = serverFilter.has(s.id)
+              return (
+                <div
+                  key={s.id}
+                  className={cn(
+                    'group inline-flex items-stretch rounded-full border transition overflow-hidden',
+                    active
+                      ? 'border-orange bg-orange/10 text-orange-dark'
+                      : 'border-gray-200 text-gray-600 hover:border-gray-300',
+                  )}
+                >
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = new Set(serverFilter)
+                      if (next.has(s.id)) next.delete(s.id)
+                      else next.add(s.id)
+                      setServerFilter(next)
+                    }}
+                    className="text-xs px-2.5 py-1"
+                  >
+                    {s.name}{' '}
+                    <span className="text-gray-400">({s.toolIds.length})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => loadMutation.mutate(s.toolIds)}
+                    title={
+                      t('workspace.servers.loadAllHint', {
+                        defaultValue: 'Load every tool from this service into the pool',
+                      }) as string
+                    }
+                    className="px-1.5 border-l border-current/20 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-orange/10"
+                  >
+                    <BoltIcon className="w-3 h-3" />
+                  </button>
+                  {s.credentialId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (
+                          window.confirm(
+                            t('workspace.servers.revokeConfirm', {
+                              name: s.name,
+                              defaultValue:
+                                'Revoke "{{name}}"? Stored credentials are deleted; tools will no longer reach this service.',
+                            }) as string,
+                          )
+                        ) {
+                          revokeServerMutation.mutate(s.credentialId as string)
+                        }
+                      }}
+                      title={
+                        t('workspace.servers.revokeHint', {
+                          defaultValue: 'Revoke this service (delete its credentials)',
+                        }) as string
+                      }
+                      className="px-1.5 border-l border-current/20 opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:bg-red-50"
+                    >
+                      <TrashIcon className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              )
+            })}
             {serverFilter.size > 0 && (
               <button
                 type="button"
@@ -678,7 +757,14 @@ export function ToolsWorkspace() {
                   className="rounded-lg border border-gray-200 bg-white p-3 transition"
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <div className="flex-1 min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => setEditingToolboxId(tb.id)}
+                      className="flex-1 min-w-0 text-left hover:text-orange-dark transition"
+                      title={t('workspace.toolboxEdit.openHint', {
+                        defaultValue: 'Click to edit this toolbox',
+                      }) as string}
+                    >
                       <div className="text-sm font-medium text-gray-900 truncate">{tb.name}</div>
                       <div className="text-xs text-gray-500">
                         {tb.itemCount} {t('workspace.toolsShort', { defaultValue: 'tools' })} ·{' '}
@@ -686,18 +772,30 @@ export function ToolsWorkspace() {
                           ? t('compositions.team', { defaultValue: 'team' })
                           : t('compositions.private', { defaultValue: 'private' })}
                       </div>
+                    </button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => loadToolboxMutation.mutate(tb.id)}
+                        disabled={loadToolboxMutation.isPending}
+                        title={t('workspace.toolboxLoadHint', {
+                          defaultValue: 'Load every tool of this toolbox into the pool',
+                        })}
+                      >
+                        <BoltIcon className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditingToolboxId(tb.id)}
+                        title={t('workspace.toolboxEdit.editHint', {
+                          defaultValue: 'Edit toolbox',
+                        })}
+                      >
+                        <PencilSquareIcon className="w-4 h-4" />
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => loadToolboxMutation.mutate(tb.id)}
-                      disabled={loadToolboxMutation.isPending}
-                      title={t('workspace.toolboxLoadHint', {
-                        defaultValue: 'Load every tool of this toolbox into the pool',
-                      })}
-                    >
-                      <BoltIcon className="w-4 h-4" />
-                    </Button>
                   </div>
                 </DropZone>
               ))}
@@ -735,6 +833,12 @@ export function ToolsWorkspace() {
         seedTool={seedToolForNewToolbox}
         canShareWithOrg={!!toolGroupsQuery.data?.length}
         onClose={() => setSeedToolForNewToolbox(null)}
+      />
+
+      <ToolboxEditModal
+        toolboxId={editingToolboxId}
+        isOpen={!!editingToolboxId}
+        onClose={() => setEditingToolboxId(null)}
       />
     </DndContext>
   )

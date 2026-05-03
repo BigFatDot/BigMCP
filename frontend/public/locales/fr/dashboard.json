@@ -287,6 +287,32 @@
       "toolboxCreatedAndLoaded": "Boîte créée et {{count}} outils chargés dans le pool.",
       "toolboxRenamed": "Une boîte du même nom existait déjà — sauvegardée comme « {{name}} »."
     },
+    "toolboxEdit": {
+      "title": "Modifier la boîte à outils",
+      "hint": "Renommer, recolorer, retirer des outils, ou supprimer entièrement cette boîte.",
+      "name": "Nom",
+      "color": "Couleur",
+      "description": "Description",
+      "itemsHeader": "Outils dans cette boîte",
+      "empty": "Cette boîte est vide.",
+      "loadIntoPool": "Charger tout dans le pool",
+      "removeItem": "Retirer de cette boîte",
+      "save": "Enregistrer",
+      "close": "Fermer",
+      "delete": "Supprimer la boîte",
+      "deleteConfirm": "Supprimer cette boîte ? Les outils eux-mêmes restent disponibles.",
+      "savedToast": "Boîte mise à jour.",
+      "deletedToast": "Boîte supprimée.",
+      "loadedToast": "{{count}} outils chargés dans le pool.",
+      "openHint": "Cliquer pour modifier cette boîte",
+      "editHint": "Modifier la boîte"
+    },
+    "servers": {
+      "loadAllHint": "Charger tous les outils de ce service dans le pool",
+      "revokeHint": "Révoquer ce service (supprimer ses identifiants)",
+      "revokeConfirm": "Révoquer « {{name}} » ? Les identifiants stockés sont supprimés ; les outils ne pourront plus atteindre ce service.",
+      "revokedToast": "Service révoqué."
+    },
     "newToolbox": {
       "title": "Nouvelle boîte à outils",
       "hint": "Regroupez ces outils sous un nom. Une boîte se charge dans le pool en un clic.",

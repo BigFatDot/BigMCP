@@ -287,6 +287,32 @@
       "toolboxCreatedAndLoaded": "Toolbox created and {{count}} tools loaded into the pool.",
       "toolboxRenamed": "A toolbox with the same name existed — saved as \"{{name}}\"."
     },
+    "toolboxEdit": {
+      "title": "Edit toolbox",
+      "hint": "Rename, recolor, prune the items, or delete this toolbox entirely.",
+      "name": "Name",
+      "color": "Color",
+      "description": "Description",
+      "itemsHeader": "Tools in this toolbox",
+      "empty": "This toolbox is empty.",
+      "loadIntoPool": "Load all into pool",
+      "removeItem": "Remove from this toolbox",
+      "save": "Save",
+      "close": "Close",
+      "delete": "Delete toolbox",
+      "deleteConfirm": "Delete this toolbox? Tools themselves are kept.",
+      "savedToast": "Toolbox updated.",
+      "deletedToast": "Toolbox deleted.",
+      "loadedToast": "{{count}} tools loaded into the pool.",
+      "openHint": "Click to edit this toolbox",
+      "editHint": "Edit toolbox"
+    },
+    "servers": {
+      "loadAllHint": "Load every tool from this service into the pool",
+      "revokeHint": "Revoke this service (delete its credentials)",
+      "revokeConfirm": "Revoke \"{{name}}\"? Stored credentials are deleted; tools will no longer reach this service.",
+      "revokedToast": "Service revoked."
+    },
     "newToolbox": {
       "title": "New toolbox",
       "hint": "Group these tools under a name. Toolboxes can be loaded into the pool in one click later.",
