@@ -223,6 +223,62 @@
       "saveChanges": "Save Changes"
     }
   },
+  "workspace": {
+    "subtitle": "Drag tools into the active pool, group them into toolboxes, or let the assistant suggest what to load.",
+    "searchPlaceholder": "Search a tool by name, description or server…",
+    "loadFiltered": "Load filtered ({{count}}) into pool",
+    "bulkLoadConfirm": "Load {{count}} tools into the pool?",
+    "askAssistant": "Ask assistant",
+    "clearFilters": "Clear filters",
+    "catalog": "Catalog",
+    "pool": "Active Pool",
+    "toolsShort": "tools",
+    "toolboxLoadHint": "Load every tool of this toolbox into the pool",
+    "newToolboxDrop": "Drop tools here to create a new toolbox",
+    "empty": {
+      "noMatch": "No tool matches your search.",
+      "catalog": "No tool yet — connect a server in the Marketplace.",
+      "pool": "Pool empty — drop tools from the catalog or use the assistant.",
+      "toolboxes": "No toolbox yet — drop a few tools on the new toolbox area to create one."
+    },
+    "toast": {
+      "loaded": "Loaded into pool.",
+      "unloaded": "Removed from pool.",
+      "cleared": "Pool cleared.",
+      "toolboxAdded": "Added to toolbox.",
+      "toolboxLoaded": "Toolbox loaded into pool.",
+      "compositionAlwaysIn": "Composed tools are always in the pool.",
+      "compositionToolboxBlocked": "Compositions cannot be added to toolboxes yet."
+    },
+    "assistant": {
+      "title": "Suggest tools for a goal",
+      "hint": "Describe what you want to do; the assistant scores your enabled tools and proposes a selection to load into the pool.",
+      "goalLabel": "Your goal",
+      "goalPlaceholder": "e.g. Manage DNS records on Hostinger",
+      "suggest": "Suggest",
+      "refresh": "Refresh",
+      "searching": "Searching…",
+      "suggestionsHeader": "Suggestions",
+      "selectAll": "Select all",
+      "deselectAll": "Deselect all",
+      "alreadyInPool": "in pool",
+      "loadSelection": "Load selection ({{count}})",
+      "loadedToast": "Loaded into your pool.",
+      "alsoCompose": "Looking for a multi-step workflow? Compose it with the LLM.",
+      "gotoCompose": "Compose it →"
+    },
+    "newToolbox": {
+      "title": "New toolbox",
+      "hint": "Group these tools under a name. Toolboxes can be loaded into the pool in one click later.",
+      "seedNotice": "Will start with:",
+      "namePlaceholder": "e.g. DNS toolkit",
+      "descriptionPlaceholder": "What is this toolbox for? (optional)",
+      "visibility": "Visibility",
+      "create": "Create toolbox",
+      "creating": "Creating…",
+      "created": "Toolbox created."
+    }
+  },
   "compositions": {
     "title": "Composed Tools",
     "subtitle": "Build, save and execute multi-step workflows. Production composed tools become first-class MCP tools, available via search/execute.",

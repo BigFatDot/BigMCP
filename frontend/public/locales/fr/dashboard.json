@@ -223,6 +223,62 @@
       "saveChanges": "Enregistrer"
     }
   },
+  "workspace": {
+    "subtitle": "Glissez vos outils dans le pool actif, regroupez-les en boîtes à outils, ou laissez l'assistant proposer ce qu'il faut charger.",
+    "searchPlaceholder": "Chercher un outil par nom, description ou serveur…",
+    "loadFiltered": "Charger les {{count}} filtrés dans le pool",
+    "bulkLoadConfirm": "Charger {{count}} outils dans le pool ?",
+    "askAssistant": "Assistant",
+    "clearFilters": "Réinitialiser les filtres",
+    "catalog": "Catalogue",
+    "pool": "Pool actif",
+    "toolsShort": "outils",
+    "toolboxLoadHint": "Charger tous les outils de cette boîte dans le pool",
+    "newToolboxDrop": "Glissez des outils ici pour créer une nouvelle boîte",
+    "empty": {
+      "noMatch": "Aucun outil ne correspond à votre recherche.",
+      "catalog": "Pas encore d'outil — connectez un serveur dans le Marketplace.",
+      "pool": "Pool vide — glissez des outils depuis le catalogue ou utilisez l'assistant.",
+      "toolboxes": "Aucune boîte à outils — glissez quelques outils sur la zone « Nouvelle boîte » pour en créer une."
+    },
+    "toast": {
+      "loaded": "Chargé dans le pool.",
+      "unloaded": "Retiré du pool.",
+      "cleared": "Pool vidé.",
+      "toolboxAdded": "Ajouté à la boîte.",
+      "toolboxLoaded": "Boîte chargée dans le pool.",
+      "compositionAlwaysIn": "Les tools composés sont toujours dans le pool.",
+      "compositionToolboxBlocked": "Les compositions ne peuvent pas encore être ajoutées aux boîtes."
+    },
+    "assistant": {
+      "title": "Suggérer des outils pour un objectif",
+      "hint": "Décrivez ce que vous voulez faire ; l'assistant score vos outils actifs et propose une sélection à charger dans le pool.",
+      "goalLabel": "Votre objectif",
+      "goalPlaceholder": "Ex. Gérer les enregistrements DNS chez Hostinger",
+      "suggest": "Suggérer",
+      "refresh": "Actualiser",
+      "searching": "Recherche…",
+      "suggestionsHeader": "Suggestions",
+      "selectAll": "Tout sélectionner",
+      "deselectAll": "Tout désélectionner",
+      "alreadyInPool": "dans le pool",
+      "loadSelection": "Charger la sélection ({{count}})",
+      "loadedToast": "Chargé dans votre pool.",
+      "alsoCompose": "Plutôt un workflow multi-étapes ? Composez-le avec le LLM.",
+      "gotoCompose": "Composer →"
+    },
+    "newToolbox": {
+      "title": "Nouvelle boîte à outils",
+      "hint": "Regroupez ces outils sous un nom. Une boîte se charge dans le pool en un clic.",
+      "seedNotice": "Commencera avec :",
+      "namePlaceholder": "Ex. Boîte DNS",
+      "descriptionPlaceholder": "À quoi sert cette boîte ? (optionnel)",
+      "visibility": "Visibilité",
+      "create": "Créer la boîte",
+      "creating": "Création…",
+      "created": "Boîte créée."
+    }
+  },
   "compositions": {
     "title": "Tools Composés",
     "subtitle": "Construisez, sauvegardez et exécutez des workflows multi-étapes. Une fois en production, ils deviennent des tools MCP first-class accessibles via search/execute.",
