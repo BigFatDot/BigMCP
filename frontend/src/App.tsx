@@ -5,6 +5,7 @@ import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { MainLayout } from './components/layout/MainLayout'
 import { MarketplaceBrowser } from './components/marketplace/MarketplaceBrowser'
 import { ToolsDashboard } from './components/dashboard/ToolsDashboard'
+import { ToolsWorkspace } from './components/dashboard/workspace/ToolsWorkspace'
 import { OnboardingWizard } from './components/onboarding/OnboardingWizard'
 import { LoginPage } from './pages/auth/LoginPage'
 import { SignupPage } from './pages/auth/SignupPage'
@@ -78,6 +79,15 @@ function App() {
           {/* Protected Routes - require authentication */}
           <Route
             path="tools"
+            element={
+              <ProtectedRoute>
+                <ToolsWorkspace />
+              </ProtectedRoute>
+            }
+          />
+          {/* Legacy dashboard kept reachable for fallback while the workspace UX matures. */}
+          <Route
+            path="tools/legacy"
             element={
               <ProtectedRoute>
                 <ToolsDashboard />
