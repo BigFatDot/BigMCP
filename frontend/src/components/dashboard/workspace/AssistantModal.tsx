@@ -46,7 +46,23 @@ export function AssistantModal({ isOpen, onClose, onLoaded }: AssistantModalProp
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  const reset = () => {
+  // All hooks must run on every render — keep the early-return AFTER them.
+  const loadMutation = useMutation({
+    mutationFn: (ids: string[]) => poolApi.load(ids, 'append'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['workspace-tools'] })
+      queryClient.invalidateQueries({ queryKey: ['pool-state'] })
+      toast.success(
+        t('workspace.assistant.loadedToast', { defaultValue: 'Loaded into your pool.' }),
+      )
+      onLoaded?.()
+      reset()
+      onClose()
+    },
+    onError: (e: any) => setErrorMsg(e.response?.data?.detail || 'Load failed'),
+  })
+
+  function reset() {
     setGoal('')
     setSuggestions(null)
     setSelectedIds(new Set())
@@ -75,21 +91,6 @@ export function AssistantModal({ isOpen, onClose, onLoaded }: AssistantModalProp
       setIsLoading(false)
     }
   }
-
-  const loadMutation = useMutation({
-    mutationFn: (ids: string[]) => poolApi.load(ids, 'append'),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workspace-tools'] })
-      queryClient.invalidateQueries({ queryKey: ['pool-state'] })
-      toast.success(
-        t('workspace.assistant.loadedToast', { defaultValue: 'Loaded into your pool.' }),
-      )
-      onLoaded?.()
-      reset()
-      onClose()
-    },
-    onError: (e: any) => setErrorMsg(e.response?.data?.detail || 'Load failed'),
-  })
 
   const toggle = (id: string) => {
     const next = new Set(selectedIds)
