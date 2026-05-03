@@ -390,3 +390,208 @@ def _group_to_response(group) -> ToolGroupResponse:
         created_at=group.created_at,
         updated_at=group.updated_at
     )
+
+
+# =============================================================================
+# LLM-FIRST TOOLBOX PROPOSAL
+# =============================================================================
+
+from pydantic import BaseModel, Field as _Field
+from typing import Any, Dict
+
+
+class ToolGroupProposeRequest(BaseModel):
+    """Ask the LLM to propose a toolbox for a given intent / persona."""
+
+    intent: str = _Field(..., min_length=4, max_length=2000)
+    also_load_to_pool: bool = _Field(False, description="Hint for the UI; the endpoint itself does NOT mutate the pool.")
+    candidate_limit: int = _Field(40, ge=5, le=80, description="How many top-scored tools to feed the LLM.")
+
+
+class ProposedToolEntry(BaseModel):
+    tool_id: str
+    name: str
+    server: Optional[str] = None
+    rationale: Optional[str] = None
+
+
+class ProposedCompositionSuggestion(BaseModel):
+    name: str
+    description: str
+    rationale: Optional[str] = None
+
+
+class ToolGroupProposeResponse(BaseModel):
+    name: str
+    description: str
+    color: Optional[str] = None
+    intent: str
+    tools: List[ProposedToolEntry]
+    candidate_count: int
+    composition_suggestion: Optional[ProposedCompositionSuggestion] = None
+    note: Optional[str] = None
+
+
+@router.post(
+    "/propose",
+    response_model=ToolGroupProposeResponse,
+    summary="Propose a toolbox draft from a NL intent",
+    description=(
+        "LLM-first toolbox builder. The user describes a persona / use-case "
+        "/ recurring task; the assistant scores the org's tool catalog, "
+        "picks 3–15 of them, and proposes a name + description for a new "
+        "toolbox. Optionally suggests a multi-step composition when the "
+        "intent calls for orchestration."
+    ),
+)
+async def propose_toolbox(
+    payload: ToolGroupProposeRequest,
+    user: User = Depends(get_current_user_jwt),
+    org_context: tuple = Depends(get_current_organization_jwt),
+    db: AsyncSession = Depends(get_async_session),
+):
+    _membership, org_id = org_context
+
+    # Phase 1 — pre-filter the catalog with the cheap textual scorer used by
+    # /pool/suggest so we never feed 200+ tools to the LLM context.
+    from ...routers.mcp_gateway.pool.pool_loader import (
+        load_searchable_pool,
+        score_entry,
+    )
+    from ...routers.mcp_gateway.pool.search_handler import _tokenize
+
+    candidates = await load_searchable_pool(db, org_id)
+    if not candidates:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                "No enabled servers in your organization. Connect at least one "
+                "MCP server before composing a toolbox."
+            ),
+        )
+
+    tokens = _tokenize(payload.intent)
+    scored = []
+    for entry in candidates:
+        s = score_entry(tokens, entry)
+        scored.append((s, entry))
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+    # Always include some tools even when the textual score is 0 — the LLM
+    # still has the intent text to reason from.
+    top = [entry for _, entry in scored[: payload.candidate_limit]]
+
+    # Phase 2 — single LLM call producing a structured JSON proposal.
+    from ...routers.mcp_unified import gateway
+
+    analyzer = gateway.orchestration_tools.intent_analyzer
+
+    import json as _json
+
+    catalog_payload = [
+        {
+            "id": e.id,
+            "name": e.name,
+            "server": e.server_name,
+            "kind": e.kind,
+            "description": (e.description or "")[:240],
+        }
+        for e in top
+    ]
+
+    prompt = (
+        "You design reusable toolboxes for an MCP gateway. Given a user's "
+        "intent or persona description, pick 3 to 15 tools from the catalog "
+        "that best support that intent and propose a concise toolbox.\n\n"
+        "Return ONLY a JSON object — no prose, no markdown fences. Schema:\n"
+        "{\n"
+        '  "name": "short toolbox name (max 60 chars)",\n'
+        '  "description": "1-2 sentences explaining what this toolbox is for",\n'
+        '  "color": "orange|blue|green|purple|red|gray",\n'
+        '  "tool_ids": ["uuid", "uuid", ...],   // only IDs from the catalog below\n'
+        '  "rationales": {"uuid": "why this tool fits", ...},   // optional\n'
+        '  "composition_suggestion": null OR {  // include only if a multi-step workflow is genuinely useful\n'
+        '    "name": "...", "description": "...", "rationale": "..."\n'
+        "  }\n"
+        "}\n\n"
+        f"User intent: {payload.intent}\n\n"
+        f"Catalog (top {len(catalog_payload)} candidates):\n"
+        f"{_json.dumps(catalog_payload, ensure_ascii=False)}\n\n"
+        "JSON:"
+    )
+
+    raw = ""
+    parsed: Dict[str, Any] = {}
+    try:
+        chat_url = (
+            f"{analyzer.llm_url}/chat/completions"
+            if "/v1" in analyzer.llm_url
+            else f"{analyzer.llm_url}/v1/chat/completions"
+        )
+        response = await analyzer.http_client.post(
+            chat_url,
+            json={
+                "model": analyzer.llm_model,
+                "messages": [{"role": "user", "content": prompt}],
+                "temperature": 0.2,
+                "max_tokens": 1200,
+            },
+        )
+        response.raise_for_status()
+        raw = response.json()["choices"][0]["message"]["content"].strip()
+        if raw.startswith("```"):
+            # Strip optional ```json fences
+            stripped = raw.split("```")
+            raw = next(
+                (s for s in stripped if s.strip() and not s.strip().lower().startswith("json")),
+                raw,
+            ).strip()
+        start, end = raw.find("{"), raw.rfind("}")
+        if start >= 0 and end > start:
+            raw = raw[start : end + 1]
+        parsed = _json.loads(raw) if raw else {}
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"LLM proposal failed: {e}",
+        )
+
+    # Validate the LLM picked tool IDs that actually exist in the candidate set.
+    valid_ids = {e.id for e in top}
+    proposed_ids = [
+        tid for tid in (parsed.get("tool_ids") or []) if isinstance(tid, str) and tid in valid_ids
+    ]
+    rationales = parsed.get("rationales") or {}
+
+    # Build response objects.
+    by_id = {e.id: e for e in top}
+    tools_out: List[ProposedToolEntry] = []
+    for tid in proposed_ids:
+        e = by_id[tid]
+        tools_out.append(
+            ProposedToolEntry(
+                tool_id=e.id,
+                name=e.name,
+                server=e.server_name,
+                rationale=(rationales.get(tid) if isinstance(rationales, dict) else None),
+            )
+        )
+
+    composition_block = parsed.get("composition_suggestion")
+    composition_obj: Optional[ProposedCompositionSuggestion] = None
+    if isinstance(composition_block, dict) and composition_block.get("name"):
+        composition_obj = ProposedCompositionSuggestion(
+            name=str(composition_block.get("name", ""))[:120],
+            description=str(composition_block.get("description", ""))[:400],
+            rationale=composition_block.get("rationale"),
+        )
+
+    return ToolGroupProposeResponse(
+        name=str(parsed.get("name") or "Custom toolbox")[:60],
+        description=str(parsed.get("description") or payload.intent)[:300],
+        color=str(parsed.get("color") or "orange"),
+        intent=payload.intent,
+        tools=tools_out,
+        candidate_count=len(top),
+        composition_suggestion=composition_obj,
+        note=None if tools_out else "The LLM did not select any tool — try a more specific intent or check that your catalog covers it.",
+    )

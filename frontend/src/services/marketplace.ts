@@ -1331,6 +1331,30 @@ export const toolGroupsApi = {
   },
 
   /**
+   * Ask the LLM to propose a toolbox for a NL intent / persona description.
+   */
+  async propose(
+    intent: string,
+    options: { also_load_to_pool?: boolean; candidate_limit?: number } = {}
+  ): Promise<{
+    name: string
+    description: string
+    color: string | null
+    intent: string
+    tools: Array<{ tool_id: string; name: string; server: string | null; rationale?: string | null }>
+    candidate_count: number
+    composition_suggestion: { name: string; description: string; rationale?: string | null } | null
+    note?: string | null
+  }> {
+    const { data } = await api.post('/tool-groups/propose', {
+      intent,
+      also_load_to_pool: options.also_load_to_pool,
+      candidate_limit: options.candidate_limit,
+    })
+    return data
+  },
+
+  /**
    * Add a tool to a group
    */
   async addTool(groupId: string, toolId: string, order?: number): Promise<ToolGroupItem> {
