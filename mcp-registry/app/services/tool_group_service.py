@@ -439,7 +439,10 @@ class ToolGroupService:
 
         Tool Groups can include ANY tool regardless of OAuth visibility.
         Hidden tools (is_visible_to_oauth_clients=False) ARE available for groups.
-        Only RUNNING servers' tools are available (stopped servers excluded).
+        Tools from any enabled server are returned, including stopped/standby
+        ones — what matters is that the user has them in their catalog. The
+        web workspace fetches this same endpoint to list every tool, even when
+        no MCP client is currently connected.
 
         Args:
             organization_id: Organization context
@@ -447,9 +450,7 @@ class ToolGroupService:
         Returns:
             List of tool info dicts with server details
         """
-        from ..models.mcp_server import ServerStatus
-
-        # Get all tools from RUNNING servers (visibility doesn't matter for tool groups)
+        # Tools from every enabled server (running or not).
         stmt = (
             select(Tool, MCPServer)
             .join(MCPServer, Tool.server_id == MCPServer.id)
@@ -457,9 +458,9 @@ class ToolGroupService:
                 and_(
                     Tool.organization_id == organization_id,
                     MCPServer.enabled == True,
-                    MCPServer.status == ServerStatus.RUNNING  # Only running servers
-                    # NOTE: is_visible_to_oauth_clients is NOT filtered here
-                    # Tool groups can include hidden tools
+                    # NOTE: is_visible_to_oauth_clients is NOT filtered here —
+                    # the web workspace needs the full catalog to drive the
+                    # pool drag-and-drop UI.
                 )
             )
             .order_by(MCPServer.name, Tool.tool_name)
@@ -494,7 +495,8 @@ class ToolGroupService:
                 "description": tool.description,
                 "category": tool.category,
                 "tags": tool.tags,
-                "in_groups": tool_to_groups.get(tool.id, [])
+                "in_groups": tool_to_groups.get(tool.id, []),
+                "is_visible_to_oauth_clients": tool.is_visible_to_oauth_clients,
             })
 
         return tools

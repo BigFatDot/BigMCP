@@ -171,6 +171,9 @@ class ToolInfoResponse(BaseModel):
     tags: Optional[List[str]]
     # Whether this tool is already in a group
     in_groups: List[UUID] = []
+    # Whether this tool is currently in the dynamic pool (the workspace UI
+    # needs this to render in-pool badges and the Pool column).
+    is_visible_to_oauth_clients: bool = False
 
     class Config:
         from_attributes = True

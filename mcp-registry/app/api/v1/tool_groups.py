@@ -147,7 +147,8 @@ async def list_available_tools(
             description=t.get("description"),
             category=t.get("category"),
             tags=t.get("tags"),
-            in_groups=t.get("in_groups", [])
+            in_groups=t.get("in_groups", []),
+            is_visible_to_oauth_clients=t.get("is_visible_to_oauth_clients", False),
         )
         for t in tools
     ]
