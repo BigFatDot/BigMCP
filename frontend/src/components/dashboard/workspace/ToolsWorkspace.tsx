@@ -53,6 +53,7 @@ import { useOrganization } from '@/hooks/useAuth'
 
 import { ToolCard, type ToolCardData } from './ToolCard'
 import { AssistantModal } from './AssistantModal'
+import { CreateToolboxFromDropModal } from './CreateToolboxFromDropModal'
 import type { CatalogTool, DragPayload, ToolboxSummary } from './types'
 
 interface DropZoneProps {
@@ -83,6 +84,7 @@ export function ToolsWorkspace() {
   const [serverFilter, setServerFilter] = useState<Set<string>>(new Set())
   const [activeDrag, setActiveDrag] = useState<DragPayload | null>(null)
   const [showAssistant, setShowAssistant] = useState(false)
+  const [seedToolForNewToolbox, setSeedToolForNewToolbox] = useState<ToolCardData | null>(null)
 
   // ---- Queries ----
   const credentialsQuery = useQuery({
@@ -267,6 +269,15 @@ export function ToolsWorkspace() {
       const groupId = overId.slice('toolbox-drop:'.length)
       if (payload.tool.kind === 'tool') {
         addToToolboxMutation.mutate({ groupId, toolId: payload.tool.id })
+      } else {
+        toast.error(t('workspace.toast.compositionToolboxBlocked', { defaultValue: 'Compositions cannot be added to toolboxes yet.' }))
+      }
+      return
+    }
+
+    if (overId === 'toolbox-new-drop') {
+      if (payload.tool.kind === 'tool') {
+        setSeedToolForNewToolbox(payload.tool)
       } else {
         toast.error(t('workspace.toast.compositionToolboxBlocked', { defaultValue: 'Compositions cannot be added to toolboxes yet.' }))
       }
@@ -552,6 +563,18 @@ export function ToolsWorkspace() {
                   </div>
                 </DropZone>
               ))}
+              <DropZone
+                id="toolbox-new-drop"
+                className="rounded-lg border border-dashed border-gray-300 bg-white/50 p-3 transition text-center hover:border-orange/60"
+                activeClassName="bg-orange/5 border-orange"
+              >
+                <div className="text-sm text-gray-600 flex items-center justify-center gap-1.5">
+                  <PlusIcon className="w-4 h-4" />
+                  {t('workspace.newToolboxDrop', {
+                    defaultValue: 'Drop a tool here to create a new toolbox',
+                  })}
+                </div>
+              </DropZone>
             </div>
           </div>
         </div>
@@ -567,6 +590,13 @@ export function ToolsWorkspace() {
         isOpen={showAssistant}
         onClose={() => setShowAssistant(false)}
         onLoaded={invalidateAll}
+      />
+
+      <CreateToolboxFromDropModal
+        isOpen={!!seedToolForNewToolbox}
+        seedTool={seedToolForNewToolbox}
+        canShareWithOrg={!!toolGroupsQuery.data?.length}
+        onClose={() => setSeedToolForNewToolbox(null)}
       />
     </DndContext>
   )
