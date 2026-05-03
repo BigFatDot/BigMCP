@@ -52,6 +52,7 @@ import type { Composition } from '@/services/marketplace'
 import { useOrganization } from '@/hooks/useAuth'
 
 import { ToolCard, type ToolCardData } from './ToolCard'
+import { AssistantModal } from './AssistantModal'
 import type { CatalogTool, DragPayload, ToolboxSummary } from './types'
 
 interface DropZoneProps {
@@ -81,6 +82,7 @@ export function ToolsWorkspace() {
   const [searchQuery, setSearchQuery] = useState('')
   const [serverFilter, setServerFilter] = useState<Set<string>>(new Set())
   const [activeDrag, setActiveDrag] = useState<DragPayload | null>(null)
+  const [showAssistant, setShowAssistant] = useState(false)
 
   // ---- Queries ----
   const credentialsQuery = useQuery({
@@ -370,6 +372,13 @@ export function ToolsWorkspace() {
               count: filteredCatalog.filter((t) => !t.inPool).length,
             })}
           </Button>
+          <Button
+            variant="primary"
+            onClick={() => setShowAssistant(true)}
+          >
+            <SparklesIcon className="w-4 h-4 mr-1.5" />
+            {t('workspace.askAssistant', { defaultValue: 'Ask assistant' })}
+          </Button>
         </div>
 
         {/* Server filter chips */}
@@ -553,6 +562,12 @@ export function ToolsWorkspace() {
           <ToolCard data={activeDrag.tool} origin={activeDrag.origin} draggable={false} />
         ) : null}
       </DragOverlay>
+
+      <AssistantModal
+        isOpen={showAssistant}
+        onClose={() => setShowAssistant(false)}
+        onLoaded={invalidateAll}
+      />
     </DndContext>
   )
 }
