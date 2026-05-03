@@ -43,6 +43,15 @@ logger = logging.getLogger(__name__)
 
 # Conservative thresholds for the L2 shortcut. A clear winner must have a
 # meaningful absolute score AND a clear gap over the runner-up.
+#
+# Calibration rationale (textual scoring on org catalogues, score_entry):
+#   - Each query token in the tool name adds +2, in the haystack +1.
+#   - "create dns record" against `create_dns_record` gives 9, against an
+#     unrelated `send_email` gives 0 — the gap is wide.
+#   - "list" alone against a pool full of `list_*` tools gives ties (gap≈0)
+#     → must NOT trigger L2.
+# A real corpus tuner can use execution_log.shortcut_level + status to
+# refine these constants once we have ~1k samples in production.
 _L2_MIN_TOP_SCORE = 4
 _L2_MIN_GAP = 2
 
@@ -397,8 +406,14 @@ async def _log_execution_async(
 ) -> None:
     """Fire-and-forget audit row. Never raises into the caller."""
     try:
+        from ....core.pii_sanitizer import PIIDetector
         from ....models.execution_log import ExecutionLog
         from sqlalchemy.exc import SQLAlchemyError
+
+        # Goals are user-pasted free text — they may contain emails, tokens,
+        # secrets. Strip detected PII before persisting; the audit row keeps
+        # the routing semantics (level, status, duration, tools) intact.
+        sanitized_goal = PIIDetector.sanitize_text(goal) if goal else goal
 
         async with async_session_maker() as db:
             try:
@@ -406,7 +421,7 @@ async def _log_execution_async(
                     user_id=UUID(str(user_id)),
                     organization_id=UUID(str(organization_id)),
                     session_id=session_id,
-                    goal=goal,
+                    goal=sanitized_goal,
                     mode=mode,
                     shortcut_level=shortcut_level,
                     duration_ms=duration_ms,

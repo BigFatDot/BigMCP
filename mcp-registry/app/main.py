@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse, StreamingResponse, Response
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 import json
+import os
 import asyncio
 import time
 
@@ -347,7 +348,50 @@ async def startup_event():
     await gateway.user_server_pool.start()
     logger.info("UserServerPool started")
 
+    # Start the execution_log retention job (30-day rolling window).
+    # Runs every 24h; we don't shield from shutdown — losing one tick is fine.
+    asyncio.create_task(_execution_log_retention_loop(), name="execution_log_retention")
+    logger.info("execution_log retention loop scheduled (30d retention, 24h tick)")
+
     logger.info("MCP Registry started successfully")
+
+
+async def _execution_log_retention_loop() -> None:
+    """Drop execution_log rows older than EXECUTION_LOG_RETENTION_DAYS.
+
+    Runs once at startup (after a short delay) then every 24h. Keeps audit
+    storage bounded without touching the hot path.
+    """
+    from sqlalchemy import text as _sql_text
+
+    from .db.database import async_session_maker
+
+    retention_days = int(os.getenv("EXECUTION_LOG_RETENTION_DAYS", "30"))
+    interval_seconds = 24 * 3600
+
+    # Small initial delay so we don't compete with the rest of the startup.
+    await asyncio.sleep(60)
+
+    while True:
+        try:
+            async with async_session_maker() as db:
+                result = await db.execute(
+                    _sql_text(
+                        "DELETE FROM execution_log "
+                        "WHERE created_at < NOW() - (:days || ' days')::interval"
+                    ),
+                    {"days": retention_days},
+                )
+                deleted = result.rowcount or 0
+                await db.commit()
+                if deleted:
+                    logger.info(
+                        f"execution_log retention: pruned {deleted} row(s) older than {retention_days}d"
+                    )
+        except Exception as e:  # noqa: BLE001 — never let the loop die
+            logger.warning(f"execution_log retention failed: {e}")
+
+        await asyncio.sleep(interval_seconds)
 
 @app.on_event("shutdown")
 async def shutdown_event():

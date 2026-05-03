@@ -201,6 +201,9 @@ async def load_pool(
         await db.execute(
             update(MCPServer)
             .where(
+                # Defence-in-depth: scope the bulk update to the caller's org
+                # even though server_ids was derived from an org-scoped query.
+                MCPServer.organization_id == org_id,
                 MCPServer.id.in_(server_ids),
                 MCPServer.is_visible_to_oauth_clients.is_(False),
             )
@@ -381,6 +384,8 @@ async def load_toolbox_into_pool(
             await db.execute(
                 update(MCPServer)
                 .where(
+                    # Defence-in-depth: scope the bulk update to the caller's org.
+                    MCPServer.organization_id == org_id,
                     MCPServer.id.in_(server_ids),
                     MCPServer.is_visible_to_oauth_clients.is_(False),
                 )

@@ -8,6 +8,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import {
   BoltIcon,
   PlayIcon,
@@ -439,11 +440,12 @@ interface ProposeModalProps {
   isOpen: boolean
   onClose: () => void
   onSaved: (composition: Composition) => void
+  initialQuery?: string
 }
 
-function ProposeCompositionModal({ isOpen, onClose, onSaved }: ProposeModalProps) {
+function ProposeCompositionModal({ isOpen, onClose, onSaved, initialQuery }: ProposeModalProps) {
   const { t } = useTranslation('dashboard')
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(initialQuery ?? '')
   const [feedback, setFeedback] = useState('')
   const [draft, setDraft] = useState<ProposalDraft | null>(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -451,13 +453,13 @@ function ProposeCompositionModal({ isOpen, onClose, onSaved }: ProposeModalProps
 
   useEffect(() => {
     if (isOpen) {
-      setQuery('')
+      setQuery(initialQuery ?? '')
       setFeedback('')
       setDraft(null)
       setErrorMsg(null)
       setIsLoading(false)
     }
-  }, [isOpen])
+  }, [isOpen, initialQuery])
 
   if (!isOpen) return null
 
@@ -625,6 +627,7 @@ function ProposeCompositionModal({ isOpen, onClose, onSaved }: ProposeModalProps
 export function CompositionsPage() {
   const { t } = useTranslation('dashboard')
   const { isTeamOrg } = useOrganization()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [compositions, setCompositions] = useState<Composition[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
@@ -632,7 +635,22 @@ export function CompositionsPage() {
   const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'mine' | 'team'>('all')
   const [selectedComposition, setSelectedComposition] = useState<Composition | null>(null)
   const [showExecuteModal, setShowExecuteModal] = useState(false)
-  const [showProposeModal, setShowProposeModal] = useState(false)
+  // `?compose=<intent>` deep-link from the workspace assistant pre-fills and
+  // auto-opens the propose modal. We strip the param after consuming it so a
+  // refresh doesn't re-open the modal.
+  const composeSeed = searchParams.get('compose')
+  const [showProposeModal, setShowProposeModal] = useState(!!composeSeed)
+  const [proposeSeed, setProposeSeed] = useState<string | undefined>(composeSeed || undefined)
+  useEffect(() => {
+    if (composeSeed) {
+      setShowProposeModal(true)
+      setProposeSeed(composeSeed)
+      const next = new URLSearchParams(searchParams)
+      next.delete('compose')
+      setSearchParams(next, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [composeSeed])
 
   // Load compositions from API
   const loadCompositions = useCallback(async () => {
@@ -834,8 +852,12 @@ export function CompositionsPage() {
       {/* Propose Composition Modal (LLM-first) */}
       <ProposeCompositionModal
         isOpen={showProposeModal}
-        onClose={() => setShowProposeModal(false)}
+        onClose={() => {
+          setShowProposeModal(false)
+          setProposeSeed(undefined)
+        }}
         onSaved={(saved) => setCompositions((prev) => [saved, ...prev])}
+        initialQuery={proposeSeed}
       />
     </div>
   )

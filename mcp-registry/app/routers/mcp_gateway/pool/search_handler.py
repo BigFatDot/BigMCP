@@ -142,6 +142,9 @@ async def handle_search(
             await db.execute(
                 update(MCPServer)
                 .where(
+                    # Defence-in-depth: explicit org scope even though
+                    # matched_server_uuids was derived from an org-scoped query.
+                    MCPServer.organization_id == org_uuid,
                     MCPServer.id.in_(matched_server_uuids),
                     MCPServer.is_visible_to_oauth_clients.is_(False),
                 )

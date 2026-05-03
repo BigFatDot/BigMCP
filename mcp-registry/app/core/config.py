@@ -57,6 +57,11 @@ class Settings:
         "/api/v1/org-credentials/": 50,  # Organization credentials
         "/api/v1/marketplace/": 100,  # Public marketplace
         "/api/v1/oauth/": 30,         # OAuth endpoints - strict to prevent abuse
+        # LLM-backed endpoints — every call hits Mistral. Cap aggressively
+        # to keep external spend bounded even under abusive scripts.
+        "/api/v1/tool-groups/propose": 10,
+        "/api/v1/compositions/propose": 10,
+        "/api/v1/pool/suggest": 30,
     }
 
     # Default rate limit for unmatched routes
