@@ -11,14 +11,21 @@
       "toolboxes": "Boîtes à outils"
     },
     "infoBanner": {
-      "serversTitle": "Serveurs MCP = Sources d'outils",
-      "serversDescription": "Chaque serveur fournit des outils utilisables par le LLM. Les tools sont chargés à la demande dans le pool de votre client MCP (Claude, Cursor…) : le client appelle `search` pour charger les outils pertinents, puis `execute` pour les exécuter.",
-      "visibleLabel": "Actuellement dans le pool",
-      "hiddenLabel": "Chargeable à la demande via search",
-      "toolboxesTitle": "Boîtes à outils = Organisez vos outils",
-      "toolboxesDescription": "Créez des boîtes à outils pour regrouper des outils spécifiques. Utilisez-les pour contrôler quels outils sont disponibles lors de la connexion d'applications externes.",
+      "serversTitle": "Deux contrôles distincts : statut du serveur et pool dynamique",
+      "serversDescription": "Chaque serveur est un *catalogue* d'outils. Votre client MCP (Claude, Cursor…) charge à la demande les outils dont il a besoin dans un pool de session via `search`, puis les exécute via `execute`. Vous ne pré-sélectionnez pas les outils ici : vous gardez chaque *serveur* actif ou suspendu, et vous surveillez/videz le pool depuis le widget en haut à droite.",
+      "visibleLabel": "Serveur actif (éligible au pool)",
+      "hiddenLabel": "Serveur suspendu (exclu, même si un outil est trouvé)",
+      "toolboxesTitle": "Boîtes à outils = accès cloisonné pour les clés API",
+      "toolboxesDescription": "Les boîtes à outils regroupent un sous-ensemble d'outils et restreignent les clés API à ce périmètre. Indépendant du pool dynamique utilisé par les clients MCP OAuth.",
       "forExternalIntegrations": "Pour les intégrations externes",
       "manageConnections": "Gérer les connexions →"
+    },
+    "pool": {
+      "label": "Pool actif",
+      "toolsLoaded": "outils chargés",
+      "composedTools": "tools composés toujours dispo",
+      "clear": "Vider le pool",
+      "clearConfirm": "Vider le pool actif ? Votre client MCP devra rappeler `search` pour recharger des outils."
     },
     "serverState": {
       "active": "Actif",
@@ -28,13 +35,15 @@
       "error": "Erreur"
     },
     "serverActions": {
-      "visible": "Visible",
-      "hidden": "Masqué",
+      "visible": "Actif",
+      "hidden": "Suspendu",
+      "enableServerHint": "Les outils de ce serveur peuvent entrer dans le pool quand un client MCP les cherche.",
+      "suspendServerHint": "Serveur connecté mais aucun de ses outils n'entre dans le pool — utile pour mettre en pause un fournisseur bruyant.",
       "stopServer": "Arrêter le serveur ?",
       "deleteServerConfirm": "Supprimer ce serveur et ses identifiants ?",
       "serverError": "Le serveur a rencontré une erreur",
       "availableTools": "Outils disponibles ({{count}})",
-      "visibleToClaude": "Visible pour Claude",
+      "visibleToClaude": "Dans le pool",
       "discoveringTools": "Découverte des outils...",
       "startToDiscover": "Démarrer le serveur pour découvrir les outils"
     },
@@ -127,9 +136,9 @@
       "viewAll": "Voir tous les serveurs d'équipe →"
     },
     "visibility": {
-      "title": "Visibilité du serveur",
-      "visibleOauth": "Visible pour OAuth",
-      "hiddenApiOnly": "Masqué (API uniquement)",
+      "title": "Statut du serveur pour le pool dynamique",
+      "visibleOauth": "Actif — éligible au pool",
+      "hiddenApiOnly": "Suspendu (clés API toujours fonctionnelles)",
       "disabled": "Désactivé"
     },
     "actions": {
@@ -144,11 +153,12 @@
     },
     "tools": {
       "available": "Outils disponibles ({{count}})",
-      "visibleToClaude": "Visible pour Claude",
-      "visible": "Visible",
-      "hidden": "Masqué",
-      "hideFromOauth": "Masquer pour OAuth",
-      "showToOauth": "Afficher pour OAuth",
+      "visibleToClaude": "Dans le pool",
+      "visible": "Dans le pool",
+      "hidden": "Hors pool",
+      "hideFromOauth": "Retirer du pool",
+      "showToOauth": "Ajouter au pool",
+      "manualOverrideHint": "Édition manuelle — le prochain `search` de votre client MCP peut écraser ce choix.",
       "discovering": "Découverte des outils...",
       "discoveringNote": "Les outils apparaîtront après l'initialisation du serveur",
       "notConnected": "Serveur non connecté",

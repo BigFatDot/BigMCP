@@ -11,14 +11,21 @@
       "toolboxes": "Toolboxes"
     },
     "infoBanner": {
-      "serversTitle": "MCP Servers = Sources of Tools",
-      "serversDescription": "Each server provides tools the LLM can use. Tools become available to your MCP client (Claude, Cursor, …) on demand: the client calls `search` to load relevant tools into its session pool, then `execute` to run them.",
-      "visibleLabel": "Currently in pool",
-      "hiddenLabel": "Loadable on demand via search",
-      "toolboxesTitle": "Toolboxes = Organize Your Tools",
-      "toolboxesDescription": "Create toolboxes to bundle specific tools together. Use toolboxes to control which tools are available when connecting external applications.",
+      "serversTitle": "Two distinct controls: server kill-switch and dynamic pool",
+      "serversDescription": "Each server is a *catalog* of tools you can use. Your MCP client (Claude, Cursor, …) loads only the tools it needs into a session pool by calling `search`, then runs them via `execute`. From this page you don't pre-select tools — you keep their *server* on or suspended, and watch / clear the pool from the top-right widget.",
+      "visibleLabel": "Server enabled (eligible for the pool)",
+      "hiddenLabel": "Server suspended (excluded, even if a tool matches)",
+      "toolboxesTitle": "Toolboxes = scoped access for API keys",
+      "toolboxesDescription": "Toolboxes bundle specific tools and gate API keys to that subset. They are independent from the dynamic pool used by OAuth MCP clients.",
       "forExternalIntegrations": "For external integrations",
       "manageConnections": "Manage Connections →"
+    },
+    "pool": {
+      "label": "Active pool",
+      "toolsLoaded": "tools loaded",
+      "composedTools": "composed tools always-on",
+      "clear": "Clear pool",
+      "clearConfirm": "Clear the active pool? Your MCP client will need to call `search` again to reload tools."
     },
     "serverState": {
       "active": "Active",
@@ -28,13 +35,15 @@
       "error": "Error"
     },
     "serverActions": {
-      "visible": "Visible",
-      "hidden": "Hidden",
+      "visible": "Enabled",
+      "hidden": "Suspended",
+      "enableServerHint": "Tools from this server can enter the pool when an MCP client searches for them.",
+      "suspendServerHint": "Server kept connected, but its tools never enter the pool — useful to pause a noisy provider.",
       "stopServer": "Stop server?",
       "deleteServerConfirm": "Delete this server and its credentials?",
       "serverError": "Server encountered an error",
       "availableTools": "Available Tools ({{count}})",
-      "visibleToClaude": "Visible to Claude",
+      "visibleToClaude": "In pool",
       "discoveringTools": "Discovering tools...",
       "startToDiscover": "Start server to discover tools"
     },
@@ -127,9 +136,9 @@
       "viewAll": "View all team servers →"
     },
     "visibility": {
-      "title": "Server visibility",
-      "visibleOauth": "Visible to OAuth",
-      "hiddenApiOnly": "Hidden (API only)",
+      "title": "Server status for the dynamic pool",
+      "visibleOauth": "Active — eligible for the pool",
+      "hiddenApiOnly": "Suspended (API keys still work)",
       "disabled": "Disabled"
     },
     "actions": {
@@ -144,11 +153,12 @@
     },
     "tools": {
       "available": "Available Tools ({{count}})",
-      "visibleToClaude": "Visible to Claude",
-      "visible": "Visible",
-      "hidden": "Hidden",
-      "hideFromOauth": "Hide from OAuth",
-      "showToOauth": "Show to OAuth",
+      "visibleToClaude": "In pool",
+      "visible": "In pool",
+      "hidden": "Out of pool",
+      "hideFromOauth": "Remove from pool",
+      "showToOauth": "Add to pool",
+      "manualOverrideHint": "Manual edit — your MCP client's next `search` may flip this back.",
       "discovering": "Discovering tools...",
       "discoveringNote": "Tools will appear after server initialization",
       "notConnected": "Server not connected",
