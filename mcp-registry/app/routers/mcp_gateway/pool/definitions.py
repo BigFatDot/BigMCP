@@ -18,6 +18,7 @@ def get_pool_tools() -> List[Dict[str, Any]]:
     return [
         {
             "name": "search",
+            "title": "Search & load tools into the active pool",
             "description": (
                 "Load tools relevant to your current task into your active pool. "
                 "Your pool starts EMPTY at session start; call `search` first before "
@@ -48,10 +49,42 @@ def get_pool_tools() -> List[Dict[str, Any]]:
                     }
                 },
                 "required": ["query"]
+            },
+            # MCP 2025-06-18: declare a JSON Schema for the response so clients
+            # parse `structuredContent` deterministically instead of regexing
+            # the text body. Keeps the legacy text content for backward compat.
+            "outputSchema": {
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string"},
+                    "mode": {"type": "string"},
+                    "loaded_count": {"type": "integer"},
+                    "tool_count": {"type": "integer"},
+                    "composition_count": {"type": "integer"},
+                    "pool_size": {"type": "integer"},
+                    "loaded": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "kind": {"type": "string", "enum": ["tool", "composition"]},
+                                "name": {"type": "string"},
+                                "server": {"type": ["string", "null"]},
+                                "description": {"type": "string"},
+                                "score": {"type": "integer"},
+                                "was_already_in_pool": {"type": "boolean"}
+                            },
+                            "required": ["kind", "name"]
+                        }
+                    },
+                    "hint": {"type": "string"}
+                },
+                "required": ["loaded_count", "pool_size"]
             }
         },
         {
             "name": "execute",
+            "title": "Execute a goal, tool, or composition",
             "description": (
                 "Execute a goal using the tools currently loaded in your pool. "
                 "Routes intelligently: direct call if you pass tool_name or composition_id, "
@@ -78,6 +111,32 @@ def get_pool_tools() -> List[Dict[str, Any]]:
                         "type": "object",
                         "description": "Optional: explicit parameters. Required when using tool_name or composition_id; optional for goal-mode (will be inferred from the goal)."
                     }
+                }
+            },
+            # MCP 2025-06-18: structured output. The shape is a thin envelope
+            # whose `result` carries the underlying tool/composition payload —
+            # callers get a stable hook on `level` / `composition` / `tool` /
+            # `error` without parsing the text body.
+            "outputSchema": {
+                "type": "object",
+                "properties": {
+                    "level": {
+                        "type": "string",
+                        "description": (
+                            "Routing level chosen by the dispatcher: "
+                            "L0_tool, L0_composition, L1_or_L2_tool_direct, "
+                            "L1_or_L2_tool_via_intent, "
+                            "L1_or_L2_composition_direct, "
+                            "L1_or_L2_composition_via_intent, L3_orchestrated, "
+                            "or one of the *_failed variants."
+                        )
+                    },
+                    "tool": {"type": ["string", "null"]},
+                    "composition_id": {"type": ["string", "null"]},
+                    "composition_name": {"type": ["string", "null"]},
+                    "extracted_params": {"type": ["object", "null"]},
+                    "result": {"type": ["object", "null"]},
+                    "error": {"type": ["string", "null"]}
                 }
             }
         }

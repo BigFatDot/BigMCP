@@ -84,7 +84,7 @@ org_active_users: Dict[str, Dict[str, float]] = {}
 ORG_ACTIVE_USER_TTL_SECONDS = 600  # 10 minutes — matches SESSION_TIMEOUT_SECONDS
 
 # Protocol version
-MCP_PROTOCOL_VERSION = "2025-03-26"
+MCP_PROTOCOL_VERSION = "2025-06-18"
 
 
 async def broadcast_tools_changed():
@@ -378,9 +378,25 @@ class MCPUnifiedGateway:
                     ]
                 },
                 "instructions": (
-                    "This gateway aggregates tools from multiple MCP servers "
-                    "and provides intelligent orchestration capabilities. "
-                    "Use orchestrator_* tools for workflow composition."
+                    "BigMCP aggregates every MCP server the user has connected "
+                    "behind a single gateway, with two meta-tools that drive the "
+                    "whole flow:\n"
+                    "\n"
+                    "  • `search(query, mode=append|replace, limit=10)` — load tools "
+                    "    relevant to your task into the active session pool. The pool "
+                    "    starts EMPTY at every session; call `search` first before "
+                    "    `execute` (or before relying on tool/list).\n"
+                    "  • `execute(goal | tool_name | composition_id [, params])` — "
+                    "    run something. Goal mode orchestrates via LLM; tool_name and "
+                    "    composition_id are direct, zero-LLM invocations.\n"
+                    "\n"
+                    "Saved compositions appear in tools/list as `composition_<name>` "
+                    "and are always available — no need to `search` for them.\n"
+                    "\n"
+                    "Workflow: `search(\"what you want to do\")` → optionally inspect "
+                    "the loaded tools via tools/list (a list_changed notification is "
+                    "emitted) → `execute(goal=\"...\")` (or call any tool directly). "
+                    "If `execute` reports an empty pool, run `search` first."
                 )
             }
         }
@@ -1082,8 +1098,23 @@ class MCPUnifiedGateway:
 
                     mcp_tool = {
                         "name": tool_name,
+                        # MCP 2025-06-18: `title` is the human-friendly display
+                        # name; `name` stays the programmatic identifier the
+                        # client uses to call the tool.
+                        "title": f"Composition: {comp_name}",
                         "description": description,
                         "inputSchema": input_schema,
+                        # `_meta` is the standard escape hatch for non-functional
+                        # context. We use it for routing hints the gateway needs
+                        # internally; clients are free to ignore it.
+                        "_meta": {
+                            "is_composition": True,
+                            "composition_id": comp_id_str,
+                            "composition_name": comp_name,
+                            "steps_count": len(comp.steps) if comp.steps else 0
+                        },
+                        # Legacy alias kept for the dispatcher in mcp_unified;
+                        # to remove once internal references migrate to _meta.
                         "_metadata": {
                             "is_composition": True,
                             "composition_id": comp_id_str,
@@ -1288,18 +1319,27 @@ class MCPUnifiedGateway:
                     organization_id=organization_id
                 )
 
+            # MCP 2025-06-18: when the underlying handler returned a dict, we
+            # ship it both as `structuredContent` (machine-parseable, matches
+            # the tool's outputSchema) and as a JSON `text` block (legacy
+            # clients that read content[].text still work). For non-dict
+            # results we keep only the text path.
+            tool_result_payload: Dict[str, Any] = {
+                "content": [
+                    {
+                        "type": "text",
+                        "text": json.dumps(result, ensure_ascii=False, indent=2)
+                    }
+                ],
+                "isError": False
+            }
+            if isinstance(result, dict):
+                tool_result_payload["structuredContent"] = result
+
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "result": {
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": json.dumps(result, ensure_ascii=False, indent=2)
-                        }
-                    ],
-                    "isError": False
-                }
+                "result": tool_result_payload
             }
 
         except Exception as e:
@@ -1314,6 +1354,7 @@ class MCPUnifiedGateway:
                             "text": f"Error: {str(e)}"
                         }
                     ],
+                    "structuredContent": {"error": str(e)},
                     "isError": True
                 }
             }
@@ -1539,8 +1580,8 @@ You have access to **{len(tools)} tools** across **{len(servers)} services**.
 
 1. **Tool Naming Convention**: Tools are named `{server}__{tool_name}` (double underscore separator)
 2. **Call a Tool**: Use `tools/call` with the method name and arguments
-3. **Search Tools**: Use `orchestrator_search_tools` to find tools by natural language description
-4. **Compose Workflows**: Use `orchestrator_analyze_intent` to plan multi-step operations
+3. **Find tools by intent**: Call the `search` meta-tool — it loads matched tools into your active session pool and emits `tools/list_changed`
+4. **Run a goal**: Call the `execute` meta-tool with `goal=<NL>` (or `tool_name=...` / `composition_id=...` for direct invocations). The dispatcher picks the cheapest level (L0 explicit → L1 single-tool → L2 textual top-1 → L3 full LLM orchestration)
 
 ## Example Tool Call
 
@@ -1557,8 +1598,9 @@ You have access to **{len(tools)} tools** across **{len(servers)} services**.
 ## Tips
 
 - Use `prompts/get` with `tool_usage` prompt to get detailed instructions for any specific tool
-- Most tools require specific parameters - check the tool's `inputSchema` for required fields
-- Orchestrator tools help you compose complex workflows from simple tools
+- Most tools require specific parameters — check the tool's `inputSchema` for required fields
+- Saved compositions appear in tools/list as `composition_<name>` and can be called directly
+- Legacy `orchestrator_*` tools are no longer surfaced in tools/list but their dispatch still works for backward compatibility
 """
 
         return {
@@ -1587,31 +1629,34 @@ You have access to **{len(tools)} tools** across **{len(servers)} services**.
 
 ## Workflow Composition Process
 
-### Step 1: Analyze Intent
-Use `orchestrator_analyze_intent` to analyze what you want to accomplish:
+### Step 1: Load relevant tools into the active pool
+Call the `search` meta-tool. Matched tools are flagged in your session pool
+and you receive a `notifications/tools/list_changed` so the new entries
+appear in tools/list.
 ```json
 {{
   "method": "tools/call",
   "params": {{
-    "name": "orchestrator_analyze_intent",
-    "arguments": {{"query": "{goal}"}}
-  }}
-}}
-```
-
-### Step 2: Search for Relevant Tools
-Find tools that can help accomplish parts of your goal:
-```json
-{{
-  "method": "tools/call",
-  "params": {{
-    "name": "orchestrator_search_tools",
+    "name": "search",
     "arguments": {{"query": "{goal}", "limit": 10}}
   }}
 }}
 ```
 
-### Step 3: Create a Composition
+### Step 2: Try `execute(goal=...)` first
+Often the cheapest path: the dispatcher picks one tool (L1/L2) or builds a
+multi-step plan (L3) without you wiring anything by hand.
+```json
+{{
+  "method": "tools/call",
+  "params": {{
+    "name": "execute",
+    "arguments": {{"goal": "{goal}"}}
+  }}
+}}
+```
+
+### Step 3: If you need a reusable saved workflow, create a composition
 **IMPORTANT - Tool Naming Convention:**
 - Tools are named with format: `serverprefix__toolname` (double underscore)
 - Example: `grist_mcp_grist_gouv__list_organizations`, `github_perso__list_issues`
@@ -1644,33 +1689,32 @@ Find tools that can help accomplish parts of your goal:
 - `${{_index}}` - Current iteration index (0, 1, 2...)
 - `${{_now}}` - ISO timestamp
 
-**Example Composition:**
-```json
+**Save the workflow via the REST API** (or via the legacy
+`orchestrator_create_composition` dispatch — still functional but no longer
+exposed in tools/list):
+```
+POST /api/v1/compositions
 {{
-  "method": "tools/call",
-  "params": {{
-    "name": "orchestrator_create_composition",
-    "arguments": {{
-      "name": "My Workflow",
-      "description": "{goal}",
-      "steps": [
-        {{"tool": "grist_mcp_grist_gouv__list_organizations", "parameters": {{}}}},
-        {{"tool": "grist_mcp_grist_gouv__list_workspaces", "parameters": {{"org_id": "${{step_1.structuredContent.organizations[0].id}}"}}}}
-      ]
-    }}
-  }}
+  "name": "My Workflow",
+  "description": "{goal}",
+  "steps": [
+    {{"tool": "grist_mcp_grist_gouv__list_organizations", "parameters": {{}}}},
+    {{"tool": "grist_mcp_grist_gouv__list_workspaces", "parameters": {{"org_id": "${{step_1.structuredContent.organizations[0].id}}"}}}}
+  ]
 }}
 ```
 
-### Step 4: Execute the Composition
+### Step 4: Execute the saved composition
+Once promoted to production, the composition shows up in tools/list as
+`composition_<sanitized_name>` and can be called directly.
 ```json
 {{
   "method": "tools/call",
   "params": {{
-    "name": "orchestrator_execute_composition",
+    "name": "execute",
     "arguments": {{
-      "composition_id": "<id>",
-      "parameters": {{}}
+      "composition_id": "<uuid>",
+      "params": {{}}
     }}
   }}
 }}
@@ -1686,11 +1730,11 @@ Find tools that can help accomplish parts of your goal:
 
 - **Always use full tool names** like `grist_mcp_grist_gouv__list_organizations` (serverprefix__toolname)
 - Start with small compositions (2-3 steps) before building complex ones
-- Use `orchestrator_search_tools` first to get the exact tool names
+- Use `search` first (or browse tools/list after a search) to get the exact tool names
 - Reference step outputs with `${{step_N.field.path}}` syntax
 - Use **wildcards `[*]`** to extract all items from arrays (auto-flattens nested wildcards)
 - Use **_template/_map** to transform arrays into objects with enriched data
-- Use `orchestrator_list_compositions` to see existing workflows you can reuse
+- The web UI under /app/compositions lists existing workflows you can reuse
 - Test compositions in temporary state before promoting them
 """
 
@@ -1804,7 +1848,7 @@ Find tools that can help accomplish parts of your goal:
 
 - Always check required parameters before calling
 - This tool belongs to the `{server_id}` server
-- Use `orchestrator_search_tools` to find similar tools
+- Use the `search` meta-tool to discover similar tools by intent
 """
 
         return {
@@ -1887,9 +1931,9 @@ The MCP Gateway aggregates tools from **{len(servers)} MCP servers** into a unif
 
 ## Getting Started
 
-1. Use `tools/list` to see all available tools
-2. Use `prompts/get` with `tool_discovery` for discovery guide
-3. Use `orchestrator_search_tools` to find tools by description
+1. Call the `search` meta-tool with a natural-language query — matched tools land in your active session pool
+2. Inspect `tools/list` to see what was loaded (a `tools/list_changed` notification is emitted on every search)
+3. Call `execute` with `goal=<NL>` for orchestrated runs, or `tool_name=<X>` / `composition_id=<id>` for direct invocations
 4. Use `prompts/get` with `tool_usage` for specific tool instructions
 """
 
