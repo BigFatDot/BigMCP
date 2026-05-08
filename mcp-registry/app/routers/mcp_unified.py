@@ -167,24 +167,40 @@ async def broadcast_tools_changed_for_user(user_id) -> int:
 
 async def notify_org_tools_changed(org_id, user_id=None) -> int:
     """
-    Notify connected MCP clients that tools have changed.
+    Notify connected MCP clients that the tool list has changed.
 
-    Called after visibility changes (server or tool level). Since Claude Desktop
-    does not react to notifications/tools/list_changed, we close SSE sessions
-    to force a full re-initialization (initialize → tools/list).
+    Spec-compliant flow (MCP 2025-06-18):
+      1. Invalidate the org-scoped tool cache.
+      2. Push `notifications/tools/list_changed` into every matching session's
+         outbound queue. The client receives the notification through its
+         existing SSE stream and reissues `tools/list` per the protocol.
+      3. Schedule a background refresh so freshly-arriving SSE consumers
+         (e.g. a client that just reconnected) get up-to-date data.
+
+    The previous implementation **deleted** the SSE sessions to force a hard
+    re-initialization. That worked for Claude Desktop (it always re-inits on
+    drop) but broke clients that reconnect SSE without redoing `tools/list`,
+    so they kept showing the stale catalog.
+
+    Set `MCP_KILL_SESSION_ON_TOOLS_CHANGED=true` to revert to the legacy
+    hard-kill behaviour as an emergency fallback.
 
     Args:
         org_id: Organization UUID (or string) whose tools changed
-        user_id: Optional user UUID — if provided, only close that user's sessions.
-                 If None, close all sessions in the org.
+        user_id: Optional user UUID — if provided, target only that user.
+                 If None, target every session in the org.
 
     Returns:
-        Number of SSE sessions closed
+        Number of SSE sessions notified (or closed in legacy mode).
     """
+    import os
     from uuid import UUID
+
     org_id_str = str(org_id)
     org_uuid = org_id if isinstance(org_id, UUID) else UUID(org_id_str)
     user_id_str = str(user_id) if user_id else None
+
+    legacy_kill = os.environ.get("MCP_KILL_SESSION_ON_TOOLS_CHANGED", "false").lower() == "true"
 
     # Step 1: Invalidate cache
     try:
@@ -203,9 +219,17 @@ async def notify_org_tools_changed(org_id, user_id=None) -> int:
     except Exception as e:
         logger.warning(f"notify_org_tools_changed: cache invalidation failed: {e}")
 
-    # Step 2: Close SSE sessions to force client re-initialization.
-    # Claude Desktop re-initializes (initialize → tools/list) when SSE drops.
-    closed_sessions = []
+    # Step 2: Push the standard `notifications/tools/list_changed` envelope
+    # into every matching session's queue. The SSE event_generator drains
+    # the queue and forwards the notification on the live stream.
+    notification = {
+        "jsonrpc": "2.0",
+        "method": "notifications/tools/list_changed",
+    }
+
+    matched_sessions: list[str] = []
+    closed_sessions: list[str] = []
+
     for session_id in list(mcp_sessions.keys()):
         session = mcp_sessions.get(session_id)
         if not session:
@@ -214,17 +238,46 @@ async def notify_org_tools_changed(org_id, user_id=None) -> int:
             continue
         if user_id_str and str(session.get("user_id")) != user_id_str:
             continue
-        del mcp_sessions[session_id]
-        closed_sessions.append(session_id)
+        matched_sessions.append(session_id)
+
+        if legacy_kill:
+            del mcp_sessions[session_id]
+            closed_sessions.append(session_id)
+            continue
+
+        queue = session.get("message_queue")
+        if queue is None:
+            continue
+        try:
+            await queue.put(
+                {"event": "message", "data": json.dumps(notification)}
+            )
+        except Exception as e:  # noqa: BLE001
+            logger.warning(
+                f"notify_org_tools_changed: failed to enqueue notification "
+                f"for {session_id}: {e}"
+            )
 
     scope = f"user {user_id_str}" if user_id_str else f"org {org_id_str}"
-    if closed_sessions:
-        logger.info(
-            f"notify_org_tools_changed: closed {len(closed_sessions)} SSE session(s) "
-            f"for {scope} to force client re-initialization"
-        )
+    if legacy_kill:
+        if closed_sessions:
+            logger.info(
+                f"notify_org_tools_changed[legacy_kill]: closed {len(closed_sessions)} "
+                f"SSE session(s) for {scope}"
+            )
+        else:
+            logger.debug(f"notify_org_tools_changed[legacy_kill]: no SSE sessions for {scope}")
     else:
-        logger.debug(f"notify_org_tools_changed: no active SSE sessions for {scope}")
+        if matched_sessions:
+            logger.info(
+                f"notify_org_tools_changed: queued tools/list_changed on "
+                f"{len(matched_sessions)} SSE session(s) for {scope}"
+            )
+        else:
+            logger.debug(
+                f"notify_org_tools_changed: no active SSE sessions for {scope} — "
+                "background refresh will warm cache for next reconnect"
+            )
 
     # Step 3: Schedule background refresh to warm cache + notify new SSE sessions.
     # Claude Desktop sometimes just reopens SSE without re-initializing (no tools/list).
@@ -259,7 +312,10 @@ async def notify_org_tools_changed(org_id, user_id=None) -> int:
             f"{len(target_user_ids)} user(s) in {scope}"
         )
 
-    return len(closed_sessions)
+    # In default mode the function returns the count of sessions that
+    # received the notification; in legacy_kill mode it returns the number
+    # of sessions closed. Callers only use this for log dedup.
+    return len(closed_sessions) if legacy_kill else len(matched_sessions)
 
 
 async def broadcast_resources_changed(org_id=None) -> int:
