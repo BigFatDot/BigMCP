@@ -27,6 +27,10 @@ mcp-registry/scripts/
 _legacy/
 _dev_archive/
 
+# Local DB backups (never publish snapshots to the public repo)
+backups/
+*.sql.gz
+
 # ===========================================
 # PYTHON
 # ===========================================
