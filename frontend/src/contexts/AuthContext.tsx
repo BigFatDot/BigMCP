@@ -500,6 +500,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // ============================================================================
 
   useEffect(() => {
+    const fetchMe = async (token: string) =>
+      fetch(`${deploymentConfig.marketplace_api_url}/auth/me`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      })
+
+    const tryRefresh = async (): Promise<string | null> => {
+      const refreshTokenValue = localStorage.getItem(STORAGE_KEYS.REFRESH_TOKEN)
+      if (!refreshTokenValue) return null
+      try {
+        const r = await fetch(`${deploymentConfig.marketplace_api_url}/auth/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: refreshTokenValue }),
+        })
+        if (!r.ok) return null
+        const data = await r.json()
+        const tokens = data.tokens || data
+        if (!tokens.access_token || !tokens.refresh_token) return null
+        localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, tokens.access_token)
+        localStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, tokens.refresh_token)
+        return tokens.access_token
+      } catch {
+        return null
+      }
+    }
+
     const initializeAuth = async () => {
       // Restore session from localStorage for immediate UI
       const storedUser = localStorage.getItem(STORAGE_KEYS.USER)
@@ -520,15 +549,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Refresh from server to get latest data (subscription, org, etc.)
-        // This ensures we have the most up-to-date data even if localStorage is stale
-        // Also handles MFA login where tokens are stored but user data isn't
+        // Access tokens live 60 min while refresh tokens live 30 days, so on a
+        // cold reload after >1h the access token is dead but the session is
+        // still valid — try the refresh endpoint before giving up and forcing
+        // the user to log in again.
         try {
-          const response = await fetch(`${deploymentConfig.marketplace_api_url}/auth/me`, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken}`,
-            },
-          })
+          let response = await fetchMe(accessToken)
+
+          if (response.status === 401) {
+            const refreshed = await tryRefresh()
+            if (refreshed) {
+              response = await fetchMe(refreshed)
+            }
+          }
 
           if (response.ok) {
             const userData = await response.json()
@@ -546,8 +579,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               localStorage.setItem(STORAGE_KEYS.ORGANIZATION, JSON.stringify(userData.organization))
             }
           } else if (response.status === 401) {
-            // Token is invalid, clear auth state
+            // Refresh failed too — session is genuinely dead.
             clearTokens()
+            setUser(null)
+            setSubscription(null)
+            setOrganization(null)
           }
         } catch (error) {
           console.error('Failed to refresh user data on init:', error)
@@ -559,7 +595,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     initializeAuth()
-  }, [getAccessToken, deploymentConfig.marketplace_api_url])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deploymentConfig.marketplace_api_url])
 
   // ============================================================================
   // Edition Fetching
