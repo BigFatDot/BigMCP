@@ -451,13 +451,13 @@ async def install_server(
                 detail=f"Server not found in marketplace: {request.server_id}"
             )
 
-        # Map install type
         install_type_map = {
             "npm": InstallType.NPM,
             "pip": InstallType.PIP,
             "github": InstallType.GITHUB,
             "docker": InstallType.DOCKER,
             "local": InstallType.LOCAL,
+            "remote": InstallType.REMOTE,
         }
 
         install_type = install_type_map.get(
@@ -467,27 +467,41 @@ async def install_server(
 
         # Build environment from credentials and custom_env
         env = {}
-
-        # Add custom environment variables
         if request.custom_env:
             env.update(request.custom_env)
+
+        # Resolve remote URL from manifest (top-level `url` or install.url)
+        source_install = server_data.get("install") or {}
+        remote_url = (
+            server_data.get("url")
+            or source_install.get("url")
+            or (server_data.get("env") or {}).get("_MCP_URL")  # legacy
+        )
 
         # Create MCP server via service
         mcp_service = MCPServerService(db)
 
-        # Determine default command based on install type
-        default_command = "uvx" if install_type == InstallType.PIP else "npx"
+        is_remote = install_type == InstallType.REMOTE or bool(remote_url)
+        if is_remote:
+            install_type = InstallType.REMOTE
+            command_arg = None
+            install_package_arg = None
+        else:
+            default_command = "uvx" if install_type == InstallType.PIP else "npx"
+            command_arg = server_data.get("command", default_command)
+            install_package_arg = server_data.get("install_package", "")
 
         server = await mcp_service.create_server(
             organization_id=request.organization_id,
             server_id=request.server_id,
             name=server_data.get("name", request.server_id),
             install_type=install_type,
-            install_package=server_data.get("install_package", ""),
-            command=server_data.get("command", default_command),
-            args=server_data.get("args", []),
+            install_package=install_package_arg,
+            command=command_arg,
+            args=[] if is_remote else server_data.get("args", []),
             env=env,
             version=server_data.get("version"),
+            url=remote_url if is_remote else None,
             auto_start=request.auto_start
         )
 
@@ -757,13 +771,13 @@ async def connect_server(
                 detail=f"Server not found in marketplace: {request.server_id}"
             )
 
-        # Map install type
         install_type_map = {
             "npm": InstallType.NPM,
             "pip": InstallType.PIP,
             "github": InstallType.GITHUB,
             "docker": InstallType.DOCKER,
             "local": InstallType.LOCAL,
+            "remote": InstallType.REMOTE,
         }
 
         install_type = install_type_map.get(
@@ -771,8 +785,20 @@ async def connect_server(
             InstallType.NPM
         )
 
-        # Determine default command based on install type
-        default_command = "uvx" if install_type == InstallType.PIP else "npx"
+        # Resolve remote URL (top-level `url`, install.url, or legacy env._MCP_URL)
+        source_install = server_data.get("install") or {}
+        remote_url = (
+            server_data.get("url")
+            or source_install.get("url")
+            or (server_data.get("env") or {}).get("_MCP_URL")
+        )
+
+        is_remote = install_type == InstallType.REMOTE or bool(remote_url)
+        if is_remote:
+            install_type = InstallType.REMOTE
+            default_command = None
+        else:
+            default_command = "uvx" if install_type == InstallType.PIP else "npx"
 
         # Generate unique server name and instance ID
         # User provides a name like "GitHub Personal" which becomes both display name and unique ID
@@ -911,11 +937,12 @@ async def connect_server(
                 server_id=instance_server_id,
                 name=server_name,
                 install_type=install_type,
-                install_package=server_data.get("install_package", ""),
-                command=server_data.get("command", default_command),
-                args=server_data.get("args", []),
+                install_package=None if is_remote else server_data.get("install_package", ""),
+                command=None if is_remote else server_data.get("command", default_command),
+                args=[] if is_remote else server_data.get("args", []),
                 env=server_env,
                 version=server_data.get("version"),
+                url=remote_url if is_remote else None,
                 auto_start=False
             )
 

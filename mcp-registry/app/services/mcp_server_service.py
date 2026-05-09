@@ -47,11 +47,12 @@ class MCPServerService:
         server_id: str,
         name: str,
         install_type: InstallType,
-        install_package: str,
-        command: str,
+        install_package: Optional[str] = None,
+        command: Optional[str] = None,
         args: Optional[List[str]] = None,
         env: Optional[Dict[str, str]] = None,
         version: Optional[str] = None,
+        url: Optional[str] = None,
         auto_start: bool = False
     ) -> MCPServer:
         """
@@ -91,6 +92,9 @@ class MCPServerService:
         if not org:
             raise ValueError(f"Organization {organization_id} not found")
 
+        if install_type == InstallType.REMOTE and not url:
+            raise ValueError("Remote servers require a `url` (streamable-HTTP endpoint)")
+
         # Create server
         server = MCPServer(
             organization_id=organization_id,
@@ -102,6 +106,7 @@ class MCPServerService:
             args=args or [],
             env=env or {},
             version=version,
+            url=url,
             status=ServerStatus.STOPPED
         )
 
@@ -158,6 +163,9 @@ class MCPServerService:
             elif install_type == InstallType.LOCAL:
                 # Local servers don't need installation
                 logger.info(f"Server {server_id_str} is local, skipping installation")
+            elif install_type == InstallType.REMOTE:
+                # Remote servers run on a third-party host, nothing to install
+                logger.info(f"Server {server_id_str} is remote, skipping installation")
 
             logger.info(f"Successfully installed: {server_id_str}")
 
@@ -362,6 +370,16 @@ class MCPServerService:
                 # Update status to STARTING
                 server.status = ServerStatus.STARTING
                 await db.commit()
+
+                # Remote servers have no local process to spawn — the HTTP wrapper
+                # connects lazily when a tool is invoked through UserServerPool.
+                if server.install_type == InstallType.REMOTE:
+                    server.status = ServerStatus.RUNNING
+                    server.error_message = None
+                    await db.commit()
+                    await db.refresh(server)
+                    logger.info(f"Marked remote server {server_id_str} as RUNNING (lazy HTTP connect)")
+                    return server
 
                 # Build environment from server config
                 # Start with os.environ to preserve PATH and other system variables

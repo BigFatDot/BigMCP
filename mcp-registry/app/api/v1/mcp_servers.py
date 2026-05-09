@@ -86,6 +86,7 @@ async def create_mcp_server(
             args=server_data.args,
             env=server_data.env,
             version=server_data.version,
+            url=server_data.url,
             auto_start=server_data.auto_start
         )
         return MCPServerResponse.model_validate(server)

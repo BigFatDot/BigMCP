@@ -103,6 +103,10 @@ class MCPInstaller:
             path = install_config.get("path", "")
             return Path(path).exists()
 
+        elif install_type == "remote":
+            # Remote servers always considered "installed" (no local artifact)
+            return True
+
         return False
 
     async def install_server(self, server_id: str, install_config: Dict) -> bool:
@@ -132,6 +136,10 @@ class MCPInstaller:
             elif install_type == "npm":
                 # NPM packages are auto-installed by npx -y, skip installation
                 logger.info(f"Server '{server_id}' of type npm - npx handles installation automatically")
+                success = True
+            elif install_type == "remote":
+                # Remote servers run on a third-party host — nothing to install locally
+                logger.info(f"Server '{server_id}' of type remote - no local installation needed")
                 success = True
             else:
                 logger.error(f"Unknown installation type: {install_type}")

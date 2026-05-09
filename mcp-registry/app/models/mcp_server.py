@@ -24,6 +24,7 @@ class InstallType(str, enum.Enum):
     GITHUB = "github"  # Clone from GitHub
     DOCKER = "docker"  # Docker container
     LOCAL = "local"  # Already installed locally
+    REMOTE = "remote"  # Remote streamable-HTTP / SSE endpoint (no local process)
 
 
 class ServerStatus(str, enum.Enum):
@@ -79,22 +80,27 @@ class MCPServer(Base, UUIDMixin, TimestampMixin):
         nullable=False,
         comment="How to install this server"
     )
-    install_package: Mapped[str] = mapped_column(
+    install_package: Mapped[Optional[str]] = mapped_column(
         String(500),
-        nullable=False,
-        comment="Package name or repository URL"
+        nullable=True,
+        comment="Package name or repository URL (null for remote servers)"
     )
     version: Mapped[Optional[str]] = mapped_column(
         String(50),
         nullable=True,
         comment="Specific version to install (null = latest)"
     )
+    url: Mapped[Optional[str]] = mapped_column(
+        String(1000),
+        nullable=True,
+        comment="Upstream HTTP endpoint for remote (streamable-http/SSE) servers"
+    )
 
     # Runtime configuration
-    command: Mapped[str] = mapped_column(
+    command: Mapped[Optional[str]] = mapped_column(
         String(500),
-        nullable=False,
-        comment="Command to execute (e.g., 'python', 'node')"
+        nullable=True,
+        comment="Command to execute (null for remote servers)"
     )
     args: Mapped[list] = mapped_column(
         JSONType,
@@ -170,6 +176,7 @@ class MCPServer(Base, UUIDMixin, TimestampMixin):
                 "package": self.install_package,
                 "version": self.version
             },
+            "url": self.url,
             "command": self.command,
             "args": self.args,
             "env": self.env,

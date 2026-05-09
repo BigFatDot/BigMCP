@@ -104,6 +104,7 @@ class MarketplaceServer:
     command: Optional[str] = None
     args: List[str] = field(default_factory=list)
     env: Dict[str, str] = field(default_factory=dict)  # Environment variables (from local registry)
+    url: Optional[str] = None  # Upstream HTTP endpoint for remote (streamable-http/SSE) servers
 
     # Source & metadata
     source: ServerSource = ServerSource.BIGMCP
@@ -1311,6 +1312,7 @@ async def load_custom_servers_from_registry(registry_path: Optional[Path] = None
                 command=server_data.get("command"),
                 args=server_data.get("args", []),
                 env=server_data.get("env", {}),  # Copy env from local registry
+                url=server_data.get("url") or install_info.get("url"),
                 source=ServerSource.CUSTOM,
                 source_url=metadata.get("repository"),
                 repository=metadata.get("repository"),
@@ -1518,6 +1520,7 @@ class MarketplaceSyncService:
             command=entry.get("command"),
             args=entry.get("args", []),
             env=entry.get("env", {}),
+            url=entry.get("url") or install_config.get("url"),
             source=source,
             source_url=entry.get("sourceUrl"),
             repository=entry.get("repository"),
@@ -2708,6 +2711,7 @@ class MarketplaceSyncService:
         if server:
             # Convert to dict and apply credential template
             server_dict = server.to_dict()
+            self._load_curated_cache()
             key = self._get_dedup_key(server)
             curation = self._curated_cache.get(key, {})
 
@@ -2966,8 +2970,10 @@ class MarketplaceSyncService:
             "tags": tags,
             "install": {
                 "type": server.install_type.value if server.install_type else "npm",
-                "package": server.install_package
+                "package": server.install_package,
+                "url": server.url,
             },
+            "url": server.url,
             "command": server.command,
             "args": server.args,
             "env": server.env,

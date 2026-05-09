@@ -479,6 +479,16 @@ class StdioMCPWrapper(MCPServerWrapper):
                     self._process.kill()
                 except ProcessLookupError:
                     pass
+                # CRITICAL: drain the killed process before dropping the
+                # reference. Without this final wait(), the asyncio
+                # BaseSubprocessTransport is GC'd while still holding a
+                # zombie pid → "Exception ignored in __del__" floods logs
+                # at every cleanup cycle. The other two close() paths in
+                # this file already do this; this one was missing it.
+                try:
+                    await asyncio.wait_for(self._process.wait(), timeout=1.0)
+                except (asyncio.TimeoutError, ProcessLookupError, Exception):
+                    pass
             self._process = None
 
         async with self._pending_lock:
@@ -548,7 +558,25 @@ class HttpMCPWrapper(MCPServerWrapper):
     Starts the server process and maintains a persistent HTTP session.
     """
 
-    def __init__(self, server_id: str, url: str, command: str, args: List[str], env: Dict[str, str], timeout: int = 30):
+    # Credential keys that map to HTTP auth headers (case-insensitive matching)
+    AUTH_HEADER_KEYS = {
+        # Bearer token variants
+        "BEARER_TOKEN": ("Authorization", "Bearer {value}"),
+        "ACCESS_TOKEN": ("Authorization", "Bearer {value}"),
+        "AUTH_TOKEN": ("Authorization", "Bearer {value}"),
+        "JWT_TOKEN": ("Authorization", "Bearer {value}"),
+        # API key variants
+        "API_KEY": ("X-API-Key", "{value}"),
+        "APIKEY": ("X-API-Key", "{value}"),
+        "X_API_KEY": ("X-API-Key", "{value}"),
+        # Direct Authorization header
+        "AUTHORIZATION": ("Authorization", "{value}"),
+        # Basic auth (value should be base64-encoded user:pass)
+        "BASIC_AUTH": ("Authorization", "Basic {value}"),
+    }
+
+    def __init__(self, server_id: str, url: str, command: str, args: List[str], env: Dict[str, str],
+                 timeout: int = 30, auth_headers: Optional[Dict[str, str]] = None):
         """
         Initialize HTTP wrapper.
 
@@ -559,6 +587,7 @@ class HttpMCPWrapper(MCPServerWrapper):
             args: Command arguments
             env: Environment variables
             timeout: Request timeout in seconds
+            auth_headers: Pre-built HTTP auth headers to inject in proxied requests
         """
         super().__init__(server_id, url)
         self.command = command
@@ -568,10 +597,65 @@ class HttpMCPWrapper(MCPServerWrapper):
         self._timeout = timeout
         self._session_id = None
         self._process = None
+        self._auth_headers = auth_headers or {}
+
+    @classmethod
+    def extract_auth_headers(cls, credentials: Dict[str, str]) -> Dict[str, str]:
+        """
+        Extract HTTP auth headers from a credentials dict.
+
+        Scans credential keys for known auth patterns and builds
+        the corresponding HTTP headers. Remaining credentials are
+        left untouched (they go to env vars for local processes).
+
+        Args:
+            credentials: Flat dict of credential key-value pairs
+
+        Returns:
+            Dict of HTTP headers to inject (e.g. {"Authorization": "Bearer xxx"})
+        """
+        headers = {}
+        # Also support custom header mappings: keys starting with "HTTP_HEADER_"
+        # e.g. HTTP_HEADER_X_CUSTOM_AUTH=mytoken → X-Custom-Auth: mytoken
+        for key, value in credentials.items():
+            upper_key = key.upper()
+
+            # Check known auth patterns (exact match)
+            if upper_key in cls.AUTH_HEADER_KEYS:
+                header_name, header_template = cls.AUTH_HEADER_KEYS[upper_key]
+                headers[header_name] = header_template.format(value=value)
+                logger.info(f"🔑 Mapped credential {key} → {header_name} header")
+
+            # Custom header mapping: HTTP_HEADER_<NAME>=value
+            elif upper_key.startswith("HTTP_HEADER_"):
+                # Convert HTTP_HEADER_X_CUSTOM_AUTH → X-Custom-Auth
+                raw_header = key[len("HTTP_HEADER_"):]
+                header_name = raw_header.replace("_", "-").title()
+                headers[header_name] = value
+                logger.info(f"🔑 Custom header mapping {key} → {header_name}")
+
+            # Convention: prefixed *_API_KEY / *_TOKEN / *_ACCESS_TOKEN / *_BEARER_TOKEN
+            # (e.g. BIGFOLDER_API_KEY, GITHUB_TOKEN) → Authorization: Bearer <value>
+            # Skip if Authorization already set by an explicit/exact match above.
+            elif "Authorization" not in headers and (
+                upper_key.endswith("_API_KEY")
+                or upper_key.endswith("_TOKEN")
+                or upper_key.endswith("_ACCESS_TOKEN")
+                or upper_key.endswith("_BEARER_TOKEN")
+            ):
+                headers["Authorization"] = f"Bearer {value}"
+                logger.info(f"🔑 Mapped credential {key} → Authorization: Bearer (convention)")
+
+        return headers
 
     async def _start_process(self) -> None:
-        """Start the HTTP MCP server process."""
+        """Start the HTTP MCP server process. Skipped for external URL-only servers."""
         if self._process is not None:
+            return
+
+        # External server: no local process to start
+        if not self.command:
+            logger.info(f"🌐 External HTTP server {self.server_id} at {self.url} — no process to start")
             return
 
         try:
@@ -638,6 +722,10 @@ class HttpMCPWrapper(MCPServerWrapper):
             "Content-Type": "application/json",
             "Accept": "application/json, text/event-stream"
         }
+
+        # Inject auth headers from user credentials
+        if self._auth_headers:
+            headers.update(self._auth_headers)
 
         payload = {
             "jsonrpc": "2.0",
@@ -819,21 +907,35 @@ class HttpMCPWrapper(MCPServerWrapper):
         self._process = None
 
 
-def create_wrapper(server_id: str, config: Dict[str, Any]) -> MCPServerWrapper:
+def create_wrapper(server_id: str, config: Dict[str, Any], credentials: Optional[Dict[str, str]] = None) -> MCPServerWrapper:
     """
     Factory function to create the appropriate wrapper for a server.
 
     Args:
         server_id: Server identifier
         config: Server configuration from mcp_servers.json
+        credentials: Optional user credentials dict. For HTTP wrappers,
+                     known auth keys (BEARER_TOKEN, API_KEY, etc.) are
+                     automatically extracted and injected as HTTP headers.
 
     Returns:
         Appropriate MCPServerWrapper instance
     """
     # Determine transport mode from args or config
-    command = config.get("command", "python")
+    command = config.get("command", "")
     args = config.get("args", [])
     env = config.get("env", {})
+
+    # Extract auth headers from credentials for HTTP wrappers
+    auth_headers = {}
+    if credentials:
+        auth_headers = HttpMCPWrapper.extract_auth_headers(credentials)
+
+    # Check for external URL-only server (no local command to start)
+    external_url = config.get("url")
+    if external_url:
+        logger.info(f"🔧 Creating HTTP wrapper for external server {server_id} at {external_url}")
+        return HttpMCPWrapper(server_id, external_url, command or "", args, env, auth_headers=auth_headers)
 
     # Check if it's HTTP-based transport
     if "--transport" in args:
@@ -858,7 +960,7 @@ def create_wrapper(server_id: str, config: Dict[str, Any]) -> MCPServerWrapper:
                 url = f"http://{host}:{port}/mcp"
 
                 logger.info(f"🔧 Creating HTTP wrapper for {server_id} at {url}")
-                return HttpMCPWrapper(server_id, url, command, args, env)
+                return HttpMCPWrapper(server_id, url, command, args, env, auth_headers=auth_headers)
 
     # Default to STDIO wrapper
     logger.info(f"🔧 Creating STDIO wrapper for {server_id}")

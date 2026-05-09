@@ -813,6 +813,12 @@ async def create_server_from_config(
         if config.get("env"):
             mcp_server_config["env"] = config["env"]
 
+        # Propagate top-level `url` to env._MCP_URL so HttpMCPWrapper picks it up
+        # for external HTTP MCP servers (no local process to spawn).
+        if config.get("url"):
+            mcp_server_config.setdefault("env", {})
+            mcp_server_config["env"]["_MCP_URL"] = config["url"]
+
         # Detect SaaS compatibility from config
         is_saas_compatible = detect_saas_compatible(config, install_type)
 
@@ -906,6 +912,15 @@ async def update_server_config(
             server_data["env"] = config["env"]
         elif "env" in config:
             server_data["env"] = config["env"]
+
+        # Propagate top-level `url` to env._MCP_URL for external HTTP servers
+        if config.get("url"):
+            server_data.setdefault("env", {})
+            server_data["env"]["_MCP_URL"] = config["url"]
+        elif "url" in config and not config.get("url"):
+            # Switching away from remote: clean up _MCP_URL
+            if server_data.get("env", {}).get("_MCP_URL"):
+                del server_data["env"]["_MCP_URL"]
 
         # Handle _metadata updates from config (full JSON editing)
         config_metadata = config.get("_metadata", {})

@@ -298,7 +298,16 @@ class UserServerPool:
             "env": env  # Use the merged environment
         }
 
-        wrapper = create_wrapper(str(server.server_id), wrapper_config)
+        # Resolve external URL: dedicated `url` column first, then legacy env hacks
+        external_url = (
+            server.url
+            or (server.env or {}).get("_MCP_URL")
+            or (server.env or {}).get("_EXTERNAL_URL")
+        )
+        if external_url:
+            wrapper_config["url"] = external_url
+
+        wrapper = create_wrapper(str(server.server_id), wrapper_config, credentials=credentials)
         logger.info(f"Created {type(wrapper).__name__} for {server.server_id}")
 
         # 6. Initialize the wrapper (starts the process and handshake)

@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, model_validator
 
 from ..models.mcp_server import InstallType, ServerStatus
 
@@ -36,24 +36,27 @@ class MCPServerCreate(BaseModel):
         ...,
         description="Installation method"
     )
-    install_package: str = Field(
-        ...,
-        min_length=1,
+    install_package: Optional[str] = Field(
+        None,
         max_length=500,
-        description="Package name or repository URL"
+        description="Package name or repository URL (omit for remote servers)"
     )
     version: Optional[str] = Field(
         None,
         max_length=50,
         description="Specific version (null = latest)"
     )
+    url: Optional[str] = Field(
+        None,
+        max_length=1000,
+        description="Upstream HTTP endpoint (required when install_type='remote')"
+    )
 
     # Runtime configuration
-    command: str = Field(
-        ...,
-        min_length=1,
+    command: Optional[str] = Field(
+        None,
         max_length=500,
-        description="Command to execute"
+        description="Command to execute (omit for remote servers)"
     )
     args: List[str] = Field(
         default_factory=list,
@@ -68,6 +71,18 @@ class MCPServerCreate(BaseModel):
         default=False,
         description="Whether to start the server immediately after creation"
     )
+
+    @model_validator(mode="after")
+    def _validate_install_shape(self) -> "MCPServerCreate":
+        if self.install_type == InstallType.REMOTE:
+            if not self.url:
+                raise ValueError("install_type='remote' requires `url`")
+        else:
+            if not self.install_package:
+                raise ValueError(f"install_type='{self.install_type.value}' requires `install_package`")
+            if not self.command:
+                raise ValueError(f"install_type='{self.install_type.value}' requires `command`")
+        return self
 
     class Config:
         json_schema_extra = {
@@ -136,11 +151,12 @@ class MCPServerResponse(BaseModel):
 
     # Installation
     install_type: InstallType
-    install_package: str
+    install_package: Optional[str]
     version: Optional[str]
+    url: Optional[str] = None
 
     # Runtime
-    command: str
+    command: Optional[str]
     args: List[str]
     env: Dict[str, str]
 
