@@ -38,6 +38,7 @@ from ..api.models import ToolInfo, ServerInfo
 from ..api.dependencies import get_current_user_api_key, get_current_user, get_current_user_optional, _resolve_organization
 from ..orchestration.tools import OrchestrationTools
 from ..core.user_server_pool import UserServerPool
+from ..services.mcp_session_store import get_session_store
 
 # Import utilities from modular structure
 from .mcp_gateway.utils import (
@@ -66,8 +67,14 @@ router = APIRouter(
 # Get the shared registry instance
 registry = get_registry()
 
-# Session management
-mcp_sessions: Dict[str, Dict[str, Any]] = {}
+# Session management.
+#
+# Sessions are now stored in the hybrid `MCPSessionStore` (Redis-backed
+# metadata + per-process asyncio.Queue). The `mcp_sessions` symbol was
+# removed: every read/write goes through `get_session_store()`. Metadata
+# survives backend restarts; queues are recreated on demand when an SSE
+# client reconnects with the same `Mcp-Session-Id`. See
+# `app/services/mcp_session_store.py` for the rationale.
 SESSION_TIMEOUT_SECONDS = 600  # 10 minutes
 KEEPALIVE_INTERVAL_SECONDS = 30
 
@@ -89,8 +96,8 @@ MCP_PROTOCOL_VERSION = "2025-06-18"
 
 async def broadcast_tools_changed():
     """
-    Broadcast tools/list_changed notification to all active SSE sessions.
-    MCP 2024-11-05 compliant notification.
+    Broadcast tools/list_changed notification to all active SSE sessions
+    served by THIS process. MCP 2025-06-18 compliant notification.
 
     This allows clients to automatically refresh their tools list when
     tools become available (e.g., after server initialization).
@@ -100,24 +107,23 @@ async def broadcast_tools_changed():
         "method": "notifications/tools/list_changed"
     }
 
-    active_sessions = list(mcp_sessions.items())
-    if not active_sessions:
+    store = get_session_store()
+    local_sessions = store.iter_local()
+    if not local_sessions:
         logger.debug("No active SSE sessions to notify")
         return
 
-    for session_id, session in active_sessions:
+    for session_id, queue in local_sessions:
         try:
-            queue = session.get("message_queue")
-            if queue:
-                await queue.put({
-                    "event": "message",
-                    "data": json.dumps(notification)
-                })
-                logger.info(f"Queued tools_changed notification for session {session_id}")
+            await queue.put({
+                "event": "message",
+                "data": json.dumps(notification)
+            })
+            logger.info(f"Queued tools_changed notification for session {session_id}")
         except Exception as e:
             logger.warning(f"Failed to queue notification for {session_id}: {e}")
 
-    logger.info(f"Broadcasted tools/list_changed to {len(active_sessions)} sessions")
+    logger.info(f"Broadcasted tools/list_changed to {len(local_sessions)} sessions")
 
 
 async def broadcast_tools_changed_for_user(user_id) -> int:
@@ -142,20 +148,23 @@ async def broadcast_tools_changed_for_user(user_id) -> int:
     user_id_str = str(user_id)
     notified = 0
 
-    for session_id, session in list(mcp_sessions.items()):
-        session_user_id = session.get("user_id")
-        if str(session_user_id) == user_id_str:
-            try:
-                queue = session.get("message_queue")
-                if queue:
-                    await queue.put({
-                        "event": "message",
-                        "data": json.dumps(notification)
-                    })
-                    notified += 1
-                    logger.info(f"Queued tools_changed for user {user_id_str} session {session_id}")
-            except Exception as e:
-                logger.warning(f"Failed to notify session {session_id}: {e}")
+    store = get_session_store()
+    sids = await store.list_for_user(user_id_str)
+
+    for session_id in sids:
+        queue = store.get_local_queue(session_id)
+        if queue is None:
+            # Session lives in Redis but queue is bound to another process.
+            continue
+        try:
+            await queue.put({
+                "event": "message",
+                "data": json.dumps(notification)
+            })
+            notified += 1
+            logger.info(f"Queued tools_changed for user {user_id_str} session {session_id}")
+        except Exception as e:
+            logger.warning(f"Failed to notify session {session_id}: {e}")
 
     if notified:
         logger.info(f"Sent tools/list_changed to {notified} session(s) for user {user_id_str}")
@@ -230,22 +239,18 @@ async def notify_org_tools_changed(org_id, user_id=None) -> int:
     matched_sessions: list[str] = []
     closed_sessions: list[str] = []
 
-    for session_id in list(mcp_sessions.keys()):
-        session = mcp_sessions.get(session_id)
-        if not session:
-            continue
-        if str(session.get("organization_id")) != org_id_str:
-            continue
-        if user_id_str and str(session.get("user_id")) != user_id_str:
-            continue
+    store = get_session_store()
+    local_matches = await store.iter_local_sessions_for_org(org_id_str, user_id_str)
+
+    for session_id, _meta in local_matches:
         matched_sessions.append(session_id)
 
         if legacy_kill:
-            del mcp_sessions[session_id]
+            await store.delete(session_id)
             closed_sessions.append(session_id)
             continue
 
-        queue = session.get("message_queue")
+        queue = store.get_local_queue(session_id)
         if queue is None:
             continue
         try:
@@ -287,12 +292,20 @@ async def notify_org_tools_changed(org_id, user_id=None) -> int:
     if user_id:
         target_user_ids.add(UUID(user_id_str))
     else:
-        # Collect all users in org from remaining sessions + recently active users
-        for session in mcp_sessions.values():
-            if str(session.get("organization_id")) == org_id_str:
-                uid = session.get("user_id")
-                if uid:
+        # Collect all users registered in Redis for the org, plus the
+        # `org_active_users` snapshot of recently-active POST clients
+        # (Claude Desktop, etc.) that have no live SSE session.
+        org_sids = await store.list_for_org(org_id_str)
+        for sid in org_sids:
+            meta = await store.get_metadata(sid)
+            if not meta:
+                continue
+            uid = meta.get("user_id")
+            if uid:
+                try:
                     target_user_ids.add(uid if isinstance(uid, UUID) else UUID(str(uid)))
+                except Exception:
+                    pass
         cutoff = time.time() - ORG_ACTIVE_USER_TTL_SECONDS
         for uid_str, last_active in list(org_active_users.get(org_id_str, {}).items()):
             if last_active >= cutoff:
@@ -339,18 +352,27 @@ async def broadcast_resources_changed(org_id=None) -> int:
     org_id_str = str(org_id) if org_id is not None else None
     notified = 0
 
-    for session_id, session in list(mcp_sessions.items()):
-        if org_id_str is not None:
-            if str(session.get("organization_id")) != org_id_str:
-                continue
+    store = get_session_store()
+
+    if org_id_str is None:
+        # Global broadcast — every locally-served queue.
+        targets = store.iter_local()
+    else:
+        # Org-scoped — locally-served sessions for that org only.
+        scoped = await store.iter_local_sessions_for_org(org_id_str, None)
+        targets = [
+            (sid, store.get_local_queue(sid))
+            for sid, _ in scoped
+            if store.get_local_queue(sid) is not None
+        ]
+
+    for session_id, queue in targets:
         try:
-            queue = session.get("message_queue")
-            if queue:
-                await queue.put({
-                    "event": "message",
-                    "data": json.dumps(notification)
-                })
-                notified += 1
+            await queue.put({
+                "event": "message",
+                "data": json.dumps(notification)
+            })
+            notified += 1
         except Exception as e:
             logger.warning(f"Failed to queue resources_changed for session {session_id}: {e}")
 
@@ -381,7 +403,7 @@ class MCPUnifiedGateway:
 
     def __init__(self):
         self.registry = registry
-        self.sessions = mcp_sessions
+        self.session_store = get_session_store()
         self.orchestration_tools = OrchestrationTools(registry)
         from ..core.config import settings as core_settings
         self.user_server_pool = UserServerPool(
@@ -711,11 +733,10 @@ class MCPUnifiedGateway:
                     # re-initializes (with fresh tools/list) when SSE drops.
                     closed = 0
                     user_id_str = str(user_uuid)
-                    for sid in list(mcp_sessions.keys()):
-                        s = mcp_sessions.get(sid)
-                        if s and str(s.get("user_id")) == user_id_str:
-                            del mcp_sessions[sid]
-                            closed += 1
+                    store = get_session_store()
+                    for sid in await store.list_for_user(user_id_str):
+                        await store.delete(sid)
+                        closed += 1
 
                     added = fresh_names - cached_names
                     removed = cached_names - fresh_names
@@ -784,10 +805,11 @@ class MCPUnifiedGateway:
         """
         try:
             # Priority: use provided user_id/organization_id from auth, fallback to session
-            if not user_id and session_id and session_id in self.sessions:
-                session = self.sessions[session_id]
-                user_id = session.get("user_id")
-                organization_id = session.get("organization_id")
+            if not user_id and session_id:
+                session = await self.session_store.get_metadata(session_id)
+                if session:
+                    user_id = session.get("user_id")
+                    organization_id = session.get("organization_id")
 
             if user_id:
                 logger.info(f"list_tools called for user_id={user_id}, organization_id={organization_id}")
@@ -932,20 +954,26 @@ class MCPUnifiedGateway:
                 # NO global registry access without authentication!
 
             # =====================================================================
-            # VISIBILITY FILTER: OAuth clients only see visible tools/servers
-            # Cache contains ALL tools (shared across auth methods),
-            # so we filter by querying visible server UUIDs from DB.
-            # This covers both cache HIT and background refresh paths.
+            # VISIBILITY FILTER: OAuth clients only see tools currently loaded
+            # in the dynamic pool (Tool.is_visible_to_oauth_clients = True).
+            # The user_tool_cache stores ALL of a user's tools (shared between
+            # API-key clients and OAuth clients), so we MUST re-apply the
+            # per-tool visibility flag on every read — otherwise OAuth clients
+            # see the entire catalog regardless of pool state.
+            # The server-level flag is also enforced as a defence-in-depth
+            # layer (a hidden server still hides every tool under it).
             # =====================================================================
             if is_oauth_client and all_tools:
                 try:
                     from ..db.database import get_async_session
                     from sqlalchemy import select as sa_select
                     from ..models.mcp_server import MCPServer as MCPServerModel
+                    from ..models.tool import Tool as ToolModel
 
-                    visible_server_uuids = set()
+                    visible_server_uuids: set[str] = set()
+                    visible_tool_keys: set[tuple[str, str]] = set()
                     async for db in get_async_session():
-                        stmt = (
+                        srv_stmt = (
                             sa_select(MCPServerModel.id)
                             .where(
                                 MCPServerModel.organization_id == org_uuid,
@@ -953,19 +981,54 @@ class MCPUnifiedGateway:
                                 MCPServerModel.is_visible_to_oauth_clients == True
                             )
                         )
-                        result = await db.execute(stmt)
-                        visible_server_uuids = {str(row[0]) for row in result.all()}
+                        srv_rows = (await db.execute(srv_stmt)).all()
+                        visible_server_uuids = {str(row[0]) for row in srv_rows}
+
+                        tool_stmt = (
+                            sa_select(ToolModel.server_id, ToolModel.tool_name)
+                            .join(MCPServerModel, MCPServerModel.id == ToolModel.server_id)
+                            .where(
+                                MCPServerModel.organization_id == org_uuid,
+                                MCPServerModel.enabled == True,
+                                MCPServerModel.is_visible_to_oauth_clients == True,
+                                ToolModel.is_visible_to_oauth_clients == True,
+                            )
+                        )
+                        tool_rows = (await db.execute(tool_stmt)).all()
+                        visible_tool_keys = {(str(srv_uuid), tname) for srv_uuid, tname in tool_rows}
                         break
 
                     original_count = len(all_tools)
-                    all_tools = [
-                        t for t in all_tools
-                        if t.get("metadata", {}).get("server_uuid") in visible_server_uuids
-                        or t.get("_server_id") in visible_server_uuids
-                    ]
+                    filtered: list = []
+                    for t in all_tools:
+                        meta = t.get("metadata") or {}
+                        srv_uuid = meta.get("server_uuid") or t.get("_server_id")
+                        if not srv_uuid or str(srv_uuid) not in visible_server_uuids:
+                            continue
+                        original_name = (
+                            meta.get("original_tool_name")
+                            or meta.get("original_name")
+                        )
+                        # Cache entries built from `UserServerPool.get_user_tools`
+                        # carry the prefixed name in `t["name"]` and the raw tool
+                        # name in `metadata.original_tool_name`. Cache entries
+                        # built from the DB-instant path (line 909) also expose
+                        # `original_tool_name`. If neither is set, fall back to
+                        # stripping the `Server__` prefix from the unique name.
+                        if not original_name:
+                            unique_name = t.get("name") or ""
+                            if "__" in unique_name:
+                                original_name = unique_name.split("__", 1)[1]
+                            else:
+                                original_name = unique_name
+                        if (str(srv_uuid), original_name) in visible_tool_keys:
+                            filtered.append(t)
+
+                    all_tools = filtered
                     logger.info(
                         f"OAuth visibility filter: {original_count} -> {len(all_tools)} tools "
-                        f"({len(visible_server_uuids)} visible servers)"
+                        f"({len(visible_server_uuids)} visible servers, "
+                        f"{len(visible_tool_keys)} visible tools in pool)"
                     )
                 except Exception as e:
                     logger.error(f"Error in OAuth visibility filter: {e}", exc_info=True)
@@ -2810,10 +2873,11 @@ The MCP Gateway aggregates tools from **{len(servers)} MCP servers** into a unif
         logger.debug(f"Extracted server_id: {server_id}, original_tool_name: {original_tool_name}")
 
         # Get user context: Priority to provided params, fallback to session
-        if not user_id and session_id and session_id in self.sessions:
-            session = self.sessions[session_id]
-            user_id = session.get("user_id")
-            organization_id = session.get("organization_id")
+        if not user_id and session_id:
+            session = await self.session_store.get_metadata(session_id)
+            if session:
+                user_id = session.get("user_id")
+                organization_id = session.get("organization_id")
 
         if not user_id:
             # No user context - fallback to global servers (insecure, legacy behavior)
@@ -2872,7 +2936,24 @@ async def mcp_sse_endpoint(
     - Keepalive pings
     """
     user, api_key = auth  # get_current_user returns (user, api_key|None)
-    session_id = str(uuid.uuid4())
+
+    # MCP 2025-06-18 §6.3.1: clients may pass `Mcp-Session-Id` to resume an
+    # existing session. We honour that when the metadata is still in Redis
+    # (e.g. after a backend restart) so reconnecting clients keep their
+    # session_id and don't have to redo `initialize`. Otherwise allocate a
+    # fresh UUID — the new id is published back via the SSE response headers.
+    requested_sid = request.headers.get("mcp-session-id") or request.headers.get("X-Session-ID")
+    store = get_session_store()
+    resumed = False
+    if requested_sid:
+        existing = await store.get_metadata(requested_sid)
+        if existing and str(existing.get("user_id")) == str(user.id):
+            session_id = requested_sid
+            resumed = True
+        else:
+            session_id = str(uuid.uuid4())
+    else:
+        session_id = str(uuid.uuid4())
 
     # Resolve organization_id for both API Key and OAuth JWT clients.
     # API Key: organization is fixed by the key.
@@ -2891,29 +2972,46 @@ async def mcp_sse_endpoint(
                 organization_id = user.organization_memberships[0].organization_id
 
     auth_info = f"API Key: {api_key.name}" if api_key else "OAuth token"
-    logger.info(f"Authenticated MCP connection - User: {user.email}, {auth_info}, Session: {session_id}")
+    logger.info(
+        f"Authenticated MCP connection - User: {user.email}, {auth_info}, "
+        f"Session: {session_id}{' (resumed)' if resumed else ''}"
+    )
 
     async def event_generator() -> AsyncGenerator[Dict[str, Any], None]:
         """Generate SSE events for the client."""
 
-        # Create session with auth context.
-        # api_key_id and tool_group_id are None for OAuth clients (no API key restriction).
-        mcp_sessions[session_id] = {
-            "created_at": time.time(),
-            "last_activity": time.time(),
-            "message_queue": asyncio.Queue(),
-            "user_id": user.id,
-            "organization_id": organization_id,
-            "api_key_id": api_key.id if api_key else None,
-            "user_email": user.email,
-            "tool_group_id": api_key.tool_group_id if api_key else None  # None = all visible tools (OAuth)
-        }
+        # Create or rebind the session.
+        # - Fresh session: persist metadata in Redis (TTL-bounded) and bind a queue.
+        # - Resumed session (post-restart reconnect): metadata already in Redis,
+        #   we just attach a fresh in-process queue.
+        if resumed:
+            queue = await store.attach_local_queue(session_id)
+            if queue is None:
+                # Race: metadata expired between the GET handler and here.
+                # Fall back to a brand-new session.
+                queue = await store.create(session_id, {
+                    "user_id": user.id,
+                    "organization_id": organization_id,
+                    "api_key_id": api_key.id if api_key else None,
+                    "user_email": user.email,
+                    "tool_group_id": api_key.tool_group_id if api_key else None,
+                })
+        else:
+            queue = await store.create(session_id, {
+                "user_id": user.id,
+                "organization_id": organization_id,
+                "api_key_id": api_key.id if api_key else None,
+                "user_email": user.email,
+                "tool_group_id": api_key.tool_group_id if api_key else None,
+            })
 
+        session_started_at = time.time()
         logger.info(f"New SSE connection: {session_id}")
 
         try:
             # Send keepalive pings
             last_ping = time.time()
+            last_touch = time.time()
 
             while True:
                 # Check for client disconnect
@@ -2921,32 +3019,32 @@ async def mcp_sse_endpoint(
                     logger.info(f"Client disconnected: {session_id}")
                     break
 
-                # Check session timeout (fix: SESSION_TIMEOUT_SECONDS was defined but unused)
-                session_data = mcp_sessions.get(session_id)
-                if not session_data:
-                    logger.warning(f"Session {session_id} not found, ending SSE stream")
+                # Detect external session deletion (e.g. legacy_kill, DELETE /,
+                # or background refresh closing the session). The local queue
+                # is removed by `store.delete()`, so its absence is the signal.
+                if not store.has_local_queue(session_id):
+                    logger.warning(f"Session {session_id} no longer registered, ending SSE stream")
                     break
 
-                session_age = time.time() - session_data["created_at"]
+                # Hard upper bound on a single SSE connection — TTL refresh
+                # in Redis happens via `touch()` below, so the session itself
+                # can outlive any individual SSE socket.
+                session_age = time.time() - session_started_at
                 if session_age > SESSION_TIMEOUT_SECONDS:
                     logger.info(
-                        f"Session {session_id} timed out after {session_age:.0f}s "
-                        f"(limit: {SESSION_TIMEOUT_SECONDS}s)"
+                        f"Session {session_id} reached SSE keepalive ceiling after "
+                        f"{session_age:.0f}s (limit: {SESSION_TIMEOUT_SECONDS}s)"
                     )
                     break
 
                 # Check message queue for notifications (NON-BLOCKING)
-                queue = session_data.get("message_queue")
-                if queue:
-                    try:
-                        # Non-blocking check for queued messages
-                        message = queue.get_nowait()
-                        yield message
-                        # Update activity timestamp on message delivery
-                        session_data["last_activity"] = time.time()
-                        logger.info(f"Sent notification to session {session_id}")
-                    except asyncio.QueueEmpty:
-                        pass  # No messages waiting, continue
+                try:
+                    # Non-blocking check for queued messages
+                    message = queue.get_nowait()
+                    yield message
+                    logger.info(f"Sent notification to session {session_id}")
+                except asyncio.QueueEmpty:
+                    pass  # No messages waiting, continue
 
                 # Send keepalive ping
                 now = time.time()
@@ -2960,14 +3058,27 @@ async def mcp_sse_endpoint(
                     }
                     last_ping = now
 
+                # Refresh Redis TTL on the metadata roughly once per keepalive
+                # interval so live SSE streams keep their session metadata
+                # warm without flooding Redis on every loop tick.
+                if now - last_touch >= KEEPALIVE_INTERVAL_SECONDS:
+                    try:
+                        await store.touch(session_id)
+                    except Exception as e:  # noqa: BLE001
+                        logger.debug(f"session_store.touch failed for {session_id}: {e}")
+                    last_touch = now
+
                 # Wait a bit before next iteration
                 await asyncio.sleep(1)
 
         finally:
-            # Cleanup session
-            if session_id in mcp_sessions:
-                del mcp_sessions[session_id]
+            # Cleanup: drop both metadata + local queue. A subsequent reconnect
+            # with the same Mcp-Session-Id falls through to a brand new session.
+            try:
+                await store.delete(session_id)
                 logger.info(f"Session cleaned up: {session_id}")
+            except Exception as e:  # noqa: BLE001
+                logger.warning(f"session_store.delete failed for {session_id}: {e}")
 
     return EventSourceResponse(
         event_generator(),
@@ -3254,7 +3365,7 @@ async def mcp_health_check():
     try:
         servers_count = len(registry.servers)
         tools_count = len(registry.tools)
-        sessions_count = len(mcp_sessions)
+        sessions_count = get_session_store().local_count()
         pool_stats = gateway.user_server_pool.get_stats()
 
         return {
