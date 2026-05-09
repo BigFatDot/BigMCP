@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-05-09
+
+Iterative hardening of the v2.1.0 surface, a new Services workspace, MCP 2025-06-18 alignment, remote streamable-HTTP MCP servers, and a session-store rewrite that makes sessions survive backend restarts.
+
+### MCP protocol — 2025-06-18 alignment
+
+- **`MCP_PROTOCOL_VERSION` bumped to `2025-06-18`** in `initialize` (was 2025-03-26).
+- **`tools/list` items declare `title` + `outputSchema`** (the `search` and `execute` envelopes), and `tools/call` returns `structuredContent` next to the legacy text body so clients can parse the response without regex.
+- **`initialize.result.instructions`** describes the search → tools/list → execute flow so clients understand the gateway's two-tool model from the first message.
+- **Prompts (`tool_discovery`, `compose_workflow`, `getting_started`, `tool_usage`) rewritten** to reference `search`/`execute` instead of the legacy `orchestrator_*` set.
+- **Spec-compliant tool-list invalidation**: `notify_org_tools_changed` now pushes a standard `notifications/tools/list_changed` envelope into every matching SSE session's outbound queue instead of severing the SSE connection. The legacy hard-kill behaviour stays available behind `MCP_KILL_SESSION_ON_TOOLS_CHANGED=true` as an emergency fallback.
+
+### Sessions persisted in Redis (no more stale clients on redeploy)
+
+- **`MCPSessionStore`** replaces the module-level `mcp_sessions` dict. Metadata (user_id, org_id, api_key_id, …) lives in Redis through the existing `CacheBackend` (TTL aligned with `SESSION_TIMEOUT_SECONDS`); the per-process `asyncio.Queue` is recreated on demand. Sessions survive backend restarts.
+- **Reconnect via `Mcp-Session-Id` header**: the SSE GET endpoint now resumes an existing session if its metadata is still in Redis — clients don't need to re-issue `initialize` after a redeploy.
+- **TTL refresh** every keepalive interval keeps long-lived SSE streams warm without flooding Redis.
+
+### OAuth visibility fix (CRITICAL)
+
+- **`Tool.is_visible_to_oauth_clients` is now actually enforced.** The previous filter only honoured `MCPServer.is_visible_to_oauth_clients`, which let the entire catalog (~221 tools) leak to OAuth clients regardless of pool state. Filter now intersects on `(server_uuid, tool_name)` keys against the pool. Without this fix, the dynamic pool from v2.1.0 was effectively a no-op for OAuth clients on the read path.
+
+### Web UI — Services workspace
+
+- **Three-column drag-and-drop UX** (catalog / active pool / toolboxes) built on `@dnd-kit/{core,sortable,utilities}`, with optimistic updates via TanStack Query for instant feedback.
+- **Drop a tool on `+ New toolbox`** to create one in place; auto-suffix on duplicate names with a sticky error banner.
+- **Edit toolboxes** (rename, recolor, prune items, delete) and **revoke services from chips** (deletes the user credential).
+- **AssistantModal becomes a toolbox-by-intent builder** — the LLM proposes a coherent toolbox from a natural-language goal, then the user accepts / regenerates / refines.
+- **Mobile tab switcher** for the same workspace at small widths.
+- **Full EN/FR translations** for the new UX.
+
+### Pool API surface
+
+- New endpoints to drive the workspace from the web UI:
+  - `POST /api/v1/pool/unload` — remove tools from the active pool.
+  - `POST /api/v1/pool/suggest` — LLM-assisted tool suggestion for a free-text goal.
+  - `POST /api/v1/tool-groups/{id}/load-into-pool` — load an entire toolbox into the active pool in one call.
+- All endpoints write to `audit_logs` (POOL_LOAD / POOL_UNLOAD / POOL_TOOLBOX_LOAD).
+
+### Remote streamable-HTTP MCP servers
+
+- **New `remote` install type**: connect to upstream MCP servers exposing a public HTTP endpoint without installing a local process. URL resolved from the marketplace manifest, credentials mapped onto standard auth headers (Bearer, X-API-Key, …) following the same convention as STDIO env injection.
+- Schema: new `mcp_servers.url` column, `command` and `install_package` made nullable. Migration `add_remote_install_type` (heals the v2.1.0 chain that referenced this revision).
+- Coverage: `tests/test_http_auth_headers.py` validates the credential → header mapping.
+
+### Hardening (post-2.1.0 review backlog)
+
+- Two passes of review hardening on the v2.1.0 batch (defensive org-scoping on bulk updates, error envelope normalisation, rate-limit entries for the LLM-backed propose endpoints).
+- `i18n(workspace)`: clarified the wording around server kill-switch vs dynamic pool — they were getting confused in the UI.
+
+### Internals
+
+- New module `mcp-registry/app/services/mcp_session_store.py`.
+- 7-test suite for the session store (`test_mcp_session_store.py`).
+- Stress-tested live: 50 concurrent OAuth `tools/list` consistent, pool flips propagate after cache invalidation, no cross-org leak, 200 sessions × 20 messages without loss, Redis reattach across simulated process restarts.
+
+---
+
 ## [2.1.0] - 2026-05-03
 
 ### MCP Surface Redesign — `search` + `execute` (BREAKING)
