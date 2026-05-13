@@ -79,6 +79,17 @@ class Settings:
     # Encryption (for credentials)
     ENCRYPTION_KEY: Optional[str] = os.getenv("ENCRYPTION_KEY")
 
+    # =====================================
+    # Client-control defaults (N1 access-control roadmap)
+    # =====================================
+    # These set the env-var floor for the PolicyResolver; the singleton
+    # instance_settings row layers on top, and the per-org override
+    # (organizations.settings.client_control) layers on top of that.
+    # Org cannot relax instance, instance cannot relax env-var defaults.
+    DEFAULT_DCR_POLICY: str = os.getenv("DEFAULT_DCR_POLICY", "open")
+    GLOBAL_TRUSTED_CIMD_URLS: str = os.getenv("GLOBAL_TRUSTED_CIMD_URLS", "")
+    ENFORCE_CLIENT_PROVENANCE: bool = os.getenv("ENFORCE_CLIENT_PROVENANCE", "false").lower() == "true"
+
     # OAuth Providers (future)
     GOOGLE_CLIENT_ID: Optional[str] = os.getenv("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET: Optional[str] = os.getenv("GOOGLE_CLIENT_SECRET")

@@ -22,6 +22,7 @@ from .password_reset_token import PasswordResetToken
 from .email_verification_token import EmailVerificationToken
 from .composition import Composition, CompositionStatus
 from .public_sector import PublicDomainWhitelist, PublicSectorCategory
+from .instance_settings import InstanceSettings
 
 __all__ = [
     # Organizations
@@ -95,4 +96,7 @@ __all__ = [
     # Public Sector
     "PublicDomainWhitelist",
     "PublicSectorCategory",
+
+    # Instance configuration (singleton)
+    "InstanceSettings",
 ]
