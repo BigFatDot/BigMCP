@@ -67,6 +67,7 @@ async def get_mcp_server_service(
 async def create_mcp_server(
     server_data: MCPServerCreate,
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     service: MCPServerService = Depends(get_mcp_server_service)
 ):
     """Create a new MCP server (admin only for team orgs)."""
@@ -110,6 +111,7 @@ async def create_mcp_server(
 )
 async def list_mcp_servers(
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:read", log_only=True)),
     include_disabled: bool = False,
     service: MCPServerService = Depends(get_mcp_server_service)
 ):
@@ -135,6 +137,7 @@ async def list_mcp_servers(
 async def get_mcp_server(
     server_id: str,
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:read", log_only=True)),
     service: MCPServerService = Depends(get_mcp_server_service)
 ):
     """Get a specific MCP server by UUID or server_id string."""
@@ -165,6 +168,7 @@ async def update_mcp_server(
     server_id: str,
     server_data: MCPServerUpdate,
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     service: MCPServerService = Depends(get_mcp_server_service)
 ):
     """Update MCP server configuration (admin only for team orgs)."""
@@ -218,6 +222,7 @@ async def update_mcp_server(
 async def delete_mcp_server(
     server_id: str,
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     service: MCPServerService = Depends(get_mcp_server_service)
 ):
     """Delete an MCP server (admin only for team orgs)."""
@@ -268,6 +273,7 @@ async def delete_mcp_server(
 async def install_mcp_server(
     server_id: str,
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     service: MCPServerService = Depends(get_mcp_server_service)
 ):
     """Install an MCP server (admin only for team orgs)."""
@@ -419,6 +425,7 @@ async def restart_mcp_server(
     server_uuid: UUID,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     db: AsyncSession = Depends(get_async_session)
 ):
     """Restart an MCP server using UserServerPool (stop + start with tool sync)."""

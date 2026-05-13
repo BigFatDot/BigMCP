@@ -37,6 +37,7 @@ async def list_tools(
     server_id: Optional[str] = Query(None, description="Filter by server"),
     include_hidden: bool = Query(False, description="Include hidden tools (OAuth)"),
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
+    _scope: None = Depends(require_scope("tools:read", log_only=True)),
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -188,6 +189,7 @@ async def update_tool_visibility(
     tool_id: UUID,
     update: ToolUpdateVisibility,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     db: AsyncSession = Depends(get_db)
 ):
     """

@@ -54,6 +54,7 @@ async def create_tool_binding(
     context_id: UUID = Query(..., description="Context UUID to bind the tool to"),
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """Create a new tool binding."""
@@ -96,6 +97,7 @@ async def list_tool_bindings(
     ),
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("tools:read", log_only=True)),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """List all tool bindings for a context."""
@@ -123,6 +125,7 @@ async def get_tool_binding(
     request: Request,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("tools:read", log_only=True)),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """Get a specific tool binding."""
@@ -158,6 +161,7 @@ async def get_binding_info(
     request: Request,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("tools:read", log_only=True)),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """Get comprehensive binding information."""
@@ -194,6 +198,7 @@ async def update_tool_binding(
     request: Request,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """Update a tool binding."""
@@ -243,6 +248,7 @@ async def delete_tool_binding(
     request: Request,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """Delete a tool binding."""
@@ -286,6 +292,7 @@ async def execute_tool_binding(
     request: Request,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("tools:execute", log_only=True)),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """Execute a tool binding."""
