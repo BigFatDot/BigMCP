@@ -84,6 +84,10 @@ class AuditAction(str, enum.Enum):
     UNAUTHORIZED_ACCESS = "security.unauthorized_access"
     APIKEY_SCOPE_DENIED = "security.apikey_scope_denied"
 
+    # Instance / Configuration
+    SETTINGS_CHANGED = "instance.settings_changed"
+    ENCRYPTION_KEY_ROTATED = "instance.encryption_key_rotated"
+
 
 class AuditLog(Base, UUIDMixin):
     """

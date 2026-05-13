@@ -315,12 +315,15 @@ async def rotate_encryption_keys(
 
     service = KeyRotationService(db)
 
-    # Log the rotation attempt
+    # Log the rotation attempt.
+    # Key rotation is an instance-wide action: organization_id is intentionally
+    # None (User has no `primary_organization_id` field and instance admins
+    # operate cross-organization).
     audit_service = AuditService(db)
     await audit_service.log_action(
-        action=AuditAction.SETTINGS_CHANGED,
+        action=AuditAction.ENCRYPTION_KEY_ROTATED,
         actor_id=admin_user.id,
-        organization_id=admin_user.primary_organization_id,
+        organization_id=None,
         resource_type="encryption_keys",
         resource_id="rotation",
         details={
