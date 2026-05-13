@@ -71,6 +71,7 @@ class AuditAction(str, enum.Enum):
     # Security Events
     SECURITY_ALERT = "security.alert"
     UNAUTHORIZED_ACCESS = "security.unauthorized_access"
+    APIKEY_SCOPE_DENIED = "security.apikey_scope_denied"
 
 
 class AuditLog(Base, UUIDMixin):

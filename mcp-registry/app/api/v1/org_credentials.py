@@ -21,7 +21,7 @@ from ...models.user import User
 from ...models.api_key import APIKey
 from ...models.organization import UserRole
 from ...models.mcp_server import MCPServer
-from ..dependencies import get_current_user, get_current_admin_user, get_current_organization
+from ..dependencies import get_current_user, get_current_admin_user, get_current_organization, require_scope
 from ...services.credential_service import CredentialService
 from ...schemas.credential import (
     OrganizationCredentialCreate,
@@ -234,6 +234,7 @@ async def create_org_credential(
 async def list_org_credentials(
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("credentials:read", log_only=True)),
     include_inactive: bool = Query(False, description="Include inactive credentials (admin only)"),
     show_masked: bool = Query(False, description="Include masked credentials in response (admin only)"),
     service: CredentialService = Depends(get_credential_service)

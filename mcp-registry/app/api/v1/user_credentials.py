@@ -20,7 +20,7 @@ from ...db.database import get_async_session
 from ...models.user import User
 from ...models.api_key import APIKey
 from ...models.mcp_server import MCPServer
-from ..dependencies import get_current_user, get_current_organization
+from ..dependencies import get_current_user, get_current_organization, require_scope
 from ...services.credential_service import CredentialService
 from ...schemas.credential import (
     UserCredentialCreate,
@@ -52,6 +52,7 @@ async def create_user_credential(
     credential_data: UserCredentialCreate,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("credentials:write", log_only=True)),
     show_masked: bool = Query(False, description="Include masked credentials in response"),
     service: CredentialService = Depends(get_credential_service)
 ):
@@ -126,6 +127,7 @@ async def create_user_credential(
 async def list_user_credentials(
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("credentials:read", log_only=True)),
     include_inactive: bool = Query(False, description="Include inactive credentials"),
     show_masked: bool = Query(False, description="Include masked credentials in response"),
     service: CredentialService = Depends(get_credential_service),
@@ -182,6 +184,7 @@ async def list_user_credentials(
 async def get_user_credential(
     server_id: UUID,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
+    _scope: None = Depends(require_scope("credentials:read", log_only=True)),
     show_masked: bool = Query(False, description="Include masked credentials in response"),
     service: CredentialService = Depends(get_credential_service),
     db: AsyncSession = Depends(get_async_session)
@@ -235,6 +238,7 @@ async def update_user_credential(
     server_id: UUID,
     credential_data: UserCredentialUpdate,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
+    _scope: None = Depends(require_scope("credentials:write", log_only=True)),
     show_masked: bool = Query(False, description="Include masked credentials in response"),
     service: CredentialService = Depends(get_credential_service)
 ):
@@ -312,6 +316,7 @@ async def update_user_credential(
 async def delete_user_credential(
     credential_id: UUID,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
+    _scope: None = Depends(require_scope("credentials:write", log_only=True)),
     service: CredentialService = Depends(get_credential_service)
 ):
     """

@@ -24,7 +24,7 @@ from ...models.user import User
 from ...models.api_key import APIKey
 from ...models.mcp_server import MCPServer
 from ...models.organization import UserRole, OrganizationType
-from ..dependencies import get_current_user, get_current_organization
+from ..dependencies import get_current_user, get_current_organization, require_scope
 from ...services.mcp_server_service import MCPServerService
 from ...schemas.mcp_server import (
     MCPServerCreate,
@@ -308,6 +308,7 @@ async def start_mcp_server(
     server_uuid: UUID,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     db: AsyncSession = Depends(get_async_session)
 ):
     """Start an MCP server using UserServerPool for proper tool discovery."""
@@ -368,6 +369,7 @@ async def stop_mcp_server(
     server_uuid: UUID,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     db: AsyncSession = Depends(get_async_session)
 ):
     """Stop an MCP server using UserServerPool."""
