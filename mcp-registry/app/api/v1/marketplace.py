@@ -25,7 +25,7 @@ from ...services.mcp_server_service import MCPServerService
 from ...services.credential_service import CredentialService
 from ...models.mcp_server import InstallType
 from ...db.session import get_db
-from ..dependencies import get_current_user, require_instance_admin
+from ..dependencies import get_current_user, require_instance_admin, require_scope
 from ...models.user import User
 from ...models.api_key import APIKey
 
@@ -417,6 +417,7 @@ async def persist_validated_servers(
 async def install_server(
     request: InstallServerRequest,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     marketplace: MarketplaceSyncService = Depends(get_marketplace),
     db=Depends(get_db)
 ):
@@ -600,6 +601,7 @@ async def get_featured_servers(
 async def list_team_servers(
     request: Request,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
+    _scope: None = Depends(require_scope("servers:read", log_only=True)),
     marketplace: MarketplaceSyncService = Depends(get_marketplace),
     db=Depends(get_db)
 ):
@@ -736,6 +738,7 @@ async def list_team_servers(
 async def connect_server(
     request: ConnectServerRequest,
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
+    _scope: None = Depends(require_scope("servers:write", log_only=True)),
     marketplace: MarketplaceSyncService = Depends(get_marketplace),
     db=Depends(get_db)
 ):
