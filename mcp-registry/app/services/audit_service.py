@@ -25,7 +25,7 @@ Usage:
 import logging
 from datetime import datetime
 from typing import Dict, Any, Optional
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -117,8 +117,14 @@ class AuditService:
             if details:
                 safe_details = PIIDetector.sanitize_structure(details)
 
-            # 3. Create audit log entry
+            # 3. Create audit log entry.
+            # The id MUST be assigned at construction (not via the
+            # UUIDMixin's flush-time default) because the signature in
+            # step 4 hashes ``self.id``. If we let SQLAlchemy generate
+            # the id at flush, the signature would be computed against
+            # ``None`` and verify_integrity() would fail after reload.
             log_entry = AuditLog(
+                id=uuid4(),
                 timestamp=datetime.utcnow(),
                 actor_id=actor_id,
                 organization_id=organization_id,

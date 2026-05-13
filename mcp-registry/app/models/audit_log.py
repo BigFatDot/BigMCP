@@ -12,9 +12,29 @@ import enum
 import hmac
 import hashlib
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional
 from uuid import UUID
+
+
+def _canonical_timestamp(ts: Optional[datetime]) -> str:
+    """Render a datetime in a canonical UTC-naive ISO 8601 string.
+
+    The signature includes the timestamp. Postgres returns
+    timezone-aware datetimes after a row reload, while ``datetime.utcnow()``
+    produced naive datetimes at write time — the two ``isoformat()``
+    representations differ (no offset vs. ``+00:00``), so signature
+    verification would silently fail.
+
+    Normalising to a single representation closes that gap and also
+    makes any existing log written before this fix verifiable again
+    (the bytes that signed the original payload are reproduced exactly).
+    """
+    if ts is None:
+        return ""
+    if ts.tzinfo is not None:
+        ts = ts.astimezone(timezone.utc).replace(tzinfo=None)
+    return ts.isoformat()
 
 from sqlalchemy import String, DateTime, event, Index
 from sqlalchemy.orm import Mapped, mapped_column
@@ -199,10 +219,12 @@ class AuditLog(Base, UUIDMixin):
         Returns:
             Hex-encoded HMAC-SHA256 signature
         """
-        # Construct canonical payload (order matters for verification)
+        # Construct canonical payload (order matters for verification).
+        # Timestamp is normalised through _canonical_timestamp so that a
+        # signature stays valid across the naive→aware reload boundary.
         payload_parts = [
             str(self.id),
-            self.timestamp.isoformat() if self.timestamp else "",
+            _canonical_timestamp(self.timestamp),
             str(self.actor_id) if self.actor_id else "",
             str(self.organization_id) if self.organization_id else "",
             self.action,
