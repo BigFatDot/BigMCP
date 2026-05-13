@@ -53,9 +53,11 @@ def get_auth_service(db: AsyncSession = Depends(get_db)) -> AuthService:
 @require_subscription(tier=SubscriptionTier.TEAM)
 async def create_oauth_client(
     data: OAuthClientCreate,
+    request: Request,
     current_user: User = Depends(get_current_user_jwt),
     subscription: Subscription = Depends(get_current_subscription),
-    oauth_service: OAuthService = Depends(get_oauth_service)
+    oauth_service: OAuthService = Depends(get_oauth_service),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Create a new OAuth client (Team tier only).
@@ -88,6 +90,27 @@ async def create_oauth_client(
         is_trusted=data.is_trusted
     )
 
+    # Audit: manual OAuth client creation
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.OAUTH_CLIENT_CREATE,
+            actor_id=current_user.id,
+            organization_id=None,
+            resource_type="oauth_client",
+            resource_id=str(client.id),
+            details={
+                "client_id": client.client_id,
+                "name": client.name,
+                "redirect_uris": data.redirect_uris,
+                "is_trusted": data.is_trusted,
+            },
+            request=request,
+        )
+    except Exception:
+        pass
+
     # Convert to response model with plaintext secret
     response = OAuthClientResponse.from_orm(client)
     response.client_secret = client.plaintext_secret
@@ -105,7 +128,9 @@ async def create_oauth_client(
 )
 async def dynamic_client_registration(
     data: DynamicClientRegistrationRequest,
-    oauth_service: OAuthService = Depends(get_oauth_service)
+    request: Request,
+    oauth_service: OAuthService = Depends(get_oauth_service),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Dynamic Client Registration endpoint (RFC 7591).
@@ -164,6 +189,30 @@ async def dynamic_client_registration(
         allowed_scopes=all_supported_scopes,
         is_trusted=False  # DCR clients are not trusted by default
     )
+
+    # Audit: Dynamic Client Registration (RFC 7591)
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.OAUTH_CLIENT_REGISTER,
+            actor_id=None,
+            organization_id=None,
+            resource_type="oauth_client",
+            resource_id=str(client.id),
+            details={
+                "client_id": client.client_id,
+                "client_name": data.client_name,
+                "client_uri": data.client_uri,
+                "redirect_uris": data.redirect_uris,
+                "requested_scopes": requested_scopes,
+                "grant_types": data.grant_types,
+                "registration_method": "dcr",
+            },
+            request=request,
+        )
+    except Exception:
+        pass
 
     # Get current timestamp
     current_time = int(time.time())
@@ -588,6 +637,27 @@ async def authorize_consent(
     )
     logger.info(f"✅ Authorization code created: {auth_code.code[:10]}...")
 
+    # Audit: user consent granted
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.OAUTH_CONSENT_GRANT,
+            actor_id=current_user.id,
+            organization_id=membership.organization_id,
+            resource_type="oauth_client",
+            resource_id=str(client.id),
+            details={
+                "client_id": client_id,
+                "client_name": client.name,
+                "scopes": requested_scopes,
+                "code_challenge_method": code_challenge_method,
+            },
+            request=request,
+        )
+    except Exception:
+        pass
+
     # Redirect to client with authorization code
     params = {"code": auth_code.code}
     if state:
@@ -599,6 +669,7 @@ async def authorize_consent(
 
 @router.post("/token", response_model=TokenResponse)
 async def token_exchange(
+    request: Request,
     grant_type: str = Form(...),
     code: Optional[str] = Form(None),
     redirect_uri: Optional[str] = Form(None),
@@ -755,6 +826,24 @@ async def token_exchange(
         # Return token response with proper expiration from settings
         from ...core.config import settings
         logger.info(f"🎉 Token refresh successful for user: {user.email}")
+
+        # Audit: refresh token grant
+        try:
+            from ...services.audit_service import AuditService
+            from ...models.audit_log import AuditAction
+            from uuid import UUID as _UUID
+            await AuditService(db).log_action(
+                action=AuditAction.OAUTH_TOKEN_REFRESH,
+                actor_id=user.id,
+                organization_id=_UUID(org_id_str) if org_id_str else None,
+                resource_type="oauth_token",
+                resource_id=client_id,
+                details={"client_id": client_id, "grant_type": "refresh_token"},
+                request=request,
+            )
+        except Exception:
+            pass
+
         return TokenResponse(
             access_token=new_access_token,
             token_type="Bearer",
@@ -843,6 +932,28 @@ async def token_exchange(
     # Ensure offline_access is in scopes for refresh token support
     scopes = auth_code.scopes if "offline_access" in auth_code.scopes else auth_code.scopes + ["offline_access"]
     logger.info(f"🎉 Token exchange successful for user: {user.email}")
+
+    # Audit: authorization_code grant
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.OAUTH_TOKEN_GRANT,
+            actor_id=user.id,
+            organization_id=auth_code.organization_id,
+            resource_type="oauth_token",
+            resource_id=client_id,
+            details={
+                "client_id": client_id,
+                "grant_type": "authorization_code",
+                "scopes": scopes,
+                "client_name": client.name if client else None,
+            },
+            request=request,
+        )
+    except Exception:
+        pass
+
     return TokenResponse(
         access_token=access_token,
         token_type="Bearer",

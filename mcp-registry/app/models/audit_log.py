@@ -32,6 +32,17 @@ class AuditAction(str, enum.Enum):
     LOGIN_SUCCESS = "auth.login_success"
     LOGIN_FAILED = "auth.login_failed"
     LOGOUT = "auth.logout"
+    USER_REGISTER = "auth.user_register"
+    PASSWORD_RESET_REQUEST = "auth.password_reset_request"
+    PASSWORD_RESET_CONFIRM = "auth.password_reset_confirm"
+
+    # OAuth 2.0 (authorization server)
+    OAUTH_CLIENT_REGISTER = "oauth.client_register"
+    OAUTH_CLIENT_CREATE = "oauth.client_create"
+    OAUTH_CONSENT_GRANT = "oauth.consent_grant"
+    OAUTH_TOKEN_GRANT = "oauth.token_grant"
+    OAUTH_TOKEN_REFRESH = "oauth.token_refresh"
+    OAUTH_TOKEN_GRANT_FAILED = "oauth.token_grant_failed"
 
     # Credentials
     CREDENTIAL_CREATE = "credential.create"

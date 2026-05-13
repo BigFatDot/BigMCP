@@ -46,6 +46,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     data: UserRegister,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     auth_service: AuthService = Depends(get_auth_service)
 ):
@@ -134,6 +135,26 @@ async def register(
     db.add(verification_token)
     await db.commit()
 
+    # Audit: account creation
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.USER_REGISTER,
+            actor_id=user.id,
+            organization_id=organization.id,
+            resource_type="user",
+            resource_id=str(user.id),
+            details={
+                "email": user.email,
+                "auth_provider": "local",
+                "is_first_user": is_first_user,
+            },
+            request=request,
+        )
+    except Exception:
+        pass
+
     domain = settings.domain or "http://localhost:3000"
     verification_link = f"{domain}/verify-email?token={plaintext_token}"
 
@@ -207,6 +228,7 @@ async def register(
 @router.post("/login")
 async def login(
     data: UserLogin,
+    request: Request,
     auth_service: AuthService = Depends(get_auth_service),
     db: AsyncSession = Depends(get_db)
 ):
@@ -224,6 +246,22 @@ async def login(
     user = await auth_service.authenticate_user(data.email, data.password)
 
     if not user:
+        # Audit: failed login attempt
+        try:
+            from ...services.audit_service import AuditService
+            from ...models.audit_log import AuditAction
+            await AuditService(db).log_action(
+                action=AuditAction.LOGIN_FAILED,
+                actor_id=None,
+                organization_id=None,
+                resource_type="user",
+                resource_id=None,
+                details={"email": data.email, "reason": "invalid_credentials"},
+                request=request,
+            )
+        except Exception:
+            pass
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password"
@@ -285,6 +323,22 @@ async def login(
     # Create tokens
     access_token = auth_service.create_access_token(user.id, membership.organization_id)
     refresh_token = auth_service.create_refresh_token(user.id)
+
+    # Audit: successful login
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.LOGIN_SUCCESS,
+            actor_id=user.id,
+            organization_id=membership.organization_id,
+            resource_type="user",
+            resource_id=str(user.id),
+            details={"email": user.email, "mfa_used": bool(user.mfa_enabled)},
+            request=request,
+        )
+    except Exception:
+        pass
 
     return TokenResponse(
         access_token=access_token,
@@ -702,6 +756,7 @@ async def change_password(
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
+    request: Request,
     user: User = Depends(get_current_user_jwt),
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme),
     db: AsyncSession = Depends(get_db),
@@ -748,6 +803,22 @@ async def logout(
             from ...services.user_tool_cache import get_user_tool_cache
             tool_cache = get_user_tool_cache()
             await tool_cache.invalidate(user.id)
+
+    # Audit: logout
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.LOGOUT,
+            actor_id=user.id,
+            organization_id=None,
+            resource_type="user",
+            resource_id=str(user.id),
+            details={"email": user.email},
+            request=request,
+        )
+    except Exception:
+        pass
 
     return None
 
@@ -875,6 +946,22 @@ async def forgot_password(
     db.add(reset_token)
     await db.commit()
 
+    # Audit: password reset requested
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.PASSWORD_RESET_REQUEST,
+            actor_id=user.id,
+            organization_id=None,
+            resource_type="user",
+            resource_id=str(user.id),
+            details={"email": user.email},
+            request=request,
+        )
+    except Exception:
+        pass
+
     # Build reset link
     domain = settings.domain or "http://localhost:3000"
     reset_link = f"{domain}/reset-password?token={plaintext_token}"
@@ -901,6 +988,7 @@ async def forgot_password(
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
 async def reset_password(
     data: PasswordResetConfirm,
+    request: Request,
     auth_service: AuthService = Depends(get_auth_service),
     db: AsyncSession = Depends(get_db)
 ):
@@ -967,6 +1055,22 @@ async def reset_password(
     await db.commit()
 
     logger.info(f"Password reset successful for user {user.email}")
+
+    # Audit: password reset confirmed
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.PASSWORD_RESET_CONFIRM,
+            actor_id=user.id,
+            organization_id=None,
+            resource_type="user",
+            resource_id=str(user.id),
+            details={"email": user.email},
+            request=request,
+        )
+    except Exception:
+        pass
 
     return {"message": "Password has been reset successfully. You can now log in with your new password."}
 
