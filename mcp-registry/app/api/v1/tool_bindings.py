@@ -18,7 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...db.database import get_async_session
 from ...models.user import User
 from ...models.api_key import APIKey
-from ..dependencies import get_current_user, get_current_organization
+from ..dependencies import get_current_user, get_current_organization, require_scope
 from ...services.tool_binding_service import ToolBindingService
 from ...schemas.tool_binding import (
     ToolBindingCreate,

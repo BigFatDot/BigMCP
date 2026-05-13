@@ -14,7 +14,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...db.database import get_db
-from ...api.dependencies import get_current_user
+from ...api.dependencies import get_current_user, require_scope
 from ...models.user import User
 from ...models.api_key import APIKey
 from ...services.tool_service import ToolService
