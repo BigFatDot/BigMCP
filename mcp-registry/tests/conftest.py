@@ -154,7 +154,7 @@ async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture
-async def test_user(client: AsyncClient) -> dict:
+async def test_user(client: AsyncClient, db_session: AsyncSession) -> dict:
     """
     Create a test user and return authentication data.
 
@@ -175,8 +175,23 @@ async def test_user(client: AsyncClient) -> dict:
     }
 
     response = await client.post("/api/v1/auth/register", json=register_data)
-    assert response.status_code == 201
+    # Cloud SaaS edition returns 202 (email verification required) and skips
+    # auto-login. Community/Enterprise return 201 with tokens. Either is fine
+    # for fixture setup — we mark the user verified below and then log in.
+    assert response.status_code in (201, 202), (
+        f"register returned {response.status_code}: {response.text}"
+    )
     user_data = response.json()
+
+    # In SaaS mode the user is not auto-verified; flip the flag in the same
+    # test DB session so the login fixture below succeeds regardless of edition.
+    from sqlalchemy import update
+    await db_session.execute(
+        update(User)
+        .where(User.email == register_data["email"].lower())
+        .values(email_verified=True)
+    )
+    await db_session.commit()
 
     # Login to get tokens
     login_data = {
@@ -185,7 +200,9 @@ async def test_user(client: AsyncClient) -> dict:
     }
 
     response = await client.post("/api/v1/auth/login", json=login_data)
-    assert response.status_code == 200
+    assert response.status_code == 200, (
+        f"login returned {response.status_code}: {response.text}"
+    )
     token_data = response.json()
 
     return {
