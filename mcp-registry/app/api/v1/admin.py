@@ -8,10 +8,13 @@ Provides endpoints for:
 """
 
 import logging
+from datetime import datetime
 from typing import Optional
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
+from sqlalchemy import and_, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 
@@ -19,6 +22,8 @@ from ..dependencies import get_current_user, require_instance_admin
 from ...db.database import get_async_session
 from ...models.user import User
 from ...models.api_key import APIKey
+from ...models.audit_log import AuditLog
+from ...schemas.audit_log import AuditLogListResponse, AuditLogResponse
 from ...core.instance_admin import (
     is_instance_admin,
     validate_admin_token,
@@ -356,3 +361,116 @@ async def rotate_encryption_keys(
         failed=total_failed,
         error=report.error
     )
+
+
+# ============================================================================
+# Audit logs (instance admin only)
+# ============================================================================
+
+@router.get("/audit-logs", response_model=AuditLogListResponse)
+async def list_audit_logs(
+    actor_id: Optional[UUID] = Query(
+        None, description="Filter by acting user UUID"
+    ),
+    organization_id: Optional[UUID] = Query(
+        None, description="Filter by organization context"
+    ),
+    action: Optional[str] = Query(
+        None,
+        description=(
+            "Exact action match (e.g. 'auth.login_failed') or a prefix "
+            "ending in '*' (e.g. 'oauth.*' for any OAuth event)."
+        ),
+    ),
+    resource_type: Optional[str] = Query(
+        None, description="Filter by resource type (user, api_key, credential, ...)"
+    ),
+    resource_id: Optional[str] = Query(
+        None, description="Filter by resource UUID"
+    ),
+    ip_address: Optional[str] = Query(
+        None, description="Filter by source IP address (exact match)"
+    ),
+    since: Optional[datetime] = Query(
+        None, description="Inclusive lower bound on timestamp (ISO 8601)"
+    ),
+    until: Optional[datetime] = Query(
+        None, description="Inclusive upper bound on timestamp (ISO 8601)"
+    ),
+    limit: int = Query(100, ge=1, le=1000, description="Page size"),
+    offset: int = Query(0, ge=0, description="Page offset"),
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+) -> AuditLogListResponse:
+    """List immutable audit logs across the whole instance.
+
+    Returns the most recent rows first. Filters compose with AND
+    semantics; an unset filter is ignored. The HMAC signature is
+    never exposed in the response — only server-side
+    ``AuditLog.verify_integrity()`` reads it.
+
+    Requires instance-admin privileges.
+    """
+    filters = []
+    if actor_id is not None:
+        filters.append(AuditLog.actor_id == actor_id)
+    if organization_id is not None:
+        filters.append(AuditLog.organization_id == organization_id)
+    if action is not None:
+        if action.endswith("*"):
+            prefix = action[:-1]
+            filters.append(AuditLog.action.like(f"{prefix}%"))
+        else:
+            filters.append(AuditLog.action == action)
+    if resource_type is not None:
+        filters.append(AuditLog.resource_type == resource_type)
+    if resource_id is not None:
+        filters.append(AuditLog.resource_id == resource_id)
+    if ip_address is not None:
+        filters.append(AuditLog.ip_address == ip_address)
+    if since is not None:
+        filters.append(AuditLog.timestamp >= since)
+    if until is not None:
+        filters.append(AuditLog.timestamp <= until)
+
+    where_clause = and_(*filters) if filters else None
+
+    # Total count (for pagination UI) — separate cheap query.
+    count_stmt = select(func.count()).select_from(AuditLog)
+    if where_clause is not None:
+        count_stmt = count_stmt.where(where_clause)
+    total = (await db.execute(count_stmt)).scalar_one()
+
+    # Page query.
+    stmt = (
+        select(AuditLog)
+        .order_by(desc(AuditLog.timestamp))
+        .limit(limit)
+        .offset(offset)
+    )
+    if where_clause is not None:
+        stmt = stmt.where(where_clause)
+
+    rows = (await db.execute(stmt)).scalars().all()
+    return AuditLogListResponse(
+        items=[AuditLogResponse.model_validate(r) for r in rows],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.get("/audit-logs/{log_id}", response_model=AuditLogResponse)
+async def get_audit_log(
+    log_id: UUID,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+) -> AuditLogResponse:
+    """Return a single audit log entry (without its HMAC signature)."""
+    row = await db.get(AuditLog, log_id)
+    if row is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Audit log {log_id} not found",
+        )
+    return AuditLogResponse.model_validate(row)

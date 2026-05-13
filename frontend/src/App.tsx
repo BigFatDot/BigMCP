@@ -22,6 +22,7 @@ import {
   PreferencesPage,
 } from './pages/settings'
 import { DocsLayout, DocPage } from './pages/docs'
+import { AuditLogsPage } from './pages/admin/AuditLogsPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -141,6 +142,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <PreferencesPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* Instance-admin only — backend enforces 403 for non-admins. */}
+          <Route
+            path="admin/audit-logs"
+            element={
+              <ProtectedRoute>
+                <AuditLogsPage />
               </ProtectedRoute>
             }
           />
