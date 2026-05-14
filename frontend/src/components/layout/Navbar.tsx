@@ -17,6 +17,8 @@ import {
   ShieldCheckIcon,
   ClipboardDocumentListIcon,
   LockClosedIcon,
+  AdjustmentsHorizontalIcon,
+  PuzzlePieceIcon,
 } from '@heroicons/react/24/outline'
 import { useAuth, useSubscription, useEdition } from '../../hooks/useAuth'
 import { BigMCPLogoWithText } from '../brand/BigMCPLogo'
@@ -223,6 +225,22 @@ export function Navbar() {
                             >
                               <LockClosedIcon className="h-5 w-5 text-gray-400" />
                               Server access
+                            </Link>
+                            <Link
+                              to="/app/admin/client-policy"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <AdjustmentsHorizontalIcon className="h-5 w-5 text-gray-400" />
+                              Client policy
+                            </Link>
+                            <Link
+                              to="/app/admin/oauth-clients"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <PuzzlePieceIcon className="h-5 w-5 text-gray-400" />
+                              OAuth clients
                             </Link>
                           </div>
                         )}

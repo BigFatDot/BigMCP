@@ -25,6 +25,8 @@ import { DocsLayout, DocPage } from './pages/docs'
 import { AuditLogsPage } from './pages/admin/AuditLogsPage'
 import { UsersAdminPage } from './pages/admin/UsersAdminPage'
 import { ServerAccessPage } from './pages/admin/ServerAccessPage'
+import { ClientPolicyPage } from './pages/admin/ClientPolicyPage'
+import { OAuthClientsPage } from './pages/admin/OAuthClientsPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -169,6 +171,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <ServerAccessPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/client-policy"
+            element={
+              <ProtectedRoute>
+                <ClientPolicyPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/oauth-clients"
+            element={
+              <ProtectedRoute>
+                <OAuthClientsPage />
               </ProtectedRoute>
             }
           />
