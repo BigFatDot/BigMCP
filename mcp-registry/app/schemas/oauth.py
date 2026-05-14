@@ -132,6 +132,14 @@ class DynamicClientRegistrationRequest(BaseModel):
     tos_uri: Optional[str] = Field(None, description="Terms of Service URL")
     policy_uri: Optional[str] = Field(None, description="Privacy Policy URL")
 
+    # SEP-991 — Client ID Metadata Document. If supplied, the server
+    # fetches and validates the document; the URL becomes the client
+    # identity (overrides self-asserted client_name / redirect_uris).
+    client_id_metadata_document: Optional[str] = Field(
+        None,
+        description="HTTPS URL of the Client ID Metadata Document (SEP-991)",
+    )
+
 
 class DynamicClientRegistrationResponse(BaseModel):
     """

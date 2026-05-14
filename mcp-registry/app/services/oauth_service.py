@@ -44,10 +44,21 @@ class OAuthService:
         redirect_uris: List[str],
         description: Optional[str] = None,
         allowed_scopes: Optional[List[str]] = None,
-        is_trusted: bool = False
+        is_trusted: bool = False,
+        organization_id: Optional[UUID] = None,
+        registration_method: Optional[str] = None,
+        approval_status: Optional[str] = None,
+        cimd_url: Optional[str] = None,
+        cimd_metadata_cached: Optional[dict] = None,
     ) -> OAuthClient:
         """
         Register a new OAuth client.
+
+        N2.2 additions: ``organization_id`` (org-scoped clients),
+        ``registration_method`` / ``approval_status`` (default to the
+        legacy "DCR open + auto-approved" tuple if omitted, preserving
+        historical behaviour for any code that hasn't been updated),
+        ``cimd_url`` + ``cimd_metadata_cached`` for SEP-991 clients.
 
         Args:
             name: Client application name (e.g., "Claude Desktop")
@@ -55,10 +66,21 @@ class OAuthService:
             description: Optional description
             allowed_scopes: Scopes this client can request
             is_trusted: Whether to skip consent screen
+            organization_id: Owning org (None = instance-wide)
+            registration_method: How the client got registered
+            approval_status: Initial approval state
+            cimd_url: HTTPS URL of the CIMD if applicable
+            cimd_metadata_cached: Last fetched CIMD JSON
 
         Returns:
             OAuthClient: Created client with client_id and client_secret
         """
+        from datetime import datetime as _dt
+        from ..models.oauth import (
+            OAuthClientRegistrationMethod,
+            OAuthClientApprovalStatus,
+        )
+
         # Generate secure client credentials
         client_id = f"client_{secrets.token_urlsafe(32)}"
         client_secret = secrets.token_urlsafe(48)
@@ -74,7 +96,19 @@ class OAuthService:
             redirect_uris=redirect_uris,
             allowed_scopes=allowed_scopes or ["mcp:execute", "mcp:read", "mcp:write", "offline_access"],
             is_trusted=is_trusted,
-            is_active=True
+            is_active=True,
+            organization_id=organization_id,
+            registration_method=(
+                registration_method
+                or OAuthClientRegistrationMethod.DCR_OPEN.value
+            ),
+            approval_status=(
+                approval_status
+                or OAuthClientApprovalStatus.AUTO_APPROVED.value
+            ),
+            cimd_url=cimd_url,
+            cimd_metadata_cached=cimd_metadata_cached,
+            cimd_last_fetched_at=_dt.utcnow() if cimd_metadata_cached else None,
         )
 
         self.db.add(client)

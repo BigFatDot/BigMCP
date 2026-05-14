@@ -27,6 +27,14 @@ from ...models.audit_log import AuditLog
 from ...models.refresh_token import RefreshToken
 from ...schemas.audit_log import AuditLogListResponse, AuditLogResponse
 from ...schemas.admin_user import AdminUserListItem, AdminUserListResponse
+from ...schemas.policy import ClientControlPolicy
+from ...services.policy_resolver import PolicyResolver
+from ...models.instance_settings import InstanceSettings
+from ...models.oauth import (
+    OAuthClient,
+    OAuthClientApprovalStatus,
+    OAuthClientRegistrationMethod,
+)
 from ...core.instance_admin import (
     is_instance_admin,
     validate_admin_token,
@@ -839,3 +847,291 @@ async def revoke_all_user_sessions(
         api_keys_revoked=len(ak_rows),
         refresh_tokens_revoked=len(rt_rows),
     )
+
+
+# ============================================================================
+# Client control policy (N2.2 — instance-level)
+# ============================================================================
+
+@router.get("/client-policy", response_model=ClientControlPolicy)
+async def get_client_policy(
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+) -> ClientControlPolicy:
+    """Return the resolved instance-level client-control policy.
+
+    Layers env-var defaults under the stored instance_settings row.
+    Org overrides apply at /authorize, not here.
+    """
+    return await PolicyResolver(db).get_instance_policy()
+
+
+@router.put("/client-policy", response_model=ClientControlPolicy)
+async def update_client_policy(
+    new_policy: ClientControlPolicy,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+) -> ClientControlPolicy:
+    """Persist the instance-level client-control policy.
+
+    The whole policy object replaces what's stored — partial updates
+    aren't supported on purpose, so the admin always sees what they
+    are committing.
+    """
+    from ...models.audit_log import AuditAction
+
+    row = await db.get(InstanceSettings, 1)
+    if row is None:
+        # Should never happen (the migration seeds id=1), but be safe.
+        row = InstanceSettings(id=1, client_control={})
+        db.add(row)
+
+    previous = dict(row.client_control or {})
+    row.client_control = new_policy.model_dump()
+    row.updated_by_user_id = admin_user.id
+    flag_modified(row, "client_control")
+    await db.commit()
+    await db.refresh(row)
+
+    try:
+        from ...services.audit_service import AuditService
+        await AuditService(db).log_action(
+            action=AuditAction.POLICY_CHANGED,
+            actor_id=admin_user.id,
+            organization_id=None,
+            resource_type="instance_settings",
+            resource_id="client_control",
+            details={
+                "previous": previous,
+                "new": row.client_control,
+            },
+        )
+    except Exception:
+        pass
+
+    return await PolicyResolver(db).get_instance_policy()
+
+
+# ============================================================================
+# OAuth clients management (N2.2 — instance admin)
+# ============================================================================
+
+class OAuthClientAdminItem(BaseModel):
+    id: UUID
+    client_id: str
+    name: str
+    description: Optional[str] = None
+    organization_id: Optional[UUID] = None
+    registration_method: str
+    approval_status: str
+    is_active: bool
+    is_trusted: bool
+    cimd_url: Optional[str] = None
+    redirect_uris: list
+    created_at: datetime
+    approved_by_user_id: Optional[UUID] = None
+    approved_at: Optional[datetime] = None
+
+
+class OAuthClientListResponse(BaseModel):
+    items: list[OAuthClientAdminItem]
+    total: int
+    limit: int
+    offset: int
+
+
+class ApprovalRequest(BaseModel):
+    reason: Optional[str] = None
+
+
+@router.get("/oauth-clients", response_model=OAuthClientListResponse)
+async def list_oauth_clients(
+    approval_status: Optional[str] = Query(
+        None,
+        description="Filter by approval_status (auto_approved/pending/approved/rejected)",
+    ),
+    registration_method: Optional[str] = Query(None),
+    organization_id: Optional[UUID] = Query(None),
+    search: Optional[str] = Query(
+        None, description="Substring on client name (case-insensitive)"
+    ),
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+) -> OAuthClientListResponse:
+    """List every OAuth client across the instance — admin-only."""
+    filters = []
+    if approval_status:
+        filters.append(OAuthClient.approval_status == approval_status)
+    if registration_method:
+        filters.append(OAuthClient.registration_method == registration_method)
+    if organization_id:
+        filters.append(OAuthClient.organization_id == organization_id)
+    if search:
+        filters.append(func.lower(OAuthClient.name).like(f"%{search.lower()}%"))
+
+    where_clause = and_(*filters) if filters else None
+
+    count_stmt = select(func.count()).select_from(OAuthClient)
+    if where_clause is not None:
+        count_stmt = count_stmt.where(where_clause)
+    total = (await db.execute(count_stmt)).scalar_one()
+
+    stmt = (
+        select(OAuthClient)
+        .order_by(desc(OAuthClient.created_at))
+        .limit(limit)
+        .offset(offset)
+    )
+    if where_clause is not None:
+        stmt = stmt.where(where_clause)
+    rows = (await db.execute(stmt)).scalars().all()
+
+    items = [
+        OAuthClientAdminItem(
+            id=c.id,
+            client_id=c.client_id,
+            name=c.name,
+            description=c.description,
+            organization_id=c.organization_id,
+            registration_method=c.registration_method,
+            approval_status=c.approval_status,
+            is_active=c.is_active,
+            is_trusted=c.is_trusted,
+            cimd_url=c.cimd_url,
+            redirect_uris=c.redirect_uris,
+            created_at=c.created_at,
+            approved_by_user_id=c.approved_by_user_id,
+            approved_at=c.approved_at,
+        )
+        for c in rows
+    ]
+    return OAuthClientListResponse(
+        items=items, total=total, limit=limit, offset=offset
+    )
+
+
+async def _set_oauth_client_status(
+    db: AsyncSession,
+    admin_user: User,
+    client_id: UUID,
+    new_status: OAuthClientApprovalStatus,
+    audit_action: "AuditAction",
+    body: ApprovalRequest,
+) -> OAuthClient:
+    from ...models.audit_log import AuditAction  # local for typing only
+
+    client = await db.get(OAuthClient, client_id)
+    if client is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"OAuth client {client_id} not found",
+        )
+    client.approval_status = new_status.value
+    client.approved_by_user_id = admin_user.id
+    client.approved_at = datetime.utcnow()
+    await db.commit()
+    await db.refresh(client)
+
+    try:
+        from ...services.audit_service import AuditService
+        await AuditService(db).log_action(
+            action=audit_action,
+            actor_id=admin_user.id,
+            organization_id=client.organization_id,
+            resource_type="oauth_client",
+            resource_id=str(client.id),
+            details={
+                "client_id": client.client_id,
+                "client_name": client.name,
+                "registration_method": client.registration_method,
+                "reason": body.reason,
+            },
+        )
+    except Exception:
+        pass
+
+    return client
+
+
+@router.post("/oauth-clients/{client_id}/approve")
+async def approve_oauth_client(
+    client_id: UUID,
+    body: ApprovalRequest,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+):
+    """Approve a pending OAuth client so it can complete /authorize."""
+    from ...models.audit_log import AuditAction
+
+    client = await _set_oauth_client_status(
+        db,
+        admin_user,
+        client_id,
+        OAuthClientApprovalStatus.APPROVED,
+        AuditAction.OAUTH_CLIENT_APPROVE,
+        body,
+    )
+    return {"id": str(client.id), "approval_status": client.approval_status}
+
+
+@router.post("/oauth-clients/{client_id}/reject")
+async def reject_oauth_client(
+    client_id: UUID,
+    body: ApprovalRequest,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+):
+    """Reject an OAuth client. /authorize will refuse with 403."""
+    from ...models.audit_log import AuditAction
+
+    client = await _set_oauth_client_status(
+        db,
+        admin_user,
+        client_id,
+        OAuthClientApprovalStatus.REJECTED,
+        AuditAction.OAUTH_CLIENT_REJECT,
+        body,
+    )
+    return {"id": str(client.id), "approval_status": client.approval_status}
+
+
+@router.delete(
+    "/oauth-clients/{client_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def revoke_oauth_client(
+    client_id: UUID,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+):
+    """Revoke an OAuth client — sets is_active=False so future
+    validation rejects it. The row is kept for audit history."""
+    from ...models.audit_log import AuditAction
+
+    client = await db.get(OAuthClient, client_id)
+    if client is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"OAuth client {client_id} not found",
+        )
+    client.is_active = False
+    await db.commit()
+
+    try:
+        from ...services.audit_service import AuditService
+        await AuditService(db).log_action(
+            action=AuditAction.OAUTH_CLIENT_REVOKE,
+            actor_id=admin_user.id,
+            organization_id=client.organization_id,
+            resource_type="oauth_client",
+            resource_id=str(client.id),
+            details={
+                "client_id": client.client_id,
+                "client_name": client.name,
+            },
+        )
+    except Exception:
+        pass
+    return None

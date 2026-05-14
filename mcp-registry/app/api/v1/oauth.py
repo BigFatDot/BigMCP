@@ -181,19 +181,132 @@ async def dynamic_client_registration(
     # This allows clients to request any subset during authorization
     all_supported_scopes = ["mcp:execute", "mcp:read", "mcp:write", "offline_access"]
 
+    # ----- N2.2 client control + CIMD ---------------------------------------
+    # Resolve the effective instance policy. We don't know which org
+    # the requesting client targets at DCR time (it's a pre-flow), so
+    # the policy is read at instance level only — org overrides apply
+    # at /authorize.
+    from ...services.policy_resolver import PolicyResolver
+    from ...services.cimd_service import (
+        CIMDService,
+        CIMDError,
+        is_https_url,
+    )
+    from ...models.oauth import (
+        OAuthClientApprovalStatus,
+        OAuthClientRegistrationMethod,
+    )
+    from ...models.audit_log import AuditAction
+    from ...services.audit_service import AuditService
+
+    policy = await PolicyResolver(db).get_instance_policy()
+
+    if policy.enabled and policy.dcr_policy == "denied":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Dynamic Client Registration is disabled by instance policy.",
+        )
+
+    # Decide whether this DCR is a CIMD registration (SEP-991).
+    cimd_url: Optional[str] = data.client_id_metadata_document
+    cimd_doc: Optional[dict] = None
+
+    if cimd_url:
+        try:
+            async with CIMDService() as cimd:
+                cimd_doc = await cimd.fetch_and_validate(cimd_url)
+            try:
+                await AuditService(db).log_action(
+                    action=AuditAction.OAUTH_CIMD_FETCH,
+                    actor_id=None,
+                    organization_id=None,
+                    resource_type="oauth_client",
+                    resource_id=cimd_url,
+                    details={
+                        "client_name": cimd_doc.get("client_name"),
+                        "redirect_uris": cimd_doc.get("redirect_uris"),
+                    },
+                    request=request,
+                )
+            except Exception:
+                pass
+        except CIMDError as exc:
+            try:
+                await AuditService(db).log_action(
+                    action=AuditAction.OAUTH_CIMD_FETCH_FAILED,
+                    actor_id=None,
+                    organization_id=None,
+                    resource_type="oauth_client",
+                    resource_id=cimd_url,
+                    details={"error": str(exc)},
+                    request=request,
+                )
+            except Exception:
+                pass
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid CIMD: {exc}",
+            )
+    elif policy.enabled and policy.require_cimd:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                "Instance policy requires Client ID Metadata Document; "
+                "supply client_id_metadata_document in the request body."
+            ),
+        )
+
+    # Decide registration_method + approval_status from the policy.
+    if cimd_url:
+        registration_method = OAuthClientRegistrationMethod.CIMD.value
+        # Auto-approve only if the policy allows it AND the CIMD URL
+        # is on the trusted list (or trusted list is empty meaning
+        # "trust any valid CIMD" when auto_approve_cimd is True).
+        if policy.auto_approve_cimd and (
+            not policy.trusted_cimd_urls
+            or cimd_url in set(policy.trusted_cimd_urls)
+        ):
+            approval_status = OAuthClientApprovalStatus.AUTO_APPROVED.value
+        else:
+            approval_status = OAuthClientApprovalStatus.PENDING.value
+    elif policy.enabled and policy.dcr_policy == "admin_approval":
+        registration_method = OAuthClientRegistrationMethod.DCR_APPROVED.value
+        approval_status = OAuthClientApprovalStatus.PENDING.value
+    else:
+        registration_method = OAuthClientRegistrationMethod.DCR_OPEN.value
+        approval_status = OAuthClientApprovalStatus.AUTO_APPROVED.value
+
+    # CIMD wins for client_name + redirect_uris (the document is the
+    # source of truth — the request body is treated as fallback).
+    effective_name = (
+        (cimd_doc.get("client_name") if cimd_doc else None)
+        or data.client_name
+        or "Dynamically Registered Client"
+    )
+    effective_redirect_uris = (
+        (cimd_doc.get("redirect_uris") if cimd_doc else None)
+        or data.redirect_uris
+    )
+
     # Create OAuth client using the service
     client = await oauth_service.create_client(
-        name=data.client_name or "Dynamically Registered Client",
-        redirect_uris=data.redirect_uris,
-        description=f"Registered via DCR. Client URI: {data.client_uri or 'N/A'}",
+        name=effective_name,
+        redirect_uris=effective_redirect_uris,
+        description=(
+            f"CIMD: {cimd_url}"
+            if cimd_url
+            else f"Registered via DCR. Client URI: {data.client_uri or 'N/A'}"
+        ),
         allowed_scopes=all_supported_scopes,
-        is_trusted=False  # DCR clients are not trusted by default
+        is_trusted=False,  # DCR clients are not trusted by default
+        registration_method=registration_method,
+        approval_status=approval_status,
+        cimd_url=cimd_url,
+        cimd_metadata_cached=cimd_doc,
     )
 
     # Audit: Dynamic Client Registration (RFC 7591)
     try:
-        from ...services.audit_service import AuditService
-        from ...models.audit_log import AuditAction
         await AuditService(db).log_action(
             action=AuditAction.OAUTH_CLIENT_REGISTER,
             actor_id=None,
@@ -202,12 +315,14 @@ async def dynamic_client_registration(
             resource_id=str(client.id),
             details={
                 "client_id": client.client_id,
-                "client_name": data.client_name,
+                "client_name": effective_name,
                 "client_uri": data.client_uri,
-                "redirect_uris": data.redirect_uris,
+                "redirect_uris": effective_redirect_uris,
                 "requested_scopes": requested_scopes,
                 "grant_types": data.grant_types,
-                "registration_method": "dcr",
+                "registration_method": registration_method,
+                "approval_status": approval_status,
+                "cimd_url": cimd_url,
             },
             request=request,
         )
@@ -394,6 +509,23 @@ async def authorize(
     client = await oauth_service.get_client_by_id(client_id)
     if not client:
         raise HTTPException(status_code=400, detail="Invalid client_id")
+
+    # N2.2 client-control gate: a PENDING or REJECTED client cannot
+    # complete the authorize flow even if it managed to register.
+    from ...models.oauth import OAuthClientApprovalStatus as _OACS
+    if client.approval_status == _OACS.REJECTED.value:
+        raise HTTPException(
+            status_code=403,
+            detail="This OAuth client has been rejected by the instance admin.",
+        )
+    if client.approval_status == _OACS.PENDING.value:
+        raise HTTPException(
+            status_code=403,
+            detail=(
+                "This OAuth client is awaiting admin approval. "
+                "Contact your instance administrator."
+            ),
+        )
 
     # Validate redirect_uri
     if not oauth_service.validate_redirect_uri(client, redirect_uri):
