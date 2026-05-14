@@ -20,50 +20,43 @@ interface ServerConnectionResult {
   error?: string
 }
 
-const POPULAR_SERVERS = [
-  {
-    id: 'notion',
-    name: 'Notion',
-    description: 'Manage your workspace and documents',
-    icon: '📝',
-    category: 'Productivity',
-  },
-  {
-    id: 'google-drive',
-    name: 'Google Drive',
-    description: 'Access files and folders',
-    icon: '📁',
-    category: 'Storage',
-  },
-  {
-    id: 'github',
-    name: 'GitHub',
-    description: 'Manage repositories and code',
-    icon: '🐙',
-    category: 'Development',
-  },
-  {
-    id: 'slack',
-    name: 'Slack',
-    description: 'Send messages and notifications',
-    icon: '💬',
-    category: 'Communication',
-  },
-  {
-    id: 'openai',
-    name: 'OpenAI',
-    description: 'AI-powered text generation',
-    icon: '🤖',
-    category: 'AI',
-  },
-  {
-    id: 'postgres',
-    name: 'PostgreSQL',
-    description: 'Query and manage databases',
-    icon: '🗄️',
-    category: 'Data',
-  },
+interface PopularServerCard {
+  id: string
+  name: string
+  description: string
+  icon: string
+  category: string
+}
+
+// Static curated fallback if the marketplace fetch fails — keeps the wizard
+// usable even when the backend is partially down.
+const FALLBACK_POPULAR_SERVERS: PopularServerCard[] = [
+  { id: 'notion', name: 'Notion', description: 'Manage your workspace and documents', icon: '📝', category: 'Productivity' },
+  { id: 'google-drive', name: 'Google Drive', description: 'Access files and folders', icon: '📁', category: 'Storage' },
+  { id: 'github', name: 'GitHub', description: 'Manage repositories and code', icon: '🐙', category: 'Development' },
+  { id: 'slack', name: 'Slack', description: 'Send messages and notifications', icon: '💬', category: 'Communication' },
+  { id: 'openai', name: 'OpenAI', description: 'AI-powered text generation', icon: '🤖', category: 'AI' },
+  { id: 'postgres', name: 'PostgreSQL', description: 'Query and manage databases', icon: '🗄️', category: 'Data' },
 ]
+
+// Map a category id to a display emoji. Anything not listed falls back to 🔌.
+const CATEGORY_EMOJI: Record<string, string> = {
+  productivity: '📝',
+  storage: '📁',
+  development: '🐙',
+  dev: '🐙',
+  communication: '💬',
+  ai: '🤖',
+  data: '🗄️',
+  cloud: '☁️',
+  search: '🔍',
+  automation: '⚙️',
+  security: '🔒',
+  media: '🎬',
+  documents: '📄',
+  finance: '💰',
+  payment: '💳',
+}
 
 export function OnboardingWizard() {
   const navigate = useNavigate()
@@ -73,6 +66,42 @@ export function OnboardingWizard() {
   const [isConnecting, setIsConnecting] = useState(false)
   const [connectionResults, setConnectionResults] = useState<ServerConnectionResult[]>([])
   const [currentConnecting, setCurrentConnecting] = useState<string | null>(null)
+
+  // Fetch the 6 most popular marketplace servers dynamically. Fall back to
+  // the static curated list if the marketplace is unreachable so the wizard
+  // remains usable. Pre-installed servers (already in user's pool) are
+  // filtered out so we don't suggest something they already have.
+  const [popularServers, setPopularServers] = useState<PopularServerCard[]>(
+    FALLBACK_POPULAR_SERVERS,
+  )
+  useEffect(() => {
+    let cancelled = false
+    marketplaceApi
+      .listServers({
+        sort_by: 'popularity',
+        sort_order: 'desc',
+        limit: 6,
+      })
+      .then((servers) => {
+        if (cancelled || !servers || servers.length === 0) return
+        setPopularServers(
+          servers.map((s) => ({
+            id: s.id,
+            name: s.name,
+            description: s.description?.slice(0, 80) || 'MCP server',
+            icon: CATEGORY_EMOJI[(s.category || '').toLowerCase()] || '🔌',
+            category: s.category || 'Other',
+          })),
+        )
+      })
+      .catch(() => {
+        // Keep the static fallback — log only, no toast (we're in onboarding)
+        console.warn('Could not fetch popular servers; using fallback list')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   const handleServerToggle = (serverId: string) => {
     setSelectedServers((prev) =>
@@ -94,7 +123,7 @@ export function OnboardingWizard() {
 
       for (const serverId of selectedServers) {
         setCurrentConnecting(serverId)
-        const serverInfo = POPULAR_SERVERS.find(s => s.id === serverId)
+        const serverInfo = popularServers.find((s) => s.id === serverId)
         const serverName = serverInfo?.name || serverId
 
         try {
@@ -290,7 +319,7 @@ export function OnboardingWizard() {
               </div>
 
               <div className="grid md:grid-cols-3 gap-4">
-                {POPULAR_SERVERS.map((server) => {
+                {popularServers.map((server) => {
                   const isSelected = selectedServers.includes(server.id)
                   return (
                     <button
@@ -361,7 +390,7 @@ export function OnboardingWizard() {
               <Card padding="lg">
                 <div className="space-y-4">
                   {selectedServers.map((serverId) => {
-                    const serverInfo = POPULAR_SERVERS.find(s => s.id === serverId)
+                    const serverInfo = popularServers.find((s) => s.id === serverId)
                     const result = connectionResults.find(r => r.serverId === serverId)
                     const isCurrentlyConnecting = currentConnecting === serverId
 

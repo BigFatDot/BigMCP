@@ -14,6 +14,7 @@
  */
 
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
@@ -653,13 +654,36 @@ export function ToolsWorkspace() {
             </div>
             <div className="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1">
               {filteredCatalog.length === 0 ? (
-                <div className="text-sm text-gray-500 text-center py-8">
-                  {searchQuery
-                    ? t('workspace.empty.noMatch', { defaultValue: 'No tool matches your search.' })
-                    : t('workspace.empty.catalog', {
-                        defaultValue: 'Connect a server in the Marketplace to populate the catalog.',
+                searchQuery ? (
+                  <div className="text-sm text-gray-500 text-center py-8">
+                    {t('workspace.empty.noMatch', {
+                      defaultValue: 'No tool matches your search.',
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-10 px-4">
+                    <ArchiveBoxIcon className="h-12 w-12 mx-auto text-gray-300 mb-3" />
+                    <p className="text-sm text-gray-700 font-medium mb-1">
+                      {t('workspace.empty.catalogTitle', {
+                        defaultValue: 'No tool yet',
                       })}
-                </div>
+                    </p>
+                    <p className="text-xs text-gray-500 mb-4 max-w-xs mx-auto">
+                      {t('workspace.empty.catalog', {
+                        defaultValue:
+                          'Connect a server in the Marketplace to populate the catalog.',
+                      })}
+                    </p>
+                    <Link to="/app/marketplace">
+                      <Button size="sm">
+                        <PlusIcon className="h-4 w-4 mr-1" />
+                        {t('workspace.empty.browseMarketplace', {
+                          defaultValue: 'Browse marketplace',
+                        })}
+                      </Button>
+                    </Link>
+                  </div>
+                )
               ) : (
                 filteredCatalog.map((tool) => (
                   <ToolCard
