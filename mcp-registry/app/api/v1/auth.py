@@ -242,6 +242,24 @@ async def login(
         TokenResponse: JWT access and refresh tokens
         OR MFAChallengeResponse: If MFA is required
     """
+    # Force-SSO-only gate (Story I.1): if the instance admin has flipped
+    # the toggle, refuse local-password login outright. Break-glass admins
+    # are exempted only via the bootstrap check at toggle-enable time —
+    # we don't carry a separate "this user is exempt" flag.
+    from ...models.instance_settings import InstanceSettings
+    settings_row = await db.get(InstanceSettings, 1)
+    if settings_row and (settings_row.client_control or {}).get("force_sso_only"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "error": "force_sso_only",
+                "message": (
+                    "Local password login is disabled on this instance. "
+                    "Please use Single Sign-On."
+                ),
+            },
+        )
+
     # Authenticate user
     user = await auth_service.authenticate_user(data.email, data.password)
 

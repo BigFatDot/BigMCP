@@ -127,6 +127,18 @@ class AuditAction(str, enum.Enum):
     # User-driven connected-apps revocation (N2.4 / Story H)
     CONNECTED_APP_REVOKE = "auth.connected_app_revoke"
 
+    # SSO / OIDC (Story I.1)
+    SSO_LOGIN_SUCCESS = "auth.sso_login_success"
+    SSO_LOGIN_FAILED = "auth.sso_login_failed"
+    SSO_PROVISION_USER = "auth.sso_provision_user"
+    OIDC_AUTO_LINK_ENABLED = "oidc.auto_link_enabled"
+    OIDC_AUTO_LINK_USER = "oidc.auto_link_user"
+    OIDC_PROVIDER_CREATE = "oidc.provider_create"
+    OIDC_PROVIDER_UPDATE = "oidc.provider_update"
+    OIDC_PROVIDER_DELETE = "oidc.provider_delete"
+    OIDC_GROUP_MAPPING_CHANGED = "oidc.group_mapping_changed"
+    INSTANCE_FORCE_SSO_ONLY = "instance.force_sso_only"
+
 
 class AuditLog(Base, UUIDMixin):
     """

@@ -16,6 +16,7 @@ from .oauth import (
     OAuthClientApprovalStatus,
 )
 from .oauth_session import OAuthSession
+from .oidc import OIDCProvider, OIDCGroupMapping
 from .credential_setup_token import CredentialSetupToken
 from .audit_log import AuditLog, AuditAction
 from .api_key import APIKey, APIKeyScope
@@ -60,6 +61,8 @@ __all__ = [
     "OAuthClientRegistrationMethod",
     "OAuthClientApprovalStatus",
     "OAuthSession",
+    "OIDCProvider",
+    "OIDCGroupMapping",
 
     # Discovery & Credentials
     "CredentialSetupToken",

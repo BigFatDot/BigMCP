@@ -7,12 +7,13 @@ Supports multiple auth providers (local, Google, GitHub, SAML).
 import enum
 from typing import List, Optional
 from datetime import datetime
+from uuid import UUID
 
-from sqlalchemy import String, DateTime, Boolean, Text
+from sqlalchemy import String, DateTime, Boolean, Text, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..db.base import Base, UUIDMixin, TimestampMixin
-from ..db.types import JSONType
+from ..db.types import JSONType, UUIDType
 
 
 class AuthProvider(str, enum.Enum):
@@ -65,6 +66,23 @@ class User(Base, UUIDMixin, TimestampMixin):
     )
     auth_provider_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     password_hash: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)  # null for SSO users
+
+    # OIDC SSO (Story I.1) — primitive identity for users provisioned by an IdP.
+    # The legacy ``auth_provider`` enum stays for cosmetic display ("created
+    # via Google"), but uniqueness is enforced on (oidc_provider_id, oidc_subject)
+    # via a partial unique index. ``oidc_subject`` is the ``sub`` claim from
+    # the ID token — opaque IdP-side identifier.
+    oidc_provider_id: Mapped[Optional[UUID]] = mapped_column(
+        UUIDType,
+        ForeignKey("oidc_providers.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="If set, this user was provisioned by this OIDC provider.",
+    )
+    oidc_subject: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="OIDC 'sub' claim — opaque IdP-side identifier.",
+    )
 
     # Email verification
     email_verified: Mapped[bool] = mapped_column(
