@@ -9,11 +9,43 @@ from typing import Optional
 from uuid import UUID
 from datetime import datetime, timedelta
 
-from sqlalchemy import String, Text, ForeignKey, Boolean, Integer
+from sqlalchemy import String, Text, ForeignKey, Boolean, Integer, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..db.base import Base, UUIDMixin, TimestampMixin
 from ..db.types import JSONType
+
+
+class OAuthClientRegistrationMethod(str, enum.Enum):
+    """How an OAuth client got registered (N2.2).
+
+    - DCR_OPEN     : RFC 7591 Dynamic Client Registration with no extra
+                     vetting; the historical default.
+    - DCR_APPROVED : DCR plus an explicit admin approval step before
+                     the client may complete an authorize call.
+    - CIMD         : Client ID Metadata Document (SEP-991, MCP spec
+                     2025-11-25). client_id is an HTTPS URL that points
+                     to a JSON document the server fetches and validates.
+    - MANUAL_ADMIN : Created by an instance admin via POST /oauth/clients.
+    - PRELOADED    : Seeded by ops (config file, env var, future).
+    """
+    DCR_OPEN = "dcr_open"
+    DCR_APPROVED = "dcr_approved"
+    CIMD = "cimd"
+    MANUAL_ADMIN = "manual_admin"
+    PRELOADED = "preloaded"
+
+
+class OAuthClientApprovalStatus(str, enum.Enum):
+    """Lifecycle of an OAuth client registration (N2.2).
+
+    Existing rows default to AUTO_APPROVED so the migration stays
+    a pure backfill — historical clients keep working unchanged.
+    """
+    AUTO_APPROVED = "auto_approved"  # current behaviour, no human step
+    PENDING = "pending"              # waiting for admin approval
+    APPROVED = "approved"            # admin explicitly approved
+    REJECTED = "rejected"            # admin denied; cannot complete authorize
 
 
 class OAuthClient(Base, UUIDMixin, TimestampMixin):
@@ -97,6 +129,66 @@ class OAuthClient(Base, UUIDMixin, TimestampMixin):
         default={},
         nullable=False,
         comment="Additional client metadata"
+    )
+
+    # ----- N2.2 client control + CIMD --------------------------------------
+    # Optional ownership: if set, this client is bound to a specific org
+    # and the org admin can manage it; nullable for instance-wide clients.
+    organization_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey("organizations.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment="Owning organization (null = instance-wide / cross-org)",
+    )
+
+    # How the client got into the system. Stored as String for forward
+    # compatibility (no PG enum migration when adding values).
+    registration_method: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        default=OAuthClientRegistrationMethod.DCR_OPEN.value,
+        server_default=OAuthClientRegistrationMethod.DCR_OPEN.value,
+        comment="Where this client came from: dcr_open / dcr_approved / cimd / manual_admin / preloaded",
+    )
+
+    # Approval lifecycle. Defaults to AUTO_APPROVED so legacy rows do
+    # not change behaviour after the migration runs.
+    approval_status: Mapped[str] = mapped_column(
+        String(32),
+        nullable=False,
+        default=OAuthClientApprovalStatus.AUTO_APPROVED.value,
+        server_default=OAuthClientApprovalStatus.AUTO_APPROVED.value,
+        comment="Approval state: auto_approved / pending / approved / rejected",
+    )
+    approved_by_user_id: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="Admin who approved/rejected this client (if any).",
+    )
+    approved_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="When the approval/rejection was recorded.",
+    )
+
+    # CIMD (SEP-991) integration. cimd_url is the HTTPS URL that, when
+    # fetched, returns a Client ID Metadata Document. The cached doc and
+    # last-fetch timestamp let the resolver re-validate without flooding
+    # the issuer on every authorize.
+    cimd_url: Mapped[Optional[str]] = mapped_column(
+        String(2048),
+        nullable=True,
+        comment="HTTPS URL of the Client ID Metadata Document (SEP-991).",
+    )
+    cimd_metadata_cached: Mapped[Optional[dict]] = mapped_column(
+        JSONType,
+        nullable=True,
+        comment="Last-fetched CIMD JSON document (raw response).",
+    )
+    cimd_last_fetched_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="When the CIMD was last successfully fetched.",
     )
 
     # Relationships

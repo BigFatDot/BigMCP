@@ -9,7 +9,12 @@ from .user import User, AuthProvider, UserStatus
 from .mcp_server import MCPServer, InstallType, ServerStatus
 from .context import Context
 from .tool import Tool, ToolBinding
-from .oauth import OAuthClient, AuthorizationCode
+from .oauth import (
+    OAuthClient,
+    AuthorizationCode,
+    OAuthClientRegistrationMethod,
+    OAuthClientApprovalStatus,
+)
 from .credential_setup_token import CredentialSetupToken
 from .audit_log import AuditLog, AuditAction
 from .api_key import APIKey, APIKeyScope
@@ -51,6 +56,8 @@ __all__ = [
     # OAuth
     "OAuthClient",
     "AuthorizationCode",
+    "OAuthClientRegistrationMethod",
+    "OAuthClientApprovalStatus",
 
     # Discovery & Credentials
     "CredentialSetupToken",

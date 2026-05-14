@@ -64,6 +64,14 @@ class AuditAction(str, enum.Enum):
     OAUTH_TOKEN_REFRESH = "oauth.token_refresh"
     OAUTH_TOKEN_GRANT_FAILED = "oauth.token_grant_failed"
 
+    # OAuth client control (N2.2)
+    OAUTH_CLIENT_APPROVE = "oauth.client_approve"
+    OAUTH_CLIENT_REJECT = "oauth.client_reject"
+    OAUTH_CLIENT_REVOKE = "oauth.client_revoke"
+    OAUTH_CIMD_FETCH = "oauth.cimd_fetch"
+    OAUTH_CIMD_FETCH_FAILED = "oauth.cimd_fetch_failed"
+    POLICY_CHANGED = "instance.policy_changed"
+
     # Credentials
     CREDENTIAL_CREATE = "credential.create"
     CREDENTIAL_UPDATE = "credential.update"
