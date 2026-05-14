@@ -13,7 +13,7 @@ import base64
 from typing import Any, Dict, List, Optional, Union
 
 import aiohttp
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field, ValidationError, ConfigDict
 
 from ..config.settings import ServerConfig
 
@@ -46,8 +46,7 @@ class MCPServer(BaseModel):
     status: str = "unknown"
     tools_count: int = 0
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed = True)
 
 
 class MCPTool(BaseModel):
@@ -59,8 +58,7 @@ class MCPTool(BaseModel):
     description: Optional[str] = None
     parameters: Optional[Union[List[Dict[str, Any]], Dict[str, Any]]] = Field(default_factory=list)
     
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed = True)
 
 
 class MCPClient:

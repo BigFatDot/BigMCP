@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import Optional, List, Dict, Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from ..models.composition import CompositionStatus, CompositionVisibility
 
@@ -48,8 +48,7 @@ class DataMapping(BaseModel):
     from_path: str = Field(..., alias="from", description="Source path (e.g., 'step1.output.title')")
     to_path: str = Field(..., alias="to", description="Target path (e.g., 'step2.input.title')")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name = True)
 
 
 class StepResultSchema(BaseModel):

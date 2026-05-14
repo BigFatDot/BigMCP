@@ -8,7 +8,7 @@ from typing import Optional
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, EmailStr, Field, validator, ConfigDict
 
 
 # ===== User Registration =====
@@ -115,8 +115,7 @@ class UserResponse(BaseModel):
     last_login_at: Optional[datetime]
     organization: Optional[dict] = None  # Organization info {id, name, slug}
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 # ===== API Key Schemas =====
@@ -162,8 +161,7 @@ class APIKeyResponse(BaseModel):
     last_used_at: Optional[datetime]
     last_used_ip: Optional[str]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 class APIKeyCreateResponse(BaseModel):
@@ -171,8 +169,7 @@ class APIKeyCreateResponse(BaseModel):
     api_key: APIKeyResponse
     secret: str = Field(..., description="IMPORTANT: Save this secret! It will only be shown once.")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 class APIKeyUpdate(BaseModel):

@@ -3,7 +3,7 @@ OAuth 2.0 Pydantic schemas for request/response validation.
 """
 
 from typing import Optional, List
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, ConfigDict
 from uuid import UUID
 from datetime import datetime
 
@@ -37,8 +37,7 @@ class OAuthClientResponse(BaseModel):
     # Only returned on creation
     client_secret: Optional[str] = Field(None, description="Client secret (only on creation)")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 # ===== OAuth Authorization Flow Schemas =====
@@ -169,6 +168,4 @@ class DynamicClientRegistrationResponse(BaseModel):
     tos_uri: Optional[str] = None
     policy_uri: Optional[str] = None
 
-    class Config:
-        # Exclude None values from JSON output (fixes mcp-remote Zod validation)
-        exclude_none = True
+    model_config = ConfigDict(exclude_none = True)

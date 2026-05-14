@@ -10,7 +10,7 @@ from typing import List, Optional
 from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...db.database import get_async_session
@@ -41,8 +41,7 @@ class LicenseResponse(BaseModel):
     features: List[str]
     order_id: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 def _extract_admin_token(license_key: str) -> Optional[str]:

@@ -9,7 +9,7 @@ from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 
@@ -50,8 +50,7 @@ class MarketplaceAPIKeyResponse(BaseModel):
     request_count: int
     rate_limit_per_minute: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 class MarketplaceAPIKeyCreateResponse(BaseModel):

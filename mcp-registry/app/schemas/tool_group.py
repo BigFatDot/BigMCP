@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from ..models.tool_group import ToolGroupVisibility, ToolGroupItemType
 
@@ -52,8 +52,7 @@ class ToolGroupItemResponse(BaseModel):
     server_id: Optional[UUID] = None
     server_name: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
 
 
 class ToolGroupCreate(BaseModel):
@@ -175,5 +174,4 @@ class ToolInfoResponse(BaseModel):
     # needs this to render in-pool badges and the Pool column).
     is_visible_to_oauth_clients: bool = False
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes = True)
