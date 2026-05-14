@@ -2423,7 +2423,9 @@ class MarketplaceSyncService:
         saas_compatible: bool = False,
         respect_visibility: bool = True,
         offset: int = 0,
-        limit: int = 50
+        limit: int = 50,
+        organization_id: Optional[Any] = None,
+        db: Optional[Any] = None,
     ) -> Dict[str, Any]:
         """
         List available servers with filtering and pagination.
@@ -2504,8 +2506,52 @@ class MarketplaceSyncService:
                 or any(search_lower in tag.lower() for tag in s.tags)
             ]
 
-        # Filter out hidden servers based on admin visibility config
-        if respect_visibility:
+        # Resolve org-scoped marketplace curation (Phase 2). When the caller
+        # passes an organization_id + a DB session, we load the org's
+        # OrgMarketplaceCuration rows and apply them:
+        #   - status=HIDDEN  → drop the server
+        #   - status=FEATURED → keep + tag for boosting in the sort key
+        # No row = permissive default (server visible).
+        #
+        # When organization_id is not passed (admin views, public catalog)
+        # we fall back to the legacy instance-wide conf/server_visibility.json.
+        org_curation: Dict[str, Dict[str, Any]] = {}
+        if respect_visibility and organization_id is not None and db is not None:
+            try:
+                from sqlalchemy import select as _select
+                from ..models.org_marketplace_curation import OrgMarketplaceCuration
+                from uuid import UUID as _UUID
+                org_uuid = (
+                    organization_id
+                    if isinstance(organization_id, _UUID)
+                    else _UUID(str(organization_id))
+                )
+                rows = (
+                    await db.execute(
+                        _select(OrgMarketplaceCuration).where(
+                            OrgMarketplaceCuration.organization_id == org_uuid
+                        )
+                    )
+                ).scalars().all()
+                for row in rows:
+                    org_curation[row.marketplace_server_id] = {
+                        "status": row.status,
+                        "featured_order": row.featured_order,
+                    }
+            except Exception as exc:
+                logger.warning(
+                    f"Failed to load org marketplace curation: {exc}"
+                )
+                org_curation = {}
+
+        if respect_visibility and org_curation:
+            filtered = [
+                s for s in filtered
+                if org_curation.get(s.id, {}).get("status") != "hidden"
+            ]
+        elif respect_visibility:
+            # Legacy fallback: instance-wide JSON file. Only consulted when the
+            # org has no curation rows yet (or organization_id wasn't passed).
             try:
                 visibility_path = Path(__file__).parent.parent.parent / "conf" / "server_visibility.json"
                 if visibility_path.exists():
@@ -2518,10 +2564,18 @@ class MarketplaceSyncService:
             except Exception as e:
                 logger.warning(f"Failed to load visibility config: {e}")
 
-        # Sort by: official first, then tools count, then quality_score, then popularity
+        # Sort by: org-featured first (highest priority for the curation
+        # admin), then official, tools count, quality, popularity.
         def sort_key(s):
             key = self._get_dedup_key(s)
             curation = self._curated_cache.get(key, {})
+            org_status = org_curation.get(s.id, {}).get("status")
+            # Priority 0 (NEW): org-featured floats to the top, ordered by
+            # the admin-supplied featured_order (lower = first). We negate
+            # the order so higher-priority featured (lower number) sorts
+            # higher when reverse=True.
+            is_org_featured = 1 if org_status == "featured" else 0
+            featured_order = -(org_curation.get(s.id, {}).get("featured_order") or 0)
             # Priority 1: Official/LOCAL sources (curated) come first
             is_curated = 1 if s.source in (ServerSource.OFFICIAL, ServerSource.BIGMCP) else 0
             # Priority 2: Has actual tools defined
@@ -2532,7 +2586,14 @@ class MarketplaceSyncService:
             pop = s.popularity
             # Penalize generic "Mcp Server" names
             name_penalty = 0 if "mcp server" not in s.name.lower() else -1000
-            return (is_curated, tools_count + name_penalty, quality, pop)
+            return (
+                is_org_featured,
+                featured_order,
+                is_curated,
+                tools_count + name_penalty,
+                quality,
+                pop,
+            )
 
         filtered.sort(key=sort_key, reverse=True)
 
@@ -2609,6 +2670,17 @@ class MarketplaceSyncService:
 
             # Apply credential templates (template-first approach)
             self._apply_credential_template(server_dict, curation)
+
+            # Surface org-scoped curation in the response so the UI can
+            # display badges ("Approved", "Featured") without a second hop.
+            if org_curation:
+                org_entry = org_curation.get(server.id)
+                server_dict["org_curation_status"] = (
+                    org_entry["status"] if org_entry else None
+                )
+                server_dict["org_curation_featured_order"] = (
+                    org_entry.get("featured_order") if org_entry else None
+                )
 
             enriched.append(server_dict)
 

@@ -17,6 +17,10 @@ from .oauth import (
 )
 from .oauth_session import OAuthSession
 from .oidc import OIDCProvider, OIDCGroupMapping
+from .org_marketplace_curation import (
+    OrgMarketplaceCuration,
+    OrgMarketplaceCurationStatus,
+)
 from .credential_setup_token import CredentialSetupToken
 from .audit_log import AuditLog, AuditAction
 from .api_key import APIKey, APIKeyScope
@@ -63,6 +67,8 @@ __all__ = [
     "OAuthSession",
     "OIDCProvider",
     "OIDCGroupMapping",
+    "OrgMarketplaceCuration",
+    "OrgMarketplaceCurationStatus",
 
     # Discovery & Credentials
     "CredentialSetupToken",

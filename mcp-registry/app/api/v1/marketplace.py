@@ -69,6 +69,13 @@ class MarketplaceServerResponse(BaseModel):
     last_updated: Optional[str] = None
     discovered_at: Optional[str] = None
 
+    # Phase 2: org-scoped marketplace curation. None when the caller's org has
+    # no curation rule for this server (default = visible). Set to one of
+    # 'approved' / 'featured' / 'hidden' (the latter never appears in the
+    # response for non-admin queries since hidden servers are filtered out).
+    org_curation_status: Optional[str] = None
+    org_curation_featured_order: Optional[int] = None
+
 
 class MarketplaceListResponse(BaseModel):
     """Response model for paginated server list."""
@@ -172,7 +179,9 @@ async def list_servers(
     saas_compatible: bool = Query(False, description="Only return servers compatible with SaaS (no local filesystem access required)"),
     offset: int = Query(0, ge=0, description="Pagination offset"),
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
-    marketplace: MarketplaceSyncService = Depends(get_marketplace)
+    marketplace: MarketplaceSyncService = Depends(get_marketplace),
+    auth: tuple = Depends(get_current_user),
+    db = Depends(get_db),
 ):
     """
     List available MCP servers from the marketplace.
@@ -182,7 +191,12 @@ async def list_servers(
     - GitHub (official modelcontextprotocol/servers)
     - npm registry (@modelcontextprotocol/*)
 
-    Results are sorted by popularity (descending).
+    Results are sorted by popularity (descending), with one exception:
+    servers that the caller's organization has marked as ``featured`` via
+    the admin curation surface float to the top. Servers marked
+    ``hidden`` for the org are removed from the response. When the org has
+    no curation rows yet the response falls back to the legacy
+    instance-wide visibility config (full catalog by default).
 
     Use `saas_compatible=true` to filter out servers that require local access
     (filesystem, docker, sqlite, etc.) which cannot work in cloud SaaS mode.
@@ -199,6 +213,17 @@ async def list_servers(
                     detail=f"Invalid source: {source}. Valid values: {[s.value for s in ServerSource]}"
                 )
 
+        # Resolve the caller's org so we can apply org-scoped curation.
+        # We pick the oldest membership (deterministic) — the curation lives
+        # at the org level, not per-membership.
+        user, _api_key = auth
+        org_id = None
+        if user.organization_memberships:
+            org_id = sorted(
+                user.organization_memberships,
+                key=lambda m: m.created_at,
+            )[0].organization_id
+
         result = await marketplace.list_servers(
             category=category,
             search=search,
@@ -206,7 +231,9 @@ async def list_servers(
             verified_only=verified_only,
             saas_compatible=saas_compatible,
             offset=offset,
-            limit=limit
+            limit=limit,
+            organization_id=org_id,
+            db=db,
         )
 
         return MarketplaceListResponse(**result)
