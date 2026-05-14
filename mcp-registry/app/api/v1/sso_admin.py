@@ -60,6 +60,27 @@ async def list_presets(
     return {"presets": PRESETS}
 
 
+@router.get("/organizations")
+async def list_all_organizations(
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return every team/org in the instance for the SSO config picker.
+
+    The classic /api/v1/organizations only lists orgs the caller is a
+    member of, which is wrong for instance-admin SSO config (they need
+    to assign a fallback / mapping to a team they may not belong to).
+    """
+    from ...models.organization import Organization
+    rows = await db.execute(select(Organization).order_by(Organization.name))
+    return {
+        "organizations": [
+            {"id": str(o.id), "name": o.name, "slug": o.slug}
+            for o in rows.scalars().all()
+        ]
+    }
+
+
 # ---------------------------------------------------------------------------
 # Schemas
 # ---------------------------------------------------------------------------
