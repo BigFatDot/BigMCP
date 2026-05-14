@@ -140,7 +140,7 @@ function CreateMappingForm({
           type="text"
           value={groupName}
           onChange={(e) => setGroupName(e.target.value)}
-          placeholder="cerema-direction-num"
+          placeholder="engineering-team"
           className="px-2 py-1 border border-gray-300 rounded text-sm font-mono"
         />
         <select

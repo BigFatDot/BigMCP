@@ -3,8 +3,9 @@ Org-scoped marketplace curation (Phase 2).
 
 The global marketplace catalog (~184 servers from npm + GitHub + curated
 sources) is the same for every BigMCP instance. But each org wants its own
-view: Cerema may want to hide consumer-grade servers and feature its
-in-house ones, while another org wants the full catalog.
+view: a public-sector deployment may want to hide consumer-grade
+servers and feature in-house ones, while a startup may want the full
+catalog.
 
 This table stores per-org override per server. Default behaviour when no
 row exists is permissive (show the server) so existing instances keep

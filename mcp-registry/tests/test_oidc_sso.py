@@ -83,7 +83,7 @@ async def _make_provider(
     return p
 
 
-async def _make_org(db: AsyncSession, name: str = "Cerema DN") -> Organization:
+async def _make_org(db: AsyncSession, name: str = "Engineering") -> Organization:
     org = Organization(name=name, slug=name.lower().replace(" ", "-"))
     db.add(org)
     await db.commit()
@@ -143,9 +143,9 @@ async def test_jit_creates_user_in_fallback_org(db_session: AsyncSession):
     user = await svc.provision_or_update_user(
         provider=p,
         id_token_claims={"sub": "user-123", "email_verified": True, "nonce": "x"},
-        userinfo={"email": "alice@cerema.fr", "name": "Alice"},
+        userinfo={"email": "alice@example.com", "name": "Alice"},
     )
-    assert user.email == "alice@cerema.fr"
+    assert user.email == "alice@example.com"
     assert user.oidc_provider_id == p.id
     assert user.oidc_subject == "user-123"
     assert user.password_hash is None
@@ -252,7 +252,7 @@ async def test_reject_unmapped_users_blocks_login(db_session: AsyncSession):
                 "email_verified": True,
                 "groups": ["unknown"],
             },
-            userinfo={"email": "u@cerema.fr"},
+            userinfo={"email": "u@example.com"},
         )
 
 
@@ -262,7 +262,7 @@ async def test_group_mapping_assigns_team_membership(db_session: AsyncSession):
     db_session.add(
         OIDCGroupMapping(
             provider_id=p.id,
-            idp_group_name="cerema-dn-admin",
+            idp_group_name="engineering-admin",
             organization_id=org.id,
             role=UserRole.ADMIN.value,
         )
@@ -275,9 +275,9 @@ async def test_group_mapping_assigns_team_membership(db_session: AsyncSession):
         id_token_claims={
             "sub": "alice",
             "email_verified": True,
-            "groups": ["cerema-dn-admin", "other-group"],
+            "groups": ["engineering-admin", "other-group"],
         },
-        userinfo={"email": "alice@cerema.fr", "name": "Alice"},
+        userinfo={"email": "alice@example.com", "name": "Alice"},
     )
     members = (
         await db_session.execute(
@@ -322,7 +322,7 @@ async def test_resync_removes_obsolete_membership_when_group_disappears(
             "email_verified": True,
             "groups": ["pole-old"],
         },
-        userinfo={"email": "bob@cerema.fr"},
+        userinfo={"email": "bob@example.com"},
     )
 
     # Second login: switched to pole-new
@@ -333,7 +333,7 @@ async def test_resync_removes_obsolete_membership_when_group_disappears(
             "email_verified": True,
             "groups": ["pole-new"],
         },
-        userinfo={"email": "bob@cerema.fr"},
+        userinfo={"email": "bob@example.com"},
     )
     members = (
         await db_session.execute(
@@ -349,7 +349,7 @@ async def test_grants_instance_admin_via_group(db_session: AsyncSession):
     db_session.add(
         OIDCGroupMapping(
             provider_id=p.id,
-            idp_group_name="cerema-bigmcp-admin",
+            idp_group_name="bigmcp-admins",
             grants_instance_admin=True,
         )
     )
@@ -363,9 +363,9 @@ async def test_grants_instance_admin_via_group(db_session: AsyncSession):
         id_token_claims={
             "sub": "admin-1",
             "email_verified": True,
-            "groups": ["cerema-bigmcp-admin"],
+            "groups": ["bigmcp-admins"],
         },
-        userinfo={"email": "admin@cerema.fr"},
+        userinfo={"email": "admin@example.com"},
     )
     assert (user.preferences or {}).get("instance_admin") is True
 
@@ -597,7 +597,7 @@ async def test_create_provider_using_preset_data(
     payload = {
         "name": keycloak["default_name"],
         "display_label": keycloak["default_display_label"],
-        "issuer_url": "https://auth.cerema.fr/realms/cerema",
+        "issuer_url": "https://auth.example.com/realms/yourorg",
         "client_id": "bigmcp",
         "client_secret": "supersecret",
         "scopes": keycloak["scopes"],

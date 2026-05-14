@@ -67,7 +67,7 @@ class ClientControlPolicy(BaseModel):
     allowed_redirect_domains: List[str] = Field(
         default_factory=list,
         description=(
-            "Glob patterns (e.g. '*.cerema.fr') of accepted redirect_uri "
+            "Glob patterns (e.g. '*.example.com') of accepted redirect_uri "
             "host parts. Empty list means 'any domain accepted'."
         ),
     )

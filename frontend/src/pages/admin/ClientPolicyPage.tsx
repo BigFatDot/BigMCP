@@ -219,7 +219,7 @@ export function ClientPolicyPage() {
               value={redirectDomains}
               onChange={(e) => setRedirectDomains(e.target.value)}
               className="w-full border border-gray-300 rounded px-2 py-1 font-mono text-xs"
-              placeholder="*.cerema.fr"
+              placeholder="*.example.com"
             />
           </label>
         </div>

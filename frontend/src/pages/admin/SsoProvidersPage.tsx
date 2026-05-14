@@ -183,7 +183,7 @@ function CreateProviderModal({
                     onChange={(e) =>
                       setForm({ ...form, name: e.target.value })
                     }
-                    placeholder="Cerema Orion"
+                    placeholder="Acme Keycloak"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange text-sm"
                   />
                 </div>
@@ -197,7 +197,7 @@ function CreateProviderModal({
                     onChange={(e) =>
                       setForm({ ...form, display_label: e.target.value })
                     }
-                    placeholder="Continue with Cerema"
+                    placeholder="Continue with SSO"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange text-sm"
                   />
                 </div>

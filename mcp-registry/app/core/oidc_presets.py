@@ -22,7 +22,7 @@ from typing import List, Dict, Any
 
 
 PRESETS: List[Dict[str, Any]] = [
-    # ----- Keycloak (covers Cerema's Orion, Red Hat SSO, custom Keycloaks)
+    # ----- Keycloak (covers Red Hat SSO, custom Keycloak deployments)
     {
         "id": "keycloak",
         "label": "Keycloak (auto-discovery)",
@@ -110,7 +110,7 @@ PRESETS: List[Dict[str, Any]] = [
         "notes": (
             "Identity proofer for French state agents. Most agencies "
             "consume AgentConnect via their internal Keycloak (Orion at "
-            "Cerema, etc.) — use the Keycloak preset in that case. "
+            "via an internal broker) — use the Keycloak preset in that case. "
             "Direct integration is for orgs without an intermediate broker. "
             "Group mapping is limited; rely on fallback_organization_id."
         ),

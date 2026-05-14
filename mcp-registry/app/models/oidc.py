@@ -10,7 +10,7 @@ Two tables:
   external partners).
 
 - ``oidc_group_mappings``: rows mapping an IdP group claim
-  (``"cerema-direction-num"``) to a BigMCP team (``Organization``)
+  (``"engineering-team"``) to a BigMCP team (``Organization``)
   with a role. A user belonging to multiple matching groups gets
   multiple ``OrganizationMember`` rows. A row may also grant
   instance-admin status (``grants_instance_admin``).
@@ -58,12 +58,12 @@ class OIDCProvider(Base, UUIDMixin, TimestampMixin):
         String(100),
         nullable=False,
         unique=True,
-        comment="Display name shown to admin (e.g. 'Cerema Orion').",
+        comment="Display name shown to admin (e.g. 'Acme Keycloak').",
     )
     display_label: Mapped[str] = mapped_column(
         String(100),
         nullable=False,
-        comment="Button label on LoginPage (e.g. 'Continue with Cerema').",
+        comment="Button label on LoginPage (e.g. 'Continue with SSO').",
     )
 
     # OIDC discovery
