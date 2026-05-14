@@ -97,13 +97,38 @@ def _composition_to_entry(comp: Composition) -> PoolEntry:
 async def load_visible_pool(
     db: AsyncSession,
     organization_id: UUID,
+    user_id: Optional[UUID] = None,
 ) -> List[PoolEntry]:
     """Tools currently in the dynamic pool + all production compositions.
 
-    This is what `execute` orchestrates over — the LLM-facing surface.
-    """
-    entries: List[PoolEntry] = []
+    Three layers UNIONed (deduplicated by tool/composition id):
 
+    1. **Ephemeral session pool** — tools where
+       ``is_visible_to_oauth_clients=True`` for this org. Mutated by
+       ``search`` calls; reset at session end (depends on caller).
+
+    2. **Org default pool** (Phase 3) — admin-curated entries every
+       user of the org inherits at MCP-connect time. Solves the cold
+       start: agents see a non-empty catalog on first ``tools/list``
+       without having to call ``search`` first.
+
+    3. **User-persistent pinned entries** (Phase 3) — per-user
+       favorites that survive across sessions. Optional, applied only
+       when ``user_id`` is passed.
+
+    Plus production compositions for the org (visibility=ORGANIZATION
+    is implicit in pool exposure; PRIVATE compositions stay private).
+    """
+    from ....models.pool_persistent import (
+        OrgDefaultPoolEntry,
+        UserPersistentPoolEntry,
+    )
+
+    entries: List[PoolEntry] = []
+    seen_tool_ids: set[UUID] = set()
+    seen_composition_ids: set[UUID] = set()
+
+    # ---------- Layer 1: ephemeral session pool ----------
     tool_stmt = (
         select(Tool, MCPServer)
         .join(MCPServer, Tool.server_id == MCPServer.id)
@@ -116,13 +141,99 @@ async def load_visible_pool(
     )
     for tool, server in (await db.execute(tool_stmt)).all():
         entries.append(_tool_to_entry(tool, server))
+        seen_tool_ids.add(tool.id)
 
+    # ---------- Layer 2: org default pool ----------
+    default_stmt = (
+        select(OrgDefaultPoolEntry)
+        .where(OrgDefaultPoolEntry.organization_id == organization_id)
+        .order_by(OrgDefaultPoolEntry.position.asc())
+    )
+    default_rows = (await db.execute(default_stmt)).scalars().all()
+
+    if default_rows:
+        wanted_tool_ids = {
+            r.tool_id for r in default_rows if r.tool_id and r.tool_id not in seen_tool_ids
+        }
+        if wanted_tool_ids:
+            extra_tools = await db.execute(
+                select(Tool, MCPServer)
+                .join(MCPServer, Tool.server_id == MCPServer.id)
+                .where(Tool.id.in_(wanted_tool_ids))
+                .where(MCPServer.enabled.is_(True))
+            )
+            for tool, server in extra_tools.all():
+                entries.append(_tool_to_entry(tool, server))
+                seen_tool_ids.add(tool.id)
+
+        wanted_comp_ids = {
+            r.composition_id
+            for r in default_rows
+            if r.composition_id and r.composition_id not in seen_composition_ids
+        }
+        if wanted_comp_ids:
+            extra_comps = (
+                await db.execute(
+                    select(Composition).where(Composition.id.in_(wanted_comp_ids))
+                )
+            ).scalars().all()
+            for comp in extra_comps:
+                entries.append(_composition_to_entry(comp))
+                seen_composition_ids.add(comp.id)
+
+    # ---------- Layer 3: per-user pinned ----------
+    if user_id is not None:
+        pin_stmt = select(UserPersistentPoolEntry).where(
+            UserPersistentPoolEntry.user_id == user_id
+        )
+        pin_rows = (await db.execute(pin_stmt)).scalars().all()
+
+        if pin_rows:
+            wanted_tool_ids = {
+                r.tool_id
+                for r in pin_rows
+                if r.tool_id and r.tool_id not in seen_tool_ids
+            }
+            if wanted_tool_ids:
+                extra_tools = await db.execute(
+                    select(Tool, MCPServer)
+                    .join(MCPServer, Tool.server_id == MCPServer.id)
+                    .where(Tool.id.in_(wanted_tool_ids))
+                    .where(Tool.organization_id == organization_id)
+                    .where(MCPServer.enabled.is_(True))
+                )
+                for tool, server in extra_tools.all():
+                    entries.append(_tool_to_entry(tool, server))
+                    seen_tool_ids.add(tool.id)
+
+            wanted_comp_ids = {
+                r.composition_id
+                for r in pin_rows
+                if r.composition_id and r.composition_id not in seen_composition_ids
+            }
+            if wanted_comp_ids:
+                extra_comps = (
+                    await db.execute(
+                        select(Composition).where(
+                            Composition.id.in_(wanted_comp_ids),
+                            Composition.organization_id == organization_id,
+                        )
+                    )
+                ).scalars().all()
+                for comp in extra_comps:
+                    entries.append(_composition_to_entry(comp))
+                    seen_composition_ids.add(comp.id)
+
+    # ---------- Production compositions ----------
     comp_stmt = select(Composition).where(
         Composition.organization_id == organization_id,
         Composition.status == "production",
     )
     for (comp,) in (await db.execute(comp_stmt)).all():
+        if comp.id in seen_composition_ids:
+            continue
         entries.append(_composition_to_entry(comp))
+        seen_composition_ids.add(comp.id)
 
     return entries
 

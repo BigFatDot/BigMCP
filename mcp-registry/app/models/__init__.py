@@ -21,6 +21,7 @@ from .org_marketplace_curation import (
     OrgMarketplaceCuration,
     OrgMarketplaceCurationStatus,
 )
+from .pool_persistent import OrgDefaultPoolEntry, UserPersistentPoolEntry
 from .credential_setup_token import CredentialSetupToken
 from .audit_log import AuditLog, AuditAction
 from .api_key import APIKey, APIKeyScope
@@ -69,6 +70,8 @@ __all__ = [
     "OIDCGroupMapping",
     "OrgMarketplaceCuration",
     "OrgMarketplaceCurationStatus",
+    "OrgDefaultPoolEntry",
+    "UserPersistentPoolEntry",
 
     # Discovery & Credentials
     "CredentialSetupToken",

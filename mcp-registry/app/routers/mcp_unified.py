@@ -930,15 +930,66 @@ class MCPUnifiedGateway:
                         from ..models.mcp_server import MCPServer
 
                         async for db in get_async_session():
+                            # Phase 3: tools that are in the org default pool or
+                            # pinned by this user are always visible to OAuth
+                            # clients, even when the ephemeral
+                            # ``is_visible_to_oauth_clients`` flag is False.
+                            # Resolve them up-front so the WHERE clause stays a
+                            # simple IN-list rather than a correlated subquery.
+                            from ..models.pool_persistent import (
+                                OrgDefaultPoolEntry,
+                                UserPersistentPoolEntry,
+                            )
+                            from sqlalchemy import or_
+
+                            persistent_tool_ids: set = set()
+                            org_default_rows = (
+                                await db.execute(
+                                    select(OrgDefaultPoolEntry.tool_id).where(
+                                        OrgDefaultPoolEntry.organization_id == org_uuid,
+                                        OrgDefaultPoolEntry.tool_id.is_not(None),
+                                    )
+                                )
+                            ).scalars().all()
+                            persistent_tool_ids.update(t for t in org_default_rows if t)
+
+                            if user_uuid:
+                                user_pin_rows = (
+                                    await db.execute(
+                                        select(UserPersistentPoolEntry.tool_id).where(
+                                            UserPersistentPoolEntry.user_id == user_uuid,
+                                            UserPersistentPoolEntry.tool_id.is_not(None),
+                                        )
+                                    )
+                                ).scalars().all()
+                                persistent_tool_ids.update(t for t in user_pin_rows if t)
+
                             # Get all tools for user's org with their server info
                             filters = [
                                 Tool.organization_id == org_uuid,
                                 MCPServer.enabled == True
                             ]
-                            # OAuth clients only see visible tools/servers
+                            # OAuth clients only see visible tools/servers,
+                            # plus anything explicitly persisted in the pool.
                             if is_oauth_client:
-                                filters.append(Tool.is_visible_to_oauth_clients == True)
-                                filters.append(MCPServer.is_visible_to_oauth_clients == True)
+                                tool_visibility = (
+                                    or_(
+                                        Tool.is_visible_to_oauth_clients == True,
+                                        Tool.id.in_(persistent_tool_ids),
+                                    )
+                                    if persistent_tool_ids
+                                    else Tool.is_visible_to_oauth_clients == True
+                                )
+                                server_visibility = (
+                                    or_(
+                                        MCPServer.is_visible_to_oauth_clients == True,
+                                        Tool.id.in_(persistent_tool_ids),
+                                    )
+                                    if persistent_tool_ids
+                                    else MCPServer.is_visible_to_oauth_clients == True
+                                )
+                                filters.append(tool_visibility)
+                                filters.append(server_visibility)
                             stmt = (
                                 select(Tool, MCPServer.server_id.label("mcp_server_id"), MCPServer.name.label("mcp_server_name"))
                                 .join(MCPServer, Tool.server_id == MCPServer.id)

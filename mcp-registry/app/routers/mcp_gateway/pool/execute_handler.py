@@ -555,7 +555,12 @@ async def handle_execute(
         return {"error": "`goal` must be a non-empty string in goal-mode"}
 
     async with async_session_maker() as db:
-        pool = await load_visible_pool(db, org_uuid)
+        from uuid import UUID as _UUID
+        try:
+            user_uuid = _UUID(user_id) if user_id else None
+        except (TypeError, ValueError):
+            user_uuid = None
+        pool = await load_visible_pool(db, org_uuid, user_id=user_uuid)
     if not pool:
         return _log(
             {

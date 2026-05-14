@@ -1,0 +1,434 @@
+"""
+Persistent pool endpoints (Phase 3).
+
+Two surfaces:
+
+- ``/admin/org/default-pool`` (instance admin) — manages the org's
+  default pool. Every user of the org inherits these entries at MCP
+  connect time, so first-time agents face a populated catalog instead
+  of an empty pool.
+
+- ``/pool/pin`` (any authenticated user) — manages the user's personal
+  pinned entries. Pins survive across sessions and supplement the org
+  default pool.
+
+Both surfaces emit ``tools/list_changed`` notifications to active SSE
+sessions of the affected user(s) so MCP clients refresh on the spot.
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+from typing import List, Optional
+from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, Field
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from ...db.database import get_db
+from ...models.audit_log import AuditAction
+from ...models.composition import Composition
+from ...models.organization import OrganizationMember
+from ...models.pool_persistent import (
+    OrgDefaultPoolEntry,
+    UserPersistentPoolEntry,
+)
+from ...models.tool import Tool
+from ...models.user import User
+from ...services.audit_service import AuditService
+from ..dependencies import get_current_user_jwt, require_instance_admin
+
+
+router = APIRouter(tags=["Persistent Pool"])
+
+
+# ---------------------------------------------------------------------------
+# Common payloads
+# ---------------------------------------------------------------------------
+
+
+class PoolEntryRef(BaseModel):
+    """A reference to either a tool or a composition."""
+    tool_id: Optional[UUID] = None
+    composition_id: Optional[UUID] = None
+
+    def validate_xor(self) -> None:
+        if (self.tool_id is None) == (self.composition_id is None):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Exactly one of tool_id or composition_id is required.",
+            )
+
+
+class OrgDefaultPoolEntryResponse(BaseModel):
+    id: UUID
+    tool_id: Optional[UUID]
+    composition_id: Optional[UUID]
+    position: int
+    added_by_user_id: Optional[UUID]
+    updated_at: datetime
+
+
+class OrgDefaultPoolListResponse(BaseModel):
+    organization_id: UUID
+    entries: List[OrgDefaultPoolEntryResponse]
+
+
+class UserPinResponse(BaseModel):
+    id: UUID
+    tool_id: Optional[UUID]
+    composition_id: Optional[UUID]
+    last_used_at: Optional[datetime]
+    created_at: datetime
+
+
+class UserPinListResponse(BaseModel):
+    user_id: UUID
+    pins: List[UserPinResponse]
+
+
+def _resolve_org_id(user: User) -> UUID:
+    if not user.organization_memberships:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User has no organization membership.",
+        )
+    return sorted(
+        user.organization_memberships, key=lambda m: m.created_at
+    )[0].organization_id
+
+
+async def _validate_entry_belongs_to_org(
+    db: AsyncSession,
+    org_id: UUID,
+    tool_id: Optional[UUID],
+    composition_id: Optional[UUID],
+) -> None:
+    """Refuse cross-org references — pool entries must belong to the org."""
+    if tool_id is not None:
+        owner = (
+            await db.execute(
+                select(Tool.organization_id).where(Tool.id == tool_id)
+            )
+        ).scalar_one_or_none()
+        if owner is None:
+            raise HTTPException(404, f"Tool {tool_id} not found")
+        if owner != org_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Tool belongs to a different organization.",
+            )
+    if composition_id is not None:
+        owner = (
+            await db.execute(
+                select(Composition.organization_id).where(
+                    Composition.id == composition_id
+                )
+            )
+        ).scalar_one_or_none()
+        if owner is None:
+            raise HTTPException(404, f"Composition {composition_id} not found")
+        if owner != org_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Composition belongs to a different organization.",
+            )
+
+
+async def _notify_org_tools_changed(organization_id: UUID) -> None:
+    """Best-effort tools/list_changed broadcast to the org's MCP sessions."""
+    try:
+        from ...routers.mcp_unified import notify_org_tools_changed
+        await notify_org_tools_changed(str(organization_id))
+    except Exception:
+        # Notification is fire-and-forget — never block the API on it.
+        pass
+
+
+async def _notify_user_tools_changed(user_id: UUID) -> None:
+    try:
+        from ...routers.mcp_unified import broadcast_tools_changed_for_user
+        await broadcast_tools_changed_for_user(str(user_id))
+    except Exception:
+        pass
+
+
+# ===========================================================================
+# /admin/org/default-pool — instance admin
+# ===========================================================================
+
+admin_router = APIRouter(
+    prefix="/admin/org/default-pool", tags=["Default Pool Admin"]
+)
+
+
+@admin_router.get("", response_model=OrgDefaultPoolListResponse)
+async def list_default_pool(
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    org_id = _resolve_org_id(admin_user)
+    rows = (
+        await db.execute(
+            select(OrgDefaultPoolEntry)
+            .where(OrgDefaultPoolEntry.organization_id == org_id)
+            .order_by(OrgDefaultPoolEntry.position.asc())
+        )
+    ).scalars().all()
+    return OrgDefaultPoolListResponse(
+        organization_id=org_id,
+        entries=[
+            OrgDefaultPoolEntryResponse(
+                id=r.id,
+                tool_id=r.tool_id,
+                composition_id=r.composition_id,
+                position=r.position,
+                added_by_user_id=r.added_by_user_id,
+                updated_at=r.updated_at,
+            )
+            for r in rows
+        ],
+    )
+
+
+class DefaultPoolAddRequest(PoolEntryRef):
+    position: Optional[int] = None
+
+
+@admin_router.post(
+    "",
+    response_model=OrgDefaultPoolEntryResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_default_pool_entry(
+    payload: DefaultPoolAddRequest,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    payload.validate_xor()
+    org_id = _resolve_org_id(admin_user)
+    await _validate_entry_belongs_to_org(
+        db, org_id, payload.tool_id, payload.composition_id
+    )
+
+    # Position auto-incremented to the end of the list when not given.
+    if payload.position is None:
+        max_pos = (
+            await db.execute(
+                select(OrgDefaultPoolEntry.position)
+                .where(OrgDefaultPoolEntry.organization_id == org_id)
+                .order_by(OrgDefaultPoolEntry.position.desc())
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+        payload.position = (max_pos or 0) + 1
+
+    # Same explicit duplicate check as user pins — NULL columns defeat
+    # the unique constraint on some backends.
+    dup_q = select(OrgDefaultPoolEntry).where(
+        OrgDefaultPoolEntry.organization_id == org_id
+    )
+    if payload.tool_id is not None:
+        dup_q = dup_q.where(OrgDefaultPoolEntry.tool_id == payload.tool_id)
+    else:
+        dup_q = dup_q.where(
+            OrgDefaultPoolEntry.composition_id == payload.composition_id
+        )
+    if (await db.execute(dup_q)).scalar_one_or_none() is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This entry is already in the org default pool.",
+        )
+
+    row = OrgDefaultPoolEntry(
+        organization_id=org_id,
+        tool_id=payload.tool_id,
+        composition_id=payload.composition_id,
+        position=payload.position,
+        added_by_user_id=admin_user.id,
+    )
+    db.add(row)
+    await db.commit()
+    await db.refresh(row)
+
+    try:
+        await AuditService(db).log_action(
+            action=AuditAction.POLICY_CHANGED,
+            actor_id=admin_user.id,
+            organization_id=org_id,
+            resource_type="org_default_pool",
+            resource_id=str(row.id),
+            details={
+                "operation": "add",
+                "tool_id": str(payload.tool_id) if payload.tool_id else None,
+                "composition_id": (
+                    str(payload.composition_id) if payload.composition_id else None
+                ),
+                "position": payload.position,
+            },
+        )
+    except Exception:
+        pass
+
+    await _notify_org_tools_changed(org_id)
+
+    return OrgDefaultPoolEntryResponse(
+        id=row.id,
+        tool_id=row.tool_id,
+        composition_id=row.composition_id,
+        position=row.position,
+        added_by_user_id=row.added_by_user_id,
+        updated_at=row.updated_at,
+    )
+
+
+@admin_router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_default_pool_entry(
+    entry_id: UUID,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_db),
+):
+    org_id = _resolve_org_id(admin_user)
+    row = (
+        await db.execute(
+            select(OrgDefaultPoolEntry).where(
+                OrgDefaultPoolEntry.id == entry_id,
+                OrgDefaultPoolEntry.organization_id == org_id,
+            )
+        )
+    ).scalar_one_or_none()
+    if row is None:
+        raise HTTPException(404, "Entry not found in this org's default pool")
+    detail = {
+        "operation": "remove",
+        "tool_id": str(row.tool_id) if row.tool_id else None,
+        "composition_id": str(row.composition_id) if row.composition_id else None,
+    }
+    await db.delete(row)
+    await db.commit()
+
+    try:
+        await AuditService(db).log_action(
+            action=AuditAction.POLICY_CHANGED,
+            actor_id=admin_user.id,
+            organization_id=org_id,
+            resource_type="org_default_pool",
+            resource_id=str(entry_id),
+            details=detail,
+        )
+    except Exception:
+        pass
+
+    await _notify_org_tools_changed(org_id)
+    return None
+
+
+# ===========================================================================
+# /pool/pin — any authenticated user
+# ===========================================================================
+
+user_router = APIRouter(prefix="/pool/pin", tags=["User Pool Pins"])
+
+
+@user_router.get("", response_model=UserPinListResponse)
+async def list_user_pins(
+    user: User = Depends(get_current_user_jwt),
+    db: AsyncSession = Depends(get_db),
+):
+    rows = (
+        await db.execute(
+            select(UserPersistentPoolEntry)
+            .where(UserPersistentPoolEntry.user_id == user.id)
+            .order_by(UserPersistentPoolEntry.created_at.desc())
+        )
+    ).scalars().all()
+    return UserPinListResponse(
+        user_id=user.id,
+        pins=[
+            UserPinResponse(
+                id=r.id,
+                tool_id=r.tool_id,
+                composition_id=r.composition_id,
+                last_used_at=r.last_used_at,
+                created_at=r.created_at,
+            )
+            for r in rows
+        ],
+    )
+
+
+@user_router.post(
+    "", response_model=UserPinResponse, status_code=status.HTTP_201_CREATED
+)
+async def pin_entry(
+    payload: PoolEntryRef,
+    user: User = Depends(get_current_user_jwt),
+    db: AsyncSession = Depends(get_db),
+):
+    payload.validate_xor()
+    org_id = _resolve_org_id(user)
+    await _validate_entry_belongs_to_org(
+        db, org_id, payload.tool_id, payload.composition_id
+    )
+
+    # The (user_id, tool_id, composition_id) unique constraint gets defeated
+    # by NULLs in some databases (NULLs are treated as distinct). Check
+    # explicitly so duplicate pins always return 409 regardless of backend.
+    dup_q = select(UserPersistentPoolEntry).where(
+        UserPersistentPoolEntry.user_id == user.id
+    )
+    if payload.tool_id is not None:
+        dup_q = dup_q.where(UserPersistentPoolEntry.tool_id == payload.tool_id)
+    else:
+        dup_q = dup_q.where(
+            UserPersistentPoolEntry.composition_id == payload.composition_id
+        )
+    if (await db.execute(dup_q)).scalar_one_or_none() is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This entry is already pinned.",
+        )
+
+    row = UserPersistentPoolEntry(
+        user_id=user.id,
+        tool_id=payload.tool_id,
+        composition_id=payload.composition_id,
+    )
+    db.add(row)
+    await db.commit()
+    await db.refresh(row)
+
+    await _notify_user_tools_changed(user.id)
+
+    return UserPinResponse(
+        id=row.id,
+        tool_id=row.tool_id,
+        composition_id=row.composition_id,
+        last_used_at=row.last_used_at,
+        created_at=row.created_at,
+    )
+
+
+@user_router.delete("/{pin_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def unpin_entry(
+    pin_id: UUID,
+    user: User = Depends(get_current_user_jwt),
+    db: AsyncSession = Depends(get_db),
+):
+    row = (
+        await db.execute(
+            select(UserPersistentPoolEntry).where(
+                UserPersistentPoolEntry.id == pin_id,
+                UserPersistentPoolEntry.user_id == user.id,
+            )
+        )
+    ).scalar_one_or_none()
+    if row is None:
+        raise HTTPException(404, "Pin not found")
+    await db.delete(row)
+    await db.commit()
+
+    await _notify_user_tools_changed(user.id)
+    return None
