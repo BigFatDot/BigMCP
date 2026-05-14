@@ -14,7 +14,7 @@ from sqlalchemy import String, Boolean, DateTime, ForeignKey, UniqueConstraint, 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..db.base import Base, UUIDMixin, TimestampMixin
-from ..db.types import JSONType
+from ..db.types import ArrayType, JSONType
 
 
 class InstallType(str, enum.Enum):
@@ -127,6 +127,19 @@ class MCPServer(Base, UUIDMixin, TimestampMixin):
         default=True,
         nullable=False,
         comment="If False, server is hidden from OAuth clients but available for API keys"
+    )
+
+    # RBAC: who in the org may USE this server (N2.3 — generalises the
+    # Composition.allowed_roles pattern). Empty list = inherit the
+    # default ("everyone except VIEWER"); ["admin"] = ADMIN/OWNER only;
+    # ["viewer"] = include VIEWERs explicitly. Org admins can always
+    # see the server in admin pages regardless of this filter; the
+    # restriction applies to runtime auto-start / tool listing.
+    allowed_roles: Mapped[List[str]] = mapped_column(
+        ArrayType,
+        default=list,
+        nullable=False,
+        comment="Roles allowed to use this server at runtime (empty = all except viewer)",
     )
     last_connected_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),

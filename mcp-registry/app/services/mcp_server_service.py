@@ -549,7 +549,8 @@ class MCPServerService:
         args: Optional[List[str]] = None,
         env: Optional[Dict[str, str]] = None,
         enabled: Optional[bool] = None,
-        is_visible_to_oauth_clients: Optional[bool] = None
+        is_visible_to_oauth_clients: Optional[bool] = None,
+        allowed_roles: Optional[List[str]] = None,
     ) -> MCPServer:
         """
         Update server configuration.
@@ -586,6 +587,16 @@ class MCPServerService:
             server.env = env
         if enabled is not None:
             server.enabled = enabled
+        if allowed_roles is not None:
+            # Validate against UserRole enum to fail loudly on typos.
+            from ..models.organization import UserRole
+            valid = {r.value for r in UserRole}
+            for r in allowed_roles:
+                if r.lower() not in valid:
+                    raise ValueError(
+                        f"Invalid role '{r}'. Allowed: {sorted(valid)}"
+                    )
+            server.allowed_roles = [r.lower() for r in allowed_roles]
 
         # Handle visibility changes
         if is_visible_to_oauth_clients is not None:

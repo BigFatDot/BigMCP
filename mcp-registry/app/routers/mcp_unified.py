@@ -507,10 +507,37 @@ class MCPUnifiedGateway:
         from sqlalchemy import select, or_
         from ..models.user_credential import UserCredential, OrganizationCredential
         from ..models.mcp_server import MCPServer
+        from ..models.organization import OrganizationMember, UserRole
 
         try:
             # Get database session
             async for db in get_async_session():
+                # Resolve the caller's role in this org for the
+                # MCPServer.allowed_roles RBAC filter (N2.3). If they
+                # have no membership, treat them as VIEWER for the
+                # filter (the most restrictive role).
+                role_result = await db.execute(
+                    select(OrganizationMember.role).where(
+                        OrganizationMember.user_id == user_id,
+                        OrganizationMember.organization_id == organization_id,
+                    )
+                )
+                role_row = role_result.scalar_one_or_none()
+                user_role_str = (
+                    role_row.value if hasattr(role_row, "value") else str(role_row)
+                ) if role_row else UserRole.VIEWER.value
+
+                def _role_allowed(allowed_roles: list[str] | None) -> bool:
+                    """Apply the same convention as Composition.allowed_roles.
+
+                    - empty list  -> all roles except VIEWER
+                    - non-empty   -> user role must appear (case-insensitive)
+                    """
+                    if not allowed_roles:
+                        return user_role_str != UserRole.VIEWER.value
+                    lowered = {r.lower() for r in allowed_roles}
+                    return user_role_str.lower() in lowered
+
                 # Query user credentials
                 user_creds_query = select(UserCredential.server_id).where(
                     UserCredential.user_id == user_id,
@@ -561,15 +588,35 @@ class MCPUnifiedGateway:
                             skipped_team_count += 1
 
                 # Combine: user servers + valid non-user servers (org + mcp, excluding Team without user creds)
-                all_server_ids = list(user_server_ids | valid_non_user_server_ids)
+                combined_ids = list(user_server_ids | valid_non_user_server_ids)
+
+                # N2.3 — RBAC filter on MCPServer.allowed_roles. We
+                # have to resolve each row to inspect the column;
+                # an alternative would be to JOIN above, but the set
+                # of candidates is already small.
+                final_ids: list[UUID] = []
+                rbac_skipped = 0
+                for server_id in combined_ids:
+                    srv = await db.get(MCPServer, server_id)
+                    if srv is None:
+                        continue
+                    if _role_allowed(srv.allowed_roles):
+                        final_ids.append(server_id)
+                    else:
+                        rbac_skipped += 1
+                        logger.info(
+                            "RBAC: skipping server %s for user %s (role %s not in %s)",
+                            srv.server_id, user_id, user_role_str, srv.allowed_roles,
+                        )
 
                 logger.info(
-                    f"Found {len(all_server_ids)} servers to start "
+                    f"Found {len(final_ids)} servers to start "
                     f"(user_creds: {len(user_server_ids)}, other_valid: {len(valid_non_user_server_ids)}, "
-                    f"skipped_team: {skipped_team_count}) for user {user_id}"
+                    f"skipped_team: {skipped_team_count}, skipped_rbac: {rbac_skipped}) "
+                    f"for user {user_id} role={user_role_str}"
                 )
 
-                return all_server_ids
+                return final_ids
 
         except Exception as e:
             logger.error(f"Error getting configured servers for user {user_id}: {e}", exc_info=True)

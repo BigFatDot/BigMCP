@@ -196,7 +196,8 @@ async def update_mcp_server(
             args=server_data.args,
             env=server_data.env,
             enabled=server_data.enabled,
-            is_visible_to_oauth_clients=server_data.is_visible_to_oauth_clients
+            is_visible_to_oauth_clients=server_data.is_visible_to_oauth_clients,
+            allowed_roles=server_data.allowed_roles,
         )
 
         # Notify connected MCP clients if visibility or enabled state changed
