@@ -301,9 +301,11 @@ class TestAPIKeyAuthentication:
         )
 
         assert response.status_code == 200
+        # /auth/me nests user under .user since the SaaS pivot
         data = response.json()
-        assert "id" in data
-        assert "email" in data
+        user = data.get("user", data)
+        assert "id" in user
+        assert "email" in user
 
     @pytest.mark.asyncio
     async def test_authenticate_with_invalid_api_key(self, client: AsyncClient):

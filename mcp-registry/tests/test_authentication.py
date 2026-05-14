@@ -13,7 +13,12 @@ class TestUserRegistration:
 
     @pytest.mark.asyncio
     async def test_register_success(self, client: AsyncClient):
-        """Test successful user registration."""
+        """Test successful user registration.
+
+        SaaS edition returns 202 (verification required) and a different
+        envelope shape (the user object is nested under .user). Other
+        editions return 201 with the user fields at the top level.
+        """
         response = await client.post(
             "/api/v1/auth/register",
             json={
@@ -23,13 +28,14 @@ class TestUserRegistration:
             }
         )
 
-        assert response.status_code == 201
+        assert response.status_code in (201, 202)
         data = response.json()
-        assert data["email"] == "newuser@example.com"
-        assert data["name"] == "New User"
-        assert "id" in data
-        assert "created_at" in data
-        assert "password" not in data  # Password should not be returned
+        # Normalise the two response shapes to a single user dict
+        user_dict = data.get("user", data)
+        assert user_dict["email"] == "newuser@example.com"
+        assert user_dict["name"] == "New User"
+        assert "id" in user_dict
+        assert "password" not in str(data)  # Password never returned
 
     @pytest.mark.asyncio
     async def test_register_duplicate_email(self, client: AsyncClient, test_user: dict):
@@ -132,7 +138,9 @@ class TestUserRegistration:
         assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
-    async def test_register_auto_creates_organization(self, client: AsyncClient):
+    async def test_register_auto_creates_organization(
+        self, client: AsyncClient, db_session
+    ):
         """Test that registration auto-creates a personal organization."""
         response = await client.post(
             "/api/v1/auth/register",
@@ -143,19 +151,25 @@ class TestUserRegistration:
             }
         )
 
-        assert response.status_code == 201
+        assert response.status_code in (201, 202)
 
-        # Login to get token
+        # In SaaS, login is gated on email_verified — flip the flag in DB
+        # so the test stays edition-agnostic.
+        from sqlalchemy import update
+        from app.models.user import User
+        await db_session.execute(
+            update(User)
+            .where(User.email == "orgtest@example.com")
+            .values(email_verified=True)
+        )
+        await db_session.commit()
+
         login_response = await client.post(
             "/api/v1/auth/login",
-            json={
-                "email": "orgtest@example.com",
-                "password": "SecurePass123"
-            }
+            json={"email": "orgtest@example.com", "password": "SecurePass123"},
         )
 
         assert login_response.status_code == 200
-        # Token should contain org_id
         assert "access_token" in login_response.json()
 
 
@@ -280,15 +294,19 @@ class TestGetCurrentUser:
 
     @pytest.mark.asyncio
     async def test_get_me_success(self, client: AsyncClient, auth_headers: dict, test_user: dict):
-        """Test getting current user information."""
+        """Test getting current user information.
+
+        /auth/me returns ``{user, organization, subscription}`` since the
+        SaaS pivot. Both pre- and post-pivot shapes are normalised here.
+        """
         response = await client.get("/api/v1/auth/me", headers=auth_headers)
 
         assert response.status_code == 200
         data = response.json()
-        assert data["email"] == test_user["email"]
-        assert "id" in data
-        assert "created_at" in data
-        assert "password" not in data  # Password should never be returned
+        user_dict = data.get("user", data)
+        assert user_dict["email"] == test_user["email"]
+        assert "id" in user_dict
+        assert "password" not in str(data)  # Password should never appear
 
     @pytest.mark.asyncio
     async def test_get_me_without_token(self, client: AsyncClient):
@@ -398,9 +416,13 @@ class TestAuthenticationIntegration:
     """Integration tests for full authentication flows."""
 
     @pytest.mark.asyncio
-    async def test_full_registration_to_authenticated_request(self, client: AsyncClient):
+    async def test_full_registration_to_authenticated_request(
+        self, client: AsyncClient, db_session
+    ):
         """Test complete flow: register → login → authenticated request."""
-        # Step 1: Register
+        from sqlalchemy import update
+        from app.models.user import User
+
         register_response = await client.post(
             "/api/v1/auth/register",
             json={
@@ -409,11 +431,18 @@ class TestAuthenticationIntegration:
                 "name": "Integration Test User"
             }
         )
+        assert register_response.status_code in (201, 202)
+        user_data = register_response.json().get("user", register_response.json())
 
-        assert register_response.status_code == 201
-        user_data = register_response.json()
+        # SaaS edition gates login on email_verified — flip it in DB so this
+        # test stays edition-agnostic.
+        await db_session.execute(
+            update(User)
+            .where(User.email == "integration@example.com")
+            .values(email_verified=True)
+        )
+        await db_session.commit()
 
-        # Step 2: Login
         login_response = await client.post(
             "/api/v1/auth/login",
             json={
@@ -421,20 +450,17 @@ class TestAuthenticationIntegration:
                 "password": "IntegrationPass123"
             }
         )
-
         assert login_response.status_code == 200
         token_data = login_response.json()
 
-        # Step 3: Make authenticated request
         me_response = await client.get(
             "/api/v1/auth/me",
             headers={"Authorization": f"Bearer {token_data['access_token']}"}
         )
-
         assert me_response.status_code == 200
-        me_data = me_response.json()
-        assert me_data["id"] == user_data["id"]
-        assert me_data["email"] == "integration@example.com"
+        me_user = me_response.json().get("user", me_response.json())
+        assert me_user["id"] == user_data["id"]
+        assert me_user["email"] == "integration@example.com"
 
     @pytest.mark.asyncio
     async def test_token_refresh_flow(self, client: AsyncClient, test_user: dict):
@@ -462,5 +488,7 @@ class TestAuthenticationIntegration:
         )
         assert me_response_2.status_code == 200
 
-        # Old and new tokens should return same user
-        assert me_response_1.json()["id"] == me_response_2.json()["id"]
+        # Old and new tokens should return same user (.user.id since SaaS pivot)
+        u1 = me_response_1.json().get("user", me_response_1.json())
+        u2 = me_response_2.json().get("user", me_response_2.json())
+        assert u1["id"] == u2["id"]
