@@ -486,6 +486,31 @@ async def refresh_token(
             detail="User not found"
         )
 
+    # Lifecycle gate (N1.4): refuse refresh for non-active accounts.
+    if user.status != UserStatus.ACTIVE.value:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Account is not active",
+        )
+
+    # Cross-surface kill switch (N1.3): refuse refresh tokens issued
+    # before the bulk revocation timestamp.
+    if user.tokens_revoked_at:
+        iat = payload.get("iat")
+        if iat:
+            from datetime import datetime as _dt
+            token_issued_at = _dt.utcfromtimestamp(iat)
+            revoked_at = (
+                user.tokens_revoked_at.replace(tzinfo=None)
+                if user.tokens_revoked_at.tzinfo
+                else user.tokens_revoked_at
+            )
+            if token_issued_at < revoked_at:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Refresh token has been revoked",
+                )
+
     # Preserve organization context from the refresh token
     org_id = None
     org_id_from_token = payload.get("org_id")

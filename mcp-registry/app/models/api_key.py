@@ -106,6 +106,19 @@ class APIKey(Base, UUIDMixin, TimestampMixin):
         comment="Whether this key can be used for authentication"
     )
 
+    # N1.3 — align on RefreshToken.revoke() pattern so the kill-switch
+    # endpoint and per-key revocation share a vocabulary.
+    revoked_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="When this API key was revoked (if applicable)",
+    )
+    revoked_reason: Mapped[Optional[str]] = mapped_column(
+        String(64),
+        nullable=True,
+        comment="Reason code for revocation (admin_revoke_all, user_logout, ...).",
+    )
+
     expires_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
@@ -156,6 +169,17 @@ class APIKey(Base, UUIDMixin, TimestampMixin):
         if self.expires_at is None:
             return False
         return datetime.now(timezone.utc) > self.expires_at
+
+    def revoke(self, reason: str = "user_revoke") -> None:
+        """Mark this key as revoked. Mirrors RefreshToken.revoke().
+
+        Sets is_active=False so existing key-prefix lookups in
+        ``validate_api_key`` skip it, and records when/why for the
+        admin/audit trail.
+        """
+        self.is_active = False
+        self.revoked_at = datetime.utcnow()
+        self.revoked_reason = reason
 
     @property
     def is_valid(self) -> bool:

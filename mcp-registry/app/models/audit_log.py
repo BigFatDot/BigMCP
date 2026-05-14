@@ -113,6 +113,9 @@ class AuditAction(str, enum.Enum):
     USER_REACTIVATED = "user.reactivated"
     USER_SOFT_DELETED = "user.soft_deleted"
 
+    # Cross-surface kill switch (N1.3)
+    USER_TOKENS_REVOKED = "user.tokens_revoked_all"
+
 
 class AuditLog(Base, UUIDMixin):
     """

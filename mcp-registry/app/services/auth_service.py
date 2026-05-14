@@ -212,12 +212,19 @@ class AuthService:
             str: JWT token (if return_jti=False)
             Tuple[str, str, datetime]: (token, jti, expires_at) (if return_jti=True)
         """
+        now = datetime.utcnow()
         expires_delta = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-        expire = datetime.utcnow() + expires_delta
+        expire = now + expires_delta
         jti = str(uuid4())
 
+        # ``iat`` is required for the cross-surface kill switch
+        # (N1.3): get_user_from_token compares it against
+        # user.tokens_revoked_at to invalidate sessions issued
+        # before a bulk revocation. Without it the check silently
+        # no-ops.
         to_encode = {
             "sub": str(user_id),
+            "iat": int(now.timestamp()),
             "exp": expire,
             "type": "access",
             "jti": jti
@@ -285,12 +292,14 @@ class AuthService:
             str: JWT refresh token (if return_jti=False)
             Tuple[str, str, datetime]: (token, jti, expires_at) (if return_jti=True)
         """
+        now = datetime.utcnow()
         expires_delta = timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
-        expire = datetime.utcnow() + expires_delta
+        expire = now + expires_delta
         jti = str(uuid4())
 
         to_encode = {
             "sub": str(user_id),
+            "iat": int(now.timestamp()),  # see create_access_token comment
             "exp": expire,
             "type": "refresh",
             "jti": jti
@@ -498,6 +507,25 @@ class AuthService:
                 from ..models.user import UserStatus
                 if user.status != UserStatus.ACTIVE.value:
                     return None
+
+                # Cross-surface kill switch (N1.3): if the user fired
+                # tokens_revoked_at AFTER this key was created, the key
+                # is implicitly revoked even though is_active is True.
+                # Lets `revoke-all` invalidate every key in O(1) without
+                # iterating per row.
+                if user.tokens_revoked_at and api_key.created_at:
+                    revoked_at = (
+                        user.tokens_revoked_at.replace(tzinfo=None)
+                        if user.tokens_revoked_at.tzinfo
+                        else user.tokens_revoked_at
+                    )
+                    created_at = (
+                        api_key.created_at.replace(tzinfo=None)
+                        if api_key.created_at.tzinfo
+                        else api_key.created_at
+                    )
+                    if created_at < revoked_at:
+                        return None
 
                 return api_key, user
 

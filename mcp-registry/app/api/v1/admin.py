@@ -23,6 +23,7 @@ from ...db.database import get_async_session
 from ...models.user import User, UserStatus
 from ...models.api_key import APIKey
 from ...models.audit_log import AuditLog
+from ...models.refresh_token import RefreshToken
 from ...schemas.audit_log import AuditLogListResponse, AuditLogResponse
 from ...core.instance_admin import (
     is_instance_admin,
@@ -643,3 +644,117 @@ async def soft_delete_user(
     await _audit_lifecycle(db, AuditAction.USER_SOFT_DELETED, admin_user.id, target, body.reason)
     logger.info("User %s soft-deleted by %s", target.email, admin_user.email)
     return UserLifecycleResponse.model_validate(target.__dict__)
+
+
+# ============================================================================
+# Cross-surface kill switch (N1.3)
+# ============================================================================
+
+class RevokeAllResponse(BaseModel):
+    user_id: UUID
+    tokens_revoked_at: datetime
+    api_keys_revoked: int
+    refresh_tokens_revoked: int
+
+
+@router.post(
+    "/users/{user_id}/revoke-all",
+    response_model=RevokeAllResponse,
+    summary="Revoke every authentication surface for a user",
+)
+async def revoke_all_user_sessions(
+    user_id: UUID,
+    body: UserLifecycleRequest,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+) -> RevokeAllResponse:
+    """Sever every active authentication for a user in one shot.
+
+    Three surfaces are invalidated:
+
+    1. JWT access tokens — by bumping ``user.tokens_revoked_at``,
+       so any access token whose ``iat`` predates this call fails
+       at next ``get_user_from_token``.
+    2. Refresh tokens — DB rows flipped to is_active=False with a
+       reason and timestamp, mirroring ``RefreshToken.revoke()``.
+       The same ``tokens_revoked_at`` check also catches any not-yet-
+       seen token whose iat predates this call.
+    3. API keys — same treatment via the new ``APIKey.revoke()``
+       helper (also enforced through ``tokens_revoked_at`` in
+       ``validate_api_key``).
+
+    The user record itself is NOT touched; combine with /suspend or
+    /soft-delete for a full offboarding.
+    """
+    from ...models.audit_log import AuditAction
+
+    target = await _load_user_or_404(db, user_id)
+    if target.id == admin_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Refusing to revoke the calling instance admin's own sessions.",
+        )
+
+    now = datetime.utcnow()
+    reason = body.reason or "admin_revoke_all"
+
+    # 1. JWT bulk revocation — single timestamp on the user row.
+    target.tokens_revoked_at = now
+
+    # 2. Active refresh tokens — explicit per-row revoke for an audit
+    # trail richer than the bulk timestamp can carry.
+    rt_rows = (
+        await db.execute(
+            select(RefreshToken).where(
+                RefreshToken.user_id == target.id,
+                RefreshToken.is_active.is_(True),
+            )
+        )
+    ).scalars().all()
+    for rt in rt_rows:
+        rt.revoke(reason=reason)
+
+    # 3. Active API keys — same pattern via the helper added in N1.3.
+    ak_rows = (
+        await db.execute(
+            select(APIKey).where(
+                APIKey.user_id == target.id,
+                APIKey.is_active.is_(True),
+            )
+        )
+    ).scalars().all()
+    for ak in ak_rows:
+        ak.revoke(reason=reason)
+
+    await db.commit()
+
+    # Audit
+    try:
+        from ...services.audit_service import AuditService
+        await AuditService(db).log_action(
+            action=AuditAction.USER_TOKENS_REVOKED,
+            actor_id=admin_user.id,
+            organization_id=None,
+            resource_type="user",
+            resource_id=str(target.id),
+            details={
+                "target_email": target.email,
+                "reason": reason,
+                "api_keys_revoked": len(ak_rows),
+                "refresh_tokens_revoked": len(rt_rows),
+            },
+        )
+    except Exception:
+        pass
+
+    logger.info(
+        "User %s sessions kill-switched by %s (api_keys=%d, refresh=%d)",
+        target.email, admin_user.email, len(ak_rows), len(rt_rows),
+    )
+
+    return RevokeAllResponse(
+        user_id=target.id,
+        tokens_revoked_at=now,
+        api_keys_revoked=len(ak_rows),
+        refresh_tokens_revoked=len(rt_rows),
+    )
