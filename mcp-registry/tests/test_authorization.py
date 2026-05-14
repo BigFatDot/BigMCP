@@ -8,6 +8,40 @@ import pytest
 from httpx import AsyncClient
 
 
+async def _register_and_login(
+    client: AsyncClient, db_session, email: str, password: str, name: str
+) -> str:
+    """Register a user, mark them verified (for SaaS mode), login, return JWT.
+
+    BigMCP's SaaS edition returns 202 (verification required) on register
+    and refuses login until ``email_verified=true``. Outside SaaS the
+    classic 201 + auto-login flow applies. This helper papers over both
+    so tests can focus on the authorization logic.
+    """
+    from sqlalchemy import update
+    from app.models.user import User
+
+    reg = await client.post(
+        "/api/v1/auth/register",
+        json={"email": email, "password": password, "name": name},
+    )
+    assert reg.status_code in (201, 202), reg.text
+
+    await db_session.execute(
+        update(User)
+        .where(User.email == email.lower())
+        .values(email_verified=True)
+    )
+    await db_session.commit()
+
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": email, "password": password},
+    )
+    assert login.status_code == 200, login.text
+    return login.json()["access_token"]
+
+
 class TestEndpointProtection:
     """Tests for endpoint authentication requirements."""
 
@@ -18,7 +52,14 @@ class TestEndpointProtection:
         response = await client.get("/api/v1/user-credentials/")
 
         assert response.status_code == 401
-        assert "authorization" in response.json()["detail"].lower() or "authenticated" in response.json()["detail"].lower()
+        # detail can be a string ("Not authenticated") or a dict
+        # ({"error": "...", "message": "..."}) depending on the endpoint —
+        # flatten both to a single lowercase string for the assertion.
+        detail = response.json().get("detail", "")
+        if isinstance(detail, dict):
+            detail = " ".join(str(v) for v in detail.values())
+        detail = str(detail).lower()
+        assert "authorization" in detail or "authenticated" in detail
 
     @pytest.mark.asyncio
     async def test_protected_endpoint_with_jwt(self, client: AsyncClient, auth_headers: dict):
@@ -97,78 +138,42 @@ class TestOrganizationIsolation:
     """Tests for multi-tenant organization isolation."""
 
     @pytest.mark.asyncio
-    async def test_user_can_only_see_own_resources(self, client: AsyncClient):
+    async def test_user_can_only_see_own_resources(
+        self, client: AsyncClient, db_session
+    ):
         """Test that users can only see resources from their organization."""
-        # Create two different users
-        user1_response = await client.post(
-            "/api/v1/auth/register",
-            json={
-                "email": "user1@example.com",
-                "password": "Pass123User1",
-                "name": "User One"
-            }
+        user1_token = await _register_and_login(
+            client, db_session, "user1@example.com", "Pass123User1", "User One"
         )
-        assert user1_response.status_code == 201
-
-        user2_response = await client.post(
-            "/api/v1/auth/register",
-            json={
-                "email": "user2@example.com",
-                "password": "Pass123User2",
-                "name": "User Two"
-            }
+        user2_token = await _register_and_login(
+            client, db_session, "user2@example.com", "Pass123User2", "User Two"
         )
-        assert user2_response.status_code == 201
-
-        # Login as user1
-        login1 = await client.post(
-            "/api/v1/auth/login",
-            json={"email": "user1@example.com", "password": "Pass123User1"}
-        )
-        user1_token = login1.json()["access_token"]
         user1_headers = {"Authorization": f"Bearer {user1_token}"}
-
-        # Login as user2
-        login2 = await client.post(
-            "/api/v1/auth/login",
-            json={"email": "user2@example.com", "password": "Pass123User2"}
-        )
-        user2_token = login2.json()["access_token"]
         user2_headers = {"Authorization": f"Bearer {user2_token}"}
 
-        # Each user's /me should return different data
-        me1 = await client.get("/api/v1/auth/me", headers=user1_headers)
-        me2 = await client.get("/api/v1/auth/me", headers=user2_headers)
+        # Each user's /me should return different data. The endpoint nests
+        # the user data under .user (with subscription + organization
+        # alongside) since the SaaS pivot.
+        me1 = (await client.get("/api/v1/auth/me", headers=user1_headers)).json()
+        me2 = (await client.get("/api/v1/auth/me", headers=user2_headers)).json()
 
-        assert me1.json()["id"] != me2.json()["id"]
-        assert me1.json()["email"] == "user1@example.com"
-        assert me2.json()["email"] == "user2@example.com"
+        assert me1["user"]["id"] != me2["user"]["id"]
+        assert me1["user"]["email"] == "user1@example.com"
+        assert me2["user"]["email"] == "user2@example.com"
 
     @pytest.mark.asyncio
-    async def test_api_keys_isolated_per_organization(self, client: AsyncClient):
+    async def test_api_keys_isolated_per_organization(
+        self, client: AsyncClient, db_session
+    ):
         """Test that API keys are isolated per organization."""
-        # Create two users with different organizations
-        user1_response = await client.post(
-            "/api/v1/auth/register",
-            json={"email": "org1@example.com", "password": "SecurePass123", "name": "Org1 User"}
+        user1_token = await _register_and_login(
+            client, db_session, "org1@example.com", "SecurePass123", "Org1 User"
         )
-        user2_response = await client.post(
-            "/api/v1/auth/register",
-            json={"email": "org2@example.com", "password": "SecurePass123", "name": "Org2 User"}
+        user2_token = await _register_and_login(
+            client, db_session, "org2@example.com", "SecurePass123", "Org2 User"
         )
-
-        # Login both users
-        login1 = await client.post(
-            "/api/v1/auth/login",
-            json={"email": "org1@example.com", "password": "SecurePass123"}
-        )
-        login2 = await client.post(
-            "/api/v1/auth/login",
-            json={"email": "org2@example.com", "password": "SecurePass123"}
-        )
-
-        user1_headers = {"Authorization": f"Bearer {login1.json()['access_token']}"}
-        user2_headers = {"Authorization": f"Bearer {login2.json()['access_token']}"}
+        user1_headers = {"Authorization": f"Bearer {user1_token}"}
+        user2_headers = {"Authorization": f"Bearer {user2_token}"}
 
         # Create API key for user1
         key1_response = await client.post(
@@ -207,9 +212,9 @@ class TestDualAuthentication:
         assert api_key_response.status_code == 200
         api_key_user = api_key_response.json()
 
-        # Should be the same user
-        assert jwt_user["id"] == api_key_user["id"]
-        assert jwt_user["email"] == api_key_user["email"]
+        # /me nests under .user since the SaaS pivot
+        assert jwt_user["user"]["id"] == api_key_user["user"]["id"]
+        assert jwt_user["user"]["email"] == api_key_user["user"]["email"]
 
     @pytest.mark.asyncio
     async def test_can_switch_between_jwt_and_api_key(self, client: AsyncClient, auth_headers: dict, api_key_headers: dict):
@@ -272,7 +277,8 @@ class TestAuthenticationEdgeCases:
         # All should succeed
         for response in responses:
             assert response.status_code == 200
-            assert "id" in response.json()
+            body = response.json()
+            assert "user" in body and "id" in body["user"]
 
     @pytest.mark.asyncio
     async def test_user_with_no_organization(self, client: AsyncClient, db_session):
@@ -326,29 +332,14 @@ class TestAuthorizationIntegration:
     """Integration tests for complete authorization workflows."""
 
     @pytest.mark.asyncio
-    async def test_full_protected_resource_access_flow(self, client: AsyncClient):
+    async def test_full_protected_resource_access_flow(
+        self, client: AsyncClient, db_session
+    ):
         """Test complete flow: register → login → access protected resource."""
-        # Register
-        register_response = await client.post(
-            "/api/v1/auth/register",
-            json={
-                "email": "fullflow@example.com",
-                "password": "FullFlow123",
-                "name": "Full Flow User"
-            }
+        token = await _register_and_login(
+            client, db_session, "fullflow@example.com",
+            "FullFlow123", "Full Flow User",
         )
-        assert register_response.status_code == 201
-
-        # Login
-        login_response = await client.post(
-            "/api/v1/auth/login",
-            json={
-                "email": "fullflow@example.com",
-                "password": "FullFlow123"
-            }
-        )
-        assert login_response.status_code == 200
-        token = login_response.json()["access_token"]
 
         # Access protected resource
         protected_response = await client.get(
@@ -365,18 +356,14 @@ class TestAuthorizationIntegration:
         assert contexts_response.status_code == 200
 
     @pytest.mark.asyncio
-    async def test_api_key_creation_and_usage_flow(self, client: AsyncClient):
+    async def test_api_key_creation_and_usage_flow(
+        self, client: AsyncClient, db_session
+    ):
         """Test complete API key flow: register → login → create key → use key."""
-        # Register and login
-        await client.post(
-            "/api/v1/auth/register",
-            json={"email": "keyflow@example.com", "password": "KeyFlow123", "name": "Key Flow User"}
+        jwt_token = await _register_and_login(
+            client, db_session, "keyflow@example.com",
+            "KeyFlow123", "Key Flow User",
         )
-        login_response = await client.post(
-            "/api/v1/auth/login",
-            json={"email": "keyflow@example.com", "password": "KeyFlow123"}
-        )
-        jwt_token = login_response.json()["access_token"]
         jwt_headers = {"Authorization": f"Bearer {jwt_token}"}
 
         # Create API key

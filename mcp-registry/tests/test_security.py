@@ -274,12 +274,12 @@ class TestJWTSecurity:
     @pytest.mark.asyncio
     async def test_jwt_contains_required_claims(self, client: AsyncClient, test_user: dict):
         """Test that JWT contains required claims."""
-        import jwt
+        from jose import jwt
 
         token = test_user["access_token"]
 
         # Decode without verification to inspect claims
-        claims = jwt.decode(token, options={"verify_signature": False})
+        claims = jwt.get_unverified_claims(token)
 
         # Required claims
         assert "sub" in claims  # user_id
@@ -292,7 +292,7 @@ class TestJWTSecurity:
     @pytest.mark.asyncio
     async def test_jwt_expiration_enforced(self, client: AsyncClient):
         """Test that expired tokens are rejected."""
-        import jwt
+        from jose import jwt
         from app.core.config import settings
 
         # Create an expired token manually
@@ -321,7 +321,7 @@ class TestJWTSecurity:
     @pytest.mark.asyncio
     async def test_jwt_invalid_signature_rejected(self, client: AsyncClient):
         """Test that tokens with invalid signature are rejected."""
-        import jwt
+        from jose import jwt
 
         # Create a token with wrong key
         fake_payload = {
@@ -383,7 +383,9 @@ class TestPasswordNotInResponse:
             }
         )
 
-        assert response.status_code == 201
+        # SaaS mode returns 202 (verification required), other editions 201.
+        # Both response shapes are valid; the security guarantee is the same.
+        assert response.status_code in (201, 202)
         data = response.json()
 
         # Verify password is not in response
@@ -514,11 +516,13 @@ class TestInputValidation:
                 }
             )
 
-            # Either accepted (stored escaped) or rejected
-            # But no server error
-            assert response.status_code in [201, 400, 422], f"Failed for payload: {payload}"
+            # Either accepted (stored escaped) or rejected — but no 500.
+            # SaaS mode returns 202 (verification required); other editions 201.
+            assert response.status_code in [201, 202, 400, 422], (
+                f"Failed for payload: {payload}"
+            )
 
-            if response.status_code == 201:
+            if response.status_code in (201, 202):
                 # If accepted, verify content is not executable
                 data = response.json()
                 # Script should not be returned as-is (escaped)
