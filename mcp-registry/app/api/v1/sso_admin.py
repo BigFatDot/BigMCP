@@ -27,6 +27,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from ...core.oidc_presets import PRESETS
 from ...db.database import get_db
 from ...models.audit_log import AuditAction
 from ...models.instance_settings import InstanceSettings
@@ -38,6 +39,25 @@ from ..dependencies import require_instance_admin
 
 
 router = APIRouter(prefix="/admin/sso", tags=["SSO Admin"])
+
+
+# ---------------------------------------------------------------------------
+# Presets (Story I.2) — pre-filled config templates per IdP vendor
+# ---------------------------------------------------------------------------
+
+
+@router.get("/presets")
+async def list_presets(
+    admin_user: User = Depends(require_instance_admin),
+):
+    """Return the static OIDC preset catalog.
+
+    The frontend uses these to populate "Configure {Vendor}" buttons
+    that pre-fill the new-provider form. No secrets — only config
+    templates that the admin still has to complete with their tenant
+    client_id / client_secret.
+    """
+    return {"presets": PRESETS}
 
 
 # ---------------------------------------------------------------------------

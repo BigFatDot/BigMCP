@@ -503,3 +503,116 @@ async def test_public_sso_providers_endpoint_is_public(
     for entry in body["providers"]:
         assert "client_secret" not in entry
         assert "client_secret_encrypted" not in entry
+
+
+# ---------------------------------------------------------------------------
+# Presets (Story I.2)
+# ---------------------------------------------------------------------------
+
+
+async def test_presets_endpoint_lists_all_vendors(
+    client: AsyncClient, db_session: AsyncSession, test_user: dict, auth_headers: dict
+):
+    await _promote(db_session, test_user["email"])
+    resp = await client.get("/api/v1/admin/sso/presets", headers=auth_headers)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert "presets" in body
+    ids = {p["id"] for p in body["presets"]}
+    assert {"keycloak", "google", "microsoft-entra", "agentconnect", "generic"} <= ids
+
+
+async def test_presets_endpoint_requires_instance_admin(
+    client: AsyncClient, db_session: AsyncSession, test_user: dict
+):
+    # test_user is auto-promoted to instance admin (first user). Register a
+    # second non-admin user and verify the endpoint refuses their request.
+    register = await client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": "non-admin@example.com",
+            "password": "NonAdmin123!",
+            "name": "Non Admin",
+        },
+    )
+    assert register.status_code in (201, 202)
+    from sqlalchemy import update
+    await db_session.execute(
+        update(User)
+        .where(User.email == "non-admin@example.com")
+        .values(email_verified=True)
+    )
+    await db_session.commit()
+    login = await client.post(
+        "/api/v1/auth/login",
+        json={"email": "non-admin@example.com", "password": "NonAdmin123!"},
+    )
+    assert login.status_code == 200
+    headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+
+    resp = await client.get("/api/v1/admin/sso/presets", headers=headers)
+    assert resp.status_code == 403
+
+
+async def test_presets_payload_shape_is_complete(
+    client: AsyncClient, db_session: AsyncSession, test_user: dict, auth_headers: dict
+):
+    await _promote(db_session, test_user["email"])
+    resp = await client.get("/api/v1/admin/sso/presets", headers=auth_headers)
+    body = resp.json()
+    required_fields = {
+        "id",
+        "label",
+        "default_name",
+        "default_display_label",
+        "issuer_url_template",
+        "issuer_url_placeholder",
+        "scopes",
+        "groups_claim_path",
+        "email_claim_path",
+        "name_claim_path",
+        "require_email_verified",
+        "notes",
+        "docs_url",
+    }
+    for preset in body["presets"]:
+        missing = required_fields - set(preset.keys())
+        assert not missing, f"Preset {preset.get('id')} missing fields: {missing}"
+
+
+async def test_create_provider_using_preset_data(
+    client: AsyncClient, db_session: AsyncSession, test_user: dict, auth_headers: dict
+):
+    """Sanity check: a payload built straight from a preset (admin only
+    has to add client_id + client_secret) creates a usable provider."""
+    await _promote(db_session, test_user["email"])
+    org = await _make_org(db_session, "Default for SSO")
+
+    # Pull the Keycloak preset
+    presets = (
+        await client.get("/api/v1/admin/sso/presets", headers=auth_headers)
+    ).json()["presets"]
+    keycloak = next(p for p in presets if p["id"] == "keycloak")
+
+    payload = {
+        "name": keycloak["default_name"],
+        "display_label": keycloak["default_display_label"],
+        "issuer_url": "https://auth.cerema.fr/realms/cerema",
+        "client_id": "bigmcp",
+        "client_secret": "supersecret",
+        "scopes": keycloak["scopes"],
+        "groups_claim_path": keycloak["groups_claim_path"],
+        "email_claim_path": keycloak["email_claim_path"],
+        "name_claim_path": keycloak["name_claim_path"],
+        "require_email_verified": keycloak["require_email_verified"],
+        "reject_unmapped_users": False,
+        "fallback_organization_id": str(org.id),
+    }
+    resp = await client.post(
+        "/api/v1/admin/sso/providers", json=payload, headers=auth_headers
+    )
+    assert resp.status_code == 201, resp.text
+    body = resp.json()
+    assert body["name"] == "Keycloak"
+    assert body["groups_claim_path"] == "realm_access.roles"
+    assert body["fallback_organization_id"] == str(org.id)
