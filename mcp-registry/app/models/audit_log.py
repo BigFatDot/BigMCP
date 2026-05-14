@@ -108,6 +108,11 @@ class AuditAction(str, enum.Enum):
     SETTINGS_CHANGED = "instance.settings_changed"
     ENCRYPTION_KEY_ROTATED = "instance.encryption_key_rotated"
 
+    # User lifecycle (N1.4)
+    USER_SUSPENDED = "user.suspended"
+    USER_REACTIVATED = "user.reactivated"
+    USER_SOFT_DELETED = "user.soft_deleted"
+
 
 class AuditLog(Base, UUIDMixin):
     """

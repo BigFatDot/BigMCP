@@ -20,7 +20,7 @@ from sqlalchemy.orm.attributes import flag_modified
 
 from ..dependencies import get_current_user, require_instance_admin
 from ...db.database import get_async_session
-from ...models.user import User
+from ...models.user import User, UserStatus
 from ...models.api_key import APIKey
 from ...models.audit_log import AuditLog
 from ...schemas.audit_log import AuditLogListResponse, AuditLogResponse
@@ -474,3 +474,172 @@ async def get_audit_log(
             detail=f"Audit log {log_id} not found",
         )
     return AuditLogResponse.model_validate(row)
+
+
+# ============================================================================
+# User lifecycle endpoints (N1.4 — non-destructive offboarding)
+# ============================================================================
+
+class UserLifecycleRequest(BaseModel):
+    reason: Optional[str] = None
+
+
+class UserLifecycleResponse(BaseModel):
+    id: UUID
+    email: str
+    status: str
+    status_changed_at: Optional[datetime] = None
+    status_reason: Optional[str] = None
+    deleted_at: Optional[datetime] = None
+
+
+async def _load_user_or_404(db: AsyncSession, user_id: UUID) -> User:
+    user = await db.get(User, user_id)
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User {user_id} not found",
+        )
+    return user
+
+
+async def _audit_lifecycle(
+    db: AsyncSession,
+    action: "AuditAction",
+    actor_id: UUID,
+    target: User,
+    reason: Optional[str],
+) -> None:
+    """Best-effort audit emission for a lifecycle change."""
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction as _AA  # local re-import for clarity
+        await AuditService(db).log_action(
+            action=action,
+            actor_id=actor_id,
+            organization_id=None,
+            resource_type="user",
+            resource_id=str(target.id),
+            details={
+                "target_email": target.email,
+                "new_status": target.status,
+                "reason": reason,
+            },
+        )
+    except Exception:
+        pass
+
+
+@router.post(
+    "/users/{user_id}/suspend",
+    response_model=UserLifecycleResponse,
+    summary="Suspend a user account (instance admin)",
+)
+async def suspend_user(
+    user_id: UUID,
+    body: UserLifecycleRequest,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+) -> UserLifecycleResponse:
+    """Suspend a user. Reversible. Login + token validation immediately fail."""
+    from ...models.audit_log import AuditAction
+
+    target = await _load_user_or_404(db, user_id)
+
+    if target.id == admin_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Refusing to suspend the calling instance admin account.",
+        )
+    if target.status == UserStatus.DELETED.value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot suspend a soft-deleted account; reactivate it first.",
+        )
+
+    target.status = UserStatus.SUSPENDED.value
+    target.status_changed_at = datetime.utcnow()
+    target.status_reason = body.reason
+    await db.commit()
+    await db.refresh(target)
+
+    await _audit_lifecycle(db, AuditAction.USER_SUSPENDED, admin_user.id, target, body.reason)
+    logger.info("User %s suspended by %s", target.email, admin_user.email)
+    return UserLifecycleResponse.model_validate(target.__dict__)
+
+
+@router.post(
+    "/users/{user_id}/reactivate",
+    response_model=UserLifecycleResponse,
+    summary="Reactivate a suspended (or soft-deleted) user account",
+)
+async def reactivate_user(
+    user_id: UUID,
+    body: UserLifecycleRequest,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+) -> UserLifecycleResponse:
+    """Move a suspended or soft-deleted account back to active.
+
+    Reactivating a soft-deleted account also clears ``deleted_at`` so the
+    retention purge job will leave it alone.
+    """
+    from ...models.audit_log import AuditAction
+
+    target = await _load_user_or_404(db, user_id)
+    if target.status == UserStatus.ACTIVE.value:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User is already active.",
+        )
+
+    target.status = UserStatus.ACTIVE.value
+    target.status_changed_at = datetime.utcnow()
+    target.status_reason = body.reason
+    target.deleted_at = None
+    await db.commit()
+    await db.refresh(target)
+
+    await _audit_lifecycle(db, AuditAction.USER_REACTIVATED, admin_user.id, target, body.reason)
+    logger.info("User %s reactivated by %s", target.email, admin_user.email)
+    return UserLifecycleResponse.model_validate(target.__dict__)
+
+
+@router.post(
+    "/users/{user_id}/soft-delete",
+    response_model=UserLifecycleResponse,
+    summary="Soft-delete a user account (RGPD-friendly)",
+)
+async def soft_delete_user(
+    user_id: UUID,
+    body: UserLifecycleRequest,
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+) -> UserLifecycleResponse:
+    """Mark a user as deleted without dropping the row.
+
+    Audit history, organisation memberships, and credential references
+    stay intact for the retention period. A separate purge job (out of
+    scope for this endpoint) is responsible for hard-deletion or
+    PII anonymisation after the configured window.
+    """
+    from ...models.audit_log import AuditAction
+
+    target = await _load_user_or_404(db, user_id)
+    if target.id == admin_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Refusing to soft-delete the calling instance admin account.",
+        )
+
+    now = datetime.utcnow()
+    target.status = UserStatus.DELETED.value
+    target.status_changed_at = now
+    target.status_reason = body.reason
+    target.deleted_at = now
+    await db.commit()
+    await db.refresh(target)
+
+    await _audit_lifecycle(db, AuditAction.USER_SOFT_DELETED, admin_user.id, target, body.reason)
+    logger.info("User %s soft-deleted by %s", target.email, admin_user.email)
+    return UserLifecycleResponse.model_validate(target.__dict__)

@@ -5,6 +5,15 @@ Provides shared fixtures for database, client, and authentication.
 """
 
 import asyncio
+import os
+
+# Disable production-only middleware that would otherwise turn the
+# rapid-fire test client into a self-DoS:
+# - rate limiting cuts at 20/min on /auth/ which any test suite hammering
+#   register/login will exceed within a few seconds.
+# Must run BEFORE Settings is imported.
+os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
+
 import pytest
 import sys
 from typing import AsyncGenerator, Generator

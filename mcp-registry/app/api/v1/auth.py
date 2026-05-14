@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from ...db.database import get_db
-from ...models.user import User, AuthProvider
+from ...models.user import User, AuthProvider, UserStatus
 from ...models.api_key import APIKey
 from ...models.organization import Organization, OrganizationMember, UserRole
 from ...models.subscription import Subscription
@@ -277,6 +277,40 @@ async def login(
                 "message": "Please verify your email address before logging in. Check your inbox for the verification link.",
                 "email": user.email
             }
+        )
+
+    # Lifecycle gate (N1.4): suspended/deleted accounts cannot log in.
+    if user.status != UserStatus.ACTIVE.value:
+        # Audit the blocked attempt before raising — admins need to see
+        # access attempts on disabled accounts as part of offboarding review.
+        try:
+            from ...services.audit_service import AuditService
+            from ...models.audit_log import AuditAction
+            await AuditService(db).log_action(
+                action=AuditAction.LOGIN_FAILED,
+                actor_id=user.id,
+                organization_id=None,
+                resource_type="user",
+                resource_id=str(user.id),
+                details={
+                    "email": user.email,
+                    "reason": f"account_{user.status}",
+                },
+                request=request,
+            )
+        except Exception:
+            pass
+
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "error": f"account_{user.status}",
+                "message": (
+                    "This account has been suspended."
+                    if user.status == UserStatus.SUSPENDED.value
+                    else "This account has been deleted."
+                ),
+            },
         )
 
     # Get user's organization (deterministic: oldest membership first)

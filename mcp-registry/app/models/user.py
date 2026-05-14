@@ -23,6 +23,23 @@ class AuthProvider(str, enum.Enum):
     SAML = "saml"  # SAML 2.0 (enterprise SSO)
 
 
+class UserStatus(str, enum.Enum):
+    """Lifecycle status of a user account.
+
+    - ACTIVE   : normal account, can authenticate.
+    - SUSPENDED: blocked from logging in but data retained (reversible).
+                 Used for HR offboarding pending offline checks, security
+                 reviews, payment disputes, etc.
+    - DELETED  : soft-deleted, data scheduled for purge after the
+                 configured retention window. Cannot log in. PII may be
+                 anonymised by a separate compliance job; this enum
+                 only marks the lifecycle transition.
+    """
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
+    DELETED = "deleted"
+
+
 class User(Base, UUIDMixin, TimestampMixin):
     """
     User model for authentication and authorization.
@@ -71,6 +88,33 @@ class User(Base, UUIDMixin, TimestampMixin):
         DateTime(timezone=True),
         nullable=True,
         comment="Timestamp of last bulk token revocation. Tokens issued before this are invalid."
+    )
+
+    # Lifecycle / soft-delete (N1.4 — non-destructive offboarding).
+    # Authentication is gated on status == ACTIVE; suspended / deleted
+    # accounts cannot log in but their data is retained for compliance
+    # (proof in audit logs, undo window, or RGPD retention period).
+    status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default=UserStatus.ACTIVE.value,
+        server_default=UserStatus.ACTIVE.value,
+        comment="Lifecycle status: active, suspended, deleted",
+    )
+    status_changed_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="When status last transitioned (set by lifecycle endpoints).",
+    )
+    status_reason: Mapped[Optional[str]] = mapped_column(
+        String(255),
+        nullable=True,
+        comment="Free-text reason captured at the last lifecycle change.",
+    )
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        comment="When the account was soft-deleted; drives the retention purge.",
     )
 
     # MFA/TOTP Fields

@@ -383,6 +383,12 @@ class AuthService:
                 if token_issued_at < revoked_at:
                     return None  # Token was issued before revocation
 
+        # Lifecycle gate (N1.4): suspended/deleted accounts can't use
+        # access tokens issued before the status change either.
+        from ..models.user import UserStatus
+        if user.status != UserStatus.ACTIVE.value:
+            return None
+
         return user
 
     # ===== API Key Management =====
@@ -485,6 +491,12 @@ class AuthService:
                 user = result.scalar_one_or_none()
 
                 if not user:
+                    return None
+
+                # Lifecycle gate (N1.4): API keys belonging to a
+                # suspended or deleted user can't authenticate either.
+                from ..models.user import UserStatus
+                if user.status != UserStatus.ACTIVE.value:
                     return None
 
                 return api_key, user

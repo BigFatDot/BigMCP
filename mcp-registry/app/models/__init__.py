@@ -5,7 +5,7 @@ All SQLAlchemy ORM models for the multi-tenant platform.
 """
 
 from .organization import Organization, OrganizationType, OrganizationMember, UserRole
-from .user import User, AuthProvider
+from .user import User, AuthProvider, UserStatus
 from .mcp_server import MCPServer, InstallType, ServerStatus
 from .context import Context
 from .tool import Tool, ToolBinding
@@ -34,6 +34,7 @@ __all__ = [
     # Users
     "User",
     "AuthProvider",
+    "UserStatus",
 
     # MCP Servers
     "MCPServer",
