@@ -18,19 +18,38 @@ const PAGE_SIZE = 50
 
 const COMMON_ACTIONS = [
   '',
+  // Authentication
   'auth.login_success',
   'auth.login_failed',
   'auth.logout',
   'auth.user_register',
   'auth.password_reset_request',
   'auth.password_reset_confirm',
+  'auth.connected_app_revoke',
+  // OAuth (server)
   'oauth.client_register',
   'oauth.client_create',
   'oauth.consent_grant',
   'oauth.token_grant',
   'oauth.token_refresh',
+  // OAuth client control (N2.2)
+  'oauth.client_approve',
+  'oauth.client_reject',
+  'oauth.client_revoke',
+  'oauth.cimd_fetch',
+  'oauth.cimd_fetch_failed',
+  // Instance / policy
+  'instance.policy_changed',
+  // User lifecycle (N1.4)
+  'user.suspended',
+  'user.reactivated',
+  'user.soft_deleted',
+  // Cross-surface kill switch (N1.3)
+  'user.tokens_revoked_all',
+  // Security
   'security.apikey_scope_denied',
   'security.unauthorized_access',
+  // Credentials
   'credential.create',
   'credential.update',
   'credential.delete',
