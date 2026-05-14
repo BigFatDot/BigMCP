@@ -23,6 +23,7 @@ import {
 } from './pages/settings'
 import { DocsLayout, DocPage } from './pages/docs'
 import { AuditLogsPage } from './pages/admin/AuditLogsPage'
+import { UsersAdminPage } from './pages/admin/UsersAdminPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -151,6 +152,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <AuditLogsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/users"
+            element={
+              <ProtectedRoute>
+                <UsersAdminPage />
               </ProtectedRoute>
             }
           />

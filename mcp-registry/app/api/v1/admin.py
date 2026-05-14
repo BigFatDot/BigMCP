@@ -14,6 +14,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
+import sqlalchemy as sa
 from sqlalchemy import and_, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
@@ -25,6 +26,7 @@ from ...models.api_key import APIKey
 from ...models.audit_log import AuditLog
 from ...models.refresh_token import RefreshToken
 from ...schemas.audit_log import AuditLogListResponse, AuditLogResponse
+from ...schemas.admin_user import AdminUserListItem, AdminUserListResponse
 from ...core.instance_admin import (
     is_instance_admin,
     validate_admin_token,
@@ -475,6 +477,85 @@ async def get_audit_log(
             detail=f"Audit log {log_id} not found",
         )
     return AuditLogResponse.model_validate(row)
+
+
+# ============================================================================
+# Users list (admin)
+# ============================================================================
+
+@router.get("/users", response_model=AdminUserListResponse)
+async def list_users(
+    status_filter: Optional[str] = Query(
+        None,
+        alias="status",
+        description="Filter by lifecycle status (active, suspended, deleted)",
+    ),
+    search: Optional[str] = Query(
+        None,
+        description="Case-insensitive substring match on email or name",
+    ),
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+    admin_user: User = Depends(require_instance_admin),
+    db: AsyncSession = Depends(get_async_session),
+) -> AdminUserListResponse:
+    """List users with lifecycle status — admin-only.
+
+    Sort: most recently created first. Filters compose with AND.
+    The response intentionally excludes password hashes, MFA secrets,
+    and full preferences; only the ``instance_admin`` derived flag is
+    surfaced.
+    """
+    filters = []
+    if status_filter:
+        filters.append(User.status == status_filter)
+    if search:
+        like = f"%{search.lower()}%"
+        filters.append(
+            sa.or_(
+                func.lower(User.email).like(like),
+                func.lower(func.coalesce(User.name, "")).like(like),
+            )
+        )
+
+    where_clause = and_(*filters) if filters else None
+
+    count_stmt = select(func.count()).select_from(User)
+    if where_clause is not None:
+        count_stmt = count_stmt.where(where_clause)
+    total = (await db.execute(count_stmt)).scalar_one()
+
+    stmt = (
+        select(User)
+        .order_by(desc(User.created_at))
+        .limit(limit)
+        .offset(offset)
+    )
+    if where_clause is not None:
+        stmt = stmt.where(where_clause)
+    rows = (await db.execute(stmt)).scalars().all()
+
+    items = []
+    for u in rows:
+        is_admin = bool((u.preferences or {}).get("instance_admin"))
+        items.append(
+            AdminUserListItem(
+                id=u.id,
+                email=u.email,
+                name=u.name,
+                status=u.status,
+                status_changed_at=u.status_changed_at,
+                status_reason=u.status_reason,
+                deleted_at=u.deleted_at,
+                email_verified=u.email_verified,
+                last_login_at=u.last_login_at,
+                tokens_revoked_at=u.tokens_revoked_at,
+                is_instance_admin=is_admin,
+                created_at=u.created_at,
+            )
+        )
+
+    return AdminUserListResponse(items=items, total=total, limit=limit, offset=offset)
 
 
 # ============================================================================
