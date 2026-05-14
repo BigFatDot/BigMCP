@@ -152,6 +152,23 @@ class Settings:
     )
 
     # =====================================
+    # MCP tools/list compaction (Phase 1)
+    # =====================================
+    # When MCP_COMPACT_MODE=true, tools/list omits verbose descriptions
+    # (saving ~150 tokens per tool entry × N tools = massive context win).
+    # The full description is then available on demand via the new
+    # `describe_tool(name)` meta-tool. The schema and the 1-line title
+    # stay in tools/list — that's enough for the LLM to decide whether
+    # to call describe_tool or invoke directly.
+    #
+    # Defaults to false during the rollout so existing MCP clients that
+    # rely on the verbose description text keep working. Flip to true
+    # after observation (~1-2 weeks).
+    MCP_COMPACT_MODE: bool = (
+        os.getenv("MCP_COMPACT_MODE", "false").lower() == "true"
+    )
+
+    # =====================================
     # Edition System
     # =====================================
     # Explicit edition override (optional, auto-detected if not set)

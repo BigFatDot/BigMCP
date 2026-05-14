@@ -49,6 +49,7 @@ from .mcp_gateway.utils import (
 )
 from .mcp_gateway.orchestration import get_orchestration_tools
 from .mcp_gateway.pool import (
+    handle_describe_tool,
     POOL_TOOL_NAMES,
     get_pool_tools,
     handle_execute,
@@ -1157,15 +1158,29 @@ class MCPUnifiedGateway:
                 server_display_name = metadata.get("server_display_name") or metadata.get("server_id")
 
                 # Build description with server context using display name
-                description = tool.get("description", "")
-                if server_display_name and not description.startswith(f"[{server_display_name}]"):
-                    description = f"[{server_display_name}] {description}"
+                full_description = tool.get("description", "")
+                if server_display_name and not full_description.startswith(f"[{server_display_name}]"):
+                    full_description = f"[{server_display_name}] {full_description}"
 
+                # MCP 2025-06-18: Tool requires only `name` + `inputSchema`.
+                # `description` and `title` are optional. In compact mode we
+                # ship only a 1-line `title` so the LLM can pick the tool
+                # without burning ~150 tokens on the verbose description.
+                # Full text remains available via the `describe_tool` meta-tool.
+                from ..core.config import settings as _cfg
                 mcp_tool = {
                     "name": unique_name,
-                    "description": description,
-                    "inputSchema": parameters
+                    "inputSchema": parameters,
                 }
+                if _cfg.MCP_COMPACT_MODE:
+                    # Title = "[Server] tool_name" — enough for tool selection
+                    mcp_tool["title"] = (
+                        f"[{server_display_name}] {original_name}"
+                        if server_display_name
+                        else original_name
+                    )
+                else:
+                    mcp_tool["description"] = full_description
 
                 # Add service icon if available (MCP protocol support)
                 icon_url = tool.get("metadata", {}).get("icon_url")
@@ -1179,12 +1194,13 @@ class MCPUnifiedGateway:
                     }]
                     logger.info(f"🎨 Added icon to tool {unique_name}: {icon_url}")
 
-                # Add metadata as custom field (for internal routing)
-                metadata = tool.get("metadata", {}).copy() if "metadata" in tool else {}
-                # Store original tool name for routing
-                metadata["original_tool_name"] = original_name
-                # server_id should already be in metadata from UserServerPool
-                mcp_tool["_metadata"] = metadata
+                # Routing metadata kept in `_meta` (MCP 2025-06-18 standard
+                # escape hatch). The legacy `_metadata` alias stays around
+                # only as long as no internal consumer reads it; nothing in
+                # the gateway reads back from this field today.
+                routing_meta = tool.get("metadata", {}).copy() if "metadata" in tool else {}
+                routing_meta["original_tool_name"] = original_name
+                mcp_tool["_meta"] = routing_meta
 
                 mcp_tools.append(mcp_tool)
 
@@ -1262,13 +1278,17 @@ class MCPUnifiedGateway:
                     comp_description = comp.description if hasattr(comp, 'description') and comp.description else ''
                     description = f"[Composition: {comp_name}] {comp_description}".strip()
 
+                    # MCP 2025-06-18: in compact mode we drop the verbose
+                    # description (the title alone is enough for selection),
+                    # full text is fetched on demand via describe_tool. Same
+                    # logic as for regular tools.
+                    from ..core.config import settings as _cfg
                     mcp_tool = {
                         "name": tool_name,
-                        # MCP 2025-06-18: `title` is the human-friendly display
-                        # name; `name` stays the programmatic identifier the
-                        # client uses to call the tool.
+                        # `title` is the human-friendly display name; `name`
+                        # stays the programmatic identifier the client uses
+                        # to call the tool.
                         "title": f"Composition: {comp_name}",
-                        "description": description,
                         "inputSchema": input_schema,
                         # `_meta` is the standard escape hatch for non-functional
                         # context. We use it for routing hints the gateway needs
@@ -1279,16 +1299,9 @@ class MCPUnifiedGateway:
                             "composition_name": comp_name,
                             "steps_count": len(comp.steps) if comp.steps else 0
                         },
-                        # Legacy alias kept for the dispatcher in mcp_unified;
-                        # to remove once internal references migrate to _meta.
-                        "_metadata": {
-                            "is_composition": True,
-                            "composition_id": comp_id_str,
-                            "composition_name": comp_name,
-                            "display_name": f"Composition: {comp_name}",
-                            "steps_count": len(comp.steps) if comp.steps else 0
-                        }
                     }
+                    if not _cfg.MCP_COMPACT_MODE:
+                        mcp_tool["description"] = description
 
                     mcp_tools.append(mcp_tool)
 
@@ -1401,6 +1414,12 @@ class MCPUnifiedGateway:
                     organization_id=organization_id,
                     gateway=self,
                     session_id=session_id,
+                )
+            elif tool_name == "describe_tool":
+                result = await handle_describe_tool(
+                    tool_arguments,
+                    user_id=user_id,
+                    organization_id=organization_id,
                 )
             # Check if it's an orchestration tool
             elif tool_name.startswith("orchestrator_"):

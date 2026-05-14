@@ -10,7 +10,7 @@ These are the only two tools BigMCP exposes to OAuth clients in the new UX:
 from typing import Any, Dict, List
 
 
-POOL_TOOL_NAMES = frozenset({"search", "execute"})
+POOL_TOOL_NAMES = frozenset({"search", "execute", "describe_tool"})
 
 
 def get_pool_tools() -> List[Dict[str, Any]]:
@@ -139,5 +139,39 @@ def get_pool_tools() -> List[Dict[str, Any]]:
                     "error": {"type": ["string", "null"]}
                 }
             }
-        }
+        },
+        {
+            "name": "describe_tool",
+            "title": "Get the full description of a tool",
+            "description": (
+                "Return the verbose description (and optional usage hints) of "
+                "any tool or composition currently in the pool. Useful when "
+                "tools/list ships only a 1-line title (compact mode) and you "
+                "need the full text before deciding to call it. Costs ~150 "
+                "tokens once instead of N×150 for every tools/list response."
+            ),
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Exact tool name as advertised in tools/list (e.g., 'GitHub__create_issue' or 'composition_my_workflow').",
+                    }
+                },
+                "required": ["name"],
+            },
+            "outputSchema": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "kind": {"type": "string", "enum": ["tool", "composition"]},
+                    "title": {"type": ["string", "null"]},
+                    "description": {"type": "string"},
+                    "server": {"type": ["string", "null"]},
+                    "input_schema": {"type": "object"},
+                    "found": {"type": "boolean"},
+                },
+                "required": ["name", "found"],
+            },
+        },
     ]

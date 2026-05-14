@@ -24,10 +24,12 @@ class _FakeTool:
         self.category = category
 
 
-def test_pool_tools_definitions_have_search_and_execute():
+def test_pool_tools_definitions_have_search_execute_and_describe():
+    """Phase 1 added ``describe_tool`` so the LLM can fetch the verbose
+    description on demand when ``MCP_COMPACT_MODE`` ships only titles."""
     tools = get_pool_tools()
     names = {t["name"] for t in tools}
-    assert names == POOL_TOOL_NAMES == {"search", "execute"}
+    assert names == POOL_TOOL_NAMES == {"search", "execute", "describe_tool"}
 
 
 def test_search_input_schema_requires_query():
