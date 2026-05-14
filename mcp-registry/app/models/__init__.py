@@ -15,6 +15,7 @@ from .oauth import (
     OAuthClientRegistrationMethod,
     OAuthClientApprovalStatus,
 )
+from .oauth_session import OAuthSession
 from .credential_setup_token import CredentialSetupToken
 from .audit_log import AuditLog, AuditAction
 from .api_key import APIKey, APIKeyScope
@@ -58,6 +59,7 @@ __all__ = [
     "AuthorizationCode",
     "OAuthClientRegistrationMethod",
     "OAuthClientApprovalStatus",
+    "OAuthSession",
 
     # Discovery & Credentials
     "CredentialSetupToken",

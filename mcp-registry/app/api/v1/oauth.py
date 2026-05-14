@@ -941,19 +941,65 @@ async def token_exchange(
 
         # Generate new access token
         logger.info(f"📝 Generating new access token...")
-        new_access_token = auth_service.create_access_token(
+        new_access_token, new_access_jti, _ = auth_service.create_access_token(
             user_id=str(user.id),
-            organization_id=org_id_str
+            organization_id=org_id_str,
+            return_jti=True,
         )
         logger.info(f"✅ New access token generated")
 
         # Generate new refresh token (rotate refresh tokens for security)
         logger.info(f"📝 Generating new refresh token (rotation)...")
-        new_refresh_token = auth_service.create_refresh_token(
+        new_refresh_token, new_refresh_jti, _ = auth_service.create_refresh_token(
             user_id=user.id,
-            organization_id=org_id_str
+            organization_id=org_id_str,
+            return_jti=True,
         )
         logger.info(f"✅ New refresh token generated")
+
+        # Bump last_seen_at on existing OAuthSession(s) for this user×client.
+        # We don't create a new session row on refresh — the original grant
+        # stays the source of truth. If no session exists yet (legacy grant
+        # issued before this code shipped), we backfill one so that
+        # /connected-apps still surfaces it.
+        try:
+            from ...models.oauth import OAuthClient
+            from ...models.oauth_session import OAuthSession
+            client_row_q = await db.execute(
+                select(OAuthClient).where(OAuthClient.client_id == client_id)
+            )
+            client_row = client_row_q.scalar_one_or_none()
+            if client_row:
+                sess_q = await db.execute(
+                    select(OAuthSession)
+                    .where(OAuthSession.user_id == user.id)
+                    .where(OAuthSession.oauth_client_id == client_row.id)
+                    .where(OAuthSession.revoked_at.is_(None))
+                    .order_by(OAuthSession.created_at.desc())
+                    .limit(1)
+                )
+                sess = sess_q.scalar_one_or_none()
+                from datetime import datetime as _dt
+                if sess:
+                    sess.last_seen_at = _dt.utcnow()
+                    sess.refresh_token_jti = new_refresh_jti
+                    sess.access_token_jti = new_access_jti
+                else:
+                    from uuid import UUID as _UUID
+                    backfill = OAuthSession(
+                        user_id=user.id,
+                        oauth_client_id=client_row.id,
+                        organization_id=_UUID(org_id_str) if org_id_str else None,
+                        access_token_jti=new_access_jti,
+                        refresh_token_jti=new_refresh_jti,
+                        ip_address=request.client.host if request.client else None,
+                        user_agent=request.headers.get("user-agent"),
+                        last_seen_at=_dt.utcnow(),
+                    )
+                    db.add(backfill)
+                await db.commit()
+        except Exception as exc:  # pragma: no cover — best-effort tracking
+            logger.warning(f"OAuthSession bump failed: {exc}")
 
         # Return token response with proper expiration from settings
         from ...core.config import settings
@@ -1045,19 +1091,41 @@ async def token_exchange(
 
     # Generate JWT access token (reuse existing auth service)
     logger.info(f"📝 Generating JWT access token...")
-    access_token = auth_service.create_access_token(
+    access_token, access_jti, _ = auth_service.create_access_token(
         user_id=str(user.id),
-        organization_id=str(auth_code.organization_id)
+        organization_id=str(auth_code.organization_id),
+        return_jti=True,
     )
     logger.info(f"✅ Access token generated")
 
     # Generate refresh token for automatic session renewal
     logger.info(f"📝 Generating refresh token...")
-    refresh_token = auth_service.create_refresh_token(
+    refresh_token, refresh_jti, _ = auth_service.create_refresh_token(
         user_id=user.id,
-        organization_id=auth_code.organization_id
+        organization_id=auth_code.organization_id,
+        return_jti=True,
     )
     logger.info(f"✅ Refresh token generated")
+
+    # Story H — record the OAuth grant as a connected-app session row
+    # so the user can list and revoke it from the settings page.
+    try:
+        from ...models.oauth_session import OAuthSession
+        from datetime import datetime as _dt
+        session_row = OAuthSession(
+            user_id=user.id,
+            oauth_client_id=client.id if client else auth_code.client_id,
+            organization_id=auth_code.organization_id,
+            access_token_jti=access_jti,
+            refresh_token_jti=refresh_jti,
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
+            last_seen_at=_dt.utcnow(),
+        )
+        db.add(session_row)
+        await db.commit()
+    except Exception as exc:  # pragma: no cover — best-effort tracking
+        logger.warning(f"OAuthSession insert failed: {exc}")
 
     # Return token response with proper expiration from settings
     from ...core.config import settings

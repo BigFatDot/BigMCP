@@ -124,6 +124,9 @@ class AuditAction(str, enum.Enum):
     # Cross-surface kill switch (N1.3)
     USER_TOKENS_REVOKED = "user.tokens_revoked_all"
 
+    # User-driven connected-apps revocation (N2.4 / Story H)
+    CONNECTED_APP_REVOKE = "auth.connected_app_revoke"
+
 
 class AuditLog(Base, UUIDMixin):
     """

@@ -1449,6 +1449,191 @@ async def resend_verification_public(
     return success_response
 
 
+# ---------------------------------------------------------------------------
+# Connected apps (Story H / N2.4) — list & revoke OAuth grants per client.
+# ---------------------------------------------------------------------------
+
+
+@router.get("/connected-apps")
+async def list_connected_apps(
+    user: User = Depends(get_current_user_jwt),
+    db: AsyncSession = Depends(get_db),
+):
+    """List the OAuth clients currently connected to the caller's account.
+
+    Aggregates active ``oauth_sessions`` rows by client so the user sees
+    one row per app rather than one per token issuance. Sessions revoked
+    by the user (or invalidated by a global kill switch) are excluded.
+    """
+    from sqlalchemy import func
+    from ...models.oauth_session import OAuthSession
+    from ...models.oauth import OAuthClient
+
+    rows = await db.execute(
+        select(
+            OAuthClient.id,
+            OAuthClient.client_id,
+            OAuthClient.name,
+            OAuthClient.description,
+            OAuthClient.cimd_url,
+            OAuthClient.registration_method,
+            func.count(OAuthSession.id).label("session_count"),
+            func.min(OAuthSession.created_at).label("first_authorized_at"),
+            func.max(
+                func.coalesce(OAuthSession.last_seen_at, OAuthSession.created_at)
+            ).label("last_seen_at"),
+        )
+        .join(OAuthSession, OAuthSession.oauth_client_id == OAuthClient.id)
+        .where(OAuthSession.user_id == user.id)
+        .where(OAuthSession.revoked_at.is_(None))
+        .group_by(
+            OAuthClient.id,
+            OAuthClient.client_id,
+            OAuthClient.name,
+            OAuthClient.description,
+            OAuthClient.cimd_url,
+            OAuthClient.registration_method,
+        )
+        .order_by(func.max(
+            func.coalesce(OAuthSession.last_seen_at, OAuthSession.created_at)
+        ).desc())
+    )
+
+    apps = []
+    for row in rows.all():
+        apps.append({
+            "client_uuid": str(row.id),
+            "client_id": row.client_id,
+            "name": row.name,
+            "description": row.description,
+            "cimd_url": row.cimd_url,
+            "registration_method": row.registration_method,
+            "session_count": int(row.session_count or 0),
+            "first_authorized_at": (
+                row.first_authorized_at.isoformat()
+                if row.first_authorized_at else None
+            ),
+            "last_seen_at": (
+                row.last_seen_at.isoformat() if row.last_seen_at else None
+            ),
+        })
+
+    return {"connected_apps": apps}
+
+
+@router.delete("/connected-apps/{client_uuid}", status_code=status.HTTP_204_NO_CONTENT)
+async def revoke_connected_app(
+    client_uuid: str,
+    request: Request,
+    user: User = Depends(get_current_user_jwt),
+    db: AsyncSession = Depends(get_db),
+):
+    """Revoke every active session the caller has with one OAuth client.
+
+    Per-client surgical revocation:
+
+    1. Mark every active ``oauth_sessions`` row for this user × client
+       as revoked — the row keeps the audit trail.
+    2. Blacklist the access_token_jti and refresh_token_jti captured at
+       grant time, so the client's outstanding JWTs become 401 on next
+       use — without touching ``user.tokens_revoked_at`` (that would
+       also kill the user's own browser session, since the kill switch
+       is user-wide).
+    """
+    from uuid import UUID
+    from datetime import datetime as _dt, timedelta
+    from ...models.oauth_session import OAuthSession
+    from ...models.oauth import OAuthClient
+    from ...services.audit_service import AuditService
+    from ...services.token_blacklist_service import TokenBlacklistService
+    from ...models.token_blacklist import BlacklistReason
+    from ...models.audit_log import AuditAction
+    from ...core.config import settings as core_settings
+
+    try:
+        client_uuid_obj = UUID(client_uuid)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid client UUID",
+        )
+
+    # Verify the client exists (404 instead of 204 if the user invents an UUID)
+    client_q = await db.execute(
+        select(OAuthClient).where(OAuthClient.id == client_uuid_obj)
+    )
+    client_row = client_q.scalar_one_or_none()
+    if client_row is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Client not found",
+        )
+
+    # Pull active sessions for this user × client
+    sessions_q = await db.execute(
+        select(OAuthSession)
+        .where(OAuthSession.user_id == user.id)
+        .where(OAuthSession.oauth_client_id == client_uuid_obj)
+        .where(OAuthSession.revoked_at.is_(None))
+    )
+    sessions = list(sessions_q.scalars().all())
+
+    if not sessions:
+        # Nothing to revoke. Surface 404 so the caller doesn't get the
+        # impression that revocation succeeded for an unknown app.
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No active sessions for this client",
+        )
+
+    blacklist = TokenBlacklistService(db)
+    # Conservative natural expiry — the in-memory cache will keep the
+    # JTI until at least the token's max lifetime. Pick refresh-token
+    # lifetime so we cover both surfaces from the same JTI set.
+    natural_expiry = _dt.utcnow() + timedelta(
+        days=core_settings.REFRESH_TOKEN_EXPIRE_DAYS
+    )
+
+    revoked_count = 0
+    for sess in sessions:
+        sess.revoke(reason="user_revoke")
+        for jti, ttype in (
+            (sess.access_token_jti, "access"),
+            (sess.refresh_token_jti, "refresh"),
+        ):
+            if jti:
+                await blacklist.blacklist_token(
+                    jti=jti,
+                    user_id=user.id,
+                    token_type=ttype,
+                    expires_at=natural_expiry,
+                    reason=BlacklistReason.LOGOUT,
+                )
+        revoked_count += 1
+
+    await db.commit()
+
+    # Audit
+    try:
+        await AuditService(db).log_action(
+            action=AuditAction.CONNECTED_APP_REVOKE,
+            actor_id=user.id,
+            organization_id=None,
+            resource_type="oauth_client",
+            resource_id=str(client_uuid_obj),
+            details={
+                "client_id": client_row.client_id,
+                "client_name": client_row.name,
+                "sessions_revoked": revoked_count,
+            },
+            request=request,
+        )
+    except Exception:
+        pass
+
+    return None
+
+
 @router.delete("/account", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_account(
     user: User = Depends(get_current_user_jwt),
