@@ -251,6 +251,14 @@ export function Navbar() {
                               <PuzzlePieceIcon className="h-5 w-5 text-gray-400" />
                               OAuth clients
                             </Link>
+                            <Link
+                              to="/app/admin/sso-providers"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <ShieldCheckIcon className="h-5 w-5 text-gray-400" />
+                              SSO providers
+                            </Link>
                           </div>
                         )}
 
