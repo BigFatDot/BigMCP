@@ -58,8 +58,15 @@ class CredentialService:
         """
         Log credential access to the audit trail.
 
-        This is called every time credentials are decrypted for use.
-        Supports RGPD Article 30 compliance.
+        Called every time credentials are decrypted for use.
+        Supports RGPD Article 30 / RGS Level 2+ compliance.
+
+        Routes through ``AuditService.log_action`` so it inherits the
+        same id-at-construction-time invariant + PII sanitisation that
+        every other audit path uses. Inline AuditLog construction here
+        used to silently produce invalid signatures (id was None at
+        signing, set only at flush) — the same bug that bit
+        ``oauth/auth`` audit before N0.5.
 
         Args:
             actor_id: User accessing the credentials
@@ -70,36 +77,21 @@ class CredentialService:
             source: How credentials were resolved ("user", "organization", "merged")
         """
         try:
-            log_entry = AuditLog(
-                timestamp=datetime.utcnow(),
+            from .audit_service import AuditService
+            await AuditService(self.db).log_action(
+                action=AuditAction.CREDENTIAL_ACCESS,
                 actor_id=actor_id,
                 organization_id=organization_id,
-                action=AuditAction.CREDENTIAL_ACCESS.value,
                 resource_type="credential",
                 resource_id=str(credential_id),
                 details={
                     "server_id": str(server_id),
                     "credential_type": credential_type,
-                    "resolution_source": source
-                }
+                    "resolution_source": source,
+                },
             )
-
-            # Calculate signature for tamper detection
-            from ..core.config import get_settings
-            settings = get_settings()
-            log_entry.signature = log_entry.calculate_signature(settings.SECRET_KEY)
-
-            self.db.add(log_entry)
-            # Don't commit here - let the caller's transaction handle it
-            # This ensures atomic operations
-
-            logger.debug(
-                f"Credential access logged: user={actor_id}, "
-                f"credential={credential_id}, server={server_id}"
-            )
-
         except Exception as e:
-            # Log but don't fail the credential resolution
+            # Audit failure must never break credential resolution.
             logger.error(f"Failed to log credential access: {e}", exc_info=True)
 
     # ==================== User Credentials ====================
