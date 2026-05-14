@@ -178,3 +178,20 @@ export async function setForceSsoOnly(enabled: boolean): Promise<boolean> {
   )
   return data.enabled
 }
+
+// ============================================================================
+// Org picker (instance-wide, not just user's memberships)
+// ============================================================================
+
+export interface AdminOrganization {
+  id: string
+  name: string
+  slug: string
+}
+
+export async function listAllOrganizations(): Promise<AdminOrganization[]> {
+  const { data } = await apiClient.get<{ organizations: AdminOrganization[] }>(
+    '/admin/sso/organizations',
+  )
+  return data.organizations
+}

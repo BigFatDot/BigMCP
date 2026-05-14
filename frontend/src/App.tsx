@@ -30,6 +30,7 @@ import { ServerAccessPage } from './pages/admin/ServerAccessPage'
 import { ClientPolicyPage } from './pages/admin/ClientPolicyPage'
 import { OAuthClientsPage } from './pages/admin/OAuthClientsPage'
 import { SsoProvidersPage } from './pages/admin/SsoProvidersPage'
+import { SsoProviderDetailPage } from './pages/admin/SsoProviderDetailPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -207,6 +208,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <SsoProvidersPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/sso-providers/:providerId"
+            element={
+              <ProtectedRoute>
+                <SsoProviderDetailPage />
               </ProtectedRoute>
             }
           />

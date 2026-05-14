@@ -1,25 +1,23 @@
 /**
- * SSO Providers admin page (Story I.2 + I.3 minimal).
+ * SSO Providers admin page (Story I.2 + I.3).
  *
- * - Lists configured OIDC providers with name, status, mapping count.
- * - "Add provider" opens a modal that lets the admin pick a preset
- *   (Keycloak / Google / Microsoft Entra / AgentConnect / Generic),
- *   pre-fills the form, and submits.
- * - Inline toggle to enable/disable a provider (active flag).
- * - Delete with confirm dialog.
- *
- * Group mappings + force-SSO-only toggle live on the provider detail
- * page (next iteration). For now, the admin can create the provider
- * and the LoginPage starts showing the corresponding button.
+ * - Lists configured OIDC providers.
+ * - "Add provider" modal: preset picker + advanced options exposing the
+ *   provisioning policy (auto-link, reject_unmapped, fallback team/role).
+ * - Inline Disable/Enable + Delete on each row.
+ * - "Force SSO-only" toggle in the page header (instance-wide setting).
+ * - Click a provider name → detail page (general + group mappings).
  */
 
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   PuzzlePieceIcon,
   PlusIcon,
   TrashIcon,
   ExclamationTriangleIcon,
   ArrowPathIcon,
+  LockClosedIcon,
 } from '@heroicons/react/24/outline'
 import { Card, Button, Badge } from '@/components/ui'
 import {
@@ -28,14 +26,21 @@ import {
   createProvider,
   deleteProvider,
   updateProvider,
+  listAllOrganizations,
+  getForceSsoOnly,
+  setForceSsoOnly,
   type OIDCProvider,
   type OIDCPreset,
   type OIDCProviderCreatePayload,
+  type AdminOrganization,
 } from '@/services/sso'
+
+const ROLES = ['owner', 'admin', 'member', 'viewer']
 
 interface CreateModalProps {
   isOpen: boolean
   presets: OIDCPreset[]
+  organizations: AdminOrganization[]
   onClose: () => void
   onCreated: () => void
 }
@@ -43,42 +48,43 @@ interface CreateModalProps {
 function CreateProviderModal({
   isOpen,
   presets,
+  organizations,
   onClose,
   onCreated,
 }: CreateModalProps) {
-  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null)
-  const [form, setForm] = useState<OIDCProviderCreatePayload>({
+  const emptyForm: OIDCProviderCreatePayload = {
     name: '',
     display_label: '',
     issuer_url: '',
     client_id: '',
     client_secret: '',
-  })
+    auto_link_by_verified_email: false,
+    require_email_verified: true,
+    reject_unmapped_users: true,
+    fallback_organization_id: null,
+    fallback_role: 'member',
+  }
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null)
+  const [form, setForm] = useState<OIDCProviderCreatePayload>(emptyForm)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!isOpen) {
       setSelectedPresetId(null)
-      setForm({
-        name: '',
-        display_label: '',
-        issuer_url: '',
-        client_id: '',
-        client_secret: '',
-      })
+      setForm(emptyForm)
       setError(null)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   const applyPreset = (preset: OIDCPreset) => {
     setSelectedPresetId(preset.id)
     setForm({
+      ...emptyForm,
       name: preset.default_name,
       display_label: preset.default_display_label,
       issuer_url: preset.issuer_url_template,
-      client_id: '',
-      client_secret: '',
       scopes: preset.scopes,
       groups_claim_path: preset.groups_claim_path,
       email_claim_path: preset.email_claim_path,
@@ -88,6 +94,10 @@ function CreateProviderModal({
   }
 
   const selectedPreset = presets.find((p) => p.id === selectedPresetId)
+
+  // Live lockout warning that mirrors the backend guard
+  const wouldLockout =
+    !!form.reject_unmapped_users && !form.fallback_organization_id
 
   const handleSubmit = async () => {
     setSubmitting(true)
@@ -208,7 +218,9 @@ function CreateProviderModal({
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Discovery via{' '}
-                  <code>{form.issuer_url || '<issuer>'}/.well-known/openid-configuration</code>
+                  <code>
+                    {form.issuer_url || '<issuer>'}/.well-known/openid-configuration
+                  </code>
                 </p>
               </div>
 
@@ -241,45 +253,132 @@ function CreateProviderModal({
                 </div>
               </div>
 
-              <details className="text-sm">
-                <summary className="cursor-pointer text-gray-600 font-medium">
-                  Advanced
-                </summary>
-                <div className="mt-3 space-y-3 pl-4 border-l-2 border-gray-100">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Scopes (space-separated)
-                    </label>
-                    <input
-                      type="text"
-                      value={(form.scopes ?? []).join(' ')}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          scopes: e.target.value.split(/\s+/).filter(Boolean),
-                        })
-                      }
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Groups claim path
-                    </label>
-                    <input
-                      type="text"
-                      value={form.groups_claim_path ?? ''}
-                      onChange={(e) =>
-                        setForm({
-                          ...form,
-                          groups_claim_path: e.target.value || null,
-                        })
-                      }
-                      className="w-full px-2 py-1 border border-gray-300 rounded text-xs font-mono"
-                    />
-                  </div>
+              {/* Provisioning policy — exposed by default in I.3 */}
+              <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
+                <div className="text-sm font-medium text-gray-700">
+                  Provisioning policy
                 </div>
-              </details>
+
+                <label className="flex items-start gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!form.reject_unmapped_users}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        reject_unmapped_users: e.target.checked,
+                      })
+                    }
+                    className="mt-0.5"
+                  />
+                  <span>
+                    <span className="font-medium">Reject unmapped users</span>
+                    <span className="block text-xs text-gray-500">
+                      Refuse login if no group claim matches a configured
+                      mapping. Recommended for strict environments.
+                    </span>
+                  </span>
+                </label>
+
+                <label className="flex items-start gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!form.require_email_verified}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        require_email_verified: e.target.checked,
+                      })
+                    }
+                    className="mt-0.5"
+                  />
+                  <span>
+                    <span className="font-medium">Require email_verified</span>
+                    <span className="block text-xs text-gray-500">
+                      Refuse login if the IdP does not assert
+                      <code className="ml-1">email_verified=true</code>.
+                    </span>
+                  </span>
+                </label>
+
+                <label className="flex items-start gap-2 text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={!!form.auto_link_by_verified_email}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        auto_link_by_verified_email: e.target.checked,
+                      })
+                    }
+                    className="mt-0.5"
+                  />
+                  <span>
+                    <span className="font-medium">
+                      Auto-link by verified email
+                    </span>
+                    <span className="block text-xs text-amber-700">
+                      Migration-only. Binds existing local users to this IdP
+                      on first SSO login. Disable as soon as migration is
+                      done.
+                    </span>
+                  </span>
+                </label>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Fallback team (when no group claim matches)
+                  </label>
+                  <select
+                    value={form.fallback_organization_id ?? ''}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        fallback_organization_id: e.target.value || null,
+                      })
+                    }
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm bg-white"
+                  >
+                    <option value="">— none (PERSONAL org auto-create) —</option>
+                    {organizations.map((o) => (
+                      <option key={o.id} value={o.id}>
+                        {o.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Fallback role
+                  </label>
+                  <select
+                    value={form.fallback_role ?? 'member'}
+                    onChange={(e) =>
+                      setForm({ ...form, fallback_role: e.target.value })
+                    }
+                    className="w-full px-2 py-1 border border-gray-300 rounded text-sm bg-white"
+                  >
+                    {ROLES.map((r) => (
+                      <option key={r} value={r}>
+                        {r}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {wouldLockout && (
+                  <div className="flex items-start gap-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
+                    <ExclamationTriangleIcon className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                    <span>
+                      With <code>reject_unmapped</code> on and no fallback team,
+                      every login will fail until you add at least one group
+                      mapping. You can save the provider now and add mappings
+                      from its detail page.
+                    </span>
+                  </div>
+                )}
+              </div>
             </>
           )}
 
@@ -314,9 +413,75 @@ function CreateProviderModal({
   )
 }
 
+// ---------------------------------------------------------------------------
+// Force-SSO-only toggle component
+// ---------------------------------------------------------------------------
+
+function ForceSsoOnlyToggle() {
+  const [enabled, setEnabled] = useState<boolean | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    getForceSsoOnly()
+      .then(setEnabled)
+      .catch((err) => setError(err?.response?.data?.detail || err.message))
+  }, [])
+
+  const handleToggle = async () => {
+    if (enabled === null) return
+    const next = !enabled
+    if (
+      next &&
+      !window.confirm(
+        'Enable force-SSO-only? Local password login will be disabled for everyone. ' +
+          'You must keep at least one local-password instance admin (break-glass).',
+      )
+    ) {
+      return
+    }
+    setLoading(true)
+    setError(null)
+    try {
+      const result = await setForceSsoOnly(next)
+      setEnabled(result)
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || err.message || 'Update failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (enabled === null && !error) return null
+
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <button
+        type="button"
+        onClick={handleToggle}
+        disabled={loading}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-medium transition-colors ${
+          enabled
+            ? 'bg-red-50 border-red-300 text-red-800 hover:bg-red-100'
+            : 'bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100'
+        }`}
+      >
+        <LockClosedIcon className="h-4 w-4" />
+        Force SSO-only: {enabled ? 'ON' : 'off'}
+      </button>
+      {error && <span className="text-xs text-red-700">{error}</span>}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
 export function SsoProvidersPage() {
   const [providers, setProviders] = useState<OIDCProvider[] | null>(null)
   const [presets, setPresets] = useState<OIDCPreset[]>([])
+  const [organizations, setOrganizations] = useState<AdminOrganization[]>([])
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
@@ -325,9 +490,14 @@ export function SsoProvidersPage() {
     setLoading(true)
     setError(null)
     try {
-      const [provs, pres] = await Promise.all([listProviders(), listPresets()])
+      const [provs, pres, orgs] = await Promise.all([
+        listProviders(),
+        listPresets(),
+        listAllOrganizations(),
+      ])
       setProviders(provs)
       setPresets(pres)
+      setOrganizations(orgs)
     } catch (err: any) {
       setError(err?.response?.data?.detail || err.message || 'Failed to load')
     } finally {
@@ -363,6 +533,10 @@ export function SsoProvidersPage() {
     }
   }
 
+  const anyAutoLink = (providers ?? []).some(
+    (p) => p.auto_link_by_verified_email,
+  )
+
   return (
     <div className="container py-8 max-w-4xl">
       <div className="flex items-start justify-between mb-6">
@@ -377,17 +551,38 @@ export function SsoProvidersPage() {
             the login page. Group mappings are configured per provider.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={refresh} disabled={loading}>
-            <ArrowPathIcon className="h-4 w-4 mr-2" />
-            Refresh
-          </Button>
-          <Button onClick={() => setShowCreate(true)} disabled={loading}>
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Add provider
-          </Button>
+        <div className="flex flex-col items-end gap-3">
+          <ForceSsoOnlyToggle />
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={refresh} disabled={loading}>
+              <ArrowPathIcon className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+            <Button onClick={() => setShowCreate(true)} disabled={loading}>
+              <PlusIcon className="h-4 w-4 mr-2" />
+              Add provider
+            </Button>
+          </div>
         </div>
       </div>
+
+      {anyAutoLink && (
+        <Card className="mb-4 p-4 bg-amber-50 border border-amber-300">
+          <div className="flex items-start gap-3 text-sm text-amber-900">
+            <ExclamationTriangleIcon className="h-5 w-5 text-amber-600 flex-shrink-0" />
+            <div>
+              <div className="font-medium">
+                Auto-link by verified email is ENABLED on at least one provider
+              </div>
+              <div className="text-xs mt-1">
+                This setting binds existing local accounts to SSO identities
+                automatically on first login. Disable it as soon as migration
+                is complete to prevent unintended account linking.
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {error && (
         <Card className="mb-4 p-4 bg-red-50 border border-red-200">
@@ -431,9 +626,12 @@ export function SsoProvidersPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-base font-semibold text-gray-900 truncate">
+                    <Link
+                      to={`/app/admin/sso-providers/${p.id}`}
+                      className="text-base font-semibold text-gray-900 truncate hover:text-orange"
+                    >
                       {p.name}
-                    </h3>
+                    </Link>
                     <Badge variant={p.is_active ? 'success' : 'gray'}>
                       {p.is_active ? 'active' : 'disabled'}
                     </Badge>
@@ -442,7 +640,8 @@ export function SsoProvidersPage() {
                     )}
                   </div>
                   <div className="text-sm text-gray-600 mb-2">
-                    Button label: <span className="font-medium">{p.display_label}</span>
+                    Button label:{' '}
+                    <span className="font-medium">{p.display_label}</span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-500">
                     <div>
@@ -470,18 +669,25 @@ export function SsoProvidersPage() {
                       </code>
                     </div>
                   </div>
-                  {p.reject_unmapped_users && p.mapping_count === 0 && !p.fallback_organization_id && (
-                    <div className="mt-2 flex items-start gap-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
-                      <ExclamationTriangleIcon className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                      <span>
-                        This provider would lock out every user — add a
-                        group mapping or set a fallback organization
-                        before activating.
-                      </span>
-                    </div>
-                  )}
+                  {p.reject_unmapped_users &&
+                    p.mapping_count === 0 &&
+                    !p.fallback_organization_id && (
+                      <div className="mt-2 flex items-start gap-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-800">
+                        <ExclamationTriangleIcon className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                        <span>
+                          This provider would lock out every user — add a
+                          group mapping or set a fallback organization
+                          before activating.
+                        </span>
+                      </div>
+                    )}
                 </div>
                 <div className="flex flex-col gap-2 flex-shrink-0">
+                  <Link to={`/app/admin/sso-providers/${p.id}`}>
+                    <Button variant="secondary" size="sm" className="w-full">
+                      Manage
+                    </Button>
+                  </Link>
                   <Button
                     variant="secondary"
                     size="sm"
@@ -507,6 +713,7 @@ export function SsoProvidersPage() {
       <CreateProviderModal
         isOpen={showCreate}
         presets={presets}
+        organizations={organizations}
         onClose={() => setShowCreate(false)}
         onCreated={refresh}
       />
