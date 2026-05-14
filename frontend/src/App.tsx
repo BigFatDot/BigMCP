@@ -32,6 +32,7 @@ import { OAuthClientsPage } from './pages/admin/OAuthClientsPage'
 import { SsoProvidersPage } from './pages/admin/SsoProvidersPage'
 import { SsoProviderDetailPage } from './pages/admin/SsoProviderDetailPage'
 import { MarketplaceCurationPage } from './pages/admin/MarketplaceCurationPage'
+import { DefaultPoolPage } from './pages/admin/DefaultPoolPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -225,6 +226,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <MarketplaceCurationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/default-pool"
+            element={
+              <ProtectedRoute>
+                <DefaultPoolPage />
               </ProtectedRoute>
             }
           />

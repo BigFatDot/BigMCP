@@ -50,6 +50,7 @@ import {
   type ToolGroup,
 } from '@/services/marketplace'
 import type { Composition } from '@/services/marketplace'
+import { userPinApi } from '@/services/persistentPool'
 import { useOrganization } from '@/hooks/useAuth'
 
 import { ToolCard, type ToolCardData } from './ToolCard'
@@ -123,6 +124,13 @@ export function ToolsWorkspace() {
     queryFn: () => compositionsApi.list({ status: 'production' }),
   })
 
+  // Per-user persistent pins (Phase 3): bookmarks that survive sessions
+  // and ride on top of the org default pool.
+  const userPinsQuery = useQuery({
+    queryKey: ['user-pins'],
+    queryFn: () => userPinApi.list(),
+  })
+
   // ---- Derived ----
   const allTools: CatalogTool[] = useMemo(() => {
     const rows: any[] = (toolsQuery.data as any[]) || []
@@ -176,6 +184,37 @@ export function ToolsWorkspace() {
       }
     })
   }, [allTools, credentialsQuery.data])
+
+  // Map tool/composition id → existing pin row (for the unpin DELETE).
+  const pinByKey = useMemo(() => {
+    const m = new Map<string, string>() // key → pin_id
+    for (const p of userPinsQuery.data?.pins || []) {
+      if (p.tool_id) m.set(`tool:${p.tool_id}`, p.id)
+      if (p.composition_id) m.set(`composition:${p.composition_id}`, p.id)
+    }
+    return m
+  }, [userPinsQuery.data])
+
+  const togglePinMutation = useMutation({
+    mutationFn: async (args: { kind: 'tool' | 'composition'; id: string }) => {
+      const key = `${args.kind}:${args.id}`
+      const existingPinId = pinByKey.get(key)
+      if (existingPinId) {
+        await userPinApi.unpin(existingPinId)
+      } else {
+        await userPinApi.pin(
+          args.kind === 'tool'
+            ? { tool_id: args.id }
+            : { composition_id: args.id },
+        )
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-pins'] })
+    },
+    onError: (e: any) =>
+      toast.error(e.response?.data?.detail || e.message || 'Pin update failed'),
+  })
 
   const revokeServerMutation = useMutation({
     mutationFn: (credentialId: string) => credentialsApi.deleteUserCredential(credentialId),
@@ -685,20 +724,29 @@ export function ToolsWorkspace() {
                   </div>
                 )
               ) : (
-                filteredCatalog.map((tool) => (
-                  <ToolCard
-                    key={tool.id}
-                    data={tool}
-                    inPool={tool.inPool}
-                    origin="catalog"
-                    onAction={() =>
-                      tool.inPool
-                        ? unloadMutation.mutate([tool.id])
-                        : loadMutation.mutate([tool.id])
-                    }
-                    actionLabel={tool.inPool ? '−' : '+'}
-                  />
-                ))
+                filteredCatalog.map((tool) => {
+                  const pinKey = `tool:${tool.id}`
+                  const pinned = pinByKey.has(pinKey)
+                  return (
+                    <ToolCard
+                      key={tool.id}
+                      data={tool}
+                      inPool={tool.inPool}
+                      origin="catalog"
+                      onAction={() =>
+                        tool.inPool
+                          ? unloadMutation.mutate([tool.id])
+                          : loadMutation.mutate([tool.id])
+                      }
+                      actionLabel={tool.inPool ? '−' : '+'}
+                      pinned={pinned}
+                      pinBusy={togglePinMutation.isPending}
+                      onTogglePin={() =>
+                        togglePinMutation.mutate({ kind: 'tool', id: tool.id })
+                      }
+                    />
+                  )
+                })
               )}
             </div>
           </DropZone>
@@ -729,25 +777,43 @@ export function ToolsWorkspace() {
                   })}
                 </div>
               )}
-              {productionCompositions.map((c) => (
-                <ToolCard
-                  key={`comp-${c.id}`}
-                  data={c}
-                  origin="pool"
-                  draggable={false}
-                  inPool
-                />
-              ))}
-              {poolTools.map((tool) => (
-                <ToolCard
-                  key={tool.id}
-                  data={tool}
-                  inPool
-                  origin="pool"
-                  onAction={() => unloadMutation.mutate([tool.id])}
-                  actionLabel="×"
-                />
-              ))}
+              {productionCompositions.map((c) => {
+                const pinKey = `composition:${c.id}`
+                const pinned = pinByKey.has(pinKey)
+                return (
+                  <ToolCard
+                    key={`comp-${c.id}`}
+                    data={c}
+                    origin="pool"
+                    draggable={false}
+                    inPool
+                    pinned={pinned}
+                    pinBusy={togglePinMutation.isPending}
+                    onTogglePin={() =>
+                      togglePinMutation.mutate({ kind: 'composition', id: c.id })
+                    }
+                  />
+                )
+              })}
+              {poolTools.map((tool) => {
+                const pinKey = `tool:${tool.id}`
+                const pinned = pinByKey.has(pinKey)
+                return (
+                  <ToolCard
+                    key={tool.id}
+                    data={tool}
+                    inPool
+                    origin="pool"
+                    onAction={() => unloadMutation.mutate([tool.id])}
+                    actionLabel="×"
+                    pinned={pinned}
+                    pinBusy={togglePinMutation.isPending}
+                    onTogglePin={() =>
+                      togglePinMutation.mutate({ kind: 'tool', id: tool.id })
+                    }
+                  />
+                )
+              })}
             </div>
           </DropZone>
 

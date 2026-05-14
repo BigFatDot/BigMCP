@@ -9,6 +9,8 @@
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { CheckCircleIcon, SparklesIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline'
+import { BookmarkIcon as BookmarkOutlineIcon } from '@heroicons/react/24/outline'
+import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { cn } from '@/utils/cn'
 
 export interface ToolCardData {
@@ -31,6 +33,10 @@ interface ToolCardProps {
   actionLabel?: string
   onAction?: () => void
   draggable?: boolean
+  /** Pin state — when defined, renders a bookmark toggle. */
+  pinned?: boolean
+  onTogglePin?: () => void
+  pinBusy?: boolean
 }
 
 export function ToolCard({
@@ -43,6 +49,9 @@ export function ToolCard({
   actionLabel,
   onAction,
   draggable = true,
+  pinned,
+  onTogglePin,
+  pinBusy,
 }: ToolCardProps) {
   const dragId = `${origin}:${data.id}${toolboxId ? `:${toolboxId}` : ''}`
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -95,9 +104,35 @@ export function ToolCard({
             </div>
           )}
         </div>
+        {onTogglePin && (
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation()
+              if (!pinBusy) onTogglePin()
+            }}
+            disabled={pinBusy}
+            title={pinned ? 'Unpin from your pool' : 'Pin to your pool (persists across sessions)'}
+            className={cn(
+              'p-1 rounded transition-colors flex-shrink-0',
+              pinned
+                ? 'text-orange hover:text-orange-dark'
+                : 'text-gray-300 hover:text-gray-500 opacity-0 group-hover:opacity-100',
+              pinBusy && 'opacity-50 cursor-wait',
+            )}
+          >
+            {pinned ? (
+              <BookmarkSolidIcon className="h-4 w-4" />
+            ) : (
+              <BookmarkOutlineIcon className="h-4 w-4" />
+            )}
+          </button>
+        )}
         {onAction && actionLabel && (
           <button
             type="button"
+            onPointerDown={(e) => e.stopPropagation()}
             onClick={(e) => {
               e.stopPropagation()
               onAction()
