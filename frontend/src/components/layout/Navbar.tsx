@@ -14,6 +14,8 @@ import {
   CreditCardIcon,
   UsersIcon,
   KeyIcon,
+  ShieldCheckIcon,
+  ClipboardDocumentListIcon,
 } from '@heroicons/react/24/outline'
 import { useAuth, useSubscription, useEdition } from '../../hooks/useAuth'
 import { BigMCPLogoWithText } from '../brand/BigMCPLogo'
@@ -190,6 +192,31 @@ export function Navbar() {
                             {t('menu.preferences')}
                           </Link>
                         </div>
+
+                        {/* Instance admin section — only visible to instance admins */}
+                        {user?.is_instance_admin && (
+                          <div className="border-t border-gray-200 py-2">
+                            <div className="px-4 pb-1 text-[10px] uppercase tracking-wide text-gray-400">
+                              Instance admin
+                            </div>
+                            <Link
+                              to="/app/admin/users"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <ShieldCheckIcon className="h-5 w-5 text-gray-400" />
+                              Users
+                            </Link>
+                            <Link
+                              to="/app/admin/audit-logs"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <ClipboardDocumentListIcon className="h-5 w-5 text-gray-400" />
+                              Audit logs
+                            </Link>
+                          </div>
+                        )}
 
                         {/* Logout */}
                         <div className="border-t border-gray-200 pt-2">

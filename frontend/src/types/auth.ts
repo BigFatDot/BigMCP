@@ -26,6 +26,10 @@ export interface User {
   is_active: boolean
   is_verified: boolean
   is_superuser: boolean
+  /** True when user.preferences.instance_admin is set on the backend.
+   * Surfaced via /auth/me so the navbar can show admin links without
+   * a separate round-trip to /admin/status. */
+  is_instance_admin?: boolean
   organization_id?: string
   organization_memberships?: OrganizationMembership[]
   created_at: string
