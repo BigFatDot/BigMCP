@@ -24,6 +24,7 @@ import {
 import { DocsLayout, DocPage } from './pages/docs'
 import { AuditLogsPage } from './pages/admin/AuditLogsPage'
 import { UsersAdminPage } from './pages/admin/UsersAdminPage'
+import { ServerAccessPage } from './pages/admin/ServerAccessPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -160,6 +161,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <UsersAdminPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/server-access"
+            element={
+              <ProtectedRoute>
+                <ServerAccessPage />
               </ProtectedRoute>
             }
           />

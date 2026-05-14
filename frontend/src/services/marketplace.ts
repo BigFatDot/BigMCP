@@ -1174,6 +1174,18 @@ export const serverControlApi = {
   },
 
   /**
+   * Update server RBAC: roles allowed to use this server at runtime.
+   * Convention identical to Composition.allowed_roles —
+   *   empty []      -> all roles except VIEWER
+   *   ["admin"]     -> ADMIN and OWNER only
+   *   ["viewer"]    -> include VIEWER explicitly
+   * Backend validates against UserRole enum.
+   */
+  async setServerAllowedRoles(serverId: string, allowedRoles: string[]): Promise<void> {
+    await api.patch(`/mcp-servers/${serverId}`, { allowed_roles: allowedRoles })
+  },
+
+  /**
    * Get server status
    */
   async getServerStatus(serverId: string): Promise<{

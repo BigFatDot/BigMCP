@@ -16,6 +16,7 @@ import {
   KeyIcon,
   ShieldCheckIcon,
   ClipboardDocumentListIcon,
+  LockClosedIcon,
 } from '@heroicons/react/24/outline'
 import { useAuth, useSubscription, useEdition } from '../../hooks/useAuth'
 import { BigMCPLogoWithText } from '../brand/BigMCPLogo'
@@ -214,6 +215,14 @@ export function Navbar() {
                             >
                               <ClipboardDocumentListIcon className="h-5 w-5 text-gray-400" />
                               Audit logs
+                            </Link>
+                            <Link
+                              to="/app/admin/server-access"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <LockClosedIcon className="h-5 w-5 text-gray-400" />
+                              Server access
                             </Link>
                           </div>
                         )}
