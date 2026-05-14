@@ -259,6 +259,14 @@ export function Navbar() {
                               <ShieldCheckIcon className="h-5 w-5 text-gray-400" />
                               SSO providers
                             </Link>
+                            <Link
+                              to="/app/admin/marketplace-curation"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <PuzzlePieceIcon className="h-5 w-5 text-gray-400" />
+                              Marketplace curation
+                            </Link>
                           </div>
                         )}
 
