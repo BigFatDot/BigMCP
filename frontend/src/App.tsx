@@ -20,6 +20,7 @@ import {
   TeamPage,
   SubscriptionPage,
   PreferencesPage,
+  ConnectedAppsPage,
 } from './pages/settings'
 import { DocsLayout, DocPage } from './pages/docs'
 import { AuditLogsPage } from './pages/admin/AuditLogsPage'
@@ -146,6 +147,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <PreferencesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="connected-apps"
+            element={
+              <ProtectedRoute>
+                <ConnectedAppsPage />
               </ProtectedRoute>
             }
           />

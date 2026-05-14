@@ -187,6 +187,15 @@ export function Navbar() {
                           </Link>
 
                           <Link
+                            to="/app/connected-apps"
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            <PuzzlePieceIcon className="h-5 w-5 text-gray-400" />
+                            Connected apps
+                          </Link>
+
+                          <Link
                             to="/app/preferences"
                             className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                             onClick={() => setShowUserMenu(false)}
