@@ -10,7 +10,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import { BigMCPLogoWithText } from '../../components/brand/BigMCPLogo'
-import { TOTPInput } from '../../components/auth'
+import { TOTPInput, SsoButtons } from '../../components/auth'
 import { EnvelopeIcon, ArrowPathIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 import { mfaApi } from '../../services/marketplace'
 
@@ -262,7 +262,9 @@ export function LoginPage() {
               </div>
             ) : (
               /* Regular Login Form */
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <>
+                <SsoButtons />
+                <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Email */}
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -310,6 +312,7 @@ export function LoginPage() {
                   {isLoading ? t('login.buttonLoading') : t('login.button')}
                 </button>
               </form>
+              </>
             )}
 
           </div>

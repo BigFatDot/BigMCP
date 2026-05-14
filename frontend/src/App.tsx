@@ -8,6 +8,7 @@ import { ToolsDashboard } from './components/dashboard/ToolsDashboard'
 import { ToolsWorkspace } from './components/dashboard/workspace/ToolsWorkspace'
 import { OnboardingWizard } from './components/onboarding/OnboardingWizard'
 import { LoginPage } from './pages/auth/LoginPage'
+import { SsoCallbackPage } from './pages/auth/SsoCallbackPage'
 import { SignupPage } from './pages/auth/SignupPage'
 import { AcceptInvitationPage } from './pages/auth/AcceptInvitationPage'
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage'
@@ -45,6 +46,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/oauth/callback" element={<OAuthCallback />} />
+        <Route path="/auth/sso-callback" element={<SsoCallbackPage />} />
         <Route path="/invitations/:token/accept" element={<AcceptInvitationPage />} />
         {/* Email Verification */}
         <Route path="/verify-email" element={<VerifyEmailPage />} />
