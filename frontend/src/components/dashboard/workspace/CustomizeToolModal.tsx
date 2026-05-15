@@ -204,7 +204,8 @@ export function CustomizeToolModal({ source, prefixedName, isOpen, onClose, onCr
           properties: exposedProps,
           required: exposedRequired,
         },
-        server_bindings: {},
+        // server_bindings deprecated in B-0 chunk 12; the executor no
+        // longer reads it. Backend default = {} via the schema.
         // Generic wrappers carry no extra runtime requirement — the
         // executor routes by the prefixed tool name. Hide kind in
         // extra_metadata so the compositions page can split wrappers

@@ -18,28 +18,90 @@ from ..models.composition import CompositionStatus, CompositionVisibility
 # =============================================================================
 
 class CompositionStep(BaseModel):
-    """Schema for a single workflow step."""
+    """Schema for a single workflow step.
 
-    id: str = Field(..., description="Unique step identifier")
-    tool: str = Field(..., description="Tool name to execute")
-    params: Dict[str, Any] = Field(
+    Field names are CANONICAL — they match what the executor reads
+    out of ``Composition.steps`` JSONB at runtime. The legacy
+    ``id`` / ``params`` aliases (B-0 chunk 12) were a Pydantic-only
+    artifact that never matched the live data; we don't accept them
+    so authors get a 422 at promotion time instead of a silent
+    failure mid-execution.
+
+    Forward-compatible step types: ``type`` accepts any string;
+    the executor rejects unknown types at dispatch time. New B-0+
+    flags (``idempotent``, ``cancellable``, ``timeout_seconds``,
+    ``retry_strategy``) are optional with sensible defaults.
+    """
+
+    step_id: str = Field(..., description="Unique step identifier")
+    tool: Optional[str] = Field(
+        None,
+        description=(
+            "Tool name to execute. Required when type='tool' (the default); "
+            "B-1+ step types like elicit/wait_callback may omit it."
+        ),
+    )
+    parameters: Dict[str, Any] = Field(
         default_factory=dict,
-        description="Parameters to pass to the tool"
+        description="Parameters to pass to the tool",
     )
     depends_on: List[str] = Field(
         default_factory=list,
-        description="Step IDs this step depends on"
+        description="Step IDs this step depends on",
+    )
+    type: str = Field(
+        default="tool",
+        description=(
+            "Step kind. B-0 supports 'tool' and the debug '_test_suspend'; "
+            "B-1+ adds elicit/wait_callback/subcomposition/approval. The "
+            "executor surfaces a clear error for unknown types."
+        ),
+    )
+    optional: bool = Field(
+        default=False,
+        description="If true, step failure does not fail the composition.",
+    )
+    idempotent: bool = Field(
+        default=False,
+        description=(
+            "If true, the step may be safely re-executed when resumed "
+            "after a crash. Default false guards against double-charge "
+            "/ double-send semantics."
+        ),
+    )
+    cancellable: bool = Field(
+        default=False,
+        description=(
+            "If true, the executor may interrupt the step mid-flight on "
+            "cancel. Default false: the in-flight step finishes first."
+        ),
+    )
+    retry_strategy: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Retry configuration (B-1+ — empty means no retry).",
+    )
+    timeout_seconds: Optional[int] = Field(
+        default=None,
+        description="Per-step timeout. None means use the executor default.",
     )
 
     model_config = ConfigDict(
+        # Reject legacy ``id`` / ``params`` keys at parse time so authors
+        # get a 422 instead of a silent runtime mismatch.
+        extra="forbid",
         json_schema_extra={
             "example": {
-                "id": "step1",
+                "step_id": "step1",
                 "tool": "grist_fetch_record",
-                "params": {"table_id": "Projects", "record_id": "${input.record_id}"},
+                "parameters": {
+                    "table_id": "Projects",
+                    "record_id": "${input.record_id}",
+                },
                 "depends_on": [],
+                "type": "tool",
+                "idempotent": False,
             }
-        }
+        },
     )
 
 
@@ -126,7 +188,15 @@ class CompositionCreate(BaseModel):
     )
     server_bindings: Dict[str, str] = Field(
         default_factory=dict,
-        description="Maps logical server IDs to actual server UUIDs"
+        deprecated=True,
+        description=(
+            "DEPRECATED (B-0 chunk 12): map of logical server IDs to "
+            "actual server UUIDs. The executor no longer reads this; "
+            "tool routing resolves through the user's server pool. "
+            "Field stays on the model for backwards compat (no migration); "
+            "the frontend stops sending it. May be repurposed in B-1+ if a "
+            "real ${binding.X} use case emerges."
+        ),
     )
     allowed_roles: List[str] = Field(
         default_factory=list,
@@ -179,7 +249,13 @@ class CompositionUpdate(BaseModel):
     data_mappings: Optional[List[Dict[str, Any]]] = None
     input_schema: Optional[Dict[str, Any]] = None
     output_schema: Optional[Dict[str, Any]] = None
-    server_bindings: Optional[Dict[str, str]] = None
+    server_bindings: Optional[Dict[str, str]] = Field(
+        None,
+        deprecated=True,
+        description=(
+            "DEPRECATED (B-0 chunk 12): see CompositionCreate.server_bindings."
+        ),
+    )
     allowed_roles: Optional[List[str]] = None
     force_org_credentials: Optional[bool] = None
     status: Optional[str] = None

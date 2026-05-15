@@ -1422,7 +1422,8 @@ export interface Composition {
   }>
   input_schema: Record<string, unknown>
   output_schema?: Record<string, unknown>
-  server_bindings: Record<string, string>
+  /** @deprecated B-0 chunk 12 — executor no longer reads this. */
+  server_bindings?: Record<string, string>
   allowed_roles: string[]
   force_org_credentials: boolean
   requires_approval: boolean
@@ -1455,6 +1456,7 @@ export interface CreateCompositionRequest {
   data_mappings?: Array<{ from: string; to: string }>
   input_schema?: Record<string, unknown>
   output_schema?: Record<string, unknown>
+  /** @deprecated B-0 chunk 12 — executor no longer reads this. */
   server_bindings?: Record<string, string>
   allowed_roles?: string[]
   force_org_credentials?: boolean
