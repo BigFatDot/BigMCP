@@ -1311,6 +1311,18 @@ class MCPUnifiedGateway:
                 else:
                     mcp_tool["description"] = full_description
 
+                # MCP 2025-06-18: pass through `outputSchema` + `annotations`
+                # if the upstream server supplied them. We don't fabricate
+                # annotations from the tool name — clients should treat any
+                # hint as untrusted, but a wrong "readOnlyHint=true" would
+                # be actively misleading. Leave them absent when unknown.
+                upstream_output_schema = tool.get("outputSchema")
+                if isinstance(upstream_output_schema, dict) and upstream_output_schema:
+                    mcp_tool["outputSchema"] = upstream_output_schema
+                upstream_annotations = tool.get("annotations")
+                if isinstance(upstream_annotations, dict) and upstream_annotations:
+                    mcp_tool["annotations"] = upstream_annotations
+
                 # Add service icon if available (MCP protocol support)
                 icon_url = tool.get("metadata", {}).get("icon_url")
                 logger.debug(f"🎨 Tool {original_name}: icon_url={icon_url}, metadata={tool.get('metadata', {})}")
@@ -1428,7 +1440,27 @@ class MCPUnifiedGateway:
                             "composition_name": comp_name,
                             "steps_count": len(comp.steps) if comp.steps else 0
                         },
+                        # MCP 2025-06-18: a composition runs an arbitrary
+                        # chain of upstream tools, so the safe assumption
+                        # is destructive + open-world. Clients that want a
+                        # finer signal can inspect the steps via
+                        # describe_tool / the REST composition endpoint.
+                        "annotations": {
+                            "title": f"Composition: {comp_name}",
+                            "readOnlyHint": False,
+                            "destructiveHint": True,
+                            "idempotentHint": False,
+                            "openWorldHint": True,
+                        },
                     }
+                    # Surface output_schema if the composition declares one.
+                    comp_output_schema = (
+                        comp.output_schema
+                        if hasattr(comp, "output_schema") and comp.output_schema
+                        else None
+                    )
+                    if isinstance(comp_output_schema, dict) and comp_output_schema:
+                        mcp_tool["outputSchema"] = comp_output_schema
                     if not _cfg.MCP_COMPACT_MODE:
                         mcp_tool["description"] = description
 

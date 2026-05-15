@@ -80,7 +80,17 @@ def get_pool_tools() -> List[Dict[str, Any]]:
                     "hint": {"type": "string"}
                 },
                 "required": ["loaded_count", "pool_size"]
-            }
+            },
+            # MCP 2025-06-18: behavior hints. ``search`` only mutates the
+            # internal pool selection — no external side-effect — and is
+            # NOT idempotent because successive calls accumulate matches.
+            "annotations": {
+                "title": "Search & load tools",
+                "readOnlyHint": False,
+                "destructiveHint": False,
+                "idempotentHint": False,
+                "openWorldHint": False,
+            },
         },
         {
             "name": "execute",
@@ -138,7 +148,18 @@ def get_pool_tools() -> List[Dict[str, Any]]:
                     "result": {"type": ["object", "null"]},
                     "error": {"type": ["string", "null"]}
                 }
-            }
+            },
+            # MCP 2025-06-18: ``execute`` may invoke ANY underlying tool —
+            # the safe assumption is destructive + open-world. Clients can
+            # still inspect the resolved tool's own annotations via
+            # ``describe_tool`` if they need a tighter signal.
+            "annotations": {
+                "title": "Execute a goal, tool, or composition",
+                "readOnlyHint": False,
+                "destructiveHint": True,
+                "idempotentHint": False,
+                "openWorldHint": True,
+            },
         },
         {
             "name": "describe_tool",
@@ -172,6 +193,16 @@ def get_pool_tools() -> List[Dict[str, Any]]:
                     "found": {"type": "boolean"},
                 },
                 "required": ["name", "found"],
+            },
+            # MCP 2025-06-18: pure metadata read — fully read-only and
+            # idempotent. No external service calls (the catalog lives in
+            # our own DB).
+            "annotations": {
+                "title": "Describe a tool or composition",
+                "readOnlyHint": True,
+                "destructiveHint": False,
+                "idempotentHint": True,
+                "openWorldHint": False,
             },
         },
     ]
