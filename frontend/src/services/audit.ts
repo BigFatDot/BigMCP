@@ -19,6 +19,10 @@ export interface AuditLog {
   ip_address: string | null
   user_agent: string | null
   details: Record<string, unknown> | null
+  // Resolved labels enriched server-side by the list endpoint
+  // (saves the UI a second round-trip).
+  actor_email: string | null
+  resource_label: string | null
 }
 
 export interface AuditLogListResponse {

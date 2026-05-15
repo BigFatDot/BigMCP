@@ -9,8 +9,18 @@ Provides endpoints for:
 
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from uuid import UUID
+import re
+
+_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
+
+
+def _looks_uuid(s: object) -> bool:
+    return isinstance(s, str) and bool(_UUID_RE.match(s))
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
@@ -463,8 +473,85 @@ async def list_audit_logs(
         stmt = stmt.where(where_clause)
 
     rows = (await db.execute(stmt)).scalars().all()
+
+    # ---- Resolve actor + resource labels in two batched queries -------------
+    # Doing this in Python after the page query keeps the audit endpoint
+    # backend-portable (no joins on a polymorphic resource_type column) and
+    # the cost stays bounded by the page size.
+    from ...models.composition import Composition
+    from ...models.mcp_server import MCPServer
+
+    actor_ids = {r.actor_id for r in rows if r.actor_id}
+    actor_email: dict = {}
+    if actor_ids:
+        for u in (
+            await db.execute(select(User).where(User.id.in_(actor_ids)))
+        ).scalars().all():
+            actor_email[u.id] = u.email
+
+    # Group resource IDs by type so we can do one focused query per kind.
+    by_type: dict = {}
+    for r in rows:
+        if r.resource_type and r.resource_id:
+            by_type.setdefault(r.resource_type, set()).add(r.resource_id)
+
+    resource_label: dict = {}  # (type, id_str) -> label
+
+    def _add(rt: str, rid: str, label: str) -> None:
+        resource_label[(rt, rid)] = label
+
+    # User
+    if "user" in by_type:
+        try:
+            uids = [UUID(s) for s in by_type["user"] if _looks_uuid(s)]
+            for u in (
+                await db.execute(select(User.id, User.email).where(User.id.in_(uids)))
+            ).all():
+                _add("user", str(u.id), u.email)
+        except Exception:
+            pass
+    # Composition
+    if "composition" in by_type:
+        try:
+            cids = [UUID(s) for s in by_type["composition"] if _looks_uuid(s)]
+            for c in (
+                await db.execute(
+                    select(Composition.id, Composition.name).where(
+                        Composition.id.in_(cids)
+                    )
+                )
+            ).all():
+                _add("composition", str(c.id), c.name)
+        except Exception:
+            pass
+    # MCP server
+    if "server" in by_type:
+        try:
+            sids = [UUID(s) for s in by_type["server"] if _looks_uuid(s)]
+            for s in (
+                await db.execute(
+                    select(MCPServer.id, MCPServer.name).where(
+                        MCPServer.id.in_(sids)
+                    )
+                )
+            ).all():
+                _add("server", str(s.id), s.name)
+        except Exception:
+            pass
+
+    items: List[AuditLogResponse] = []
+    for r in rows:
+        item = AuditLogResponse.model_validate(r)
+        if r.actor_id and r.actor_id in actor_email:
+            item.actor_email = actor_email[r.actor_id]
+        if r.resource_type and r.resource_id:
+            item.resource_label = resource_label.get(
+                (r.resource_type, str(r.resource_id))
+            )
+        items.append(item)
+
     return AuditLogListResponse(
-        items=[AuditLogResponse.model_validate(r) for r in rows],
+        items=items,
         total=total,
         limit=limit,
         offset=offset,

@@ -27,6 +27,11 @@ class AuditLogResponse(BaseModel):
     ip_address: Optional[str] = None
     user_agent: Optional[str] = None
     details: Optional[Dict[str, Any]] = None
+    # Optional resolved labels added by the read API to save the UI a
+    # second round-trip (user.email, composition.name, …). Always
+    # populated by the list endpoint; absent in stored rows.
+    actor_email: Optional[str] = None
+    resource_label: Optional[str] = None
 
 
 class AuditLogListResponse(BaseModel):

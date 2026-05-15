@@ -251,12 +251,26 @@ export function AuditLogsPage() {
                     {new Date(log.timestamp).toISOString().replace('T', ' ').slice(0, 19)}
                   </td>
                   <td className="px-3 py-2 font-mono text-xs">{log.action}</td>
-                  <td className="px-3 py-2 font-mono text-xs text-gray-600">
-                    {log.actor_id ? log.actor_id.slice(0, 8) : '—'}
+                  <td
+                    className="px-3 py-2 font-mono text-xs text-gray-600"
+                    title={log.actor_id ?? ''}
+                  >
+                    {log.actor_email
+                      ? log.actor_email
+                      : log.actor_id
+                      ? log.actor_id.slice(0, 8)
+                      : '—'}
                   </td>
-                  <td className="px-3 py-2 font-mono text-xs text-gray-600">
+                  <td
+                    className="px-3 py-2 font-mono text-xs text-gray-600"
+                    title={log.resource_id ?? ''}
+                  >
                     {log.resource_type}
-                    {log.resource_id ? ` / ${log.resource_id.slice(0, 8)}` : ''}
+                    {log.resource_label
+                      ? ` / ${log.resource_label}`
+                      : log.resource_id
+                      ? ` / ${log.resource_id.slice(0, 8)}`
+                      : ''}
                   </td>
                   <td className="px-3 py-2 font-mono text-xs">{log.ip_address ?? '—'}</td>
                   <td className="px-3 py-2 text-right">
