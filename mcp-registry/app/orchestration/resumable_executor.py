@@ -446,6 +446,21 @@ class ResumableExecutor:
                     ttl_seconds=300,
                 )
 
+            if step_type == "elicit":
+                # B-1 chunk 1: human-in-the-loop suspension. Resolve the
+                # prompt now, snapshot the schema + the original client's
+                # capabilities, and yield. The resume path validates the
+                # caller-supplied response against the stored schema
+                # (server-side authoritative) before delegating to
+                # executor.resume(...). See docs/composition_executions_b1.md.
+                from .elicit_step import build_suspend as _build_elicit_suspend
+
+                return _build_elicit_suspend(
+                    step,
+                    state,
+                    client_capabilities=execution.client_capabilities,
+                )
+
             if step_type == "tool":
                 if self._tool_dispatcher is None:
                     raise ToolDispatchUnconfigured(
@@ -458,7 +473,7 @@ class ResumableExecutor:
 
             raise NotImplementedError(
                 f"Step type {step_type!r} not implemented in this version. "
-                f"B-0 supports: tool, _test_suspend."
+                f"B-0 supports: tool, _test_suspend. B-1 adds: elicit."
             )
         except StepResultTooLarge:
             state.step_status[step_id] = "failed"

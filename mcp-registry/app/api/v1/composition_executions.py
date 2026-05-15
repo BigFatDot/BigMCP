@@ -306,6 +306,21 @@ async def resume_execution(
             ),
         )
 
+    # B-1 chunk 2: per-step-type validation BEFORE delegating to the
+    # executor. ``elicit`` carries an author-declared JSON Schema in
+    # ``state.suspension.payload.schema``; the response must validate
+    # or we 422 with the schema error path. The row stays suspended so
+    # the user can retry with a corrected payload.
+    suspension = (row.state or {}).get("suspension") or {}
+    if suspension.get("reason") == "elicit":
+        from ...orchestration.elicit_step import validate_response as _validate_elicit
+        ok, err = _validate_elicit(suspension.get("payload") or {}, body.response)
+        if not ok:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=err or "elicit response failed schema validation",
+            )
+
     try:
         new_status = await get_executor().resume(execution_id, body.response)
     except ExecutionNotFound:

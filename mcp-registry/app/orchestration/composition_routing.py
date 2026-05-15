@@ -50,10 +50,11 @@ from .resumable_executor import (
 logger = logging.getLogger("orchestration.composition_routing")
 
 
-# Step types that can yield a Suspend signal. B-0 only knows
-# ``_test_suspend``; B-1+ adds ``elicit``, ``wait_callback``,
-# ``wait_until``, ``approval``, ``subcomposition``.
-SUSPENDING_STEP_TYPES: frozenset[str] = frozenset({"_test_suspend"})
+# Step types that can yield a Suspend signal. B-0 ships
+# ``_test_suspend`` (debug); B-1 adds ``elicit`` (human-in-the-loop).
+# B-1.2+ will add ``wait_until``, ``subcomposition``, ``wait_callback``,
+# ``approval``.
+SUSPENDING_STEP_TYPES: frozenset[str] = frozenset({"_test_suspend", "elicit"})
 
 
 # ---------------------------------------------------------------------------

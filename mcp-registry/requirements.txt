@@ -43,3 +43,7 @@ python-multipart>=0.0.6
 bcrypt>=4.1.2
 cryptography>=41.0.0
 pyotp>=2.9.0  # TOTP/MFA support (RFC 6238)
+
+# JSON Schema validation (B-1 elicit step type — author-declared schemas
+# validated server-side on resume).
+jsonschema>=4.20.0
