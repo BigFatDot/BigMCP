@@ -390,6 +390,55 @@ async def broadcast_resources_changed(org_id=None) -> int:
 # have been extracted to mcp_gateway/utils.py and are imported above.
 
 
+async def _log_tool_call_async(
+    *,
+    user_id: str,
+    organization_id: str,
+    session_id: Optional[str],
+    tool_name: str,
+    duration_ms: int,
+    status: str,
+    composition_id: Optional[str] = None,
+    error: Optional[str] = None,
+) -> None:
+    """Phase 5: persist a single tool call to ``execution_log``.
+
+    Fire-and-forget — never raises. Used to compute pin suggestions and
+    the per-user 30-day preheat overlay over the same ``execution_log``
+    table the ``execute`` MCP tool already writes to.
+    """
+    try:
+        from uuid import UUID as _UUID
+        from sqlalchemy.exc import SQLAlchemyError
+        from ..db.session import AsyncSessionLocal as _Sess
+        from ..models.execution_log import ExecutionLog as _ExecLog
+
+        async with _Sess() as db:
+            try:
+                row = _ExecLog(
+                    user_id=_UUID(str(user_id)),
+                    organization_id=_UUID(str(organization_id)),
+                    session_id=session_id,
+                    goal=None,
+                    mode="tool_call",
+                    shortcut_level=None,
+                    duration_ms=duration_ms,
+                    status=status,
+                    error=error,
+                    composition_id=(
+                        _UUID(str(composition_id)) if composition_id else None
+                    ),
+                    tools_called=[tool_name],
+                )
+                db.add(row)
+                await db.commit()
+            except SQLAlchemyError as _err:
+                logger.warning(f"tool_call execution_log insert failed: {_err}")
+                await db.rollback()
+    except Exception as _err:  # noqa: BLE001
+        logger.debug(f"tool_call execution_log fire-and-forget failed: {_err}")
+
+
 class MCPUnifiedGateway:
     """
     Unified MCP Gateway implementing complete protocol.
@@ -964,6 +1013,35 @@ class MCPUnifiedGateway:
                                 ).scalars().all()
                                 persistent_tool_ids.update(t for t in user_pin_rows if t)
 
+                            # Phase 5: preheat overlay — also expose the user's
+                            # top-N tools from the past 30 days, even if they
+                            # are not pinned/defaulted. The next agent that
+                            # reconnects sees its everyday catalog without
+                            # having to call ``search`` first.
+                            try:
+                                from ..core.config import settings as _ph_cfg
+                                if _ph_cfg.MCP_PREHEAT_TOP_N > 0 and user_uuid:
+                                    from ..services.usage_analytics import (
+                                        top_tools_for_user,
+                                        resolve_tool_names_to_ids,
+                                    )
+                                    top = await top_tools_for_user(
+                                        db,
+                                        user_id=user_uuid,
+                                        organization_id=org_uuid,
+                                        days=_ph_cfg.MCP_PREHEAT_DAYS,
+                                        limit=_ph_cfg.MCP_PREHEAT_TOP_N,
+                                    )
+                                    if top:
+                                        resolved = await resolve_tool_names_to_ids(
+                                            db,
+                                            organization_id=org_uuid,
+                                            prefixed_names=[t.tool_name for t in top],
+                                        )
+                                        persistent_tool_ids.update(tid for _, tid in resolved)
+                            except Exception as _ph_err:
+                                logger.debug(f"preheat overlay skipped: {_ph_err}")
+
                             # Get all tools for user's org with their server info
                             filters = [
                                 Tool.organization_id == org_uuid,
@@ -1366,8 +1444,9 @@ class MCPUnifiedGateway:
             logger.info(f"Returning {len(mcp_tools)} tools to client (including compositions)")
 
             # MCP 2025-03-26: cursor-based pagination
+            from ..core.config import settings as _pg_settings
             cursor = params.get("cursor")
-            page_size = 100
+            page_size = max(1, _pg_settings.MCP_TOOLS_PAGE_SIZE)
             offset = 0
             if cursor:
                 try:
@@ -1426,6 +1505,12 @@ class MCPUnifiedGateway:
             return self._error_response(request_id, -32602, "Missing 'name' parameter")
 
         logger.info(f"Calling tool: {tool_name} with args: {tool_arguments}")
+
+        # Phase 5: timestamp for usage tracking. Logged fire-and-forget after
+        # the dispatch returns. Meta-tools (search/execute/describe_tool) write
+        # their own log rows or are not real usage signals — skip them here.
+        import time as _time
+        _call_start = _time.time()
 
         try:
             # Validate tool access if restricted to ToolGroup
@@ -1572,6 +1657,33 @@ class MCPUnifiedGateway:
             if isinstance(result, dict):
                 tool_result_payload["structuredContent"] = result
 
+            # Phase 5: fire-and-forget tool-call log row used by the
+            # usage-analytics service to drive pin suggestions and the
+            # 30-day preheat overlay. Skips meta-tools that are not real
+            # usage signals or that already write their own row.
+            try:
+                if (
+                    user_id
+                    and organization_id
+                    and tool_name not in {"search", "execute", "describe_tool"}
+                ):
+                    _comp_id_for_log = None
+                    if tool_name.startswith("composition_") or tool_name.startswith("workflow_"):
+                        _comp_id_for_log = locals().get("composition_id")
+                    asyncio.create_task(
+                        _log_tool_call_async(
+                            user_id=str(user_id),
+                            organization_id=str(organization_id),
+                            session_id=session_id,
+                            tool_name=tool_name,
+                            duration_ms=int((_time.time() - _call_start) * 1000),
+                            status="success",
+                            composition_id=_comp_id_for_log,
+                        )
+                    )
+            except Exception:
+                pass
+
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,
@@ -1580,6 +1692,27 @@ class MCPUnifiedGateway:
 
         except Exception as e:
             logger.error(f"Error executing tool {tool_name}: {e}", exc_info=True)
+            # Phase 5: log failed tool calls too — they still indicate intent.
+            try:
+                if (
+                    user_id
+                    and organization_id
+                    and tool_name not in {"search", "execute", "describe_tool"}
+                ):
+                    asyncio.create_task(
+                        _log_tool_call_async(
+                            user_id=str(user_id),
+                            organization_id=str(organization_id),
+                            session_id=session_id,
+                            tool_name=tool_name,
+                            duration_ms=int((_time.time() - _call_start) * 1000),
+                            status="failed",
+                            error=str(e),
+                            composition_id=None,
+                        )
+                    )
+            except Exception:
+                pass
             return {
                 "jsonrpc": "2.0",
                 "id": request_id,

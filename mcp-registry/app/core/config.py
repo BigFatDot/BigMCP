@@ -168,6 +168,22 @@ class Settings:
         os.getenv("MCP_COMPACT_MODE", "false").lower() == "true"
     )
 
+    # MCP tools/list pagination (Phase 5)
+    # ===================================
+    # Page size for the cursor-based pagination of tools/list.
+    # 50 keeps the first page small enough that even verbose-mode clients
+    # stay well under typical context budgets (~150 tools = full window).
+    MCP_TOOLS_PAGE_SIZE: int = int(os.getenv("MCP_TOOLS_PAGE_SIZE", "50"))
+
+    # MCP usage-driven preheat (Phase 5)
+    # ==================================
+    # When the user reconnects, ``tools/list`` includes the top-N tools
+    # they used over the last MCP_PREHEAT_DAYS days, even if those tools
+    # are not in the org default pool nor in the user's pin list. Set
+    # MCP_PREHEAT_TOP_N=0 to disable.
+    MCP_PREHEAT_TOP_N: int = int(os.getenv("MCP_PREHEAT_TOP_N", "5"))
+    MCP_PREHEAT_DAYS: int = int(os.getenv("MCP_PREHEAT_DAYS", "30"))
+
     # =====================================
     # Edition System
     # =====================================

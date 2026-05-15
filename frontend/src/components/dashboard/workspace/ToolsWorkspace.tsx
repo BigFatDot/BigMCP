@@ -57,6 +57,7 @@ import { ToolCard, type ToolCardData } from './ToolCard'
 import { AssistantModal } from './AssistantModal'
 import { CreateToolboxFromDropModal } from './CreateToolboxFromDropModal'
 import { ToolboxEditModal } from './ToolboxEditModal'
+import { PinSuggestionsBanner } from './PinSuggestionsBanner'
 import type { CatalogTool, DragPayload, ToolboxSummary } from './types'
 
 interface DropZoneProps {
@@ -518,6 +519,9 @@ export function ToolsWorkspace() {
             </Button>
           </div>
         </div>
+
+        {/* Phase 5: surface frequently-used tools the user hasn't pinned yet. */}
+        <PinSuggestionsBanner />
 
         {/* Search bar */}
         <div className="mb-4 flex flex-col sm:flex-row gap-2">

@@ -432,3 +432,171 @@ async def unpin_entry(
 
     await _notify_user_tools_changed(user.id)
     return None
+
+
+# ===========================================================================
+# /pool/pin/suggestions — Phase 5 usage-driven recommendations
+# ===========================================================================
+
+
+class PinSuggestion(BaseModel):
+    """One pin recommendation for the caller."""
+    kind: str  # "tool" | "composition"
+    tool_id: Optional[UUID] = None
+    composition_id: Optional[UUID] = None
+    name: str
+    server_name: Optional[str] = None
+    description: Optional[str] = None
+    count: int
+    last_used_at: datetime
+    days: int  # The lookback window the suggestion was computed over
+
+
+class PinSuggestionsResponse(BaseModel):
+    user_id: UUID
+    days: int
+    suggestions: List[PinSuggestion]
+
+
+@user_router.get("/suggestions", response_model=PinSuggestionsResponse)
+async def list_pin_suggestions(
+    days: int = 7,
+    limit: int = 10,
+    min_count: int = 3,
+    user: User = Depends(get_current_user_jwt),
+    db: AsyncSession = Depends(get_db),
+):
+    """Return tools/compositions the user invoked at least ``min_count``
+    times over the last ``days`` days but has not pinned yet.
+
+    Already-pinned and already-in-org-default entries are filtered out:
+    the user has no value in pinning what is already permanently visible
+    in their pool.
+    """
+    org_id = _resolve_org_id(user)
+
+    from ...services.usage_analytics import (
+        top_tools_for_user,
+        top_compositions_for_user,
+        resolve_tool_names_to_ids,
+    )
+    from ...models.composition import Composition
+    from ...models.mcp_server import MCPServer
+    from ...models.tool import Tool
+
+    # Already-permanent ids the user does not need suggested back at them.
+    pin_rows = (
+        await db.execute(
+            select(UserPersistentPoolEntry).where(
+                UserPersistentPoolEntry.user_id == user.id
+            )
+        )
+    ).scalars().all()
+    pinned_tool_ids = {r.tool_id for r in pin_rows if r.tool_id}
+    pinned_comp_ids = {r.composition_id for r in pin_rows if r.composition_id}
+
+    default_rows = (
+        await db.execute(
+            select(OrgDefaultPoolEntry).where(
+                OrgDefaultPoolEntry.organization_id == org_id
+            )
+        )
+    ).scalars().all()
+    default_tool_ids = {r.tool_id for r in default_rows if r.tool_id}
+    default_comp_ids = {r.composition_id for r in default_rows if r.composition_id}
+
+    excluded_tool_ids = pinned_tool_ids | default_tool_ids
+    excluded_comp_ids = pinned_comp_ids | default_comp_ids
+
+    # Tools — pull a generous window (limit*3) so we have something left
+    # to surface after filtering already-pinned entries.
+    tool_usage = await top_tools_for_user(
+        db,
+        user_id=user.id,
+        organization_id=org_id,
+        days=days,
+        limit=limit * 3,
+    )
+    tool_usage = [u for u in tool_usage if u.count >= min_count]
+    resolved = await resolve_tool_names_to_ids(
+        db,
+        organization_id=org_id,
+        prefixed_names=[u.tool_name for u in tool_usage],
+    )
+    name_to_id = {name: tid for name, tid in resolved}
+
+    suggestions: List[PinSuggestion] = []
+    for u in tool_usage:
+        tid = name_to_id.get(u.tool_name)
+        if not tid or tid in excluded_tool_ids:
+            continue
+        # Resolve display fields lazily — we already joined once, but
+        # simpler to do a second small lookup.
+        meta = (
+            await db.execute(
+                select(Tool, MCPServer)
+                .join(MCPServer, Tool.server_id == MCPServer.id)
+                .where(Tool.id == tid)
+            )
+        ).first()
+        if not meta:
+            continue
+        tool, server = meta
+        suggestions.append(
+            PinSuggestion(
+                kind="tool",
+                tool_id=tid,
+                name=tool.display_name or tool.tool_name,
+                server_name=server.name,
+                description=tool.description,
+                count=u.count,
+                last_used_at=u.last_used_at,
+                days=days,
+            )
+        )
+
+    # Compositions — same story, the caller likely cares about both.
+    comp_usage = await top_compositions_for_user(
+        db,
+        user_id=user.id,
+        organization_id=org_id,
+        days=days,
+        limit=limit * 3,
+    )
+    comp_usage = [u for u in comp_usage if u.count >= min_count]
+    if comp_usage:
+        comps = (
+            await db.execute(
+                select(Composition).where(
+                    Composition.id.in_([u.composition_id for u in comp_usage]),
+                    Composition.organization_id == org_id,
+                )
+            )
+        ).scalars().all()
+        comp_by_id = {c.id: c for c in comps}
+        for u in comp_usage:
+            if u.composition_id in excluded_comp_ids:
+                continue
+            comp = comp_by_id.get(u.composition_id)
+            if not comp:
+                continue
+            suggestions.append(
+                PinSuggestion(
+                    kind="composition",
+                    composition_id=comp.id,
+                    name=comp.name,
+                    description=comp.description,
+                    count=u.count,
+                    last_used_at=u.last_used_at,
+                    days=days,
+                )
+            )
+
+    # Highest count first, then most recently used. Cap to the requested
+    # limit AFTER both kinds have been gathered.
+    suggestions.sort(key=lambda s: (-s.count, -s.last_used_at.timestamp()))
+    suggestions = suggestions[:limit]
+
+    return PinSuggestionsResponse(
+        user_id=user.id, days=days, suggestions=suggestions
+    )

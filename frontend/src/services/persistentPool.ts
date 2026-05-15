@@ -78,4 +78,37 @@ export const userPinApi = {
   async unpin(pinId: string): Promise<void> {
     await apiClient.delete(`/pool/pin/${pinId}`)
   },
+  async suggestions(
+    opts: { days?: number; limit?: number; min_count?: number } = {},
+  ): Promise<PinSuggestionsResponse> {
+    const { data } = await apiClient.get<PinSuggestionsResponse>(
+      '/pool/pin/suggestions',
+      {
+        params: {
+          days: opts.days,
+          limit: opts.limit,
+          min_count: opts.min_count,
+        },
+      },
+    )
+    return data
+  },
+}
+
+export interface PinSuggestion {
+  kind: 'tool' | 'composition'
+  tool_id: string | null
+  composition_id: string | null
+  name: string
+  server_name: string | null
+  description: string | null
+  count: number
+  last_used_at: string
+  days: number
+}
+
+export interface PinSuggestionsResponse {
+  user_id: string
+  days: number
+  suggestions: PinSuggestion[]
 }
