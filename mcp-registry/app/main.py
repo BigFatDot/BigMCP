@@ -32,6 +32,7 @@ from .api.v1.marketplace_keys import router as marketplace_keys_router
 from .api.v1.marketplace import router as marketplace_router
 from .api.v1.organizations import router as organizations_router
 from .api.v1.compositions import router as compositions_router
+from .api.v1.composition_executions import router as composition_executions_router
 from .api.v1.pool import router as pool_router
 from .api.v1.admin import router as admin_router
 from .api.v1.mfa import router as mfa_router
@@ -266,6 +267,15 @@ app.include_router(pool_user_router, prefix="/api/v1", tags=["User Pool Pins"])
 app.include_router(marketplace_keys_router, prefix="/api/v1", tags=["Marketplace Keys"])
 app.include_router(marketplace_router, prefix="/api/v1", tags=["Marketplace"])
 app.include_router(organizations_router, prefix="/api/v1", tags=["Organizations"])
+# MUST be registered BEFORE compositions_router: the more-specific
+# prefix (/compositions/executions) would otherwise be shadowed by
+# the {composition_id} route on compositions_router (FastAPI
+# matches routers in registration order).
+app.include_router(
+    composition_executions_router,
+    prefix="/api/v1",
+    tags=["Composition Executions"],
+)
 app.include_router(compositions_router, prefix="/api/v1", tags=["Compositions"])
 app.include_router(pool_router, prefix="/api/v1", tags=["Pool"])
 app.include_router(admin_router, prefix="/api/v1", tags=["Instance Admin"])

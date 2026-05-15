@@ -945,3 +945,97 @@ async def reject_share_request(
 
     can_exec, _ = await service.can_execute(composition, user.id, org_id)
     return _composition_to_response(composition, can_exec, can_edit=True)
+
+
+# =============================================================================
+# ADMIN GOVERNANCE — list all executions of a composition (B-0 chunk 10)
+# =============================================================================
+
+
+@router.get(
+    "/{composition_id}/executions",
+    summary="List all executions of one composition (admin governance)",
+)
+async def list_composition_executions_admin(
+    composition_id: UUID,
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    user: User = Depends(get_current_user_jwt),
+    org_context: tuple = Depends(get_current_organization_jwt),
+    db: AsyncSession = Depends(get_async_session),
+    service: CompositionService = Depends(get_composition_service),
+):
+    """Audit view: every execution of a composition for this org.
+
+    Admin/Owner only. The org-scoped check is enforced by loading the
+    composition through the service (which respects visibility +
+    organization). 404 leaks no information about other orgs.
+    """
+    from sqlalchemy import func, select
+    from ...models.composition_execution import CompositionExecution
+    from ...schemas.composition_execution import (
+        ExecutionListResponse,
+        ExecutionSummary,
+    )
+
+    membership, org_id = org_context
+    if membership.role not in (UserRole.ADMIN, UserRole.OWNER):
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            detail="Admin or owner role required",
+        )
+
+    composition = await service.get_composition(
+        composition_id, org_id, user_id=user.id
+    )
+    if not composition:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Composition not found",
+        )
+
+    base = select(CompositionExecution).where(
+        CompositionExecution.composition_id == composition_id,
+        CompositionExecution.organization_id == org_id,
+    )
+    total = (
+        await db.execute(
+            select(func.count()).select_from(base.subquery())
+        )
+    ).scalar_one()
+    rows = (
+        await db.execute(
+            base.order_by(CompositionExecution.updated_at.desc())
+            .offset(offset)
+            .limit(limit)
+        )
+    ).scalars().all()
+
+    items: List[ExecutionSummary] = []
+    for row in rows:
+        state = row.state or {}
+        suspension = state.get("suspension") or {}
+        items.append(
+            ExecutionSummary(
+                id=row.id,
+                composition_id=row.composition_id,
+                user_id=row.user_id,
+                organization_id=row.organization_id,
+                parent_execution_id=row.parent_execution_id,
+                status=row.status,
+                trigger=row.trigger,
+                cancel_requested=bool(row.cancel_requested),
+                started_at=row.started_at,
+                updated_at=row.updated_at,
+                expires_at=row.expires_at,
+                error=row.error,
+                current_step_id=state.get("current_step_id"),
+                suspension_reason=(
+                    suspension.get("reason") if isinstance(suspension, dict) else None
+                ),
+            )
+        )
+
+    return ExecutionListResponse(
+        items=items, total=int(total), limit=limit, offset=offset
+    )
