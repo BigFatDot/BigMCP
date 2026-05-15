@@ -14,7 +14,11 @@ import { AcceptInvitationPage } from './pages/auth/AcceptInvitationPage'
 import { VerifyEmailPage } from './pages/auth/VerifyEmailPage'
 import { VerifyEmailPendingPage } from './pages/auth/VerifyEmailPendingPage'
 import { LandingPage } from './pages/LandingPage'
-import { CompositionsPage } from './pages/compositions'
+import {
+  CompositionsPage,
+  ExecutionDetailPage,
+  ExecutionsListPage,
+} from './pages/compositions'
 import {
   APIKeysPage,
   AccountPage,
@@ -118,6 +122,23 @@ function App() {
             element={
               <ProtectedRoute>
                 <CompositionsPage />
+              </ProtectedRoute>
+            }
+          />
+          {/* B-0 chunk 11: durable execution UI */}
+          <Route
+            path="compositions/executions"
+            element={
+              <ProtectedRoute>
+                <ExecutionsListPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="compositions/executions/:executionId"
+            element={
+              <ProtectedRoute>
+                <ExecutionDetailPage />
               </ProtectedRoute>
             }
           />

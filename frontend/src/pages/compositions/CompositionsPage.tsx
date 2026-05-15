@@ -8,7 +8,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   BoltIcon,
   PlayIcon,
@@ -875,10 +875,19 @@ export function CompositionsPage() {
             {t('compositions.subtitle')}
           </p>
         </div>
-        <Button variant="primary" onClick={() => setShowProposeModal(true)}>
-          <PlusIcon className="w-5 h-5 mr-2" />
-          {t('compositions.create', { defaultValue: 'Create Composition' })}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/app/compositions/executions"
+            className="text-sm font-medium text-gray-700 hover:text-orange transition-colors px-3 py-2 rounded border border-gray-300 hover:border-orange"
+            title="View running, suspended, and completed executions"
+          >
+            View executions
+          </Link>
+          <Button variant="primary" onClick={() => setShowProposeModal(true)}>
+            <PlusIcon className="w-5 h-5 mr-2" />
+            {t('compositions.create', { defaultValue: 'Create Composition' })}
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
