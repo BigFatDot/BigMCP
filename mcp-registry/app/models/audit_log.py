@@ -88,6 +88,19 @@ class AuditAction(str, enum.Enum):
     COMPOSITION_SHARE_APPROVE = "composition.share_approve"
     COMPOSITION_SHARE_REJECT = "composition.share_reject"
 
+    # Composition executions (Phase B-0). One value per terminal/
+    # transition emitted from the executor and the cancel/resume
+    # endpoints. resource_type is always 'composition_execution',
+    # resource_id is the execution UUID.
+    COMPOSITION_EXECUTION_CREATED   = "composition.execution_created"
+    COMPOSITION_EXECUTION_STARTED   = "composition.execution_started"   # queued → running
+    COMPOSITION_EXECUTION_SUSPENDED = "composition.execution_suspended"
+    COMPOSITION_EXECUTION_RESUMED   = "composition.execution_resumed"
+    COMPOSITION_EXECUTION_COMPLETED = "composition.execution_completed"
+    COMPOSITION_EXECUTION_FAILED    = "composition.execution_failed"
+    COMPOSITION_EXECUTION_CANCELLED = "composition.execution_cancelled"
+    COMPOSITION_EXECUTION_EXPIRED   = "composition.execution_expired"
+
     # Permissions & IAM
     PERMISSION_CHANGE = "iam.permission_change"
     ROLE_ASSIGN = "iam.role_assign"

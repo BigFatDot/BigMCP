@@ -33,6 +33,13 @@ from .invitation import Invitation, InvitationStatus
 from .password_reset_token import PasswordResetToken
 from .email_verification_token import EmailVerificationToken
 from .composition import Composition, CompositionStatus
+from .composition_execution import (
+    CompositionExecution,
+    ExecutionStatus,
+    ExecutionStepEvent,
+    ExecutionTrigger,
+    PendingNotification,
+)
 from .public_sector import PublicDomainWhitelist, PublicSectorCategory
 from .instance_settings import InstanceSettings
 
@@ -114,6 +121,11 @@ __all__ = [
     # Compositions
     "Composition",
     "CompositionStatus",
+    "CompositionExecution",
+    "ExecutionStatus",
+    "ExecutionStepEvent",
+    "ExecutionTrigger",
+    "PendingNotification",
 
     # Public Sector
     "PublicDomainWhitelist",
