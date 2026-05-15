@@ -95,6 +95,42 @@ ORG_ACTIVE_USER_TTL_SECONDS = 600  # 10 minutes — matches SESSION_TIMEOUT_SECO
 MCP_PROTOCOL_VERSION = "2025-06-18"
 
 
+async def push_resource_updated_to_session(session_id: str, uri: str) -> None:
+    """B-0 chunk 7: send notifications/resources/updated to one session.
+
+    Used by the ResumableExecutor's notify hook. Best-effort — if
+    the session's queue is on another process or unreachable, log
+    and move on (chunk #9 will queue offline notifs in the
+    pending_notification table for replay-on-reconnect).
+    """
+    notification = {
+        "jsonrpc": "2.0",
+        "method": "notifications/resources/updated",
+        "params": {"uri": uri},
+    }
+    store = get_session_store()
+    queue = store.get_local_queue(session_id)
+    if queue is None:
+        logger.debug(
+            f"resources/updated: session {session_id} not local "
+            f"(uri={uri}) — chunk 9 will pick this up via pending_notification"
+        )
+        return
+    try:
+        await queue.put({
+            "event": "message",
+            "data": json.dumps(notification),
+        })
+        logger.info(
+            f"Queued resources/updated for session {session_id} uri={uri}"
+        )
+    except Exception:  # noqa: BLE001
+        logger.warning(
+            f"Failed to push resources/updated to session {session_id}",
+            exc_info=True,
+        )
+
+
 async def broadcast_tools_changed():
     """
     Broadcast tools/list_changed notification to all active SSE sessions
@@ -1780,14 +1816,24 @@ class MCPUnifiedGateway:
                 }
             }
 
-    async def list_resources(self, request_id: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def list_resources(
+        self,
+        request_id: str,
+        params: Dict[str, Any],
+        user_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
-        List available resources (compositions).
+        List available resources (compositions + executions).
 
-        Exposes saved compositions as MCP resources.
+        Exposes saved compositions (legacy) AND the calling user's
+        ``composition://executions/{id}`` rows (B-0 chunk 7). The
+        latter are scoped per-user — a user only sees their own.
         """
         try:
             from ..orchestration.composition_store import get_composition_store
+            from ..orchestration.composition_resources import (
+                list_user_execution_resources,
+            )
             composition_store = get_composition_store()
 
             # Load all compositions (validated and production)
@@ -1815,7 +1861,21 @@ class MCPUnifiedGateway:
 
                 resources.append(resource)
 
-            logger.info(f"Returning {len(resources)} composition resources")
+            # B-0 chunk 7: per-user execution resources
+            if user_id:
+                from uuid import UUID as _UUID
+                try:
+                    user_uuid = _UUID(str(user_id))
+                    exec_resources = await list_user_execution_resources(
+                        user_id=user_uuid
+                    )
+                    resources.extend(exec_resources)
+                except Exception as ee:  # noqa: BLE001
+                    logger.warning(
+                        f"failed to list execution resources for user {user_id}: {ee}"
+                    )
+
+            logger.info(f"Returning {len(resources)} resources (compositions + executions)")
 
             return {
                 "jsonrpc": "2.0",
@@ -1829,9 +1889,19 @@ class MCPUnifiedGateway:
             logger.error(f"Error listing resources: {e}", exc_info=True)
             return self._error_response(request_id, -32603, f"Internal error: {str(e)}")
 
-    async def read_resource(self, request_id: str, params: Dict[str, Any]) -> Dict[str, Any]:
+    async def read_resource(
+        self,
+        request_id: str,
+        params: Dict[str, Any],
+        user_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """
-        Read a specific resource (composition details).
+        Read a specific resource (composition details OR execution state).
+
+        URI schemes:
+        - ``composition://{status}/{id}`` — saved composition definition
+        - ``composition://executions/{id}`` — runtime execution state
+          (B-0 chunk 7), per-user scoped (cross-user → 404, no leak)
         """
         uri = params.get("uri")
 
@@ -1839,7 +1909,41 @@ class MCPUnifiedGateway:
             return self._error_response(request_id, -32602, "Missing 'uri' parameter")
 
         try:
-            # Parse URI: composition://{status}/{id}
+            # B-0 chunk 7: try the execution URI first
+            if uri.startswith("composition://executions/"):
+                if not user_id:
+                    return self._error_response(
+                        request_id, -32601,
+                        f"Resource not found: {uri}"
+                    )
+                from ..orchestration.composition_resources import (
+                    read_execution_resource,
+                )
+                from uuid import UUID as _UUID
+                try:
+                    user_uuid = _UUID(str(user_id))
+                except (ValueError, TypeError):
+                    return self._error_response(
+                        request_id, -32601,
+                        f"Resource not found: {uri}"
+                    )
+                content = await read_execution_resource(
+                    uri=uri, user_id=user_uuid
+                )
+                if content is None:
+                    # Same response for non-existent and cross-user
+                    # (no info leak about row existence)
+                    return self._error_response(
+                        request_id, -32601,
+                        f"Resource not found: {uri}"
+                    )
+                return {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {"contents": [content]},
+                }
+
+            # Legacy composition URI scheme
             if not uri.startswith("composition://"):
                 return self._error_response(request_id, -32602, f"Invalid URI format: {uri}")
 
@@ -1886,6 +1990,75 @@ class MCPUnifiedGateway:
         except Exception as e:
             logger.error(f"Error reading resource {uri}: {e}", exc_info=True)
             return self._error_response(request_id, -32603, f"Internal error: {str(e)}")
+
+    # B-0 chunk 7: subscribe / unsubscribe handlers
+
+    async def subscribe_resource(
+        self,
+        request_id: str,
+        params: Dict[str, Any],
+        session_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """``resources/subscribe`` — track session_id → uri mapping."""
+        uri = params.get("uri")
+        if not uri:
+            return self._error_response(request_id, -32602, "Missing 'uri' parameter")
+        if not session_id:
+            return self._error_response(
+                request_id, -32602, "Subscriptions require an MCP session"
+            )
+        # Per-user scoping check on execution URIs: only allow the user
+        # to subscribe to their own. Same 404 mask as read_resource.
+        if uri.startswith("composition://executions/"):
+            from ..orchestration.composition_resources import (
+                read_execution_resource,
+            )
+            from uuid import UUID as _UUID
+            if not user_id:
+                return self._error_response(
+                    request_id, -32601, f"Resource not found: {uri}"
+                )
+            try:
+                user_uuid = _UUID(str(user_id))
+            except (ValueError, TypeError):
+                return self._error_response(
+                    request_id, -32601, f"Resource not found: {uri}"
+                )
+            existence_check = await read_execution_resource(
+                uri=uri, user_id=user_uuid
+            )
+            if existence_check is None:
+                return self._error_response(
+                    request_id, -32601, f"Resource not found: {uri}"
+                )
+
+        from ..orchestration.composition_resources import get_subscription_tracker
+        get_subscription_tracker().subscribe(session_id, uri)
+        logger.info(f"resource subscribed: session={session_id} uri={uri}")
+        return {"jsonrpc": "2.0", "id": request_id, "result": {}}
+
+    async def unsubscribe_resource(
+        self,
+        request_id: str,
+        params: Dict[str, Any],
+        session_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """``resources/unsubscribe``."""
+        uri = params.get("uri")
+        if not uri:
+            return self._error_response(request_id, -32602, "Missing 'uri' parameter")
+        if not session_id:
+            return self._error_response(
+                request_id, -32602, "Subscriptions require an MCP session"
+            )
+        from ..orchestration.composition_resources import get_subscription_tracker
+        removed = get_subscription_tracker().unsubscribe(session_id, uri)
+        logger.info(
+            f"resource unsubscribe: session={session_id} uri={uri} "
+            f"removed={removed}"
+        )
+        return {"jsonrpc": "2.0", "id": request_id, "result": {}}
 
     async def list_prompts(self, request_id: str, params: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -3518,9 +3691,26 @@ async def handle_mcp_message(request: Request, auth: Optional[tuple]):
                 tool_group_id=tool_group_id
             )
         elif method == "resources/list":
-            response = await gateway.list_resources(request_id, params)
+            response = await gateway.list_resources(
+                request_id, params,
+                user_id=str(user.id) if user else None,
+            )
         elif method == "resources/read":
-            response = await gateway.read_resource(request_id, params)
+            response = await gateway.read_resource(
+                request_id, params,
+                user_id=str(user.id) if user else None,
+            )
+        elif method == "resources/subscribe":
+            response = await gateway.subscribe_resource(
+                request_id, params,
+                session_id=session_id,
+                user_id=str(user.id) if user else None,
+            )
+        elif method == "resources/unsubscribe":
+            response = await gateway.unsubscribe_resource(
+                request_id, params,
+                session_id=session_id,
+            )
         elif method == "prompts/list":
             response = await gateway.list_prompts(request_id, params)
         elif method == "prompts/get":

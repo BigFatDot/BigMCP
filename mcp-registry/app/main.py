@@ -403,6 +403,12 @@ async def _startup_impl():
         logger.warning(f"orphan execution recovery failed: {e}")
     await get_queue_worker().start()
     install_tool_dispatcher_singleton(gateway.user_server_pool)
+    # Wire the gateway's SSE notification dispatcher into the
+    # ResumableExecutor so state transitions fire
+    # notifications/resources/updated to subscribed clients.
+    from .orchestration.resumable_executor import set_live_pusher
+    from .routers.mcp_unified import push_resource_updated_to_session
+    set_live_pusher(push_resource_updated_to_session)
 
     logger.info("MCP Registry started successfully")
 

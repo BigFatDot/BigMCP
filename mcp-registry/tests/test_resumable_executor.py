@@ -458,12 +458,17 @@ async def test_subcomposition_propagation_on_complete(
     child_status = await executor.run(child_execution_id)
     assert child_status == ExecutionStatus.COMPLETED.value
 
-    # Wait briefly for the background propagation task
-    await asyncio.sleep(0.2)
+    # Wait briefly for the background propagation task. We commit the
+    # test session first to release its read snapshot — SQLite WAL +
+    # SQLAlchemy autoflush=False keeps the session pinned to its first
+    # read view otherwise, which would mask the executor's writes.
+    for _ in range(50):  # up to ~5s
+        await asyncio.sleep(0.1)
+        await db_session.commit()
+        await db_session.refresh(parent_row)
+        if parent_row.status == ExecutionStatus.COMPLETED.value:
+            break
 
-    # Parent should now be completed too (the resume path injected
-    # the child's result and the parent had no more steps)
-    await db_session.refresh(parent_row)
     assert parent_row.status == ExecutionStatus.COMPLETED.value, (
         f"parent should have completed via propagation, got "
         f"{parent_row.status}"
@@ -521,14 +526,21 @@ async def test_subcomposition_propagation_on_failure(
     child_status = await executor.run(child_execution_id)
     assert child_status == ExecutionStatus.FAILED.value
 
-    await asyncio.sleep(0.2)
+    # Poll for propagation (commit between iterations to release the
+    # SQLite read snapshot held by db_session).
+    injected = None
+    for _ in range(50):
+        await asyncio.sleep(0.1)
+        await db_session.commit()
+        await db_session.refresh(parent_row)
+        injected = (parent_row.state.get("step_results") or {}).get("call_child")
+        if isinstance(injected, dict) and "child_status" in injected:
+            break
 
-    await db_session.refresh(parent_row)
     # Parent received an error envelope as the step result;
     # the parent step succeeds in the resume path (the envelope IS
     # the response), so the parent completes with that as its result.
-    injected = parent_row.state["step_results"]["call_child"]
-    assert "error" in injected
+    assert injected is not None and "error" in injected
     assert injected["child_status"] == ExecutionStatus.FAILED.value
 
 

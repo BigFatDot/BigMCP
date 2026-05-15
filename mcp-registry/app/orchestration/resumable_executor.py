@@ -69,6 +69,22 @@ MAX_SUBCOMPOSITION_DEPTH = 5
 INPUTS_KEY = "__bigmcp_inputs__"
 
 
+# Live notification pusher injected by the gateway at lifespan startup.
+# Receives (session_id, uri) and is responsible for shipping a
+# ``notifications/resources/updated`` to the active SSE session for
+# that session_id. None means no gateway is wired (tests, scripts) —
+# in that case the notify helper just no-ops on live push.
+_live_pusher: Optional[Callable[[str, str], Awaitable[None]]] = None
+
+
+def set_live_pusher(
+    pusher: Optional[Callable[[str, str], Awaitable[None]]]
+) -> None:
+    """Wire the gateway's notification dispatcher (lifespan startup)."""
+    global _live_pusher
+    _live_pusher = pusher
+
+
 # ---------------------------------------------------------------------------
 # Errors
 # ---------------------------------------------------------------------------
@@ -168,9 +184,12 @@ class ResumableExecutor:
                     execution,
                 )
 
-            # Re-load freshest state and start the loop.
-            execution = await self._load(db, execution_id)
-            assert execution is not None
+            # Reuse the in-memory model — its `state` was loaded above
+            # and matches the DB. Re-_load() would hit the SQLAlchemy
+            # identity map and return the same (potentially stale)
+            # instance after later commits, so prefer working from the
+            # known-fresh in-memory state and let the run loop persist
+            # any further changes via _save.
             state = ExecutionState.from_jsonb(execution.state)
             return await self._run_loop(db, execution, state)
 
@@ -233,10 +252,12 @@ class ResumableExecutor:
                 db, execution_id, current_step_id, "succeeded",
             )
 
-            execution = await self._load(db, execution_id)
-            assert execution is not None
-            state = ExecutionState.from_jsonb(execution.state)
-            return await self._run_loop(db, execution, state)
+            # Reuse the in-memory model + the freshly-mutated state we
+            # just persisted. NOT a re-_load() — the SQLAlchemy
+            # identity map caches the old instance and would hand us
+            # back stale ``state`` data, causing the run loop to think
+            # the suspended step is still in_progress.
+            return await self._run_loop(db, existing, current_state)
 
     async def request_cancel(self, execution_id: UUID) -> bool:
         """Mark cancel_requested. Returns True if the row was touched.
@@ -558,6 +579,10 @@ class ResumableExecutor:
                 await self._propagate_to_parent(
                     db, execution, terminal_status=status, terminal_result=result
                 )
+            # B-0 chunk 7: fire notifications/resources/updated for
+            # the execution URI (and its parent chain). Best-effort,
+            # never raises.
+            await self._notify_resource_updated(execution.id)
         return status.value
 
     async def _propagate_to_parent(
@@ -700,6 +725,8 @@ class ResumableExecutor:
             db, execution.id, state.current_step_id or "?", "suspended",
             payload={"reason": suspend.reason},
         )
+        # B-0 chunk 7: notify subscribers
+        await self._notify_resource_updated(execution.id)
         return ExecutionStatus.SUSPENDED.value
 
     async def _emit_event(
@@ -734,6 +761,31 @@ class ResumableExecutor:
                 await db.rollback()
             except Exception:
                 pass
+
+    async def _notify_resource_updated(
+        self, execution_id: UUID
+    ) -> None:
+        """Fire notifications/resources/updated for the execution URI.
+
+        Best-effort — failures are logged, never raised. The notify
+        helper walks the parent chain so suspended ancestors get
+        notified too (sub-composition propagation, design doc §6.3).
+        Live push goes through the gateway broadcast helper
+        (registered at lifespan startup); offline queueing arrives in
+        chunk #9.
+        """
+        try:
+            from .composition_resources import notify_resource_updated
+            live_pusher = _live_pusher  # set by gateway at lifespan
+            await notify_resource_updated(
+                execution_id,
+                live_pusher=live_pusher,
+            )
+        except Exception:  # noqa: BLE001
+            logger.warning(
+                f"notify_resource_updated failed for {execution_id}",
+                exc_info=True,
+            )
 
     async def _emit_audit(
         self,
