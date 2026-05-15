@@ -10,7 +10,9 @@ These are the only two tools BigMCP exposes to OAuth clients in the new UX:
 from typing import Any, Dict, List
 
 
-POOL_TOOL_NAMES = frozenset({"search", "execute", "describe_tool"})
+POOL_TOOL_NAMES = frozenset(
+    {"search", "execute", "describe_tool", "composition_status"}
+)
 
 
 def get_pool_tools() -> List[Dict[str, Any]]:
@@ -199,6 +201,75 @@ def get_pool_tools() -> List[Dict[str, Any]]:
             # our own DB).
             "annotations": {
                 "title": "Describe a tool or composition",
+                "readOnlyHint": True,
+                "destructiveHint": False,
+                "idempotentHint": True,
+                "openWorldHint": False,
+            },
+        },
+        {
+            "name": "composition_status",
+            "title": "Check status of a composition execution",
+            "description": (
+                "Return summary status of a composition execution. Returns "
+                "status, current step, suspension reason, and error if any. "
+                "For full step results, read the resource "
+                "composition://executions/{id} or fetch "
+                "GET /api/v1/compositions/executions/{id}. Per-user scoped: "
+                "an execution_id you don't own returns status='not_found'."
+            ),
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "execution_id": {
+                        "type": "string",
+                        "description": (
+                            "UUID of the execution row, returned by the "
+                            "originating composition_X / workflow_X tool call."
+                        ),
+                    }
+                },
+                "required": ["execution_id"],
+            },
+            "outputSchema": {
+                "type": "object",
+                "properties": {
+                    "execution_id": {"type": "string"},
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "queued",
+                            "running",
+                            "suspended",
+                            "completed",
+                            "failed",
+                            "expired",
+                            "cancelled",
+                            "not_found",
+                        ],
+                    },
+                    "current_step_id": {"type": ["string", "null"]},
+                    "suspension_reason": {"type": ["string", "null"]},
+                    "error": {"type": ["string", "null"]},
+                    "expires_at": {"type": ["string", "null"]},
+                    "started_at": {"type": ["string", "null"]},
+                    "updated_at": {"type": ["string", "null"]},
+                    "result_uri": {
+                        "type": ["string", "null"],
+                        "description": (
+                            "When status='completed', the MCP resource URI "
+                            "carrying the full result."
+                        ),
+                    },
+                },
+                "required": ["execution_id", "status"],
+            },
+            # Pure read of internal state — no external side effects.
+            # Same execution_id returns the same shape (modulo time
+            # progression), so idempotent per the MCP semantic of
+            # "calling twice has no extra effect".
+            "annotations": {
+                "title": "Composition execution status",
                 "readOnlyHint": True,
                 "destructiveHint": False,
                 "idempotentHint": True,

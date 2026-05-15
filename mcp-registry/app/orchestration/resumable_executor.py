@@ -795,17 +795,34 @@ class ResumableExecutor:
         *,
         payload: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """Best-effort audit emission in an ISOLATED session.
+
+        We deliberately do NOT reuse ``db`` here. ``AuditService``
+        rolls back its session on failure (e.g., the legacy
+        "Could not refresh instance" path), and that rollback would
+        expire every ORM instance attached to the executor's
+        session — including ``execution.composition`` — and break
+        the next ``_run_loop`` lazy-load. Using a fresh session
+        keeps the audit failure mode contained.
+        """
+        # Capture the values we need now — ``execution`` belongs to
+        # ``db`` and we won't touch its attributes inside the isolated
+        # block.
+        actor_id = execution.user_id
+        organization_id = execution.organization_id
+        resource_id = str(execution.id)
         try:
             from ..services.audit_service import AuditService
 
-            await AuditService(db).log_action(
-                action=action,
-                actor_id=execution.user_id,
-                organization_id=execution.organization_id,
-                resource_type="composition_execution",
-                resource_id=str(execution.id),
-                details=payload,
-            )
+            async with _db_session_module.AsyncSessionLocal() as audit_db:
+                await AuditService(audit_db).log_action(
+                    action=action,
+                    actor_id=actor_id,
+                    organization_id=organization_id,
+                    resource_type="composition_execution",
+                    resource_id=resource_id,
+                    details=payload,
+                )
         except Exception:  # noqa: BLE001
             logger.warning(f"failed to emit audit log {action.value}", exc_info=True)
 

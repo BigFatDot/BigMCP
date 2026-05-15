@@ -23,7 +23,7 @@ features. Each chunk extends this test file.
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, Optional, Tuple
 from uuid import UUID, uuid4
 
 import pytest
@@ -70,6 +70,40 @@ async def _ids(db: AsyncSession, email: str) -> Tuple[UUID, UUID]:
         )
     ).scalar_one()
     return user.id, member.organization_id
+
+
+async def _poll_until(
+    db_session: AsyncSession,
+    execution_id: UUID,
+    predicate,
+    *,
+    iterations: int = 50,
+    interval_seconds: float = 0.1,
+):
+    """Poll an execution row until ``predicate(row)`` is truthy.
+
+    Re-opens a short-lived session each iteration via the patched
+    ``AsyncSessionLocal``: SQLite snapshot isolation otherwise pins
+    the long-lived ``db_session`` to its pre-poll view, masking
+    writes done by the executor's background tasks. We also commit
+    on the test session so it doesn't hold a write lock that would
+    block the worker session.
+    """
+    from app.db import session as _session_module
+
+    last_row: Optional[CompositionExecution] = None
+    for _ in range(iterations):
+        await asyncio.sleep(interval_seconds)
+        try:
+            await db_session.commit()
+        except Exception:
+            pass
+        async with _session_module.AsyncSessionLocal() as probe:
+            row = await probe.get(CompositionExecution, execution_id)
+            last_row = row
+            if predicate(row):
+                return row
+    return last_row
 
 
 async def _make_composition(
@@ -458,23 +492,23 @@ async def test_subcomposition_propagation_on_complete(
     child_status = await executor.run(child_execution_id)
     assert child_status == ExecutionStatus.COMPLETED.value
 
-    # Wait briefly for the background propagation task. We commit the
-    # test session first to release its read snapshot — SQLite WAL +
-    # SQLAlchemy autoflush=False keeps the session pinned to its first
-    # read view otherwise, which would mask the executor's writes.
-    for _ in range(50):  # up to ~5s
-        await asyncio.sleep(0.1)
-        await db_session.commit()
-        await db_session.refresh(parent_row)
-        if parent_row.status == ExecutionStatus.COMPLETED.value:
-            break
-
-    assert parent_row.status == ExecutionStatus.COMPLETED.value, (
+    # Wait briefly for the background propagation task. Two-step poll:
+    # commit the test session to release its read snapshot, then
+    # refresh the row. db_session.refresh re-reads through the same
+    # session — by committing first we ensure SQLite's snapshot
+    # isolation isn't pinning us to the pre-propagation view.
+    final_row = await _poll_until(
+        db_session,
+        parent_execution_id,
+        lambda r: r is not None and r.status == ExecutionStatus.COMPLETED.value,
+    )
+    assert final_row is not None
+    assert final_row.status == ExecutionStatus.COMPLETED.value, (
         f"parent should have completed via propagation, got "
-        f"{parent_row.status}"
+        f"{final_row.status if final_row else 'gone'}"
     )
     # The injected response is the child's result
-    assert parent_row.state["step_results"]["call_child"] == {
+    assert final_row.state["step_results"]["call_child"] == {
         "child_output": "hello"
     }
 
@@ -526,20 +560,21 @@ async def test_subcomposition_propagation_on_failure(
     child_status = await executor.run(child_execution_id)
     assert child_status == ExecutionStatus.FAILED.value
 
-    # Poll for propagation (commit between iterations to release the
-    # SQLite read snapshot held by db_session).
-    injected = None
-    for _ in range(50):
-        await asyncio.sleep(0.1)
-        await db_session.commit()
-        await db_session.refresh(parent_row)
-        injected = (parent_row.state.get("step_results") or {}).get("call_child")
-        if isinstance(injected, dict) and "child_status" in injected:
-            break
-
-    # Parent received an error envelope as the step result;
-    # the parent step succeeds in the resume path (the envelope IS
-    # the response), so the parent completes with that as its result.
+    # Poll for propagation — same SQLite-snapshot dance as the
+    # _on_complete sibling above.
+    final_row = await _poll_until(
+        db_session,
+        parent_execution_id,
+        lambda r: (
+            r is not None
+            and isinstance(
+                (r.state.get("step_results") or {}).get("call_child"), dict
+            )
+            and "child_status" in (r.state["step_results"]["call_child"] or {})
+        ),
+    )
+    assert final_row is not None
+    injected = (final_row.state.get("step_results") or {}).get("call_child")
     assert injected is not None and "error" in injected
     assert injected["child_status"] == ExecutionStatus.FAILED.value
 

@@ -49,6 +49,7 @@ from .mcp_gateway.utils import (
 )
 from .mcp_gateway.orchestration import get_orchestration_tools
 from .mcp_gateway.pool import (
+    handle_composition_status,
     handle_describe_tool,
     POOL_TOOL_NAMES,
     get_pool_tools,
@@ -1625,6 +1626,12 @@ class MCPUnifiedGateway:
                     user_id=user_id,
                     organization_id=organization_id,
                 )
+            elif tool_name == "composition_status":
+                result = await handle_composition_status(
+                    tool_arguments,
+                    user_id=user_id,
+                    organization_id=organization_id,
+                )
             # Check if it's an orchestration tool
             elif tool_name.startswith("orchestrator_"):
                 result = await self._execute_orchestration_tool(
@@ -1753,7 +1760,7 @@ class MCPUnifiedGateway:
                 if (
                     user_id
                     and organization_id
-                    and tool_name not in {"search", "execute", "describe_tool"}
+                    and tool_name not in POOL_TOOL_NAMES
                 ):
                     _comp_id_for_log = None
                     if tool_name.startswith("composition_") or tool_name.startswith("workflow_"):
@@ -1785,7 +1792,7 @@ class MCPUnifiedGateway:
                 if (
                     user_id
                     and organization_id
-                    and tool_name not in {"search", "execute", "describe_tool"}
+                    and tool_name not in POOL_TOOL_NAMES
                 ):
                     asyncio.create_task(
                         _log_tool_call_async(
