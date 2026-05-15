@@ -21,7 +21,9 @@ from ...db.database import get_async_session
 from ...models.user import User
 from ...models.organization import UserRole
 from ...models.composition import CompositionStatus
+from ...models.audit_log import AuditAction
 from ...services.composition_service import CompositionService
+from ...services.audit_service import AuditService
 from ...schemas.composition import (
     CompositionCreate,
     CompositionUpdate,
@@ -556,6 +558,12 @@ def _composition_to_response(
         extra_metadata=composition.extra_metadata,
         created_at=composition.created_at,
         updated_at=composition.updated_at,
+        share_request_status=getattr(composition, "share_request_status", None),
+        share_requested_by=getattr(composition, "share_requested_by", None),
+        share_requested_at=getattr(composition, "share_requested_at", None),
+        share_review_notes=getattr(composition, "share_review_notes", None),
+        share_reviewed_by=getattr(composition, "share_reviewed_by", None),
+        share_reviewed_at=getattr(composition, "share_reviewed_at", None),
         can_execute=can_execute,
         can_edit=can_edit
     )
@@ -704,3 +712,236 @@ async def propose_composition(
         intent=analysis.get("intent") if isinstance(analysis, dict) else None,
         available_tool_count=len(available_tools),
     )
+
+
+# =============================================================================
+# SHARE-WITH-ORG REVIEW WORKFLOW (Phase 4)
+# =============================================================================
+
+
+class CompositionShareRequest(BaseModel):
+    """Optional notes the requester wants the admin to see."""
+    notes: Optional[str] = Field(
+        None,
+        max_length=2000,
+        description="Free-text rationale for the share request",
+    )
+
+
+class CompositionShareReview(BaseModel):
+    """Admin's approve/reject decision payload."""
+    notes: Optional[str] = Field(
+        None,
+        max_length=2000,
+        description="Reviewer's rationale (typically used for rejections)",
+    )
+
+
+class CompositionShareResponse(BaseModel):
+    """Reply to POST /compositions/{id}/share."""
+    composition: CompositionResponse
+    applied: bool = Field(
+        ...,
+        description=(
+            "True when the share was applied immediately (admin path). "
+            "False when a review request was queued instead."
+        ),
+    )
+
+
+@router.post(
+    "/{composition_id}/share",
+    response_model=CompositionShareResponse,
+    summary="Share a composition with the org (review-gated for non-admins)",
+)
+async def share_composition(
+    composition_id: UUID,
+    payload: CompositionShareRequest,
+    user: User = Depends(get_current_user_jwt),
+    org_context: tuple = Depends(get_current_organization_jwt),
+    db: AsyncSession = Depends(get_async_session),
+    service: CompositionService = Depends(get_composition_service),
+):
+    """Ask to make a composition org-visible.
+
+    Admin/owner: applied immediately (visibility=organization, status=production).
+    Anyone else: queued for admin review (composition stays unchanged).
+    """
+    membership, org_id = org_context
+    composition, error, applied = await service.request_or_apply_share(
+        composition_id=composition_id,
+        organization_id=org_id,
+        user_id=user.id,
+        user_role=membership.role,
+    )
+    if error:
+        err_lower = error.lower()
+        if "not found" in err_lower:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail=error)
+        if "already pending" in err_lower:
+            raise HTTPException(status.HTTP_409_CONFLICT, detail=error)
+        if "input_schema" in err_lower:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=error)
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail=error)
+
+    try:
+        await AuditService(db).log_action(
+            action=(
+                AuditAction.COMPOSITION_SHARE_DIRECT
+                if applied
+                else AuditAction.COMPOSITION_SHARE_REQUEST
+            ),
+            actor_id=user.id,
+            organization_id=org_id,
+            resource_type="composition",
+            resource_id=str(composition_id),
+            details={
+                "name": composition.name,
+                "applied": applied,
+                "notes": payload.notes,
+            },
+        )
+    except Exception:
+        pass
+
+    if applied:
+        from ...routers.mcp_unified import broadcast_resources_changed
+        asyncio.create_task(broadcast_resources_changed(org_id))
+
+    can_exec, _ = await service.can_execute(composition, user.id, org_id)
+    can_edit = (
+        composition.created_by == user.id
+        or membership.role in (UserRole.ADMIN, UserRole.OWNER)
+    )
+    return CompositionShareResponse(
+        composition=_composition_to_response(composition, can_exec, can_edit),
+        applied=applied,
+    )
+
+
+@router.get(
+    "/admin/share-requests",
+    response_model=CompositionListResponse,
+    summary="List pending share-requests in the caller's org (admin only)",
+)
+async def list_share_requests(
+    user: User = Depends(get_current_user_jwt),
+    org_context: tuple = Depends(get_current_organization_jwt),
+    service: CompositionService = Depends(get_composition_service),
+):
+    """Admin-only review queue."""
+    membership, org_id = org_context
+    if membership.role not in (UserRole.ADMIN, UserRole.OWNER):
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            detail="Admin or owner role required",
+        )
+    rows = await service.list_pending_share_requests(org_id)
+    items: List[CompositionResponse] = []
+    for c in rows:
+        can_exec, _ = await service.can_execute(c, user.id, org_id)
+        items.append(_composition_to_response(c, can_exec, can_edit=True))
+    return CompositionListResponse(compositions=items, total=len(items))
+
+
+@router.post(
+    "/{composition_id}/share-request/approve",
+    response_model=CompositionResponse,
+    summary="Admin approves a pending share-request",
+)
+async def approve_share_request(
+    composition_id: UUID,
+    payload: CompositionShareReview,
+    user: User = Depends(get_current_user_jwt),
+    org_context: tuple = Depends(get_current_organization_jwt),
+    db: AsyncSession = Depends(get_async_session),
+    service: CompositionService = Depends(get_composition_service),
+):
+    membership, org_id = org_context
+    if membership.role not in (UserRole.ADMIN, UserRole.OWNER):
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            detail="Admin or owner role required",
+        )
+    composition, error = await service.approve_share_request(
+        composition_id=composition_id,
+        organization_id=org_id,
+        admin_user_id=user.id,
+        notes=payload.notes,
+    )
+    if error:
+        err_lower = error.lower()
+        if "not found" in err_lower:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail=error)
+        if "no pending" in err_lower:
+            raise HTTPException(status.HTTP_409_CONFLICT, detail=error)
+        if "input_schema" in err_lower:
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=error)
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=error)
+
+    try:
+        await AuditService(db).log_action(
+            action=AuditAction.COMPOSITION_SHARE_APPROVE,
+            actor_id=user.id,
+            organization_id=org_id,
+            resource_type="composition",
+            resource_id=str(composition_id),
+            details={"name": composition.name, "notes": payload.notes},
+        )
+    except Exception:
+        pass
+
+    from ...routers.mcp_unified import broadcast_resources_changed
+    asyncio.create_task(broadcast_resources_changed(org_id))
+
+    can_exec, _ = await service.can_execute(composition, user.id, org_id)
+    return _composition_to_response(composition, can_exec, can_edit=True)
+
+
+@router.post(
+    "/{composition_id}/share-request/reject",
+    response_model=CompositionResponse,
+    summary="Admin rejects a pending share-request",
+)
+async def reject_share_request(
+    composition_id: UUID,
+    payload: CompositionShareReview,
+    user: User = Depends(get_current_user_jwt),
+    org_context: tuple = Depends(get_current_organization_jwt),
+    db: AsyncSession = Depends(get_async_session),
+    service: CompositionService = Depends(get_composition_service),
+):
+    membership, org_id = org_context
+    if membership.role not in (UserRole.ADMIN, UserRole.OWNER):
+        raise HTTPException(
+            status.HTTP_403_FORBIDDEN,
+            detail="Admin or owner role required",
+        )
+    composition, error = await service.reject_share_request(
+        composition_id=composition_id,
+        organization_id=org_id,
+        admin_user_id=user.id,
+        notes=payload.notes,
+    )
+    if error:
+        err_lower = error.lower()
+        if "not found" in err_lower:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail=error)
+        if "no pending" in err_lower:
+            raise HTTPException(status.HTTP_409_CONFLICT, detail=error)
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=error)
+
+    try:
+        await AuditService(db).log_action(
+            action=AuditAction.COMPOSITION_SHARE_REJECT,
+            actor_id=user.id,
+            organization_id=org_id,
+            resource_type="composition",
+            resource_id=str(composition_id),
+            details={"name": composition.name, "notes": payload.notes},
+        )
+    except Exception:
+        pass
+
+    can_exec, _ = await service.can_execute(composition, user.id, org_id)
+    return _composition_to_response(composition, can_exec, can_edit=True)

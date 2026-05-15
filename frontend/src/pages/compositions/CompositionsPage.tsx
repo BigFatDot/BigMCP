@@ -99,6 +99,31 @@ function CompositionCard({
               {t(visibilityStyle.labelKey)}
             </span>
           )}
+          {composition.share_request_status === 'pending' && (
+            <span
+              className="px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800"
+              title={t('compositions.share.pendingReview', {
+                defaultValue: 'Awaiting admin review',
+              }) as string}
+            >
+              {t('compositions.share.pendingBadge', {
+                defaultValue: 'Pending review',
+              })}
+            </span>
+          )}
+          {composition.share_request_status === 'rejected' && (
+            <span
+              className="px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-700"
+              title={
+                composition.share_review_notes ||
+                (t('compositions.share.rejectedNoNotes', {
+                  defaultValue: 'Last share request was rejected.',
+                }) as string)
+              }
+            >
+              {t('compositions.share.rejectedBadge', { defaultValue: 'Rejected' })}
+            </span>
+          )}
         </div>
       </div>
 
@@ -157,9 +182,19 @@ function CompositionCard({
               variant="ghost"
               size="sm"
               onClick={onToggleVisibility}
-              title={visibility === 'private' ? t('compositions.shareWithTeam') : t('compositions.makePrivate')}
+              disabled={composition.share_request_status === 'pending'}
+              title={
+                composition.share_request_status === 'pending'
+                  ? (t('compositions.share.pendingReview', {
+                      defaultValue: 'Awaiting admin review',
+                    }) as string)
+                  : visibility === 'private'
+                  ? (t('compositions.shareWithTeam') as string)
+                  : (t('compositions.makePrivate') as string)
+              }
               className={cn(
-                visibility === 'organization' ? 'text-purple-600 hover:text-purple-700' : 'text-gray-500'
+                visibility === 'organization' ? 'text-purple-600 hover:text-purple-700' : 'text-gray-500',
+                composition.share_request_status === 'pending' && 'cursor-not-allowed opacity-60',
               )}
             >
               {visibility === 'private' ? (
@@ -732,18 +767,45 @@ export function CompositionsPage() {
   }
 
   const handleToggleVisibility = async (composition: Composition) => {
-    const newVisibility: CompositionVisibility =
-      composition.visibility === 'private' ? 'organization' : 'private'
-
+    // Phase 4: going private->org now goes through the review gate.
+    // Admins are short-circuited server-side (applied=true). Going
+    // org->private stays a direct PATCH for owners/admins (no review
+    // workflow defined for un-sharing).
+    if (composition.visibility === 'private') {
+      try {
+        const { composition: updated, applied } = await compositionsApi.share(composition.id)
+        toast.success(
+          applied
+            ? (t('compositions.sharedSuccess', { defaultValue: 'Shared with the organization.' }) as string)
+            : (t('compositions.shareRequestQueued', {
+                defaultValue: 'Share request submitted for admin review.',
+              }) as string),
+        )
+        setCompositions((prev) =>
+          prev.map((c) => (c.id === composition.id ? updated : c)),
+        )
+      } catch (error: any) {
+        const status = error.response?.status
+        if (status === 409) {
+          toast.error(
+            t('compositions.shareAlreadyPending', {
+              defaultValue: 'A review is already pending for this composition.',
+            }) as string,
+          )
+        } else {
+          toast.error(error.response?.data?.detail || t('compositions.results.failed'))
+        }
+      }
+      return
+    }
+    // organization -> private: direct revert (admin/creator)
     try {
-      const updated = await compositionsApi.update(composition.id, { visibility: newVisibility })
-      toast.success(
-        newVisibility === 'organization'
-          ? t('compositions.sharedSuccess')
-          : t('compositions.madePrivate')
-      )
+      const updated = await compositionsApi.update(composition.id, {
+        visibility: 'private',
+      })
+      toast.success(t('compositions.madePrivate'))
       setCompositions((prev) =>
-        prev.map((c) => (c.id === composition.id ? updated : c))
+        prev.map((c) => (c.id === composition.id ? updated : c)),
       )
     } catch (error: any) {
       toast.error(error.response?.data?.detail || t('compositions.results.failed'))

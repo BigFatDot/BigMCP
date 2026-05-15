@@ -225,6 +225,14 @@ class CompositionResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
+    # Phase 4: org-share review state (None when no pending/rejected request)
+    share_request_status: Optional[str] = None
+    share_requested_by: Optional[UUID] = None
+    share_requested_at: Optional[datetime] = None
+    share_review_notes: Optional[str] = None
+    share_reviewed_by: Optional[UUID] = None
+    share_reviewed_at: Optional[datetime] = None
+
     # Computed fields (added by API)
     can_execute: Optional[bool] = None
     can_edit: Optional[bool] = None

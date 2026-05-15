@@ -83,6 +83,10 @@ class AuditAction(str, enum.Enum):
     COMPOSITION_EXECUTE = "composition.execute"
     COMPOSITION_PROMOTE = "composition.promote"
     COMPOSITION_DELETE = "composition.delete"
+    COMPOSITION_SHARE_REQUEST = "composition.share_request"
+    COMPOSITION_SHARE_DIRECT = "composition.share_direct"
+    COMPOSITION_SHARE_APPROVE = "composition.share_approve"
+    COMPOSITION_SHARE_REJECT = "composition.share_reject"
 
     # Permissions & IAM
     PERMISSION_CHANGE = "iam.permission_change"

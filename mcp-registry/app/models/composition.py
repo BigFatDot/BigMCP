@@ -9,10 +9,11 @@ Execution: Controlled by allowed_roles field
 """
 
 import enum
+from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
 
-from sqlalchemy import String, Text, ForeignKey, Boolean, Integer, Index
+from sqlalchemy import String, Text, ForeignKey, Boolean, Integer, Index, DateTime
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -25,6 +26,17 @@ class CompositionStatus(str, enum.Enum):
     TEMPORARY = "temporary"    # Auto-expires, in-memory only
     VALIDATED = "validated"    # Reviewed and approved for use
     PRODUCTION = "production"  # Production-ready, stable
+
+
+class ShareRequestStatus(str, enum.Enum):
+    """Phase 4: state of a non-admin's request to share a composition org-wide.
+
+    The composition row stores the *latest* request state. There is no
+    history table — audit logs capture each transition. ``None`` means
+    no pending or rejected request currently exists.
+    """
+    PENDING = "pending"      # Awaiting admin review
+    REJECTED = "rejected"    # Last review denied; visibility unchanged
 
 
 class CompositionVisibility(str, enum.Enum):
@@ -187,6 +199,42 @@ class Composition(Base, UUIDMixin, TimestampMixin):
         comment="Additional metadata (tags, execution_count, success_rate, etc.)"
     )
 
+    # ---- Phase 4: org-share review workflow ---------------------------------
+    # NULL means no review in flight. Set to 'pending' when a non-admin asks
+    # to share with the org; flips to NULL on approval (composition itself
+    # gets visibility=organization + status=production), or 'rejected' to
+    # stop the gate from firing again until the user re-requests.
+    share_request_status: Mapped[Optional[str]] = mapped_column(
+        String(20),
+        nullable=True,
+        comment="Phase 4 share-request gate: pending | rejected | NULL"
+    )
+    share_requested_by: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="User who last requested an org-share review"
+    )
+    share_requested_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="When the latest share-request was opened"
+    )
+    share_review_notes: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+        comment="Reviewer's free-text rationale (typically only set for rejections)"
+    )
+    share_reviewed_by: Mapped[Optional[UUID]] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        comment="Admin who approved or rejected the latest request"
+    )
+    share_reviewed_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime,
+        nullable=True,
+        comment="When the latest review decision was recorded"
+    )
+
     # Relationships
     organization: Mapped["Organization"] = relationship(
         "Organization",
@@ -204,6 +252,11 @@ class Composition(Base, UUIDMixin, TimestampMixin):
         Index("idx_compositions_org_creator", "organization_id", "created_by"),
         Index("idx_compositions_visibility", "visibility"),
         Index("idx_compositions_org_visibility", "organization_id", "visibility"),
+        Index(
+            "idx_compositions_share_request_pending",
+            "organization_id",
+            "share_request_status",
+        ),
     )
 
     def __repr__(self) -> str:

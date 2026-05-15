@@ -1429,6 +1429,13 @@ export interface Composition {
   extra_metadata: Record<string, unknown>
   created_at: string
   updated_at: string
+  // Phase 4: org-share review state (null when no in-flight request)
+  share_request_status?: 'pending' | 'rejected' | null
+  share_requested_by?: string | null
+  share_requested_at?: string | null
+  share_review_notes?: string | null
+  share_reviewed_by?: string | null
+  share_reviewed_at?: string | null
   can_execute?: boolean
   can_edit?: boolean
 }
@@ -1624,6 +1631,60 @@ export const compositionsApi = {
       feedback: options.feedback,
       previous_proposal: options.previous_proposal,
     })
+    return data
+  },
+
+  /**
+   * Phase 4: ask to share a composition with the org.
+   *
+   * Admin/owner -> applied immediately (visibility=organization,
+   * status=production). `applied=true` in the response.
+   * Anyone else -> a 'pending' review is queued; composition stays
+   * private. `applied=false`.
+   */
+  async share(
+    compositionId: string,
+    notes?: string,
+  ): Promise<{ composition: Composition; applied: boolean }> {
+    const { data } = await api.post(`/compositions/${compositionId}/share`, {
+      notes: notes || null,
+    })
+    return data
+  },
+
+  /**
+   * Phase 4: admin-only review queue.
+   */
+  async listShareRequests(): Promise<{ compositions: Composition[]; total: number }> {
+    const { data } = await api.get('/compositions/admin/share-requests')
+    return data
+  },
+
+  /**
+   * Phase 4: admin approves a pending share-request.
+   */
+  async approveShareRequest(
+    compositionId: string,
+    notes?: string,
+  ): Promise<Composition> {
+    const { data } = await api.post(
+      `/compositions/${compositionId}/share-request/approve`,
+      { notes: notes || null },
+    )
+    return data
+  },
+
+  /**
+   * Phase 4: admin rejects a pending share-request.
+   */
+  async rejectShareRequest(
+    compositionId: string,
+    notes?: string,
+  ): Promise<Composition> {
+    const { data } = await api.post(
+      `/compositions/${compositionId}/share-request/reject`,
+      { notes: notes || null },
+    )
     return data
   },
 }

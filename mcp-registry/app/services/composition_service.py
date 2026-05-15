@@ -18,7 +18,12 @@ from sqlalchemy import select, and_, or_
 from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..models.composition import Composition, CompositionStatus, CompositionVisibility
+from ..models.composition import (
+    Composition,
+    CompositionStatus,
+    CompositionVisibility,
+    ShareRequestStatus,
+)
 from ..models.organization import OrganizationMember, UserRole
 
 logger = logging.getLogger(__name__)
@@ -472,6 +477,174 @@ class CompositionService:
 
         logger.info(f"Promoted composition '{composition.name}' to {new_status}")
         return (composition, None)
+
+    # =========================================================================
+    # SHARE-WITH-ORG REVIEW WORKFLOW (Phase 4)
+    # =========================================================================
+
+    async def request_or_apply_share(
+        self,
+        composition_id: UUID,
+        organization_id: UUID,
+        user_id: UUID,
+        user_role: UserRole,
+    ) -> Tuple[Optional[Composition], Optional[str], bool]:
+        """Ask to share a composition with the org.
+
+        Behavior depends on the caller's role:
+
+        - Admin/Owner: skip the gate. The composition is immediately
+          made org-visible AND promoted to PRODUCTION so it appears in
+          the pool. Returns ``(composition, None, applied=True)``.
+
+        - Anyone else (creator, member): record a 'pending' review
+          request. The composition itself is unchanged. Returns
+          ``(composition, None, applied=False)`` — the caller can
+          tell the user "submitted for review".
+
+        Restrictions:
+        - Caller must be the creator OR have admin/owner role.
+        - Composition must currently be PRIVATE; nothing to share if
+          it's already organization/public.
+        - If a 'pending' request already exists, return 409 semantics
+          (None, "already_pending", False).
+        """
+        composition = await self.get_composition(composition_id, organization_id)
+        if not composition:
+            return (None, "Composition not found", False)
+
+        is_admin = user_role in (UserRole.ADMIN, UserRole.OWNER)
+        if composition.created_by != user_id and not is_admin:
+            return (None, "Only the creator or an admin can share this composition", False)
+
+        if composition.visibility != CompositionVisibility.PRIVATE.value:
+            return (None, "Composition is already shared", False)
+
+        if is_admin:
+            schema_error = _validate_input_schema_for_production(composition)
+            if schema_error:
+                return (None, schema_error, False)
+            composition.visibility = CompositionVisibility.ORGANIZATION.value
+            composition.status = CompositionStatus.PRODUCTION.value
+            composition.ttl = None
+            # Clear any prior request state — the composition is now shared.
+            composition.share_request_status = None
+            composition.share_requested_by = None
+            composition.share_requested_at = None
+            composition.share_review_notes = None
+            composition.share_reviewed_by = user_id
+            composition.share_reviewed_at = datetime.utcnow()
+            await self.db.commit()
+            await self.db.refresh(composition)
+            logger.info(
+                "Composition %s shared org-wide by admin %s (direct)",
+                composition.id,
+                user_id,
+            )
+            return (composition, None, True)
+
+        # Non-admin path: queue a review request.
+        if composition.share_request_status == ShareRequestStatus.PENDING.value:
+            return (None, "A review is already pending", False)
+
+        composition.share_request_status = ShareRequestStatus.PENDING.value
+        composition.share_requested_by = user_id
+        composition.share_requested_at = datetime.utcnow()
+        composition.share_review_notes = None
+        composition.share_reviewed_by = None
+        composition.share_reviewed_at = None
+        await self.db.commit()
+        await self.db.refresh(composition)
+        logger.info(
+            "Composition %s share-request opened by user %s (pending admin review)",
+            composition.id,
+            user_id,
+        )
+        return (composition, None, False)
+
+    async def approve_share_request(
+        self,
+        composition_id: UUID,
+        organization_id: UUID,
+        admin_user_id: UUID,
+        notes: Optional[str] = None,
+    ) -> Tuple[Optional[Composition], Optional[str]]:
+        """Admin approves a pending share-request.
+
+        Flips visibility to ORGANIZATION + status to PRODUCTION, clears
+        ``share_request_status``, records the reviewer's identity. Caller
+        must already have been authorised as admin upstream.
+        """
+        composition = await self.get_composition(composition_id, organization_id)
+        if not composition:
+            return (None, "Composition not found")
+        if composition.share_request_status != ShareRequestStatus.PENDING.value:
+            return (None, "No pending share-request on this composition")
+
+        schema_error = _validate_input_schema_for_production(composition)
+        if schema_error:
+            return (None, schema_error)
+
+        composition.visibility = CompositionVisibility.ORGANIZATION.value
+        composition.status = CompositionStatus.PRODUCTION.value
+        composition.ttl = None
+        composition.share_request_status = None
+        composition.share_review_notes = notes
+        composition.share_reviewed_by = admin_user_id
+        composition.share_reviewed_at = datetime.utcnow()
+
+        await self.db.commit()
+        await self.db.refresh(composition)
+        logger.info(
+            "Composition %s share-request approved by admin %s",
+            composition.id,
+            admin_user_id,
+        )
+        return (composition, None)
+
+    async def reject_share_request(
+        self,
+        composition_id: UUID,
+        organization_id: UUID,
+        admin_user_id: UUID,
+        notes: Optional[str] = None,
+    ) -> Tuple[Optional[Composition], Optional[str]]:
+        """Admin rejects a pending share-request — composition stays private."""
+        composition = await self.get_composition(composition_id, organization_id)
+        if not composition:
+            return (None, "Composition not found")
+        if composition.share_request_status != ShareRequestStatus.PENDING.value:
+            return (None, "No pending share-request on this composition")
+
+        composition.share_request_status = ShareRequestStatus.REJECTED.value
+        composition.share_review_notes = notes
+        composition.share_reviewed_by = admin_user_id
+        composition.share_reviewed_at = datetime.utcnow()
+
+        await self.db.commit()
+        await self.db.refresh(composition)
+        logger.info(
+            "Composition %s share-request rejected by admin %s",
+            composition.id,
+            admin_user_id,
+        )
+        return (composition, None)
+
+    async def list_pending_share_requests(
+        self,
+        organization_id: UUID,
+    ) -> List[Composition]:
+        """All compositions in the org with a pending share-request."""
+        stmt = (
+            select(Composition)
+            .where(
+                Composition.organization_id == organization_id,
+                Composition.share_request_status == ShareRequestStatus.PENDING.value,
+            )
+            .order_by(Composition.share_requested_at.asc())
+        )
+        result = await self.db.execute(stmt)
+        return list(result.scalars().all())
 
     # =========================================================================
     # STATS / METADATA
