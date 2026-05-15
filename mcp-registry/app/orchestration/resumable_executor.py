@@ -108,6 +108,14 @@ class ToolDispatchUnconfigured(Exception):
     """No tool dispatcher injected. Chunk #6 wires it."""
 
 
+class SubcompositionDepthExceeded(Exception):
+    """Tried to create a child whose depth would exceed the cap.
+
+    Surfaces as 422 in the REST layer / failure envelope to the
+    parent step. The cap is :data:`MAX_SUBCOMPOSITION_DEPTH`.
+    """
+
+
 # ---------------------------------------------------------------------------
 # Pluggable tool dispatcher signature
 # ---------------------------------------------------------------------------
@@ -916,7 +924,39 @@ async def create_execution(
     The initial state seeds ``step_results`` with the user-supplied
     inputs under the synthetic ``INPUTS_KEY`` so steps can substitute
     them via the existing ``${input.X}`` runtime convention.
+
+    Sub-composition depth: when ``parent_execution_id`` is set we
+    enforce ``MAX_SUBCOMPOSITION_DEPTH`` (default 5) by reading the
+    parent's ``state.depth`` and refusing to create a child that
+    would push past the cap. This is the pre-flight check the design
+    doc requires (B-0 chunk 13 must-pass test). Direct callers (the
+    routing layer) pass ``depth=0``; only sub-composition step
+    handlers should pass a non-zero depth derived from the parent.
     """
+    if parent_execution_id is not None:
+        async with _db_session_module.AsyncSessionLocal() as probe:
+            parent_state_row = (
+                await probe.execute(
+                    select(CompositionExecution.state).where(
+                        CompositionExecution.id == parent_execution_id
+                    )
+                )
+            ).first()
+        parent_depth = 0
+        if parent_state_row is not None and parent_state_row[0]:
+            parent_depth = int(
+                (parent_state_row[0] or {}).get("depth", 0) or 0
+            )
+        # The child's effective depth is parent_depth + 1 — even if the
+        # caller passed an explicit ``depth``, we override based on the
+        # parent so authors can't bypass the cap by lying.
+        depth = parent_depth + 1
+        if depth > MAX_SUBCOMPOSITION_DEPTH:
+            raise SubcompositionDepthExceeded(
+                f"sub-composition depth {depth} exceeds cap "
+                f"{MAX_SUBCOMPOSITION_DEPTH}"
+            )
+
     initial_state = ExecutionState(
         step_results={INPUTS_KEY: inputs or {}},
         depth=depth,
