@@ -579,6 +579,43 @@ async def test_subcomposition_propagation_skips_when_parent_not_waiting(
     assert parent_row.state["suspension"]["reason"] == "_test_suspend"
 
 
+async def test_run_detached_marks_failed_on_dispatcher_crash(
+    db_session: AsyncSession, test_user: dict
+):
+    """run_detached wrapper catches dispatcher exceptions and marks failed.
+
+    Critical safety net: an asyncio.create_task(run_detached(...))
+    that swallows exceptions silently would leak orphan running rows.
+    The wrapper must always leave the row in a terminal state.
+    """
+    user_id, org_id = await _ids(db_session, test_user["email"])
+    comp = await _make_composition(
+        db_session, org_id, user_id, name="b0_detached_crash",
+        steps=[{"step_id": "1", "type": "tool", "tool": "boom"}],
+    )
+    execution_id = await create_execution(
+        composition_id=comp.id, user_id=user_id, organization_id=org_id,
+        trigger="manual",
+    )
+
+    async def crashing_dispatcher(step, state, execution):
+        raise RuntimeError("upstream exploded")
+
+    executor = get_executor()
+    executor.set_tool_dispatcher(crashing_dispatcher)
+
+    # The wrapper is what asyncio.create_task would invoke. Awaiting
+    # directly here exercises the same exception-handling path.
+    await ResumableExecutor.run_detached(execution_id)
+
+    row = await db_session.get(CompositionExecution, execution_id)
+    await db_session.refresh(row)
+    assert row.status == ExecutionStatus.FAILED.value, (
+        f"run_detached must leave a terminal status, got {row.status}"
+    )
+    assert row.error  # some non-empty error message
+
+
 async def test_step_events_recorded(db_session: AsyncSession, test_user: dict):
     """Each step transition appends to execution_step_event timeline."""
     user_id, org_id = await _ids(db_session, test_user["email"])

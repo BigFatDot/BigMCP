@@ -53,37 +53,87 @@ QUEUE_BATCH_LIMIT = int(os.getenv("COMPOSITION_QUEUE_BATCH_LIMIT", "200"))
 async def recover_orphan_executions() -> List[UUID]:
     """Sweep ``running`` executions on backend startup → ``failed``.
 
-    Returns the list of promoted IDs (mostly for logging).
+    Returns the list of recovered IDs.
+
+    Each orphan also gets:
+    - one ``COMPOSITION_EXECUTION_FAILED`` audit row with reason
+      ``backend_restart_orphan``
+    - one ``execution_step_event`` timeline entry of type
+      ``orphan_recovery`` so the UI shows WHY the row failed
 
     Suspended and queued rows are untouched:
-    - Suspended will resume on its external event (callback, time,
-      manual resume) — backend restart doesn't change that.
+    - Suspended will resume on its external event — backend restart
+      doesn't change that.
     - Queued will be picked up by the queue worker on its next tick.
     """
+    from uuid import uuid4
+    from ..models.audit_log import AuditAction
+    from ..models.composition_execution import ExecutionStepEvent
+    from ..services.audit_service import AuditService
+
     async with _db_session_module.AsyncSessionLocal() as db:
-        rows = await db.execute(
-            update(CompositionExecution)
-            .where(
+        # Capture (id, user_id, organization_id, current_step_id) BEFORE
+        # the UPDATE so we can emit per-row audit/timeline rows from the
+        # snapshot. Doing the SELECT first then UPDATE-by-id keeps the
+        # critical mutation small and avoids needing RETURNING of all
+        # columns.
+        from sqlalchemy import select
+        prelim = await db.execute(
+            select(CompositionExecution).where(
                 CompositionExecution.status == ExecutionStatus.RUNNING.value
             )
+        )
+        orphan_rows = list(prelim.scalars().all())
+
+        if not orphan_rows:
+            logger.info("No orphan executions to recover at startup")
+            return []
+
+        orphan_ids = [r.id for r in orphan_rows]
+        await db.execute(
+            update(CompositionExecution)
+            .where(CompositionExecution.id.in_(orphan_ids))
             .values(
                 status=ExecutionStatus.FAILED.value,
                 error="backend_restart_orphan",
                 updated_at=datetime.utcnow(),
             )
-            .returning(CompositionExecution.id)
         )
-        orphans = list(rows.scalars().all())
+        # Audit + timeline events
+        audit = AuditService(db)
+        for r in orphan_rows:
+            current_step_id = (r.state or {}).get("current_step_id") or "?"
+            try:
+                await audit.log_action(
+                    action=AuditAction.COMPOSITION_EXECUTION_FAILED,
+                    actor_id=r.user_id,
+                    organization_id=r.organization_id,
+                    resource_type="composition_execution",
+                    resource_id=str(r.id),
+                    details={"error": "backend_restart_orphan"},
+                )
+            except Exception:  # noqa: BLE001
+                logger.warning(
+                    f"failed to emit audit log for orphan {r.id}",
+                    exc_info=True,
+                )
+            db.add(
+                ExecutionStepEvent(
+                    id=uuid4(),
+                    execution_id=r.id,
+                    step_id=current_step_id,
+                    event_type="orphan_recovery",
+                    payload={"error": "backend_restart_orphan"},
+                    timestamp=datetime.utcnow(),
+                )
+            )
         await db.commit()
 
-    if orphans:
-        logger.warning(
-            f"Recovered {len(orphans)} orphan execution(s) from previous "
-            f"backend process: {orphans}"
-        )
-    else:
-        logger.info("No orphan executions to recover at startup")
-    return orphans
+    logger.warning(
+        f"Recovered {len(orphan_ids)} orphan execution(s) from previous "
+        f"backend process: {orphan_ids}"
+    )
+    return orphan_ids
 
 
 # ---------------------------------------------------------------------------

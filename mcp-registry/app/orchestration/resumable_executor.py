@@ -62,6 +62,12 @@ WARN_STEP_RESULT_BYTES = 262_144        # 256 KB
 # Sub-composition recursion guard.
 MAX_SUBCOMPOSITION_DEPTH = 5
 
+# Synthetic key in ``state.step_results`` that holds the user-supplied
+# inputs at composition launch. Steps reference these via the existing
+# ``${input.X}`` runtime convention. Distinctive prefix (double-underscore
+# both sides + bigmcp namespace) so no real step_id can collide with it.
+INPUTS_KEY = "__bigmcp_inputs__"
+
 
 # ---------------------------------------------------------------------------
 # Errors
@@ -464,12 +470,12 @@ class ResumableExecutor:
     def _extract_result(state: ExecutionState) -> Optional[Dict[str, Any]]:
         """Composition result = the last successful step's output.
 
-        Skips the synthetic ``__inputs`` key seeded by ``create_execution``.
+        Skips the synthetic ``INPUTS_KEY`` seeded by ``create_execution``.
         """
         successful = [
             (sid, val)
             for sid, val in state.step_results.items()
-            if sid != "__inputs" and state.step_status.get(sid) == "succeeded"
+            if sid != INPUTS_KEY and state.step_status.get(sid) == "succeeded"
         ]
         if not successful:
             return None
@@ -839,11 +845,11 @@ async def create_execution(
     """Insert a fresh ``composition_execution`` row and return its id.
 
     The initial state seeds ``step_results`` with the user-supplied
-    inputs under a synthetic ``__inputs`` key so steps can substitute
+    inputs under the synthetic ``INPUTS_KEY`` so steps can substitute
     them via the existing ``${input.X}`` runtime convention.
     """
     initial_state = ExecutionState(
-        step_results={"__inputs": inputs or {}},
+        step_results={INPUTS_KEY: inputs or {}},
         depth=depth,
     )
 

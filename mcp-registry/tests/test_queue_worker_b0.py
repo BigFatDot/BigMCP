@@ -230,6 +230,93 @@ async def test_promote_skips_when_user_at_quota(
     assert row.status == ExecutionStatus.QUEUED.value
 
 
+async def test_orphan_recovery_emits_audit_and_timeline(
+    db_session: AsyncSession, test_user: dict
+):
+    """Each orphan gets a COMPOSITION_EXECUTION_FAILED audit row +
+    one execution_step_event of type ``orphan_recovery``."""
+    from app.models.audit_log import AuditLog, AuditAction
+    from app.models.composition_execution import ExecutionStepEvent
+
+    user_id, org_id = await _ids(db_session, test_user["email"])
+    comp = await _make_composition(
+        db_session, org_id, user_id, name="orphan_evt",
+        steps=[{"step_id": "1", "type": "tool", "tool": "x"}],
+    )
+    execution_id = await create_execution(
+        composition_id=comp.id, user_id=user_id, organization_id=org_id,
+        trigger="manual",
+        initial_status=ExecutionStatus.RUNNING,
+    )
+    # Seed the state with a current_step_id so the timeline event
+    # carries something meaningful (not "?")
+    state = ExecutionState.from_jsonb({})
+    state.current_step_id = "1"
+    state.step_status["1"] = "in_progress"
+    await db_session.execute(
+        update(CompositionExecution)
+        .where(CompositionExecution.id == execution_id)
+        .values(state=state.to_jsonb())
+    )
+    await db_session.commit()
+
+    recovered = await recover_orphan_executions()
+    assert execution_id in recovered
+
+    # Audit row
+    audits = (
+        await db_session.execute(
+            select(AuditLog).where(
+                AuditLog.action == AuditAction.COMPOSITION_EXECUTION_FAILED.value,
+                AuditLog.resource_id == str(execution_id),
+            )
+        )
+    ).scalars().all()
+    assert len(audits) == 1
+    assert audits[0].details == {"error": "backend_restart_orphan"}
+
+    # Timeline event
+    events = (
+        await db_session.execute(
+            select(ExecutionStepEvent).where(
+                ExecutionStepEvent.execution_id == execution_id,
+                ExecutionStepEvent.event_type == "orphan_recovery",
+            )
+        )
+    ).scalars().all()
+    assert len(events) == 1
+    assert events[0].step_id == "1"
+    assert events[0].payload == {"error": "backend_restart_orphan"}
+
+
+async def test_queue_worker_start_stop_clean_shutdown(
+    db_session: AsyncSession, test_user: dict
+):
+    """start() spawns a task, stop() awaits it cleanly, no leak."""
+    from app.orchestration.queue_worker import (
+        QueueWorker,
+        _reset_queue_worker_for_tests,
+    )
+
+    _reset_queue_worker_for_tests()
+    worker = QueueWorker()
+    assert not worker.is_running()
+
+    await worker.start()
+    assert worker.is_running()
+
+    # Calling start() twice is idempotent
+    await worker.start()
+    assert worker.is_running()
+
+    await worker.stop()
+    assert not worker.is_running()
+
+    # Calling stop() after stop is also idempotent
+    await worker.stop()
+    assert not worker.is_running()
+
+
 async def test_promote_releases_slot_after_terminal(
     db_session: AsyncSession, test_user: dict, monkeypatch
 ):
