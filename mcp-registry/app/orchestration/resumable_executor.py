@@ -544,7 +544,120 @@ class ResumableExecutor:
                 execution,
                 payload={"error": error} if error else None,
             )
+            # Sub-composition propagation: if this execution was
+            # spawned by a parent waiting on it, kick the parent's
+            # run loop in the background. The parent picks up the
+            # result via the resume() path.
+            if execution.parent_execution_id is not None:
+                await self._propagate_to_parent(
+                    db, execution, terminal_status=status, terminal_result=result
+                )
         return status.value
+
+    async def _propagate_to_parent(
+        self,
+        db: AsyncSession,
+        child_execution: CompositionExecution,
+        *,
+        terminal_status: ExecutionStatus,
+        terminal_result: Optional[Dict[str, Any]],
+    ) -> None:
+        """When a child reaches a terminal state, resume the parent.
+
+        Looks up the parent row, verifies it is suspended on this
+        specific child (state.suspension.child_execution_id matches),
+        and triggers ``executor.resume(parent_id, payload)`` in the
+        background so the parent's run loop continues.
+
+        The payload that the parent's suspended step receives is the
+        child's result on success, or a ``{"error": ...}`` envelope
+        on failure / cancellation / expiry. The parent step type
+        decides how to interpret this — for B-0 there's no step type
+        that uses subcomposition yet (B-1+ adds it). The hook itself
+        is in place so chunk 6+ doesn't need executor changes.
+
+        If the parent isn't actually suspended on this child (race,
+        out-of-order events), we skip silently — the parent will
+        either resume on its own or get caught by the orphan sweep.
+        """
+        import asyncio
+
+        parent_id = child_execution.parent_execution_id
+        if parent_id is None:
+            return
+
+        parent = (
+            await db.execute(
+                select(CompositionExecution).where(
+                    CompositionExecution.id == parent_id
+                )
+            )
+        ).scalar_one_or_none()
+        if parent is None:
+            logger.warning(
+                f"child {child_execution.id} terminal but parent "
+                f"{parent_id} not found — orphan"
+            )
+            return
+        if parent.status != ExecutionStatus.SUSPENDED.value:
+            logger.info(
+                f"child {child_execution.id} terminal but parent "
+                f"{parent_id} status={parent.status} (not suspended) — "
+                f"propagation skipped"
+            )
+            return
+
+        suspension = (parent.state or {}).get("suspension") or {}
+        if suspension.get("reason") != "subcomposition":
+            logger.info(
+                f"child {child_execution.id} terminal but parent "
+                f"{parent_id} suspended on {suspension.get('reason')!r} "
+                f"(not subcomposition) — propagation skipped"
+            )
+            return
+        expected_child = (suspension.get("payload") or {}).get(
+            "child_execution_id"
+        )
+        if expected_child and str(expected_child) != str(child_execution.id):
+            logger.info(
+                f"child {child_execution.id} terminal but parent "
+                f"{parent_id} is waiting on a different child "
+                f"{expected_child} — propagation skipped"
+            )
+            return
+
+        # Build the payload the parent step will see. On failure,
+        # surface a clear envelope so the parent can react.
+        if terminal_status == ExecutionStatus.COMPLETED:
+            payload: Any = terminal_result or {}
+        else:
+            payload = {
+                "error": f"child execution {terminal_status.value}",
+                "child_execution_id": str(child_execution.id),
+                "child_status": terminal_status.value,
+                "child_error": child_execution.error,
+            }
+
+        # Fire-and-forget resume on the parent. We use run_detached
+        # to ensure exceptions in the parent's continuation don't
+        # leak back into this child's terminal-marking transaction.
+        async def _resume_parent() -> None:
+            try:
+                await get_executor().resume(parent_id, payload)
+            except ExecutionStateConflict:
+                # Parent was already resumed by some other path
+                # (e.g., manual cancel + re-trigger). Acceptable.
+                logger.info(
+                    f"parent {parent_id} no longer suspended at "
+                    f"propagation time — skipped"
+                )
+            except Exception:  # noqa: BLE001
+                logger.exception(
+                    f"failed to propagate child {child_execution.id} "
+                    f"completion to parent {parent_id}"
+                )
+
+        asyncio.create_task(_resume_parent())
 
     async def _mark_suspended(
         self,

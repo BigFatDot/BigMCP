@@ -395,6 +395,190 @@ async def test_pure_tool_composition_runs_to_completion(
     assert row.result == {"out": "c"}
 
 
+async def test_subcomposition_propagation_on_complete(
+    db_session: AsyncSession, test_user: dict
+):
+    """Direct DB setup: parent suspended pointing at child;
+    transition child to completed → parent resumes automatically."""
+    user_id, org_id = await _ids(db_session, test_user["email"])
+
+    # Parent composition with one step (the step that "called" the
+    # child). The step type doesn't matter for B-0 — we set the
+    # state manually to look like the parent is suspended waiting.
+    parent_comp = await _make_composition(
+        db_session, org_id, user_id, name="b0_parent",
+        steps=[{"step_id": "call_child", "type": "tool", "tool": "child_proxy"}],
+    )
+    child_comp = await _make_composition(
+        db_session, org_id, user_id, name="b0_child",
+        steps=[{"step_id": "1", "type": "tool", "tool": "leaf"}],
+    )
+
+    parent_execution_id = await create_execution(
+        composition_id=parent_comp.id, user_id=user_id, organization_id=org_id,
+        trigger="manual",
+    )
+    child_execution_id = await create_execution(
+        composition_id=child_comp.id, user_id=user_id, organization_id=org_id,
+        trigger="manual",
+        parent_execution_id=parent_execution_id,
+    )
+
+    # Manually put the parent in suspended state pointing at the child
+    parent_row = await db_session.get(CompositionExecution, parent_execution_id)
+    parent_state = ExecutionState.from_jsonb(parent_row.state)
+    parent_state.current_step_id = "call_child"
+    parent_state.step_status["call_child"] = "in_progress"
+    parent_state.suspension = {
+        "reason": "subcomposition",
+        "payload": {"child_execution_id": str(child_execution_id)},
+        "ttl_seconds": 3600,
+    }
+    parent_row.state = parent_state.to_jsonb()
+    parent_row.status = ExecutionStatus.SUSPENDED.value
+    await db_session.commit()
+
+    # Mark parent's call_child step as idempotent so the resume path
+    # (which sees in_progress) re-enters cleanly. The actual tool
+    # call would be the second step the parent runs — but we have a
+    # mock dispatcher.
+    # Actually since the parent step is idempotent and the resume
+    # injects the response, the executor sees it as succeeded and
+    # moves on — we don't even need a dispatcher.
+
+    # Now run the child to completion. A simple dispatcher returns
+    # a payload that should bubble up to the parent.
+    async def child_dispatcher(step, state, execution):
+        return {"child_output": "hello"}
+
+    executor = get_executor()
+    executor.set_tool_dispatcher(child_dispatcher)
+
+    # Run the child — it completes, propagation kicks in
+    child_status = await executor.run(child_execution_id)
+    assert child_status == ExecutionStatus.COMPLETED.value
+
+    # Wait briefly for the background propagation task
+    await asyncio.sleep(0.2)
+
+    # Parent should now be completed too (the resume path injected
+    # the child's result and the parent had no more steps)
+    await db_session.refresh(parent_row)
+    assert parent_row.status == ExecutionStatus.COMPLETED.value, (
+        f"parent should have completed via propagation, got "
+        f"{parent_row.status}"
+    )
+    # The injected response is the child's result
+    assert parent_row.state["step_results"]["call_child"] == {
+        "child_output": "hello"
+    }
+
+
+async def test_subcomposition_propagation_on_failure(
+    db_session: AsyncSession, test_user: dict
+):
+    """Child failure surfaces to the parent as an error envelope."""
+    user_id, org_id = await _ids(db_session, test_user["email"])
+
+    parent_comp = await _make_composition(
+        db_session, org_id, user_id, name="b0_parent_fail",
+        steps=[{"step_id": "call_child", "type": "tool", "tool": "child_proxy"}],
+    )
+    child_comp = await _make_composition(
+        db_session, org_id, user_id, name="b0_child_fail",
+        steps=[{"step_id": "1", "type": "tool", "tool": "leaf"}],
+    )
+
+    parent_execution_id = await create_execution(
+        composition_id=parent_comp.id, user_id=user_id, organization_id=org_id,
+        trigger="manual",
+    )
+    child_execution_id = await create_execution(
+        composition_id=child_comp.id, user_id=user_id, organization_id=org_id,
+        trigger="manual",
+        parent_execution_id=parent_execution_id,
+    )
+
+    parent_row = await db_session.get(CompositionExecution, parent_execution_id)
+    parent_state = ExecutionState.from_jsonb(parent_row.state)
+    parent_state.current_step_id = "call_child"
+    parent_state.step_status["call_child"] = "in_progress"
+    parent_state.suspension = {
+        "reason": "subcomposition",
+        "payload": {"child_execution_id": str(child_execution_id)},
+        "ttl_seconds": 3600,
+    }
+    parent_row.state = parent_state.to_jsonb()
+    parent_row.status = ExecutionStatus.SUSPENDED.value
+    await db_session.commit()
+
+    # Failing child dispatcher
+    async def failing_dispatcher(step, state, execution):
+        raise RuntimeError("upstream blew up")
+
+    executor = get_executor()
+    executor.set_tool_dispatcher(failing_dispatcher)
+    child_status = await executor.run(child_execution_id)
+    assert child_status == ExecutionStatus.FAILED.value
+
+    await asyncio.sleep(0.2)
+
+    await db_session.refresh(parent_row)
+    # Parent received an error envelope as the step result;
+    # the parent step succeeds in the resume path (the envelope IS
+    # the response), so the parent completes with that as its result.
+    injected = parent_row.state["step_results"]["call_child"]
+    assert "error" in injected
+    assert injected["child_status"] == ExecutionStatus.FAILED.value
+
+
+async def test_subcomposition_propagation_skips_when_parent_not_waiting(
+    db_session: AsyncSession, test_user: dict
+):
+    """If the parent has moved on or is suspended on something else,
+    propagation is silently skipped (no exception, no resume)."""
+    user_id, org_id = await _ids(db_session, test_user["email"])
+    parent_comp = await _make_composition(
+        db_session, org_id, user_id, name="b0_parent_skip",
+        steps=[{"step_id": "1", "type": "_test_suspend"}],
+    )
+    child_comp = await _make_composition(
+        db_session, org_id, user_id, name="b0_child_skip",
+        steps=[{"step_id": "1", "type": "_test_suspend"}],
+    )
+
+    parent_execution_id = await create_execution(
+        composition_id=parent_comp.id, user_id=user_id, organization_id=org_id,
+        trigger="manual",
+    )
+    child_execution_id = await create_execution(
+        composition_id=child_comp.id, user_id=user_id, organization_id=org_id,
+        trigger="manual",
+        parent_execution_id=parent_execution_id,
+    )
+
+    # Parent suspended on a _test_suspend (NOT subcomposition).
+    # Child terminal should not touch parent.
+    executor = get_executor()
+    await executor.run(parent_execution_id)  # parent → suspended on _test_suspend
+    await executor.run(child_execution_id)   # child → suspended on _test_suspend
+
+    parent_row = await db_session.get(CompositionExecution, parent_execution_id)
+    await db_session.refresh(parent_row)
+    parent_status_before = parent_row.status
+    assert parent_status_before == ExecutionStatus.SUSPENDED.value
+
+    # Resume the child; it completes
+    await executor.resume(child_execution_id, {"value": 1})
+    await asyncio.sleep(0.2)
+
+    await db_session.refresh(parent_row)
+    # Parent should still be suspended on its OWN _test_suspend,
+    # untouched by the child's transition.
+    assert parent_row.status == ExecutionStatus.SUSPENDED.value
+    assert parent_row.state["suspension"]["reason"] == "_test_suspend"
+
+
 async def test_step_events_recorded(db_session: AsyncSession, test_user: dict):
     """Each step transition appends to execution_step_event timeline."""
     user_id, org_id = await _ids(db_session, test_user["email"])
