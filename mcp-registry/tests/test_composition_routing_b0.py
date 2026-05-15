@@ -136,10 +136,25 @@ def test_requires_async_metadata_forces_pattern_c():
     assert composition_has_suspending_steps(_C()) is True
 
 
-def test_b0_only_recognises_test_suspend():
-    """Sanity: B-0's SUSPENDING_STEP_TYPES contains exactly one type.
-    B-1+ commits will widen this set as new step types arrive."""
-    assert SUSPENDING_STEP_TYPES == frozenset({"_test_suspend"})
+def test_suspending_step_types_grows_with_each_phase():
+    """Sanity guard: the set of suspending step types is intentional.
+
+    Every entry here corresponds to a step type with a documented
+    contract. Widening the set MUST come with a matching dispatch
+    branch in ``ResumableExecutor._execute_step`` — this assertion
+    fails loudly so a typo in the routing layer can't silently
+    bypass the suspension state machine.
+
+    B-0: ``_test_suspend`` (debug only).
+    B-1: + ``elicit`` (human-in-the-loop, JSON-schema-validated).
+    """
+    expected = frozenset({"_test_suspend", "elicit"})
+    assert SUSPENDING_STEP_TYPES == expected, (
+        f"SUSPENDING_STEP_TYPES drift: got {sorted(SUSPENDING_STEP_TYPES)}, "
+        f"expected {sorted(expected)}. If you added a new step type, "
+        f"update this assertion AND the dispatch branch in "
+        f"ResumableExecutor._execute_step + the B-1 design doc."
+    )
 
 
 # ---------------------------------------------------------------------------

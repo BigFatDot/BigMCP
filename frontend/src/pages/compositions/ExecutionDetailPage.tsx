@@ -26,6 +26,7 @@ import {
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 import { Button, Card } from '@/components/ui'
+import { ElicitForm, type ElicitSchema } from '@/components/compositions'
 import {
   executionsApi,
   type ExecutionDetail,
@@ -177,14 +178,19 @@ export function ExecutionDetailPage() {
     }
   }
 
-  const suspensionReason = useMemo(() => {
+  const suspension = useMemo(() => {
     if (!detail) return null
-    const susp = (detail.state as Record<string, unknown> | null)?.suspension as
-      | { reason?: string }
-      | null
-      | undefined
-    return susp?.reason ?? null
+    return (
+      ((detail.state as Record<string, unknown> | null)?.suspension as
+        | {
+            reason?: string
+            payload?: { message?: string; schema?: ElicitSchema; step_id?: string }
+          }
+        | null
+        | undefined) ?? null
+    )
   }, [detail])
+  const suspensionReason = suspension?.reason ?? null
 
   if (loading) {
     return (
@@ -209,6 +215,30 @@ export function ExecutionDetailPage() {
   const canCancel = isNonTerminal && !detail.cancel_requested
   const canResumeTestSuspend =
     detail.status === 'suspended' && suspensionReason === '_test_suspend'
+  const elicitPayload =
+    detail.status === 'suspended' && suspensionReason === 'elicit'
+      ? suspension?.payload
+      : null
+  const handleElicitSubmit = async (response: unknown) => {
+    if (!executionId) return
+    setResuming(true)
+    try {
+      const resp = await executionsApi.resume(executionId, response)
+      toast.success(`Resumed → ${resp.status}`)
+      await fetchDetail(true)
+    } catch (err: unknown) {
+      const apiErr = err as {
+        response?: { status?: number; data?: { detail?: string } }
+      }
+      const code = apiErr.response?.status
+      const detailMsg = apiErr.response?.data?.detail
+      toast.error(
+        `Resume failed${code ? ` (${code})` : ''}${detailMsg ? `: ${detailMsg}` : ''}`,
+      )
+    } finally {
+      setResuming(false)
+    }
+  }
 
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl">
@@ -287,6 +317,25 @@ export function ExecutionDetailPage() {
           </div>
         </div>
       </Card>
+
+      {/* Elicit response form (B-1) */}
+      {elicitPayload && elicitPayload.schema && (
+        <Card padding="md" className="mb-4 border-amber-300 bg-amber-50">
+          <h3 className="text-sm font-semibold text-amber-900 mb-2">
+            Response required{elicitPayload.step_id && (
+              <span className="font-mono text-xs ml-1">
+                (step <span className="font-semibold">{elicitPayload.step_id}</span>)
+              </span>
+            )}
+          </h3>
+          <ElicitForm
+            message={elicitPayload.message || ''}
+            schema={elicitPayload.schema}
+            onSubmit={handleElicitSubmit}
+            submitting={resuming}
+          />
+        </Card>
+      )}
 
       {/* Resume widget for _test_suspend */}
       {canResumeTestSuspend && (

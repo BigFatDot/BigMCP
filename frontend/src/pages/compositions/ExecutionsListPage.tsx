@@ -309,6 +309,11 @@ export function ExecutionsListPage() {
                           <span className="font-mono">
                             {it.suspension_reason}
                           </span>
+                          {it.suspension_reason === 'elicit' && (
+                            <span className="ml-1 px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 text-xs font-medium">
+                              needs response
+                            </span>
+                          )}
                         </>
                       )}
                     </div>

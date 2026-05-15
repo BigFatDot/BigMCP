@@ -37,6 +37,36 @@ logger = logging.getLogger(__name__)
 _PARAM_REF_RE = re.compile(r"\$\{input\.([a-zA-Z0-9_]+)\}")
 
 
+def _validate_elicit_steps_for_production(composition: Composition) -> Optional[str]:
+    """Reject promote-to-production when an ``elicit`` step is malformed.
+
+    The runtime dispatch already raises (failing the execution) on a
+    bad config, but catching it at promote time is much cheaper for
+    the author — no test-run needed to discover a typo. Mirrors the
+    pattern used by ``_validate_input_schema_for_production``.
+
+    Returns the error string (the message the API surfaces as 422
+    detail) or None when every elicit step is well-formed.
+    """
+    from ..orchestration.elicit_step import ElicitConfigError, validate_config
+
+    for idx, step in enumerate(composition.steps or []):
+        if not isinstance(step, dict):
+            continue
+        if step.get("type") != "elicit":
+            continue
+        try:
+            validate_config(step.get("elicit"))
+        except ElicitConfigError as e:
+            step_label = (
+                step.get("step_id")
+                or step.get("id")
+                or f"step #{idx}"
+            )
+            return f"Step {step_label!r} (type=elicit) is invalid: {e}"
+    return None
+
+
 def _validate_input_schema_for_production(composition: Composition) -> Optional[str]:
     """Ensure a production composition declares every parameter it references.
 
@@ -473,6 +503,11 @@ class CompositionService:
             schema_error = _validate_input_schema_for_production(composition)
             if schema_error:
                 return (None, schema_error)
+            # B-1: catch malformed elicit steps at promote time so the
+            # author isn't surprised by a runtime failure on first use.
+            elicit_error = _validate_elicit_steps_for_production(composition)
+            if elicit_error:
+                return (None, elicit_error)
 
         composition.status = new_status
         composition.ttl = None  # Remove TTL when promoted
@@ -529,6 +564,9 @@ class CompositionService:
             schema_error = _validate_input_schema_for_production(composition)
             if schema_error:
                 return (None, schema_error, False)
+            elicit_error = _validate_elicit_steps_for_production(composition)
+            if elicit_error:
+                return (None, elicit_error, False)
             composition.visibility = CompositionVisibility.ORGANIZATION.value
             composition.status = CompositionStatus.PRODUCTION.value
             composition.ttl = None
@@ -589,6 +627,9 @@ class CompositionService:
         schema_error = _validate_input_schema_for_production(composition)
         if schema_error:
             return (None, schema_error)
+        elicit_error = _validate_elicit_steps_for_production(composition)
+        if elicit_error:
+            return (None, elicit_error)
 
         composition.visibility = CompositionVisibility.ORGANIZATION.value
         composition.status = CompositionStatus.PRODUCTION.value

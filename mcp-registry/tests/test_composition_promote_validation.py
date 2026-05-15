@@ -76,3 +76,90 @@ def test_ignores_legacy_parameters_prefix():
         }
     ]
     assert _validate_input_schema_for_production(_Comp(schema, steps)) is None
+
+
+# ---------------------------------------------------------------------------
+# B-1 chunk 4: elicit step validation at promote time
+# ---------------------------------------------------------------------------
+
+
+from app.services.composition_service import _validate_elicit_steps_for_production
+
+
+def test_elicit_valid_passes():
+    steps = [{
+        "step_id": "ask",
+        "type": "elicit",
+        "elicit": {
+            "message": "Confirm?",
+            "schema": {"type": "object", "properties": {"ok": {"type": "boolean"}}},
+        },
+    }]
+    assert _validate_elicit_steps_for_production(_Comp({}, steps)) is None
+
+
+def test_elicit_missing_message_rejected():
+    steps = [{
+        "step_id": "ask",
+        "type": "elicit",
+        "elicit": {"schema": {"type": "object"}},
+    }]
+    err = _validate_elicit_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "ask" in err and "message" in err
+
+
+def test_elicit_missing_schema_rejected():
+    steps = [{
+        "step_id": "ask",
+        "type": "elicit",
+        "elicit": {"message": "Confirm?"},
+    }]
+    err = _validate_elicit_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "schema" in err
+
+
+def test_elicit_schema_without_type_rejected():
+    steps = [{
+        "step_id": "ask",
+        "type": "elicit",
+        "elicit": {
+            "message": "Pick one",
+            "schema": {"properties": {"x": {"type": "string"}}},
+        },
+    }]
+    err = _validate_elicit_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "type" in err
+
+
+def test_elicit_ttl_out_of_range_rejected():
+    steps = [{
+        "step_id": "ask",
+        "type": "elicit",
+        "elicit": {
+            "message": "Confirm?",
+            "schema": {"type": "object"},
+            "ttl_seconds": 10**6,  # > 24h cap
+        },
+    }]
+    err = _validate_elicit_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "ttl_seconds" in err
+
+
+def test_elicit_validator_ignores_non_elicit_steps():
+    steps = [
+        {"step_id": "1", "type": "tool", "tool": "noop"},
+        {"step_id": "2", "type": "_test_suspend"},
+    ]
+    assert _validate_elicit_steps_for_production(_Comp({}, steps)) is None
+
+
+def test_elicit_validator_handles_step_without_step_id():
+    """Falls back to ``step #N`` in the error label."""
+    steps = [{"type": "elicit", "elicit": {"message": "x"}}]
+    err = _validate_elicit_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "#0" in err
