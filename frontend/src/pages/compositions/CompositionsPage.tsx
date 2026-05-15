@@ -76,6 +76,8 @@ function CompositionCard({
   const visibilityStyle = VISIBILITY_STYLES[visibility]
   const VisibilityIcon = visibilityStyle.icon
   const stepCount = composition.steps?.length || 0
+  const isCustomToolKind =
+    (composition.extra_metadata as Record<string, unknown> | undefined)?.kind === 'custom_tool'
   // Strip the "Server__" qualifier from each step name for the inline
   // preview — the server is implicit context the user already knows when
   // browsing their compositions, and the prefix makes the chain unreadable.
@@ -101,6 +103,14 @@ function CompositionCard({
           <h3 className="text-lg font-bold text-gray-900">{composition.name}</h3>
         </div>
         <div className="flex flex-col gap-1 items-end flex-shrink-0">
+          {isCustomToolKind && (
+            <span
+              className="px-2 py-0.5 rounded text-xs font-medium bg-orange/10 text-orange-dark"
+              title="Wraps a single tool with frozen params + a friendlier interface"
+            >
+              Custom tool
+            </span>
+          )}
           <span
             className={cn('px-2 py-1 rounded text-xs font-medium', statusStyle.bg, statusStyle.text)}
             title={
@@ -699,6 +709,7 @@ export function CompositionsPage() {
   const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'mine' | 'team'>('all')
   const [selectedComposition, setSelectedComposition] = useState<Composition | null>(null)
   const [showExecuteModal, setShowExecuteModal] = useState(false)
+  const [kindFilter, setKindFilter] = useState<'all' | 'custom_tool' | 'workflow'>('all')
   // `?compose=<intent>` deep-link from the workspace assistant pre-fills and
   // auto-opens the propose modal. We strip the param after consuming it so a
   // refresh doesn't re-open the modal.
@@ -743,13 +754,26 @@ export function CompositionsPage() {
     loadCompositions()
   }, [loadCompositions])
 
+  // Phase A custom-tool factory: a 1-step composition tagged with
+  // ``extra_metadata.kind === 'custom_tool'`` is a wrapper, not a
+  // workflow. The page mental model differs (wrappers are static
+  // facades; workflows orchestrate). We let the user filter between
+  // the two without changing the underlying storage.
+  const isCustomTool = (c: Composition): boolean => {
+    const kind = (c.extra_metadata as Record<string, unknown> | undefined)?.kind
+    return kind === 'custom_tool' || (Array.isArray(c.steps) && c.steps.length === 1)
+  }
+
   const filteredCompositions = compositions.filter((comp) => {
     const matchesSearch =
       searchQuery === '' ||
       comp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (comp.description || '').toLowerCase().includes(searchQuery.toLowerCase())
 
-    return matchesSearch
+    if (!matchesSearch) return false
+    if (kindFilter === 'custom_tool' && !isCustomTool(comp)) return false
+    if (kindFilter === 'workflow' && isCustomTool(comp)) return false
+    return true
   })
 
   const handleExecute = (composition: Composition) => {
@@ -871,6 +895,16 @@ export function CompositionsPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <FunnelIcon className="w-5 h-5 text-gray-400 hidden sm:block" />
+          <select
+            value={kindFilter}
+            onChange={(e) => setKindFilter(e.target.value as 'all' | 'custom_tool' | 'workflow')}
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange text-sm"
+            title="Custom tools wrap a single tool with frozen params; workflows orchestrate multiple steps."
+          >
+            <option value="all">All kinds</option>
+            <option value="custom_tool">Custom tools</option>
+            <option value="workflow">Workflows</option>
+          </select>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as CompositionStatus | 'all')}

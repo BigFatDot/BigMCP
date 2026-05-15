@@ -8,7 +8,12 @@
 
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { CheckCircleIcon, SparklesIcon, WrenchScrewdriverIcon } from '@heroicons/react/24/outline'
+import {
+  CheckCircleIcon,
+  SparklesIcon,
+  WrenchScrewdriverIcon,
+  AdjustmentsHorizontalIcon,
+} from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkOutlineIcon } from '@heroicons/react/24/outline'
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid'
 import { cn } from '@/utils/cn'
@@ -37,6 +42,8 @@ interface ToolCardProps {
   pinned?: boolean
   onTogglePin?: () => void
   pinBusy?: boolean
+  /** Open the "Customize" modal that turns this tool into a Custom tool. */
+  onCustomize?: () => void
 }
 
 export function ToolCard({
@@ -52,6 +59,7 @@ export function ToolCard({
   pinned,
   onTogglePin,
   pinBusy,
+  onCustomize,
 }: ToolCardProps) {
   const dragId = `${origin}:${data.id}${toolboxId ? `:${toolboxId}` : ''}`
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -104,6 +112,21 @@ export function ToolCard({
             </div>
           )}
         </div>
+        {onCustomize && data.kind === 'tool' && (
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => {
+              e.stopPropagation()
+              onCustomize()
+            }}
+            title="Customize: turn this into a wrapper tool with frozen params + a friendlier interface"
+            aria-label={`Customize ${data.name}`}
+            className="p-1 rounded text-gray-300 hover:text-orange opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+          >
+            <AdjustmentsHorizontalIcon className="h-4 w-4" />
+          </button>
+        )}
         {onTogglePin && (
           <button
             type="button"

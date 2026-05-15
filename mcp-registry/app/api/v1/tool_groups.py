@@ -152,6 +152,7 @@ async def list_available_tools(
             tags=t.get("tags"),
             in_groups=t.get("in_groups", []),
             is_visible_to_oauth_clients=t.get("is_visible_to_oauth_clients", False),
+            parameters_schema=t.get("parameters_schema") or {},
         )
         for t in tools
     ]

@@ -497,6 +497,11 @@ class ToolGroupService:
                 "tags": tool.tags,
                 "in_groups": tool_to_groups.get(tool.id, []),
                 "is_visible_to_oauth_clients": tool.is_visible_to_oauth_clients,
+                # Phase A custom-tool factory needs the full schema to know
+                # which params to freeze vs expose. Schemas are typically
+                # 100-500 bytes per tool — bundling them inline saves a
+                # round-trip when the user clicks "Customize".
+                "parameters_schema": tool.parameters_schema or {},
             })
 
         return tools

@@ -3,7 +3,7 @@ Pydantic schemas for ToolGroup API.
 """
 
 from datetime import datetime
-from typing import Optional, List
+from typing import Any, Dict, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, ConfigDict
@@ -173,5 +173,8 @@ class ToolInfoResponse(BaseModel):
     # Whether this tool is currently in the dynamic pool (the workspace UI
     # needs this to render in-pool badges and the Pool column).
     is_visible_to_oauth_clients: bool = False
+    # Full JSON Schema of the tool's parameters. Used by the Customize
+    # tool flow to render a per-param Fixed/Expose/Hidden picker.
+    parameters_schema: Dict[str, Any] = {}
 
     model_config = ConfigDict(from_attributes = True)

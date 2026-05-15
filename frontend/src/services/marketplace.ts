@@ -1290,6 +1290,8 @@ export interface ToolInfo {
   tags?: string[]
   in_groups: string[]
   is_visible_to_oauth_clients: boolean
+  // JSON Schema of the tool's parameters (used by the Customize tool flow).
+  parameters_schema?: Record<string, unknown>
 }
 
 export interface CreateToolGroupRequest {

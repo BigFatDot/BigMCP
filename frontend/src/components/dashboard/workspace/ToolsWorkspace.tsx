@@ -58,6 +58,8 @@ import { AssistantModal } from './AssistantModal'
 import { CreateToolboxFromDropModal } from './CreateToolboxFromDropModal'
 import { ToolboxEditModal } from './ToolboxEditModal'
 import { PinSuggestionsBanner } from './PinSuggestionsBanner'
+import { CustomizeToolModal } from './CustomizeToolModal'
+import type { ToolInfo } from '@/services/marketplace'
 import type { CatalogTool, DragPayload, ToolboxSummary } from './types'
 
 interface DropZoneProps {
@@ -101,6 +103,13 @@ export function ToolsWorkspace() {
       return 'server'
     }
   })
+  // CustomizeToolModal — opened when the user clicks the "Customize"
+  // icon on a catalog ToolCard. We keep the full source ToolInfo (not
+  // just the catalog row) because the modal needs parameters_schema.
+  const [customizeSource, setCustomizeSource] = useState<{
+    tool: ToolInfo
+    prefixedName: string
+  } | null>(null)
 
   // ---- Queries ----
   const credentialsQuery = useQuery({
@@ -143,6 +152,15 @@ export function ToolsWorkspace() {
   })
 
   // ---- Derived ----
+  // Index the raw ToolInfo rows by ID so the Customize modal can pull
+  // the full parameters_schema (CatalogTool drops it for the card UI).
+  const toolInfoById = useMemo(() => {
+    const m = new Map<string, ToolInfo>()
+    const rows: ToolInfo[] = (toolsQuery.data as ToolInfo[]) || []
+    for (const r of rows) m.set(String(r.id), r)
+    return m
+  }, [toolsQuery.data])
+
   const allTools: CatalogTool[] = useMemo(() => {
     const rows: any[] = (toolsQuery.data as any[]) || []
     return rows.map((r) => ({
@@ -770,6 +788,12 @@ export function ToolsWorkspace() {
                       onTogglePin={() =>
                         togglePinMutation.mutate({ kind: 'tool', id: tool.id })
                       }
+                      onCustomize={() => {
+                        const src = toolInfoById.get(String(tool.id))
+                        if (src) {
+                          setCustomizeSource({ tool: src, prefixedName: tool.name })
+                        }
+                      }}
                     />
                   )
                 })
@@ -975,6 +999,18 @@ export function ToolsWorkspace() {
         isOpen={!!editingToolboxId}
         onClose={() => setEditingToolboxId(null)}
       />
+
+      {customizeSource && (
+        <CustomizeToolModal
+          isOpen={true}
+          source={customizeSource.tool}
+          prefixedName={customizeSource.prefixedName}
+          onClose={() => setCustomizeSource(null)}
+          onCreated={() => {
+            queryClient.invalidateQueries({ queryKey: ['workspace-compositions'] })
+          }}
+        />
+      )}
     </DndContext>
   )
 }
