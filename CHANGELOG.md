@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-05-15
+
+Phase B-0: durable suspension infrastructure for compositions. Adds three new tables and a status-as-lock executor that lets compositions yield, wait for an external event, and resume cleanly across crashes — all exposed via standard MCP 2025-06-18 primitives (`resources/subscribe`, `notifications/resources/updated`). Existing production compositions stay 100% on the legacy sync path (Pattern A) — zero regression.
+
+### Composition execution engine — durable suspension
+
+- **3 new tables** (`composition_execution`, `execution_step_event`, `pending_notification`) via Alembic migration `add_composition_executions`. Down-revision `add_composition_share_request`. No backfill needed (legacy executor was sync).
+- **`ResumableExecutor`** singleton (`app/orchestration/resumable_executor.py`) with status-as-lock + conditional UPDATE-RETURNING for concurrency control (no Postgres advisory locks). Idempotence is author-controlled (`step.idempotent=true` opts a step into safe re-run after a crash); the default-safe policy refuses to re-fire a non-idempotent step that crashed mid-flight, surfacing a clear failure reason instead.
+- **Pattern A / Pattern C routing** (`app/orchestration/composition_routing.py`): static analysis of the composition's step types decides between the legacy sync executor (Pattern A — zero regression for every existing production composition) and the new detached `ResumableExecutor` (Pattern C — returns `composition://executions/{id}` immediately for clients to subscribe to). Pattern B (progress-streamed) deferred until measured demand.
+- **Sub-composition propagation hook**: parent suspended on a `subcomposition` reason gets resumed automatically when the child reaches a terminal state, with the child's result (or error envelope) injected into the parent's suspended step. Depth capped at 5 — enforced pre-flight in `create_execution()` based on the parent's stored depth (caller-supplied `depth=` is overridden, no bypass).
+- **Orphan recovery on lifespan startup** marks any `running` row from a prior crashed boot as `failed("backend_restart_orphan")` with a corresponding audit + timeline event before the queue worker accepts new work.
+- **Queue worker** (`app/orchestration/queue_worker.py`) singleton: 5s tick, batch limit 200, per-user concurrency cap of 50 — over-quota requests land in `queued` and get promoted FIFO as slots free up.
+
+### MCP surface
+
+- **`composition://executions/{id}` MCP resource** — readable + subscribable, per-user scoped (cross-user reads return the same response as missing rows; no information leak about row existence). Listed in `resources/list` for the calling user; full state via `resources/read`. New `resources/subscribe` and `resources/unsubscribe` handlers track `(session_id → uri)` in process; the executor's terminal/suspended transitions fire `notifications/resources/updated` with parent-chain walk so subscribed ancestors get pinged on child transitions.
+- **`composition_status` meta-tool** added to the dynamic pool surface (alongside `search` / `execute` / `describe_tool`) as a polling fallback for clients that can't subscribe. Returns SUMMARY only (status, current step, suspension reason, error, dates) — full state stays behind `resources/read` and the REST endpoint to keep polls cheap. Per-user-scoped: cross-user execution_id returns `status='not_found'`.
+- **Pending notification queue + flush on `initialize`**: when the executor fires a transition and the target SSE session isn't live on this process, we persist the `(session_id, uri)` in `pending_notification`. The next `initialize` that comes in with that `Mcp-Session-Id` (gateway now honours the client-supplied header on initialize instead of always minting a new one) triggers a background flush that replays in `created_at` order, deletes on success, and drops rows older than 7 days.
+- **Audit emission isolated to its own DB session** (executor `_emit_audit`): the audit_service rolls back on failure, and a shared session would have its ORM identity map expired, breaking the next `execution.composition.steps` lazy-load and silently killing sub-composition propagation.
+
+### REST + UI
+
+- **REST endpoints** at `/api/v1/compositions/executions`:
+  - `GET /` — paginated list with `?status=`, `?include_terminal=`, `?limit=`, `?offset=`. Default filter: non-terminal statuses.
+  - `GET /{id}` — full detail with state + recent timeline events.
+  - `POST /{id}/cancel` — cooperative cancel (202 Accepted, lands at the next step boundary).
+  - `POST /{id}/resume` — JWT-only B-0 (B-3 will branch on the Authorization scheme to also accept HMAC webhook tokens). Returns 409 when the row is no longer suspended.
+  - `GET /api/v1/compositions/{id}/executions` — admin governance view, all executions of one composition for the org (Admin/Owner only).
+- **Web UI** under `/app/compositions/executions`:
+  - List page with status chips, include-terminal toggle, per-row cancel button, polls every 5s while ≥1 row is non-terminal.
+  - Detail page with status header, parent-execution link for sub-compositions, "Provide test response" form for `_test_suspend` rows (POSTs `/resume`), result/error blocks, full step-event timeline, collapsible raw state.
+  - "View executions" link in the existing `CompositionsPage` header so the route is discoverable.
+
+### Schema cleanup
+
+- **`CompositionStep` Pydantic schema** now uses canonical runtime field names (`step_id` / `parameters`) instead of the legacy doc-only `id` / `params` aliases that never matched what the executor reads from the JSONB column. New flags added with safe defaults: `optional`, `idempotent`, `cancellable`, `retry_strategy`, `timeout_seconds`. `extra='forbid'` so authors get a 422 at promotion time instead of a silent runtime mismatch later.
+- **`server_bindings`** marked deprecated on `CompositionCreate` and `CompositionUpdate` (field stays on the model — no migration). The executor no longer reads it; tool routing resolves through the user's server pool. Frontend stops sending the empty `{}`. May be repurposed in B-1+ if a real `${binding.X}` use case emerges.
+
+### Quality
+
+- **196 tests passing across 9 new B-0 test files**, zero regression on existing 100+ tests. The 14 must-pass tests from the design doc are all covered; `test_must_pass_b0.py::test_must_pass_tests_exist` freezes the coverage map and fails loud if any test is renamed without updating the map.
+
+### Misc
+
+- **Fixed pre-existing `execution_log` retention bug**: the daily prune loop was failing with `invalid input for query argument $1: 30 (expected str, got int)` under asyncpg because the `(:days || ' days')::interval` pattern needed the bind to be a string. Switched to `make_interval(days => :days)` which takes the int directly.
+
+### Audit log events added
+
+`composition.execution_created`, `composition.execution_started`, `composition.execution_completed`, `composition.execution_failed`, `composition.execution_cancelled`, `composition.execution_expired`, `composition.execution_suspended`, `composition.execution_resumed`.
+
+### Design doc
+
+Full design: `mcp-registry/docs/composition_executions_b0.md` (~1000 lines, two review rounds integrated). Roadmap for B-1+ step types (`elicit`, `wait_callback`, `wait_until`, `approval`, `subcomposition`) follows the same shape — add the type to `SUSPENDING_STEP_TYPES`, add a dispatch branch in `_execute_step`.
+
+---
+
 ## [2.2.0] - 2026-05-09
 
 Iterative hardening of the v2.1.0 surface, a new Services workspace, MCP 2025-06-18 alignment, remote streamable-HTTP MCP servers, and a session-store rewrite that makes sessions survive backend restarts.

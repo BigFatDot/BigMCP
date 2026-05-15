@@ -442,10 +442,15 @@ async def _execution_log_retention_loop() -> None:
     while True:
         try:
             async with async_session_maker() as db:
+                # ``make_interval`` takes the int directly — the older
+                # ``(:days || ' days')::interval`` pattern needed the bind
+                # to be a string under asyncpg, which silently broke since
+                # the env-var parse returns int. ``make_interval`` is also
+                # the Postgres-idiomatic way to construct intervals.
                 result = await db.execute(
                     _sql_text(
                         "DELETE FROM execution_log "
-                        "WHERE created_at < NOW() - (:days || ' days')::interval"
+                        "WHERE created_at < NOW() - make_interval(days => :days)"
                     ),
                     {"days": retention_days},
                 )
