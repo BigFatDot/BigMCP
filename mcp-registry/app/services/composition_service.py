@@ -29,7 +29,12 @@ from ..models.organization import OrganizationMember, UserRole
 logger = logging.getLogger(__name__)
 
 
-_PARAM_REF_RE = re.compile(r"\$\{parameters\.([a-zA-Z0-9_]+)\}")
+# The composition executor (orchestration/composition_executor.py) substitutes
+# ``${input.X}`` references in step parameters with the value of input
+# parameter ``X``. Match the SAME prefix here — earlier versions of this regex
+# looked for ``${parameters.X}``, which never occurs in real composition
+# payloads, so the validator silently no-op'd on every promotion.
+_PARAM_REF_RE = re.compile(r"\$\{input\.([a-zA-Z0-9_]+)\}")
 
 
 def _validate_input_schema_for_production(composition: Composition) -> Optional[str]:
@@ -37,9 +42,9 @@ def _validate_input_schema_for_production(composition: Composition) -> Optional[
 
     Production compositions are exposed as MCP tools (`composition_<name>`) so
     their `input_schema` doubles as the JSON Schema published to clients.
-    Promoting a composition that uses `${parameters.foo}` in a step but does
-    not declare `foo` in `input_schema.properties` would yield a tool that
-    looks parameter-free but actually requires `foo` — fail fast instead.
+    Promoting a composition that uses `${input.foo}` in a step but does not
+    declare `foo` in `input_schema.properties` would yield a tool that looks
+    parameter-free but actually requires `foo` — fail fast instead.
     """
     schema = composition.input_schema
     if schema is None:
