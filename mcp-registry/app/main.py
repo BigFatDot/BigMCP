@@ -380,6 +380,22 @@ async def _startup_impl():
     asyncio.create_task(_execution_log_retention_loop(), name="execution_log_retention")
     logger.info("execution_log retention loop scheduled (30d retention, 24h tick)")
 
+    # Phase B-0: composition execution lifecycle.
+    # 1. Recover orphans: any composition_execution still 'running'
+    #    from a previous backend process is marked failed (its
+    #    detached coroutine is gone). Suspended/queued untouched.
+    # 2. Start the queue worker that promotes 'queued' → 'running'
+    #    while respecting the per-user concurrency cap.
+    from .orchestration.queue_worker import (
+        get_queue_worker,
+        recover_orphan_executions,
+    )
+    try:
+        await recover_orphan_executions()
+    except Exception as e:  # noqa: BLE001
+        logger.warning(f"orphan execution recovery failed: {e}")
+    await get_queue_worker().start()
+
     logger.info("MCP Registry started successfully")
 
 
@@ -423,6 +439,14 @@ async def _execution_log_retention_loop() -> None:
 async def _shutdown_impl():
     """Application shutdown body, invoked by the lifespan context manager."""
     logger.info("Stopping MCP Registry...")
+
+    # Stop the composition queue worker (Phase B-0). Best-effort with
+    # a short timeout — we'd rather lose a tick than block shutdown.
+    try:
+        from .orchestration.queue_worker import get_queue_worker
+        await get_queue_worker().stop()
+    except Exception as e:  # noqa: BLE001
+        logger.warning(f"queue worker stop failed: {e}")
 
     # Stop UserServerPool and cleanup all user servers
     from .routers.mcp_unified import gateway
