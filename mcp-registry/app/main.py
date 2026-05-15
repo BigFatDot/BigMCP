@@ -386,15 +386,23 @@ async def _startup_impl():
     #    detached coroutine is gone). Suspended/queued untouched.
     # 2. Start the queue worker that promotes 'queued' → 'running'
     #    while respecting the per-user concurrency cap.
+    # 3. Install the tool dispatcher so the new ResumableExecutor
+    #    can run real tool steps via the legacy CompositionExecutor's
+    #    proven plumbing (server_bindings, prefix resolution,
+    #    user_server_pool).
     from .orchestration.queue_worker import (
         get_queue_worker,
         recover_orphan_executions,
+    )
+    from .orchestration.composition_routing import (
+        install_tool_dispatcher_singleton,
     )
     try:
         await recover_orphan_executions()
     except Exception as e:  # noqa: BLE001
         logger.warning(f"orphan execution recovery failed: {e}")
     await get_queue_worker().start()
+    install_tool_dispatcher_singleton(gateway.user_server_pool)
 
     logger.info("MCP Registry started successfully")
 

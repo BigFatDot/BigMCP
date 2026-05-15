@@ -1605,14 +1605,25 @@ class MCPUnifiedGateway:
 
                 logger.info(f"Executing production composition by ID: {composition_id}")
 
-                # Execute via orchestration tools with user context for multi-tenant execution
-                result = await self.orchestration_tools.execute_composition({
-                    "composition_id": composition_id,
-                    "parameters": tool_arguments,
-                    "_user_id": user_id,
-                    "_organization_id": organization_id,
-                    "_user_server_pool": self.user_server_pool
-                })
+                # B-0 chunk 6 routing: static analysis decides Pattern A
+                # (sync inline, legacy executor) or Pattern C (detached
+                # via ResumableExecutor with resource URI return). For
+                # B-0 the only suspending step type is _test_suspend
+                # (debug-only) so production compositions stay 100% on
+                # the legacy sync path — zero regression.
+                from ..orchestration.composition_routing import (
+                    route_composition_call,
+                )
+                from uuid import UUID as _UUID
+                self.orchestration_tools._user_server_pool = self.user_server_pool
+                result = await route_composition_call(
+                    composition_id=_UUID(composition_id),
+                    tool_arguments=tool_arguments,
+                    user_id=_UUID(str(user_id)),
+                    organization_id=_UUID(str(organization_id)),
+                    legacy_executor=self.orchestration_tools,
+                    mcp_session_id=session_id,
+                )
             # Check if it's a promoted composition (by name)
             elif tool_name.startswith("composition_"):
                 # Extract sanitized name from tool name (format: composition_{safe_name})
@@ -1654,14 +1665,23 @@ class MCPUnifiedGateway:
                 if not composition_id:
                     raise ValueError(f"Composition not found: {tool_name}")
 
-                # Execute via orchestration tools with user context for multi-tenant execution
-                result = await self.orchestration_tools.execute_composition({
-                    "composition_id": composition_id,
-                    "parameters": tool_arguments,
-                    "_user_id": user_id,
-                    "_organization_id": organization_id,
-                    "_user_server_pool": self.user_server_pool
-                })
+                # B-0 chunk 6 routing — same Pattern A vs C decision as
+                # the workflow_ branch above. See route_composition_call
+                # for the static analysis. Legacy production compositions
+                # have zero suspending step types so they stay sync.
+                from ..orchestration.composition_routing import (
+                    route_composition_call,
+                )
+                from uuid import UUID as _UUID
+                self.orchestration_tools._user_server_pool = self.user_server_pool
+                result = await route_composition_call(
+                    composition_id=_UUID(composition_id),
+                    tool_arguments=tool_arguments,
+                    user_id=_UUID(str(user_id)),
+                    organization_id=_UUID(str(organization_id)),
+                    legacy_executor=self.orchestration_tools,
+                    mcp_session_id=session_id,
+                )
             else:
                 # Route to appropriate MCP server (with user context)
                 result = await self._route_tool_execution(
