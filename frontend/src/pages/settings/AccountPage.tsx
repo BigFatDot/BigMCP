@@ -327,7 +327,6 @@ export function AccountPage() {
             <Button
               variant="primary"
               onClick={() => setShowMFASetup(true)}
-              className="bg-indigo-600 hover:bg-indigo-700"
             >
               {t('account.mfa.enable')}
             </Button>

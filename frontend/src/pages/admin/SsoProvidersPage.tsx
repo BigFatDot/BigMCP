@@ -539,8 +539,8 @@ export function SsoProvidersPage() {
 
   return (
     <div className="container py-8 max-w-4xl">
-      <div className="flex items-start justify-between mb-6">
-        <div>
+      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+        <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <PuzzlePieceIcon className="h-7 w-7 text-orange" />
             SSO Providers
@@ -551,7 +551,7 @@ export function SsoProvidersPage() {
             the login page. Group mappings are configured per provider.
           </p>
         </div>
-        <div className="flex flex-col items-end gap-3">
+        <div className="flex flex-col items-stretch md:items-end gap-3 md:flex-shrink-0">
           <ForceSsoOnlyToggle />
           <div className="flex gap-2">
             <Button variant="secondary" onClick={refresh} disabled={loading}>

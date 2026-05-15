@@ -98,7 +98,7 @@ function PoolHeaderWidget() {
         </span>
         {compositionCount > 0 && (
           <span className="text-xs text-gray-500">
-            +{compositionCount} {t('tools.pool.composedTools', { defaultValue: 'composed tools always-on' })}
+            +{compositionCount} {t('tools.pool.composedTools', { defaultValue: 'compositions always-on' })}
           </span>
         )}
       </div>

@@ -171,10 +171,19 @@ export function CompositionsReviewPage() {
                   </div>
                 </div>
 
-                {/* Steps preview */}
+                {/* Steps preview — strip Server__ prefix for readability,
+                    keep the full qualified chain in the title attribute. */}
                 {comp.steps && comp.steps.length > 0 && (
-                  <div className="text-xs font-mono bg-gray-50 border border-gray-200 rounded px-2 py-1.5 mb-3 truncate">
-                    {comp.steps.map((s) => s.tool).join(' → ')}
+                  <div
+                    className="text-xs font-mono bg-gray-50 border border-gray-200 rounded px-2 py-1.5 mb-3 truncate"
+                    title={comp.steps.map((s) => s.tool).join(' → ')}
+                  >
+                    {comp.steps
+                      .map((s) => {
+                        const idx = s.tool?.indexOf('__') ?? -1
+                        return idx >= 0 ? s.tool.slice(idx + 2) : s.tool
+                      })
+                      .join(' → ')}
                   </div>
                 )}
 

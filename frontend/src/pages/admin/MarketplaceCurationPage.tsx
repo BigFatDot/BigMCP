@@ -22,6 +22,7 @@ import {
   ExclamationTriangleIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline'
+import toast from 'react-hot-toast'
 import { Card, Button, Badge } from '@/components/ui'
 import { marketplaceApi } from '@/services/marketplace'
 import {
@@ -175,6 +176,7 @@ export function MarketplaceCurationPage() {
 
   const handleSave = async () => {
     if (pending.size === 0) return
+    const count = pending.size
     setSaving(true)
     setError(null)
     try {
@@ -188,8 +190,13 @@ export function MarketplaceCurationPage() {
       setRulesByServerId(map)
       setCounts(updated.counts)
       setPending(new Map())
+      toast.success(
+        `Saved ${count} curation change${count > 1 ? 's' : ''}.`,
+      )
     } catch (err: any) {
-      setError(err?.response?.data?.detail || err.message || 'Save failed')
+      const msg = err?.response?.data?.detail || err.message || 'Save failed'
+      setError(msg)
+      toast.error(msg)
     } finally {
       setSaving(false)
     }

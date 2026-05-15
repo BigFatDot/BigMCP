@@ -114,6 +114,8 @@ export function ToolCard({
             }}
             disabled={pinBusy}
             title={pinned ? 'Unpin from your pool' : 'Pin to your pool (persists across sessions)'}
+            aria-label={pinned ? `Unpin ${data.name}` : `Pin ${data.name}`}
+            aria-pressed={pinned ?? undefined}
             className={cn(
               'p-1 rounded transition-colors flex-shrink-0',
               pinned

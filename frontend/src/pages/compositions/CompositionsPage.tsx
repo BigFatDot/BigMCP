@@ -76,7 +76,18 @@ function CompositionCard({
   const visibilityStyle = VISIBILITY_STYLES[visibility]
   const VisibilityIcon = visibilityStyle.icon
   const stepCount = composition.steps?.length || 0
-  const stepTools = composition.steps?.map((s) => s.tool).join(' → ') || t('compositions.noSteps')
+  // Strip the "Server__" qualifier from each step name for the inline
+  // preview — the server is implicit context the user already knows when
+  // browsing their compositions, and the prefix makes the chain unreadable.
+  // The full qualified name is still kept in the title attribute for hover.
+  const _stepNames = composition.steps?.map((s) => {
+    const idx = s.tool?.indexOf('__') ?? -1
+    return idx >= 0 ? s.tool.slice(idx + 2) : s.tool
+  }) ?? []
+  const _stepNamesFull = composition.steps?.map((s) => s.tool).join(' → ') || ''
+  const stepTools = _stepNames.length > 0
+    ? _stepNames.join(' → ')
+    : t('compositions.noSteps')
   const executionCount = (composition.extra_metadata?.execution_count as number) || 0
 
   return (
@@ -90,11 +101,27 @@ function CompositionCard({
           <h3 className="text-lg font-bold text-gray-900">{composition.name}</h3>
         </div>
         <div className="flex flex-col gap-1 items-end flex-shrink-0">
-          <span className={cn('px-2 py-1 rounded text-xs font-medium', statusStyle.bg, statusStyle.text)}>
+          <span
+            className={cn('px-2 py-1 rounded text-xs font-medium', statusStyle.bg, statusStyle.text)}
+            title={
+              t('compositions.status.tooltip', {
+                defaultValue:
+                  'Lifecycle stage. Production = exposed as a first-class MCP tool; independent of who can see it (visibility).',
+              }) as string
+            }
+          >
             {t(statusStyle.labelKey)}
           </span>
           {isTeamOrg && (
-            <span className={cn('px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1', visibilityStyle.color)}>
+            <span
+              className={cn('px-2 py-0.5 rounded text-xs font-medium flex items-center gap-1', visibilityStyle.color)}
+              title={
+                t('compositions.visibility.tooltip', {
+                  defaultValue:
+                    'Who can see and run this composition. Independent of lifecycle status — a Production composition can still be Private.',
+                }) as string
+              }
+            >
               <VisibilityIcon className="w-3 h-3" />
               {t(visibilityStyle.labelKey)}
             </span>
@@ -140,7 +167,9 @@ function CompositionCard({
         {stepCount > 0 && (
           <>
             <span className="flex-shrink-0">-</span>
-            <span className="break-words">{stepTools}</span>
+            <span className="break-words" title={_stepNamesFull}>
+              {stepTools}
+            </span>
           </>
         )}
       </div>
@@ -824,7 +853,7 @@ export function CompositionsPage() {
         </div>
         <Button variant="primary" onClick={() => setShowProposeModal(true)}>
           <PlusIcon className="w-5 h-5 mr-2" />
-          {t('compositions.create', { defaultValue: 'Create Composed Tool' })}
+          {t('compositions.create', { defaultValue: 'Create Composition' })}
         </Button>
       </div>
 

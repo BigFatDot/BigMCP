@@ -378,6 +378,7 @@ export function DefaultPoolPage() {
                         onClick={() => remove(e)}
                         className="text-gray-400 hover:text-red-600 transition-colors p-1"
                         title="Remove from default pool"
+                        aria-label={`Remove ${it?.name || fallbackName} from the default pool`}
                       >
                         <TrashIcon className="h-4 w-4" />
                       </button>

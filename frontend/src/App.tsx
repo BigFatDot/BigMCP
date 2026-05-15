@@ -109,6 +109,10 @@ function App() {
           />
           {/* Redirect old my-servers route to tools */}
           <Route path="my-servers" element={<Navigate to="/app/tools" replace />} />
+          {/* Common typo / convention: many users guess /settings even though
+              the auth-flavoured page is mounted under /account. Redirect so
+              they don't hit a 404. */}
+          <Route path="settings" element={<Navigate to="/app/account" replace />} />
           <Route
             path="compositions"
             element={

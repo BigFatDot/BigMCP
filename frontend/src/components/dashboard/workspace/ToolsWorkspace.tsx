@@ -91,6 +91,16 @@ export function ToolsWorkspace() {
   const [seedToolForNewToolbox, setSeedToolForNewToolbox] = useState<ToolCardData | null>(null)
   const [editingToolboxId, setEditingToolboxId] = useState<string | null>(null)
   const [mobileColumn, setMobileColumn] = useState<'catalog' | 'pool' | 'toolboxes'>('catalog')
+  // Pool sort: persisted across reloads, defaults to grouping by server
+  // (the most common mental model — "show me what's loaded for GitHub").
+  const [poolSort, setPoolSort] = useState<'server' | 'name'>(() => {
+    try {
+      const v = localStorage.getItem('bigmcp_pool_sort')
+      return v === 'name' ? 'name' : 'server'
+    } catch {
+      return 'server'
+    }
+  })
 
   // ---- Queries ----
   const credentialsQuery = useQuery({
@@ -246,7 +256,19 @@ export function ToolsWorkspace() {
     })
   }, [allTools, searchQuery, serverFilter])
 
-  const poolTools = useMemo(() => allTools.filter((t) => t.inPool), [allTools])
+  const poolTools = useMemo(() => {
+    const inPool = allTools.filter((t) => t.inPool)
+    if (poolSort === 'name') {
+      return [...inPool].sort((a, b) => a.name.localeCompare(b.name))
+    }
+    // server: group by server name, then alphabetical inside each group
+    return [...inPool].sort((a, b) => {
+      const sa = a.serverName || 'zzz'
+      const sb = b.serverName || 'zzz'
+      const cmp = sa.localeCompare(sb)
+      return cmp !== 0 ? cmp : a.name.localeCompare(b.name)
+    })
+  }, [allTools, poolSort])
 
   const toolboxes: ToolboxSummary[] = useMemo(() => {
     const list = (toolGroupsQuery.data || []) as ToolGroup[]
@@ -494,7 +516,7 @@ export function ToolsWorkspace() {
               {(poolStateQuery.data?.composition_count ?? 0) > 0 && (
                 <div className="text-xs text-gray-500">
                   +{poolStateQuery.data?.composition_count}{' '}
-                  {t('tools.pool.composedTools', { defaultValue: 'composed tools always-on' })}
+                  {t('tools.pool.composedTools', { defaultValue: 'compositions always-on' })}
                 </div>
               )}
             </div>
@@ -764,13 +786,32 @@ export function ToolsWorkspace() {
             )}
             activeClassName="bg-emerald-100/60 border-emerald-500"
           >
-            <div className="flex items-baseline justify-between mb-3">
+            <div className="flex items-baseline justify-between mb-3 gap-2">
               <h2 className="text-sm font-semibold text-emerald-900 uppercase tracking-wide">
                 {t('workspace.pool', { defaultValue: 'Active Pool' })}
               </h2>
-              <span className="text-xs text-emerald-700">
-                {poolTools.length} {t('workspace.toolsShort', { defaultValue: 'tools' })}
-              </span>
+              <div className="flex items-center gap-2">
+                <select
+                  value={poolSort}
+                  onChange={(e) => {
+                    const v = e.target.value as 'server' | 'name'
+                    setPoolSort(v)
+                    try {
+                      localStorage.setItem('bigmcp_pool_sort', v)
+                    } catch {
+                      /* noop */
+                    }
+                  }}
+                  className="text-xs bg-white border border-emerald-300 rounded px-1 py-0.5 text-emerald-900 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  title="Sort the active pool"
+                >
+                  <option value="server">by server</option>
+                  <option value="name">by name</option>
+                </select>
+                <span className="text-xs text-emerald-700">
+                  {poolTools.length} {t('workspace.toolsShort', { defaultValue: 'tools' })}
+                </span>
+              </div>
             </div>
             <div className="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1">
               {poolTools.length === 0 && productionCompositions.length === 0 && (

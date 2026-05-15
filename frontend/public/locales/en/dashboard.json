@@ -23,7 +23,7 @@
     "pool": {
       "label": "Active pool",
       "toolsLoaded": "tools loaded",
-      "composedTools": "composed tools always-on",
+      "composedTools": "compositions always-on",
       "clear": "Clear pool",
       "clearConfirm": "Clear the active pool? Your MCP client will need to call `search` again to reload tools."
     },
@@ -247,7 +247,7 @@
       "cleared": "Pool cleared.",
       "toolboxAdded": "Added to toolbox.",
       "toolboxLoaded": "Toolbox loaded into pool.",
-      "compositionAlwaysIn": "Composed tools are always in the pool.",
+      "compositionAlwaysIn": "Compositions are always in the pool.",
       "compositionToolboxBlocked": "Compositions cannot be added to toolboxes yet."
     },
     "assistant": {
@@ -326,14 +326,14 @@
     }
   },
   "compositions": {
-    "title": "Composed Tools",
-    "subtitle": "Build, save and execute multi-step workflows. Production composed tools become first-class MCP tools, available via search/execute.",
+    "title": "Compositions",
+    "subtitle": "Build, save and execute multi-step workflows. Production compositions become first-class MCP tools, available via search/execute.",
     "testWithPrompt": "Test with prompt",
     "testWithPromptHint": "Describe in natural language what you want — the LLM will infer the inputs from your prompt.",
     "modeForm": "Form mode",
     "modeNL": "Prompt mode",
-    "create": "Create Composed Tool",
-    "edit": "Edit Composed Tool",
+    "create": "Create Composition",
+    "edit": "Edit Composition",
     "delete": "Delete Composition",
     "run": "Run",
     "running": "Running...",
