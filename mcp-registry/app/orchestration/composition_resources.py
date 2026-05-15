@@ -33,15 +33,19 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Any, Awaitable, Callable, Dict, List, Optional, Set
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import selectinload
 
 from ..db import session as _db_session_module
-from ..models.composition_execution import CompositionExecution, ExecutionStatus
+from ..models.composition_execution import (
+    CompositionExecution,
+    ExecutionStatus,
+    PendingNotification,
+)
 
 logger = logging.getLogger("orchestration.composition_resources")
 
@@ -207,11 +211,16 @@ async def read_execution_resource(
 # Subscription tracker
 # ---------------------------------------------------------------------------
 
-# Type alias for the notification dispatcher injected at lifespan
-# startup. Receives (session_id, uri) and is responsible for pushing
-# notifications/resources/updated to the live MCP session OR queuing
-# in pending_notification (chunk #9 wires the queue side).
-NotificationDispatcher = Callable[[str, str], Awaitable[None]]
+# Type alias for the live notification dispatcher injected at
+# lifespan startup. Receives ``(session_id, uri)`` and returns
+# ``True`` if the notification was delivered to a live SSE queue,
+# ``False`` otherwise — the False case triggers a pending_notification
+# row insert so the next ``initialize`` from the same session_id
+# can replay it (chunk #9).
+LiveNotificationDispatcher = Callable[[str, str], Awaitable[bool]]
+# Backwards-compatible alias retained in case external callers
+# imported the old name.
+NotificationDispatcher = LiveNotificationDispatcher
 
 
 class ExecutionSubscriptionTracker:
@@ -287,8 +296,7 @@ def _reset_subscription_tracker_for_tests() -> None:
 async def notify_resource_updated(
     execution_id: UUID,
     *,
-    pending_queue_writer: Optional[Callable[[str, str], Awaitable[None]]] = None,
-    live_pusher: Optional[Callable[[str, str], Awaitable[None]]] = None,
+    live_pusher: Optional[LiveNotificationDispatcher] = None,
 ) -> None:
     """Fire ``notifications/resources/updated`` for one execution.
 
@@ -296,13 +304,14 @@ async def notify_resource_updated(
     suspended waiting on this child also get a notification (sub-
     composition propagation, design doc §6.3).
 
-    Live pushes go through ``live_pusher`` (the gateway's broadcast
-    helper); offline sessions get queued via ``pending_queue_writer``
-    (chunk #9). For B-0 chunk 7 both are optional — if neither is
-    provided, the function only walks the chain and logs.
+    For each subscribed session, calls ``live_pusher(session_id, uri)``;
+    if it returns ``False`` (offline / unreachable on this process),
+    persists a ``pending_notification`` row keyed on the same
+    ``(session_id, uri)`` so the next ``initialize`` from that session
+    replays it (chunk #9).
 
-    Per-URI per-session: a session subscribed to multiple URIs gets
-    one notification per URI.
+    Best-effort — neither live push nor queue persistence raises out
+    of this function; failures are logged.
     """
     tracker = get_subscription_tracker()
 
@@ -358,35 +367,136 @@ async def notify_resource_updated(
                 break
             current_id = parent_id
 
-    # For each URI in the chain, fire to all subscribed sessions
+    # For each URI in the chain, deliver per subscribed session.
+    # Collect failed pushes so we persist them in one DB session.
+    pending_inserts: List[tuple[str, str]] = []
     for uri in uris_to_fire:
         sessions = tracker.sessions_for_uri(uri)
-        if not sessions and pending_queue_writer is None:
-            # No live subscribers and no queue writer — nothing to do
-            # on this URI (offline subscribers will pick up via REST
-            # or a future re-subscribe).
-            continue
         for session_id in sessions:
+            delivered = False
             if live_pusher is not None:
                 try:
-                    await live_pusher(session_id, uri)
+                    delivered = bool(await live_pusher(session_id, uri))
                 except Exception:  # noqa: BLE001
                     logger.warning(
                         f"live notify failed for session {session_id} "
                         f"uri {uri}",
                         exc_info=True,
                     )
-        # If we have a pending queue writer, persist for offline replay.
-        # B-0 chunk 7 leaves pending_queue_writer optional; chunk 9
-        # wires it to the pending_notification table.
-        if pending_queue_writer is not None:
+            if not delivered:
+                pending_inserts.append((session_id, uri))
+
+    if pending_inserts:
+        await _persist_pending_notifications(pending_inserts)
+
+
+async def _persist_pending_notifications(
+    rows: List[tuple[str, str]],
+) -> None:
+    """Insert one ``pending_notification`` row per ``(session_id, uri)``.
+
+    Best-effort — wraps any DB error in a warning. Duplicates are OK:
+    the flush path replays in created_at order and deletes by primary
+    key, so if a session legitimately connects between two transitions
+    it receives both notifications. The model doesn't enforce a
+    composite UNIQUE on ``(session_id, uri)`` and we don't dedup here
+    either.
+    """
+    try:
+        now = datetime.utcnow()
+        async with _db_session_module.AsyncSessionLocal() as db:
+            for session_id, uri in rows:
+                db.add(
+                    PendingNotification(
+                        id=uuid4(),
+                        session_id=session_id,
+                        uri=uri,
+                        method="notifications/resources/updated",
+                        created_at=now,
+                    )
+                )
+            await db.commit()
+    except Exception:  # noqa: BLE001
+        logger.warning(
+            f"failed to persist pending notifications ({len(rows)} rows)",
+            exc_info=True,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Pending notification flush (B-0 chunk 9)
+# ---------------------------------------------------------------------------
+
+
+async def flush_pending_notifications(
+    session_id: str,
+    *,
+    live_pusher: Optional[LiveNotificationDispatcher] = None,
+    max_age_days: int = 7,
+) -> int:
+    """Replay queued notifications for ``session_id`` then delete them.
+
+    Called by the gateway right after a successful ``initialize``
+    response is sent for ``session_id``. Returns the count of rows
+    drained from the queue (replayed + dropped-as-stale).
+
+    - Reads in ``created_at`` order so the client sees them in the
+      same sequence the executor fired them.
+    - Pushes each via ``live_pusher`` (typically the gateway's
+      broadcast helper). If the push reports ``False`` (still
+      unreachable) we leave the row in place so the NEXT initialize
+      gets another shot.
+    - Drops rows older than ``max_age_days`` regardless — they are
+      stale per the design doc retention policy.
+    """
+    if not session_id:
+        return 0
+
+    async with _db_session_module.AsyncSessionLocal() as db:
+        rows = (
+            await db.execute(
+                select(PendingNotification)
+                .where(PendingNotification.session_id == session_id)
+                .order_by(PendingNotification.created_at.asc())
+            )
+        ).scalars().all()
+
+        if not rows:
+            return 0
+
+        cutoff = datetime.utcnow() - timedelta(days=max_age_days)
+        delivered_ids: List[UUID] = []
+        stale_ids: List[UUID] = []
+
+        for row in rows:
+            if row.created_at < cutoff:
+                stale_ids.append(row.id)
+                continue
+            if live_pusher is None:
+                # No pusher wired — drop after counting (we counted)
+                # rather than spinning the row forever.
+                stale_ids.append(row.id)
+                continue
             try:
-                # Queue for ALL sessions known to this user, so a
-                # session that connects later will receive it. The
-                # actual queue logic lives in chunk 9.
-                await pending_queue_writer("*", uri)
+                ok = bool(await live_pusher(session_id, row.uri))
             except Exception:  # noqa: BLE001
                 logger.warning(
-                    f"pending queue write failed for uri {uri}",
+                    f"flush push failed for session {session_id} uri {row.uri}",
                     exc_info=True,
                 )
+                ok = False
+            if ok:
+                delivered_ids.append(row.id)
+            # If still unreachable: leave the row untouched so a later
+            # flush retries it.
+
+        ids_to_delete = delivered_ids + stale_ids
+        if ids_to_delete:
+            await db.execute(
+                delete(PendingNotification).where(
+                    PendingNotification.id.in_(ids_to_delete)
+                )
+            )
+            await db.commit()
+
+        return len(ids_to_delete)

@@ -96,13 +96,18 @@ ORG_ACTIVE_USER_TTL_SECONDS = 600  # 10 minutes — matches SESSION_TIMEOUT_SECO
 MCP_PROTOCOL_VERSION = "2025-06-18"
 
 
-async def push_resource_updated_to_session(session_id: str, uri: str) -> None:
-    """B-0 chunk 7: send notifications/resources/updated to one session.
+async def push_resource_updated_to_session(session_id: str, uri: str) -> bool:
+    """Send ``notifications/resources/updated`` to one MCP session.
 
-    Used by the ResumableExecutor's notify hook. Best-effort — if
-    the session's queue is on another process or unreachable, log
-    and move on (chunk #9 will queue offline notifs in the
-    pending_notification table for replay-on-reconnect).
+    Returns ``True`` if the notification was delivered to a live SSE
+    queue (or queued in-memory for the local SSE pump), ``False``
+    when the session is not connected on this process. Callers are
+    expected to enqueue a row in ``pending_notification`` on False
+    so a future ``initialize`` from the same session_id can replay it.
+
+    B-0 ships single-instance, so "no local queue" effectively means
+    "session is offline". Multi-instance (B-1+) will redirect via
+    Redis pub/sub before falling back to the persisted queue.
     """
     notification = {
         "jsonrpc": "2.0",
@@ -114,9 +119,9 @@ async def push_resource_updated_to_session(session_id: str, uri: str) -> None:
     if queue is None:
         logger.debug(
             f"resources/updated: session {session_id} not local "
-            f"(uri={uri}) — chunk 9 will pick this up via pending_notification"
+            f"(uri={uri}) — caller should persist to pending_notification"
         )
-        return
+        return False
     try:
         await queue.put({
             "event": "message",
@@ -125,11 +130,13 @@ async def push_resource_updated_to_session(session_id: str, uri: str) -> None:
         logger.info(
             f"Queued resources/updated for session {session_id} uri={uri}"
         )
+        return True
     except Exception:  # noqa: BLE001
         logger.warning(
             f"Failed to push resources/updated to session {session_id}",
             exc_info=True,
         )
+        return False
 
 
 async def broadcast_tools_changed():
@@ -3664,11 +3671,33 @@ async def handle_mcp_message(request: Request, auth: Optional[tuple]):
         # Route to appropriate handler
         if method == "initialize":
             response = await gateway.initialize(request_id, params)
-            # MCP 2025-03-26: generate session ID and return in Mcp-Session-Id header
-            session_id = str(uuid.uuid4())
+            # MCP 2025-03-26: re-use the client-supplied Mcp-Session-Id
+            # if one is present (handshake on reconnect) so any queued
+            # notifications/resources/updated for that session can flush.
+            # Otherwise, mint a fresh one.
+            initialize_session_id = session_id or str(uuid.uuid4())
+            # B-0 chunk 9: drain pending_notification rows for this
+            # session_id. Background task — never blocks the
+            # initialize response. The push helper's bool return tells
+            # flush whether to delete the row or leave it for later.
+            try:
+                from ..orchestration.composition_resources import (
+                    flush_pending_notifications,
+                )
+                asyncio.create_task(
+                    flush_pending_notifications(
+                        initialize_session_id,
+                        live_pusher=push_resource_updated_to_session,
+                    )
+                )
+            except Exception:  # noqa: BLE001
+                logger.warning(
+                    "failed to schedule pending_notification flush",
+                    exc_info=True,
+                )
             return JSONResponse(
                 response,
-                headers={"Mcp-Session-Id": session_id}
+                headers={"Mcp-Session-Id": initialize_session_id}
             )
         elif method == "tools/list":
             # Pass user context from authenticated user

@@ -312,8 +312,9 @@ async def test_notify_pushes_to_subscribed_sessions(
 
     pushed: List[Tuple[str, str]] = []
 
-    async def fake_pusher(session_id: str, u: str) -> None:
+    async def fake_pusher(session_id: str, u: str) -> bool:
         pushed.append((session_id, u))
+        return True
 
     await notify_resource_updated(eid, live_pusher=fake_pusher)
     assert ("session-X", uri) in pushed
@@ -364,8 +365,9 @@ async def test_notify_walks_parent_chain_for_subcomposition(
 
     pushed: List[Tuple[str, str]] = []
 
-    async def fake_pusher(session_id: str, u: str) -> None:
+    async def fake_pusher(session_id: str, u: str) -> bool:
         pushed.append((session_id, u))
+        return True
 
     # Notify on the CHILD execution → parent should also fire
     await notify_resource_updated(child_eid, live_pusher=fake_pusher)
@@ -413,8 +415,9 @@ async def test_notify_skips_parent_when_not_suspended_on_subcomposition(
     tracker.subscribe("S-parent", execution_uri(parent_eid))
     pushed: List[Tuple[str, str]] = []
 
-    async def fake_pusher(session_id: str, u: str) -> None:
+    async def fake_pusher(session_id: str, u: str) -> bool:
         pushed.append((session_id, u))
+        return True
 
     await notify_resource_updated(child_eid, live_pusher=fake_pusher)
     # Parent NOT in the pushed list — only the child URI (which has
@@ -448,8 +451,9 @@ async def test_executor_suspension_fires_notification(
 
     pushed: List[Tuple[str, str]] = []
 
-    async def fake_pusher(session_id: str, u: str) -> None:
+    async def fake_pusher(session_id: str, u: str) -> bool:
         pushed.append((session_id, u))
+        return True
 
     set_live_pusher(fake_pusher)
 
