@@ -5,7 +5,7 @@ MFA Schemas - Pydantic models for MFA endpoints.
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class MFASetupResponse(BaseModel):
@@ -22,14 +22,15 @@ class MFASetupResponse(BaseModel):
         default="Scan QR code with authenticator app, then verify with a code"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "provisioning_uri": "otpauth://totp/BigMCP:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=BigMCP",
                 "backup_codes": ["A1B2C3D4", "E5F6G7H8", "..."],
-                "message": "Scan QR code with authenticator app, then verify with a code"
+                "message": "Scan QR code with authenticator app, then verify with a code",
             }
         }
+    )
 
 
 class MFAVerifyRequest(BaseModel):
@@ -41,12 +42,9 @@ class MFAVerifyRequest(BaseModel):
         description="6-digit TOTP code or 8-char backup code"
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "code": "123456"
-            }
-        }
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"code": "123456"}}
+    )
 
 
 class MFAStatusResponse(BaseModel):
@@ -64,14 +62,15 @@ class MFAStatusResponse(BaseModel):
         description="Number of unused backup codes"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "enabled": True,
                 "enrolled_at": "2026-02-15T10:30:00Z",
-                "backup_codes_remaining": 8
+                "backup_codes_remaining": 8,
             }
         }
+    )
 
 
 class MFAEnableResponse(BaseModel):

@@ -4,6 +4,7 @@ Main entry point for the MCP Registry application.
 
 import logging
 import uvicorn
+from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -51,11 +52,26 @@ logging.basicConfig(
 )
 logger = logging.getLogger("mcp_registry")
 
+# Modern FastAPI lifespan replaces deprecated @app.on_event handlers.
+# The actual startup/shutdown bodies live in _startup_impl / _shutdown_impl
+# defined further down — Python's late binding lets us forward-reference them
+# from lifespan() as long as they exist by the time uvicorn enters the
+# context manager (i.e., long after module import is complete).
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    await _startup_impl()
+    try:
+        yield
+    finally:
+        await _shutdown_impl()
+
+
 # Create the FastAPI application
 app = FastAPI(
     title=settings.app.name,
     description=settings.app.description,
     version=settings.app.version,
+    lifespan=lifespan,
 )
 
 # Configure Jinja2 templates for OAuth consent page
@@ -279,9 +295,8 @@ app.include_router(api_v1_router, tags=["API v1"])
 # Legacy API router
 app.include_router(api_router, tags=["API"])
 
-@app.on_event("startup")
-async def startup_event():
-    """Application startup event."""
+async def _startup_impl():
+    """Application startup body, invoked by the lifespan context manager."""
     logger.info("Starting MCP Registry...")
 
     # Security warnings for DEBUG mode
@@ -405,9 +420,8 @@ async def _execution_log_retention_loop() -> None:
 
         await asyncio.sleep(interval_seconds)
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Application shutdown event."""
+async def _shutdown_impl():
+    """Application shutdown body, invoked by the lifespan context manager."""
     logger.info("Stopping MCP Registry...")
 
     # Stop UserServerPool and cleanup all user servers

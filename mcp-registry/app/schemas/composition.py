@@ -31,15 +31,16 @@ class CompositionStep(BaseModel):
         description="Step IDs this step depends on"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "id": "step1",
                 "tool": "grist_fetch_record",
                 "params": {"table_id": "Projects", "record_id": "${input.record_id}"},
-                "depends_on": []
+                "depends_on": [],
             }
         }
+    )
 
 
 class DataMapping(BaseModel):
@@ -71,8 +72,8 @@ class StepResultSchema(BaseModel):
         description="Number of retry attempts"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "step_id": "fetch_data",
                 "tool": "grist_fetch_record",
@@ -80,9 +81,10 @@ class StepResultSchema(BaseModel):
                 "duration_ms": 234,
                 "result": {"id": "123", "name": "Test"},
                 "error": None,
-                "retries": 0
+                "retries": 0,
             }
         }
+    )
 
 
 # =============================================================================
@@ -147,23 +149,24 @@ class CompositionCreate(BaseModel):
         description="Additional metadata (tags, etc.)"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "name": "GitHub Issue from Grist",
                 "description": "Creates a GitHub issue from a Grist record",
                 "steps": [
                     {"id": "fetch", "tool": "grist_fetch_record", "params": {"table_id": "Issues"}},
-                    {"id": "create", "tool": "github_create_issue", "params": {}, "depends_on": ["fetch"]}
+                    {"id": "create", "tool": "github_create_issue", "params": {}, "depends_on": ["fetch"]},
                 ],
                 "data_mappings": [
-                    {"from": "fetch.output.title", "to": "create.input.title"}
+                    {"from": "fetch.output.title", "to": "create.input.title"},
                 ],
                 "server_bindings": {"grist": "uuid-grist", "github": "uuid-github"},
                 "allowed_roles": [],
-                "status": "temporary"
+                "status": "temporary",
             }
         }
+    )
 
 
 class CompositionUpdate(BaseModel):
@@ -192,10 +195,9 @@ class CompositionPromote(BaseModel):
         description="Target status: validated or production"
     )
 
-    class Config:
-        json_schema_extra = {
-            "example": {"status": "validated"}
-        }
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"status": "validated"}}
+    )
 
 
 # =============================================================================
@@ -237,9 +239,9 @@ class CompositionResponse(BaseModel):
     can_execute: Optional[bool] = None
     can_edit: Optional[bool] = None
 
-    class Config:
-        from_attributes = True
-        json_schema_extra = {
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
             "example": {
                 "id": "123e4567-e89b-12d3-a456-426614174000",
                 "organization_id": "123e4567-e89b-12d3-a456-426614174001",
@@ -260,9 +262,10 @@ class CompositionResponse(BaseModel):
                 "created_at": "2024-01-01T00:00:00Z",
                 "updated_at": "2024-01-15T10:30:00Z",
                 "can_execute": True,
-                "can_edit": True
+                "can_edit": True,
             }
-        }
+        },
+    )
 
 
 class CompositionListResponse(BaseModel):
@@ -288,13 +291,14 @@ class CompositionExecuteRequest(BaseModel):
         ),
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "inputs": {"record_id": "123", "project_name": "MyProject"},
                 "goal": "Run the daily sync for project MyProject",
             }
         }
+    )
 
 
 class CompositionExecuteResponse(BaseModel):
@@ -334,8 +338,8 @@ class CompositionExecuteResponse(BaseModel):
         description="Global error message if execution failed"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "composition_id": "123e4567-e89b-12d3-a456-426614174000",
                 "execution_id": "exec-abc123",
@@ -350,7 +354,7 @@ class CompositionExecuteResponse(BaseModel):
                         "duration_ms": 234,
                         "result": {"title": "My Issue"},
                         "error": None,
-                        "retries": 0
+                        "retries": 0,
                     },
                     {
                         "step_id": "create",
@@ -359,11 +363,12 @@ class CompositionExecuteResponse(BaseModel):
                         "duration_ms": 1000,
                         "result": {"url": "https://github.com/..."},
                         "error": None,
-                        "retries": 0
-                    }
+                        "retries": 0,
+                    },
                 ],
                 "started_at": "2024-01-15T10:30:00Z",
                 "completed_at": "2024-01-15T10:30:01Z",
-                "error": None
+                "error": None,
             }
         }
+    )

@@ -53,19 +53,29 @@ RUN npm install -g @modelcontextprotocol/server-gitlab \
 # Use locked requirements for reproducible builds (DSI audit requirement)
 COPY requirements-lock.txt .
 COPY requirements.txt .
+# Test deps live in their own file so the production image can install
+# them with --no-cache-dir alongside the runtime, no second image needed.
+COPY requirements-test.txt .
 
-# Install Python dependencies from locked file
+# Install Python dependencies from locked file. Test extras are added
+# unconditionally — they are only ~30 MB and the gain (running the suite
+# inside the live container without `pip install` + `docker cp`) is worth
+# more than the image size. If you ever need a slimmer prod image, gate
+# this behind an INCLUDE_TEST_DEPS build arg.
 # To update dependencies: uv pip compile requirements.txt -o requirements-lock.txt
-RUN pip install --no-cache-dir -r requirements-lock.txt
+RUN pip install --no-cache-dir -r requirements-lock.txt \
+    && pip install --no-cache-dir -r requirements-test.txt
 
 # Copy application code
 COPY app/ ./app/
 COPY conf/ ./conf/
 COPY templates/ ./templates/
+COPY tests/ ./tests/
 
-# Copy Alembic configuration and migrations
+# Copy Alembic + test configuration
 COPY alembic.ini .
 COPY alembic/ ./alembic/
+COPY pytest.ini .
 
 # Create necessary directories
 RUN mkdir -p /app/data /app/logs /app/embeddings_cache /app/mcp_servers
