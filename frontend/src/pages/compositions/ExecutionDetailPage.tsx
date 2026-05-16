@@ -184,13 +184,22 @@ export function ExecutionDetailPage() {
       ((detail.state as Record<string, unknown> | null)?.suspension as
         | {
             reason?: string
-            payload?: { message?: string; schema?: ElicitSchema; step_id?: string }
+            payload?: {
+              message?: string
+              schema?: ElicitSchema
+              step_id?: string
+              child_execution_id?: string
+              target_composition_id?: string
+              resume_at?: string
+            }
           }
         | null
         | undefined) ?? null
     )
   }, [detail])
   const suspensionReason = suspension?.reason ?? null
+  const subcompositionChild =
+    suspensionReason === 'subcomposition' ? suspension?.payload : null
 
   if (loading) {
     return (
@@ -317,6 +326,24 @@ export function ExecutionDetailPage() {
           </div>
         </div>
       </Card>
+
+      {/* Subcomposition: link to the child execution (B-1.3) */}
+      {subcompositionChild && subcompositionChild.child_execution_id && (
+        <Card padding="md" className="mb-4 border-purple-300 bg-purple-50">
+          <h3 className="text-sm font-semibold text-purple-900 mb-1">
+            Waiting on child composition
+          </h3>
+          <p className="text-sm text-purple-900">
+            This execution is suspended on the result of a child run.{' '}
+            <Link
+              to={`/app/compositions/executions/${subcompositionChild.child_execution_id}`}
+              className="font-mono text-purple-800 hover:underline"
+            >
+              View child →
+            </Link>
+          </p>
+        </Card>
+      )}
 
       {/* Elicit response form (B-1) */}
       {elicitPayload && elicitPayload.schema && (

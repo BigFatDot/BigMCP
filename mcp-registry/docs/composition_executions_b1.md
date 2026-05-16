@@ -286,7 +286,7 @@ and `pending_notification` schemas.
 
 - **B-1.1**: richer JSON-Schema → form mapping (sub-objects, arrays).
 - ~~**B-1.2**: `wait_until` step type (clock-driven resume).~~ ✅ Shipped.
-- **B-1.3**: `subcomposition` step type (uses the B-0 propagation hook).
+- ~~**B-1.3**: `subcomposition` step type (uses the B-0 propagation hook).~~ ✅ Shipped.
 - **B-1.4**: `approval` step type (cross-user elicitation, needs the
   cross-user notification table deferred from B-0 §9).
 - **B-1.5**: `wait_callback` step type (HMAC-signed external resume).
@@ -321,3 +321,41 @@ for ``wait_until`` rows.
 
 Tests: 18 in test_wait_until_step_b1.py + 5 in
 test_expiry_scanner_b1.py + 6 in test_composition_promote_validation.py.
+
+---
+
+## B-1.3 — `subcomposition` (shipped)
+
+Lets a composition call another composition as a step. Author
+declares ``{type: "subcomposition", subcomposition: {composition_id:
+"<uuid>", inputs: {...}}}``. The parent yields with
+``reason="subcomposition"``; the B-0 propagation hook auto-resumes
+the parent when the child reaches a terminal state, injecting the
+child's result (or an error envelope) into the parent's step result.
+
+Most of the heavy lifting was already in place:
+- ``create_execution(parent_execution_id=...)`` enforces the depth
+  cap (B-0 chunk 13).
+- ``_propagate_to_parent`` fires the parent's resume automatically
+  (B-0 chunk 4).
+- The MCP resource notify walks the parent chain (B-0 chunk 7).
+
+B-1.3 adds the front end: ``subcomposition_step.py`` (config
+validate, target lookup, input resolution via the elicit
+substitution rules walked over dict/list leaves, async dispatch).
+Promote validator ``_validate_subcomposition_steps_for_production``
+checks target same-org + production status + self-reference cycle.
+UI: purple "child running" badge + "View child →" link in the
+detail page.
+
+Constraints:
+- Target must be in the same org and in ``status='production'``
+  (avoid pointing at a draft mid-edit). Cross-org targets report
+  "does not exist" (no info leak).
+- Self-reference (parent calling itself) rejected at promote.
+  Indirect cycles caught at runtime by the depth cap.
+- Child inherits ``user_id``, ``organization_id``,
+  ``mcp_session_id``, and ``client_capabilities``.
+
+Tests: 16 in test_subcomposition_step_b1.py + 6 in
+test_composition_promote_validation.py.

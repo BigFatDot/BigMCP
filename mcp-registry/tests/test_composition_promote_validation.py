@@ -234,3 +234,184 @@ def test_wait_until_validator_ignores_non_wait_steps():
         {"step_id": "2", "type": "elicit", "elicit": {"message": "ok?", "schema": {"type": "object"}}},
     ]
     assert _validate_wait_until_steps_for_production(_Comp({}, steps)) is None
+
+
+# ---------------------------------------------------------------------------
+# B-1.3: subcomposition step validation at promote time
+# ---------------------------------------------------------------------------
+
+# These tests need a DB session because the validator queries the
+# target composition. They follow the same fixture pattern as the
+# other B-1 test files.
+
+import asyncio
+from uuid import UUID, uuid4
+
+import pytest as _pytest
+from sqlalchemy import select as _select
+from sqlalchemy.ext.asyncio import AsyncSession as _AsyncSession
+
+from app.models.composition import (
+    Composition as _Composition,
+    CompositionStatus as _CompositionStatus,
+    CompositionVisibility as _CompositionVisibility,
+)
+from app.models.organization import OrganizationMember as _OrgMember
+from app.models.user import User as _User
+from app.services.composition_service import (
+    _validate_subcomposition_steps_for_production,
+)
+
+
+_subpytestmark = _pytest.mark.asyncio
+
+
+async def _sub_ids(db: _AsyncSession, email: str):
+    user = (await db.execute(_select(_User).where(_User.email == email))).scalar_one()
+    member = (
+        await db.execute(
+            _select(_OrgMember).where(_OrgMember.user_id == user.id)
+        )
+    ).scalar_one()
+    return user.id, member.organization_id
+
+
+async def _sub_make(db, org_id, owner_id, *, name, steps, status=_CompositionStatus.PRODUCTION):
+    comp = _Composition(
+        organization_id=org_id,
+        created_by=owner_id,
+        name=name,
+        description="b1.3 promote validation",
+        visibility=_CompositionVisibility.PRIVATE.value,
+        steps=steps,
+        data_mappings=[],
+        input_schema={"type": "object", "properties": {}, "required": []},
+        output_schema=None,
+        server_bindings={},
+        allowed_roles=[],
+        force_org_credentials=False,
+        status=status.value,
+        ttl=None,
+        extra_metadata={},
+    )
+    db.add(comp)
+    await db.commit()
+    await db.refresh(comp)
+    return comp
+
+
+@_pytest.mark.asyncio
+async def test_subcomposition_valid_target_passes(
+    db_session: _AsyncSession, test_user: dict
+):
+    user_id, org_id = await _sub_ids(db_session, test_user["email"])
+    target = await _sub_make(
+        db_session, org_id, user_id, name="b1_v_target",
+        steps=[{"step_id": "1", "type": "tool", "tool": "noop"}],
+    )
+    parent = await _sub_make(
+        db_session, org_id, user_id, name="b1_v_parent",
+        steps=[{
+            "step_id": "call",
+            "type": "subcomposition",
+            "subcomposition": {"composition_id": str(target.id)},
+        }],
+    )
+    err = await _validate_subcomposition_steps_for_production(db_session, parent)
+    assert err is None
+
+
+@_pytest.mark.asyncio
+async def test_subcomposition_missing_composition_id_rejected(
+    db_session: _AsyncSession, test_user: dict
+):
+    user_id, org_id = await _sub_ids(db_session, test_user["email"])
+    parent = await _sub_make(
+        db_session, org_id, user_id, name="b1_v_missing_id",
+        steps=[{
+            "step_id": "call",
+            "type": "subcomposition",
+            "subcomposition": {},
+        }],
+    )
+    err = await _validate_subcomposition_steps_for_production(db_session, parent)
+    assert err is not None
+    assert "composition_id" in err
+
+
+@_pytest.mark.asyncio
+async def test_subcomposition_unknown_target_rejected(
+    db_session: _AsyncSession, test_user: dict
+):
+    user_id, org_id = await _sub_ids(db_session, test_user["email"])
+    parent = await _sub_make(
+        db_session, org_id, user_id, name="b1_v_unknown",
+        steps=[{
+            "step_id": "call",
+            "type": "subcomposition",
+            "subcomposition": {"composition_id": str(uuid4())},
+        }],
+    )
+    err = await _validate_subcomposition_steps_for_production(db_session, parent)
+    assert err is not None
+    assert "does not exist" in err
+
+
+@_pytest.mark.asyncio
+async def test_subcomposition_self_reference_rejected(
+    db_session: _AsyncSession, test_user: dict
+):
+    user_id, org_id = await _sub_ids(db_session, test_user["email"])
+    # Make a parent that will reference its own ID
+    parent = await _sub_make(
+        db_session, org_id, user_id, name="b1_v_self",
+        steps=[{"step_id": "1", "type": "tool", "tool": "noop"}],
+    )
+    parent.steps = [{
+        "step_id": "call",
+        "type": "subcomposition",
+        "subcomposition": {"composition_id": str(parent.id)},
+    }]
+    await db_session.commit()
+    err = await _validate_subcomposition_steps_for_production(db_session, parent)
+    assert err is not None
+    assert "self-reference" in err
+
+
+@_pytest.mark.asyncio
+async def test_subcomposition_non_production_target_rejected(
+    db_session: _AsyncSession, test_user: dict
+):
+    user_id, org_id = await _sub_ids(db_session, test_user["email"])
+    target = await _sub_make(
+        db_session, org_id, user_id, name="b1_v_draft",
+        steps=[{"step_id": "1", "type": "tool", "tool": "noop"}],
+        status=_CompositionStatus.TEMPORARY,
+    )
+    parent = await _sub_make(
+        db_session, org_id, user_id, name="b1_v_parent_draft",
+        steps=[{
+            "step_id": "call",
+            "type": "subcomposition",
+            "subcomposition": {"composition_id": str(target.id)},
+        }],
+    )
+    err = await _validate_subcomposition_steps_for_production(db_session, parent)
+    assert err is not None
+    assert "production" in err.lower()
+
+
+@_pytest.mark.asyncio
+async def test_subcomposition_validator_ignores_non_subcomp_steps(
+    db_session: _AsyncSession, test_user: dict
+):
+    user_id, org_id = await _sub_ids(db_session, test_user["email"])
+    parent = await _sub_make(
+        db_session, org_id, user_id, name="b1_v_other",
+        steps=[
+            {"step_id": "1", "type": "tool", "tool": "noop"},
+            {"step_id": "2", "type": "_test_suspend"},
+        ],
+    )
+    err = await _validate_subcomposition_steps_for_production(db_session, parent)
+    assert err is None

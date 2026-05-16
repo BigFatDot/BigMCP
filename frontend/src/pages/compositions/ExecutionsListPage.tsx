@@ -333,6 +333,11 @@ export function ExecutionsListPage() {
                                 fires {formatRelativeFuture(it.expires_at)}
                               </span>
                             )}
+                          {it.suspension_reason === 'subcomposition' && (
+                            <span className="ml-1 px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-xs font-medium">
+                              child running
+                            </span>
+                          )}
                         </>
                       )}
                     </div>

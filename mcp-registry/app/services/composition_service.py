@@ -67,6 +67,56 @@ def _validate_elicit_steps_for_production(composition: Composition) -> Optional[
     return None
 
 
+async def _validate_subcomposition_steps_for_production(
+    db: AsyncSession,
+    composition: Composition,
+) -> Optional[str]:
+    """Reject promote when a ``subcomposition`` step has a bad target.
+
+    Async variant because we need to query the target composition's
+    org + status. Mirrors the elicit/wait_until validators in
+    error-shape and label conventions.
+    """
+    from ..orchestration.subcomposition_step import (
+        SubcompositionConfigError,
+        validate_config,
+        validate_target_composition,
+    )
+    from uuid import UUID as _UUID
+
+    for idx, step in enumerate(composition.steps or []):
+        if not isinstance(step, dict):
+            continue
+        if step.get("type") != "subcomposition":
+            continue
+        step_label = (
+            step.get("step_id") or step.get("id") or f"step #{idx}"
+        )
+        sub = step.get("subcomposition")
+        try:
+            validate_config(sub)
+        except SubcompositionConfigError as e:
+            return (
+                f"Step {step_label!r} (type=subcomposition) is invalid: {e}"
+            )
+        # DB-bound check: target must exist + same org + production.
+        target_id = _UUID(sub["composition_id"])  # validated above
+        if target_id == composition.id:
+            return (
+                f"Step {step_label!r} (type=subcomposition) targets the "
+                f"composition itself — direct self-reference would loop. "
+                "Use a different composition."
+            )
+        err = await validate_target_composition(
+            db,
+            target_id=target_id,
+            parent_organization_id=composition.organization_id,
+        )
+        if err:
+            return f"Step {step_label!r}: {err}"
+    return None
+
+
 def _validate_wait_until_steps_for_production(
     composition: Composition,
 ) -> Optional[str]:
@@ -545,6 +595,11 @@ class CompositionService:
             wait_until_error = _validate_wait_until_steps_for_production(composition)
             if wait_until_error:
                 return (None, wait_until_error)
+            sub_error = await _validate_subcomposition_steps_for_production(
+                self.db, composition
+            )
+            if sub_error:
+                return (None, sub_error)
 
         composition.status = new_status
         composition.ttl = None  # Remove TTL when promoted
@@ -607,6 +662,11 @@ class CompositionService:
             wait_until_error = _validate_wait_until_steps_for_production(composition)
             if wait_until_error:
                 return (None, wait_until_error, False)
+            sub_error = await _validate_subcomposition_steps_for_production(
+                self.db, composition
+            )
+            if sub_error:
+                return (None, sub_error, False)
             composition.visibility = CompositionVisibility.ORGANIZATION.value
             composition.status = CompositionStatus.PRODUCTION.value
             composition.ttl = None
@@ -673,6 +733,11 @@ class CompositionService:
         wait_until_error = _validate_wait_until_steps_for_production(composition)
         if wait_until_error:
             return (None, wait_until_error)
+        sub_error = await _validate_subcomposition_steps_for_production(
+            self.db, composition
+        )
+        if sub_error:
+            return (None, sub_error)
 
         composition.visibility = CompositionVisibility.ORGANIZATION.value
         composition.status = CompositionStatus.PRODUCTION.value

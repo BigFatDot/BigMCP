@@ -470,6 +470,17 @@ class ResumableExecutor:
 
                 return _build_wait_suspend(step)
 
+            if step_type == "subcomposition":
+                # B-1.3: spawn a child composition execution. The
+                # B-0 propagation hook (_propagate_to_parent) auto-
+                # resumes us when the child reaches a terminal
+                # state — depth cap, parent-chain notifications,
+                # and error-envelope injection are all already
+                # in place.
+                from .subcomposition_step import dispatch as _dispatch_subcomp
+
+                return await _dispatch_subcomp(step, state, execution)
+
             if step_type == "tool":
                 if self._tool_dispatcher is None:
                     raise ToolDispatchUnconfigured(
