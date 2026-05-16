@@ -5,6 +5,161 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-05-16
+
+Phase B-1: five production-ready suspending step types built on the
+B-0 durable suspension infrastructure. Compositions can now pause
+for a human, a clock tick, a child composition, an external HTTP
+webhook, or a cross-user approval — all with first-class server-
+side validation, UI, REST + MCP surfaces, and audit. The B-1
+step-type roadmap is **complete** with this release.
+
+All step types follow the same shape: author declares config on
+the step → `validate_config` at promote AND dispatch (catch typos
+before they hit production) → `build_suspend` returns a typed
+`Suspend(reason=..., payload=..., ttl_seconds=...)` → resume path
+validates the response against an author-declared JSON Schema
+(server-side authoritative) → `executor.resume(id, body)` injects
+the response into the step result. Zero regression on B-0 (Pattern
+A composition execution is untouched).
+
+### B-1.0 — `elicit` (human-in-the-loop)
+
+- MCP-native human input via `notifications/elicitation/create`
+  for clients that declared the capability; REST `/resume` for
+  everyone else.
+- Author declares a JSON Schema for the response shape; the same
+  schema drives the UI form generator (text / number / boolean /
+  enum / required) AND the server-side validation.
+- Prompt substitution at SUSPEND time (`${input.X}` /
+  `${step_id.path}`) so the user answers the question the author
+  wrote with the data values frozen in.
+- TTL hard-cap 24h, default 5min.
+- Module: `app/orchestration/elicit_step.py`. UI:
+  `ElicitForm.tsx` reused by `wait_callback` + `approval`.
+- Dependency added: `jsonschema>=4.20.0`.
+
+### B-1.2 — `wait_until` (clock-driven)
+
+- Author specifies `wait_seconds` (relative) OR `resume_at`
+  (absolute ISO 8601) — mutually exclusive, 30-day hard cap.
+- New `queue_worker.scan_expiry_batch()` runs each tick alongside
+  `promote_queued_batch`. For suspended rows past `expires_at`:
+  `wait_until` → background-task `executor.resume(id, {"resumed_at":
+  <iso>})`; everything else → conditional UPDATE to `expired` +
+  audit + timeline event.
+- First place the existing `expired` status is actually written —
+  B-0 had the column but no path produced it. `elicit`/
+  `_test_suspend` rows past TTL now correctly transition.
+- Module: `app/orchestration/wait_until_step.py`. UI: blue
+  "fires in Xm" badge.
+
+### B-1.3 — `subcomposition` (composes the engine on itself)
+
+- Spawns a child composition execution; the B-0 propagation hook
+  (`_propagate_to_parent`) auto-resumes the parent when the child
+  reaches a terminal state, injecting the child's result (or an
+  error envelope) into the parent's step result.
+- Pre-flight depth cap (5) enforced in `create_execution` based on
+  the parent's stored depth — caller-supplied `depth=` is
+  overridden so a buggy/malicious step handler can't bypass.
+- Target validation: same-org + production status only (cross-org
+  reports "does not exist" — no info leak; draft targets rejected
+  so authors can't point at a mid-edit composition). Self-reference
+  rejected at promote.
+- Inputs map resolution walks nested dict/list and reuses the
+  elicit substitution helper at the leaves.
+- Child inherits `user_id` / `organization_id` / `mcp_session_id` /
+  `client_capabilities`.
+- Module: `app/orchestration/subcomposition_step.py`. UI: purple
+  "child running" badge + "View child →" link.
+
+### B-1.5 — `wait_callback` (HMAC-signed external webhook)
+
+- Generates a `secrets.token_urlsafe(32)` (~256 bits of entropy)
+  per execution per step. Only the SHA-256 hash lands in the DB
+  alongside the suspension payload; the plaintext lives in the
+  `callback_url` field of the payload so downstream steps can read
+  it via `${current_step.callback_url}` and pass it to the external
+  system.
+- New endpoint `POST /api/v1/compositions/executions/{id}/callback/{token}`
+  — **NO JWT** (the token IS the credential).
+  Constant-time `hmac.compare_digest`. Uniform 401 for bad token /
+  unknown execution / wrong reason (no info leak).
+  409 on replay-after-success.
+- Optional `expected_schema` validates the inbound body server-side
+  via the reused elicit helper; mismatch → 422, row stays suspended.
+- TTL hard-cap 24h. `CALLBACK_BASE_URL` env composes the absolute
+  URL (falls back to the path for dev/self-hosted).
+- Module: `app/orchestration/wait_callback_step.py`. UI: emerald
+  "webhook pending" badge + "Copy callback URL" card (flagged as
+  a credential).
+
+### B-1.4 — `approval` (cross-user elicitation)
+
+- Two-arm approver gate: `approver_user_ids` (specific users) OR
+  `allowed_roles` (Owner/Admin/Member/Viewer) — OR semantics.
+- Four-eyes principle by default: the launcher is excluded from
+  both arms unless the author opts in with `allow_self_approval:
+  true`. Same-org enforcement (`OrganizationMember` lookup).
+- Two terminal decisions: `approved` / `rejected`. Both inject
+  `{decision, approved_by, approved_at, ...extra_fields}` into
+  the step result. `decision` / `approved_by` / `approved_at`
+  are **server-set, never spoofable** by the caller.
+- New endpoints:
+  - `GET /api/v1/compositions/executions/pending-approvals` —
+    filtered queue for the current user; same `can_approve` gate
+    that the per-row resume endpoint enforces
+  - `POST /api/v1/compositions/executions/{id}/approve` and
+    `/reject` — uniform 403 on any permission/state failure (no
+    info leak about row existence / state / which gate failed),
+    409 on concurrent decision race, 422 on `response_schema`
+    mismatch (row stays suspended so the approver can retry)
+- 3 new `AuditAction` values: `COMPOSITION_APPROVAL_REQUESTED /
+  APPROVED / REJECTED`.
+- Module: `app/orchestration/approval_step.py`. UI: pink
+  "awaiting approval" badge + Approve / Reject card in the detail
+  page (or `ElicitForm`-generated form when `response_schema`
+  is declared) + new `/app/compositions/approvals` page listing
+  pending approvals.
+
+### Common to all B-1 step types
+
+- `SUSPENDING_STEP_TYPES` extended from `{_test_suspend}` to
+  `{_test_suspend, elicit, wait_until, subcomposition,
+  wait_callback, approval}`. Static analysis in
+  `composition_routing.composition_has_suspending_steps`
+  automatically routes any composition with at least one of these
+  step types through Pattern C (durable detached execution).
+- Each step type wires its `_validate_*_for_production` into all
+  3 promote paths (`promote_status`, share-direct admin path,
+  `approve_share_request`) so structural issues are caught at
+  promote time rather than at first execution.
+- Each step type adds its own UI badge in `ExecutionsListPage`
+  and a dedicated card in `ExecutionDetailPage`.
+
+### Tests
+
+- **169 new tests across 9 files** covering every step type's
+  config validation matrix, permission gates, executor end-to-end,
+  and REST endpoint surface. **Zero regression on B-0** (196 +
+  169 = 365 tests passed, 10 skipped, 0 failed in CI).
+- Full B-0 → B-1 progression from the design doc is now covered.
+
+### Design doc
+
+`mcp-registry/docs/composition_executions_b1.md` (~400 lines)
+shipped alongside the implementation; each step type has its
+own section with config example + reuse map + test count.
+
+### Misc
+
+- `requirements-lock.txt`: pinned `jsonschema==4.26.0` +
+  transitive deps (`jsonschema-specifications`, `referencing`,
+  `rpds-py`).
+
+---
+
 ## [2.3.0] - 2026-05-15
 
 Phase B-0: durable suspension infrastructure for compositions. Adds three new tables and a status-as-lock executor that lets compositions yield, wait for an external event, and resume cleanly across crashes — all exposed via standard MCP 2025-06-18 primitives (`resources/subscribe`, `notifications/resources/updated`). Existing production compositions stay 100% on the legacy sync path (Pattern A) — zero regression.
