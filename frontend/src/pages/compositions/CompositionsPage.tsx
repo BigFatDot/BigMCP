@@ -517,21 +517,52 @@ interface ProposeModalProps {
   initialQuery?: string
 }
 
+const ADVANCED_JSON_TEMPLATE = `{
+  "name": "my_composition",
+  "description": "What this composition does",
+  "steps": [
+    {
+      "step_id": "1",
+      "type": "elicit",
+      "elicit": {
+        "message": "Confirm action?",
+        "schema": {
+          "type": "object",
+          "properties": { "confirmed": { "type": "boolean" } },
+          "required": ["confirmed"]
+        }
+      }
+    }
+  ],
+  "input_schema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+  }
+}`
+
 function ProposeCompositionModal({ isOpen, onClose, onSaved, initialQuery }: ProposeModalProps) {
   const { t } = useTranslation('dashboard')
+  const [mode, setMode] = useState<'llm' | 'advanced'>('llm')
   const [query, setQuery] = useState(initialQuery ?? '')
   const [feedback, setFeedback] = useState('')
   const [draft, setDraft] = useState<ProposalDraft | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  // Advanced (paste-JSON) mode state
+  const [advancedJson, setAdvancedJson] = useState<string>(ADVANCED_JSON_TEMPLATE)
+  const [advancedError, setAdvancedError] = useState<string | null>(null)
 
   useEffect(() => {
     if (isOpen) {
+      setMode('llm')
       setQuery(initialQuery ?? '')
       setFeedback('')
       setDraft(null)
       setErrorMsg(null)
       setIsLoading(false)
+      setAdvancedJson(ADVANCED_JSON_TEMPLATE)
+      setAdvancedError(null)
     }
   }, [isOpen, initialQuery])
 
@@ -578,6 +609,51 @@ function ProposeCompositionModal({ isOpen, onClose, onSaved, initialQuery }: Pro
     }
   }
 
+  const saveAdvancedDraft = async () => {
+    // Parse + minimum shape check before POSTing. The backend's
+    // promote-time validator catches step-level issues later; this
+    // just ensures we don't ship obviously-broken JSON.
+    setAdvancedError(null)
+    let parsed: any
+    try {
+      parsed = JSON.parse(advancedJson)
+    } catch (e: any) {
+      setAdvancedError(`Invalid JSON: ${e.message}`)
+      return
+    }
+    if (!parsed || typeof parsed !== 'object') {
+      setAdvancedError('Top-level value must be a JSON object')
+      return
+    }
+    if (typeof parsed.name !== 'string' || !parsed.name.trim()) {
+      setAdvancedError('Missing required field "name"')
+      return
+    }
+    if (!Array.isArray(parsed.steps) || parsed.steps.length === 0) {
+      setAdvancedError('Missing required field "steps" (non-empty array)')
+      return
+    }
+    setIsLoading(true)
+    try {
+      const created = await compositionsApi.create({
+        name: parsed.name,
+        description: parsed.description ?? '',
+        steps: parsed.steps,
+        input_schema: parsed.input_schema ?? { type: 'object', properties: {}, required: [] },
+        output_schema: parsed.output_schema ?? undefined,
+        visibility: 'private',
+        status: 'temporary',
+      } as any)
+      toast.success(t('compositions.proposeSavedSuccess', { defaultValue: 'Draft saved.' }))
+      onSaved(created)
+      onClose()
+    } catch (e: any) {
+      setAdvancedError(e.response?.data?.detail || e.message || 'Failed to save')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] flex flex-col">
@@ -595,6 +671,38 @@ function ProposeCompositionModal({ isOpen, onClose, onSaved, initialQuery }: Pro
         </div>
 
         <div className="p-6 overflow-y-auto flex-1 space-y-4">
+          {/* Mode switcher: LLM-driven (default) vs Advanced JSON paste.
+              The advanced path is for authors who already know what
+              they want (e.g., a composition with B-1 suspending step
+              types that the LLM proposer doesn't yet handle), or for
+              instances with no MCP servers connected where the LLM
+              proposer has nothing to draft from. */}
+          <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1 bg-gray-50">
+            <button
+              type="button"
+              className={`flex-1 px-3 py-1.5 rounded text-sm font-medium ${
+                mode === 'llm'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+              onClick={() => setMode('llm')}
+            >
+              Propose via LLM
+            </button>
+            <button
+              type="button"
+              className={`flex-1 px-3 py-1.5 rounded text-sm font-medium ${
+                mode === 'advanced'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+              onClick={() => setMode('advanced')}
+            >
+              Advanced (paste JSON)
+            </button>
+          </div>
+
+          {mode === 'llm' ? (
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               {t('compositions.proposeQueryLabel', { defaultValue: 'What should this composed tool do?' })}
@@ -609,8 +717,43 @@ function ProposeCompositionModal({ isOpen, onClose, onSaved, initialQuery }: Pro
               }) as string}
             />
           </div>
+          ) : (
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Composition JSON
+            </label>
+            <p className="text-xs text-gray-600 mb-2">
+              Paste a composition definition (name, steps, input_schema). The
+              draft is saved as <code>temporary</code>; promote it to
+              <code> production</code> from the card to expose it as an MCP
+              tool. See the{' '}
+              <a
+                href="/docs/guides/composition-step-types"
+                target="_blank"
+                rel="noreferrer"
+                className="text-orange hover:underline"
+              >
+                step types guide
+              </a>{' '}
+              for the suspending-step config shapes.
+            </p>
+            <textarea
+              value={advancedJson}
+              onChange={(e) => {
+                setAdvancedJson(e.target.value)
+                setAdvancedError(null)
+              }}
+              rows={16}
+              className="w-full p-3 border border-gray-300 rounded-lg text-xs font-mono focus:ring-2 focus:ring-orange focus:border-transparent"
+              spellCheck={false}
+            />
+            {advancedError && (
+              <p className="mt-2 text-xs text-red-700">{advancedError}</p>
+            )}
+          </div>
+          )}
 
-          {draft && (
+          {mode === 'llm' && draft && (
             <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
               <div className="flex items-baseline justify-between gap-2 mb-2">
                 <h3 className="text-sm font-semibold text-gray-900">{draft.name}</h3>
@@ -675,20 +818,32 @@ function ProposeCompositionModal({ isOpen, onClose, onSaved, initialQuery }: Pro
           <Button variant="secondary" onClick={onClose} disabled={isLoading}>
             {t('compositions.cancel')}
           </Button>
-          <Button
-            variant="secondary"
-            onClick={askLLM}
-            disabled={isLoading || query.trim().length < 4}
-          >
-            {isLoading
-              ? t('compositions.proposing', { defaultValue: 'Asking the LLM…' })
-              : draft
-                ? t('compositions.proposeIterate', { defaultValue: 'Iterate' })
-                : t('compositions.propose', { defaultValue: 'Propose' })}
-          </Button>
-          {draft && (
-            <Button variant="primary" onClick={saveDraft} disabled={isLoading}>
-              {t('compositions.proposeSaveDraft', { defaultValue: 'Save as draft' })}
+          {mode === 'llm' ? (
+            <>
+              <Button
+                variant="secondary"
+                onClick={askLLM}
+                disabled={isLoading || query.trim().length < 4}
+              >
+                {isLoading
+                  ? t('compositions.proposing', { defaultValue: 'Asking the LLM…' })
+                  : draft
+                    ? t('compositions.proposeIterate', { defaultValue: 'Iterate' })
+                    : t('compositions.propose', { defaultValue: 'Propose' })}
+              </Button>
+              {draft && (
+                <Button variant="primary" onClick={saveDraft} disabled={isLoading}>
+                  {t('compositions.proposeSaveDraft', { defaultValue: 'Save as draft' })}
+                </Button>
+              )}
+            </>
+          ) : (
+            <Button
+              variant="primary"
+              onClick={saveAdvancedDraft}
+              disabled={isLoading || !advancedJson.trim()}
+            >
+              {isLoading ? 'Saving…' : 'Create draft'}
             </Button>
           )}
         </div>

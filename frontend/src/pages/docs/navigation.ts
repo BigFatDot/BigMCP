@@ -96,6 +96,12 @@ export const docsNavigation: DocSection[] = [
         keywords: ['compositions', 'workflows', 'automation', 'orchestration', 'chain'],
       },
       {
+        slug: 'composition-step-types',
+        title: 'Composition Step Types',
+        description: 'Suspending steps: elicit, wait_until, subcomposition, wait_callback, approval (B-1)',
+        keywords: ['composition', 'workflow', 'elicit', 'wait_until', 'subcomposition', 'wait_callback', 'approval', 'suspend', 'durable', 'step types'],
+      },
+      {
         slug: 'team-services',
         title: 'Team Services',
         description: 'Manage shared services for your team (Team plan)',

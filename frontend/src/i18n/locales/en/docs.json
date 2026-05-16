@@ -2,7 +2,7 @@
   "layout": {
     "searchPlaceholder": "Search docs...",
     "badge": "Docs",
-    "version": "BigMCP v1.0.0",
+    "version": "BigMCP v2.4.0",
     "github": "GitHub",
     "apiDocs": "API Docs"
   },
@@ -51,6 +51,10 @@
       "compositions": {
         "title": "Build Compositions",
         "description": "Chain tools together for complex workflows"
+      },
+      "compositionStepTypes": {
+        "title": "Composition Step Types",
+        "description": "Suspending steps: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
       },
       "teamServices": {
         "title": "Team Services",

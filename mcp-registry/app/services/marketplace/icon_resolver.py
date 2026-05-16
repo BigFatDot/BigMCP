@@ -38,9 +38,19 @@ class IconResolver:
     3. Avatar fallback (always works)
     """
 
-    # CDN base URLs ordered by reliability
+    # CDN base URLs ordered by reliability.
+    #
+    # Note: ``@latest`` on unpkg returns a 302 redirect that recent
+    # browsers block under CORB/ORB ("ERR_BLOCKED_BY_ORB") because
+    # the redirect target serves with a content-type that the
+    # opaque-response blocker doesn't trust. Pinning the version
+    # avoids the redirect entirely and the icon loads first-shot
+    # instead of falling all the way through to the avatar.
+    # Bump this constant when LobeHub ships a new version with
+    # additional brand icons we care about.
     SIMPLEICONS_CDN = "https://cdn.simpleicons.org"
-    LOBEHUB_CDN = "https://unpkg.com/@lobehub/icons-static-svg@latest/icons"
+    LOBEHUB_VERSION = "1.90.0"
+    LOBEHUB_CDN = f"https://unpkg.com/@lobehub/icons-static-svg@{LOBEHUB_VERSION}/icons"
     AVATAR_FALLBACK = "https://ui-avatars.com/api"
 
     # Cache for validated icons: term -> (working_url, cdn_source) or None

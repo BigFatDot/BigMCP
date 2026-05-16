@@ -81,6 +81,7 @@ export function DocsLayout() {
       'tool-groups': 'toolGroups',
       'api-keys': 'apiKeys',
       'compositions': 'compositions',
+      'composition-step-types': 'compositionStepTypes',
       'team-services': 'teamServices',
       'claude-desktop': 'claudeDesktop',
       'mistral-lechat': 'mistralLechat',

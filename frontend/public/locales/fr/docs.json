@@ -2,7 +2,7 @@
   "layout": {
     "searchPlaceholder": "Rechercher dans la doc...",
     "badge": "Docs",
-    "version": "BigMCP v1.0.0",
+    "version": "BigMCP v2.4.0",
     "github": "GitHub",
     "apiDocs": "API Docs"
   },
@@ -51,6 +51,10 @@
       "compositions": {
         "title": "Créer des compositions",
         "description": "Chaîner les outils pour des workflows complexes"
+      },
+      "compositionStepTypes": {
+        "title": "Types d'étapes de composition",
+        "description": "Étapes suspensives : elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
       },
       "teamServices": {
         "title": "Services d'équipe",
@@ -139,6 +143,18 @@
       "customServers": {
         "title": "Serveurs MCP personnalisés",
         "description": "Ajouter vos propres serveurs MCP aux instances Enterprise"
+      },
+      "scaling": {
+        "title": "Scaling",
+        "description": "Scaling horizontal, load balancing, déploiements multi-instances"
+      },
+      "monitoring": {
+        "title": "Monitoring",
+        "description": "Métriques Prometheus, logs d'audit, probes de santé"
+      },
+      "backup": {
+        "title": "Sauvegarde & restauration",
+        "description": "Stratégies de backup PostgreSQL et plan de reprise"
       }
     }
   }

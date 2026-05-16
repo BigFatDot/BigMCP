@@ -2,7 +2,7 @@
   "layout": {
     "searchPlaceholder": "Etsi dokumentaatiosta...",
     "badge": "Docs",
-    "version": "BigMCP v1.0.0",
+    "version": "BigMCP v2.4.0",
     "github": "GitHub",
     "apiDocs": "API Docs"
   },

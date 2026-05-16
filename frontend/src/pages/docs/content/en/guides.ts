@@ -901,4 +901,195 @@ Shared data infrastructure:
 
 > **Note:** Team Services require a **Team** or **Enterprise** plan. [Upgrade your plan](/pricing) to enable this feature.
 `,
+
+  'composition-step-types': `
+# Composition Step Types
+
+A composition step has a \`type\` field that decides what the executor does when it reaches it. The default is \`tool\` — call an MCP tool, get the result, move on. **Suspending step types** pause the composition mid-flight and wait for an external event before resuming.
+
+When a composition contains at least one suspending step, the executor routes it through the **durable layer** (Pattern C) — the execution row is persisted in PostgreSQL, the run becomes resumable across crashes, and clients can subscribe to the \`composition://executions/{id}\` MCP resource to get notified on transitions.
+
+This page documents the 5 suspending step types shipped in B-1.
+
+---
+
+## \`elicit\` — ask a human for input
+
+Pauses to ask the user a question. The author declares a JSON Schema for the expected response; the form is generated automatically in the web UI; the response is validated server-side before the composition continues.
+
+\`\`\`json
+{
+  "step_id": "confirm_delete",
+  "type": "elicit",
+  "elicit": {
+    "message": "About to delete record \${input.record_id}. Confirm?",
+    "schema": {
+      "type": "object",
+      "properties": {
+        "confirmed": { "type": "boolean" },
+        "reason":    { "type": "string", "maxLength": 200 }
+      },
+      "required": ["confirmed"]
+    },
+    "ttl_seconds": 300
+  }
+}
+\`\`\`
+
+- Substitutions (\`\${input.X}\`, \`\${step_X.path}\`) are resolved at suspend time — the user sees the resolved prompt
+- Default TTL 5 minutes, hard cap 24h
+- The MCP client receives a \`notifications/elicitation/create\` request when it supports the capability; everyone else uses the web UI
+
+## \`wait_until\` — clock-driven
+
+Pauses until a target timestamp passes. The executor's expiry scanner auto-resumes when the clock hits.
+
+\`\`\`json
+{
+  "step_id": "cooldown",
+  "type": "wait_until",
+  "wait_until": { "wait_seconds": 900 }
+}
+\`\`\`
+
+Or absolute:
+
+\`\`\`json
+{
+  "step_id": "scheduled",
+  "type": "wait_until",
+  "wait_until": { "resume_at": "2026-06-01T09:00:00Z" }
+}
+\`\`\`
+
+- \`wait_seconds\` and \`resume_at\` are mutually exclusive
+- Hard cap 30 days. Longer waits should use \`wait_callback\` so an external event drives the resume
+- The resumed step's result is \`{ "resumed_at": "<iso>" }\`
+
+## \`subcomposition\` — call another composition
+
+Spawns a child execution of another production composition. The parent suspends until the child reaches a terminal state.
+
+\`\`\`json
+{
+  "step_id": "kyc_check",
+  "type": "subcomposition",
+  "subcomposition": {
+    "composition_id": "8c2e1d4f-...-...",
+    "inputs": { "customer_id": "\${input.customer_id}" }
+  }
+}
+\`\`\`
+
+- Target must be in the same org AND in \`status=production\` (drafts are rejected)
+- Cross-org targets report "does not exist" — no info leak
+- Inputs are resolved using the same substitution rules as \`elicit\`
+- Depth capped at 5 (enforced pre-flight on \`parent.state.depth\`); deeper would push the resumption chain past the executor's safe walk limit
+- The child inherits the parent's \`user_id\`, \`organization_id\`, \`mcp_session_id\`, and \`client_capabilities\`
+- The parent's step result is the child's final result on success, or an error envelope on failure
+
+## \`wait_callback\` — external webhook
+
+Generates a per-execution per-step HMAC-protected callback URL. An external system POSTs to that URL to resume.
+
+\`\`\`json
+{
+  "step_id": "render_job",
+  "type": "wait_callback",
+  "wait_callback": {
+    "ttl_seconds": 3600,
+    "expected_schema": {
+      "type": "object",
+      "properties": { "render_url": { "type": "string" } },
+      "required": ["render_url"]
+    }
+  }
+}
+\`\`\`
+
+When the step suspends, the executor:
+1. generates a 32-byte token (\`secrets.token_urlsafe\`),
+2. stores its SHA-256 hash on the suspension payload,
+3. exposes the plaintext token inside \`callback_url\` so the next step (or the parent compositor) can read it via \`\${step_render_job.callback_url}\` and pass it to the external system.
+
+The endpoint is:
+
+\`\`\`
+POST /api/v1/compositions/executions/{id}/callback/{token}
+Content-Type: application/json
+
+{ "render_url": "https://cdn.example.com/output.mp4" }
+\`\`\`
+
+- **No JWT required** — the token IS the credential
+- Constant-time HMAC comparison (\`hmac.compare_digest\`)
+- Optional \`expected_schema\` validates the inbound body server-side; mismatch → 422, row stays suspended for retry
+- 24h TTL hard cap; longer waits should split into multiple callbacks or use a cron trigger
+- Replay after success → 409 (atomic UPDATE WHERE status='suspended' loses the race)
+
+## \`approval\` — cross-user gate
+
+Pauses for a DIFFERENT user (not the launcher, by default — four-eyes principle) to approve or reject. The author declares an approver gate by user_id and/or by role.
+
+\`\`\`json
+{
+  "step_id": "manager_approval",
+  "type": "approval",
+  "approval": {
+    "message": "Approve refund of \\$\${input.amount} to \${input.customer_id}?",
+    "approver_user_ids": ["uuid-of-manager"],
+    "allowed_roles": ["admin", "owner"],
+    "response_schema": {
+      "type": "object",
+      "properties": { "rationale": { "type": "string" } }
+    },
+    "ttl_seconds": 86400,
+    "allow_self_approval": false
+  }
+}
+\`\`\`
+
+- **Two-arm approver gate**: \`approver_user_ids\` (specific users) OR \`allowed_roles\` (Owner/Admin/Member/Viewer) — at least one of the two is required; both can be combined (OR semantics — match either)
+- **Four-eyes by default**: launcher excluded unless \`allow_self_approval: true\`
+- **Same-org enforcement**: approver must have an OrganizationMember row for the execution's org
+- **Server-set fields**: \`decision\` (\`approved\` | \`rejected\`), \`approved_by\` (UUID), \`approved_at\` (ISO) — callers cannot spoof them regardless of what they submit
+- **\`response_schema\`** is the same JSON-Schema-validated payload as \`elicit\`; the form is rendered server-side authoritatively
+- 24h TTL hard cap
+
+REST surface:
+
+| Method | Path | Use |
+|---|---|---|
+| GET | \`/api/v1/compositions/executions/pending-approvals\` | Filtered queue for the current user |
+| POST | \`/api/v1/compositions/executions/{id}/approve\` | Submit decision=approved |
+| POST | \`/api/v1/compositions/executions/{id}/reject\` | Submit decision=rejected |
+
+The web UI surfaces pending approvals at \`/app/compositions/approvals\`.
+
+---
+
+## Common runtime contract
+
+All suspending steps share:
+
+- **\`step.optional\`** — if true, a rejected/failed step does NOT fail the composition; the executor continues to the next step (B-0 contract).
+- **\`step.idempotent\`** — controls behaviour when an execution resumes from a step that was already marked \`in_progress\`. Default false (safe — surfaces \`resumed_after_crash_non_idempotent\` error instead of double-firing). Opt-in true when the step is genuinely re-runnable.
+- **Audit trail** — each transition emits an \`execution_step_event\` timeline row + an audit log entry (\`COMPOSITION_EXECUTION_*\` for state changes, \`COMPOSITION_APPROVAL_*\` for the approval flow specifically).
+- **Visible in the UI** at \`/app/compositions/executions\` (list with status + suspension reason badges) and \`/app/compositions/executions/{id}\` (detail with the step-type-specific card + timeline + raw state).
+
+## Promote-time validation
+
+When you promote a composition to \`production\`, the validator checks every step's config. Malformed step bodies are rejected at promote time (422) rather than at first execution — authors get the error immediately instead of debugging a runtime failure days later.
+
+## What's NOT in B-1
+
+- **Cron triggers** (\`composition_execution.trigger='cron'\`): the column exists, no scheduler yet. Planned for B-2.
+- **Email notification on approval**: the in-app banner + \`/app/compositions/approvals\` page covers the no-email path. Email is opt-in follow-up.
+- **Richer JSON-Schema → form mapping** (sub-objects, arrays, oneOf): the current generator handles top-level scalars/enums; richer schemas fall back to a JSON textarea.
+
+## Further reading
+
+- [Build Compositions](/docs/guides/compositions) — composition basics + lifecycle (Temporary → Validated → Production)
+- Design docs in the repo: \`mcp-registry/docs/composition_executions_b0.md\` (suspension infra) + \`composition_executions_b1.md\` (step types)
+`,
 }
