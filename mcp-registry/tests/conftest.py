@@ -14,6 +14,11 @@ import os
 # Must run BEFORE Settings is imported.
 os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
 
+# Strip SCOPE_ENFORCE_MODE so tests behave deterministically regardless of
+# what's set on the host (e.g. prod containers now set it to "enforce").
+# Tests that want to assert a specific mode use ``monkeypatch.setenv``.
+os.environ.pop("SCOPE_ENFORCE_MODE", None)
+
 import pytest
 import sys
 from typing import AsyncGenerator, Generator
