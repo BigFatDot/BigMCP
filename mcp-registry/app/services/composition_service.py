@@ -67,6 +67,40 @@ def _validate_elicit_steps_for_production(composition: Composition) -> Optional[
     return None
 
 
+def _validate_wait_until_steps_for_production(
+    composition: Composition,
+) -> Optional[str]:
+    """Reject promote-to-production when a ``wait_until`` step is malformed.
+
+    Mirrors :func:`_validate_elicit_steps_for_production`. The
+    absolute-form (``resume_at``) is checked against current time at
+    promote — a composition promoted today with ``resume_at: '2025-...'``
+    is intentionally rejected (the timestamp is already in the past).
+    """
+    from ..orchestration.wait_until_step import (
+        WaitUntilConfigError,
+        validate_config,
+    )
+
+    for idx, step in enumerate(composition.steps or []):
+        if not isinstance(step, dict):
+            continue
+        if step.get("type") != "wait_until":
+            continue
+        try:
+            validate_config(step.get("wait_until"))
+        except WaitUntilConfigError as e:
+            step_label = (
+                step.get("step_id")
+                or step.get("id")
+                or f"step #{idx}"
+            )
+            return (
+                f"Step {step_label!r} (type=wait_until) is invalid: {e}"
+            )
+    return None
+
+
 def _validate_input_schema_for_production(composition: Composition) -> Optional[str]:
     """Ensure a production composition declares every parameter it references.
 
@@ -508,6 +542,9 @@ class CompositionService:
             elicit_error = _validate_elicit_steps_for_production(composition)
             if elicit_error:
                 return (None, elicit_error)
+            wait_until_error = _validate_wait_until_steps_for_production(composition)
+            if wait_until_error:
+                return (None, wait_until_error)
 
         composition.status = new_status
         composition.ttl = None  # Remove TTL when promoted
@@ -567,6 +604,9 @@ class CompositionService:
             elicit_error = _validate_elicit_steps_for_production(composition)
             if elicit_error:
                 return (None, elicit_error, False)
+            wait_until_error = _validate_wait_until_steps_for_production(composition)
+            if wait_until_error:
+                return (None, wait_until_error, False)
             composition.visibility = CompositionVisibility.ORGANIZATION.value
             composition.status = CompositionStatus.PRODUCTION.value
             composition.ttl = None
@@ -630,6 +670,9 @@ class CompositionService:
         elicit_error = _validate_elicit_steps_for_production(composition)
         if elicit_error:
             return (None, elicit_error)
+        wait_until_error = _validate_wait_until_steps_for_production(composition)
+        if wait_until_error:
+            return (None, wait_until_error)
 
         composition.visibility = CompositionVisibility.ORGANIZATION.value
         composition.status = CompositionStatus.PRODUCTION.value

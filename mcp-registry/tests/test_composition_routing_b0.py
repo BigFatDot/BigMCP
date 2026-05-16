@@ -145,10 +145,11 @@ def test_suspending_step_types_grows_with_each_phase():
     fails loudly so a typo in the routing layer can't silently
     bypass the suspension state machine.
 
-    B-0: ``_test_suspend`` (debug only).
-    B-1: + ``elicit`` (human-in-the-loop, JSON-schema-validated).
+    B-0:   ``_test_suspend`` (debug only).
+    B-1:   + ``elicit`` (human-in-the-loop, JSON-schema-validated).
+    B-1.2: + ``wait_until`` (clock-driven auto-resume).
     """
-    expected = frozenset({"_test_suspend", "elicit"})
+    expected = frozenset({"_test_suspend", "elicit", "wait_until"})
     assert SUSPENDING_STEP_TYPES == expected, (
         f"SUSPENDING_STEP_TYPES drift: got {sorted(SUSPENDING_STEP_TYPES)}, "
         f"expected {sorted(expected)}. If you added a new step type, "

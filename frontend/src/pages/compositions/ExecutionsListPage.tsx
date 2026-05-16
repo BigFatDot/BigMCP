@@ -91,6 +91,19 @@ function formatRelative(iso: string): string {
   return `${days}d ago`
 }
 
+function formatRelativeFuture(iso: string): string {
+  const then = new Date(iso).getTime()
+  const seconds = Math.floor((then - Date.now()) / 1000)
+  if (seconds <= 0) return 'now'
+  if (seconds < 60) return `in ${seconds}s`
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `in ${minutes}m`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `in ${hours}h`
+  const days = Math.floor(hours / 24)
+  return `in ${days}d`
+}
+
 export function ExecutionsListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const initialIncludeTerminal = searchParams.get('include_terminal') === 'true'
@@ -314,6 +327,12 @@ export function ExecutionsListPage() {
                               needs response
                             </span>
                           )}
+                          {it.suspension_reason === 'wait_until' &&
+                            it.expires_at && (
+                              <span className="ml-1 px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-xs font-medium">
+                                fires {formatRelativeFuture(it.expires_at)}
+                              </span>
+                            )}
                         </>
                       )}
                     </div>

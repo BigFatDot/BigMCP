@@ -285,8 +285,39 @@ and `pending_notification` schemas.
 ## 8. Roadmap after B-1.0
 
 - **B-1.1**: richer JSON-Schema → form mapping (sub-objects, arrays).
-- **B-1.2**: `wait_until` step type (clock-driven resume).
+- ~~**B-1.2**: `wait_until` step type (clock-driven resume).~~ ✅ Shipped.
 - **B-1.3**: `subcomposition` step type (uses the B-0 propagation hook).
 - **B-1.4**: `approval` step type (cross-user elicitation, needs the
   cross-user notification table deferred from B-0 §9).
 - **B-1.5**: `wait_callback` step type (HMAC-signed external resume).
+
+---
+
+## B-1.2 — `wait_until` (shipped)
+
+Clock-driven suspension. Author declares either ``wait_seconds``
+(relative) or ``resume_at`` (absolute ISO 8601), capped at 30 days.
+The executor yields a ``Suspend(reason="wait_until", payload={
+"resume_at": <iso>, ...}, ttl_seconds=<delta>)``; the row's
+``expires_at`` doubles as the fire time.
+
+A new ``queue_worker.scan_expiry_batch()`` runs each tick alongside
+the queue promotion. For each suspended row past its ``expires_at``:
+
+- ``reason='wait_until'`` → background-task ``executor.resume(id,
+  {"resumed_at": <iso>})``. Concurrent /resume from a user wins
+  via the existing atomic UPDATE; we catch ``ExecutionStateConflict``
+  and move on.
+- any other reason → conditional UPDATE to ``expired`` +
+  ``COMPOSITION_EXECUTION_EXPIRED`` audit row + ``expired`` timeline
+  entry. This is the legitimate TTL run-out path for ``elicit``,
+  future ``approval``, etc.
+
+Module: ``app/orchestration/wait_until_step.py`` (config validate +
+build_suspend + auto_resume_payload). Promote validator:
+``_validate_wait_until_steps_for_production`` wired into all 3
+promote paths. UI: blue "fires in Xm" badge on the executions list
+for ``wait_until`` rows.
+
+Tests: 18 in test_wait_until_step_b1.py + 5 in
+test_expiry_scanner_b1.py + 6 in test_composition_promote_validation.py.

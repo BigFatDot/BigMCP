@@ -461,6 +461,15 @@ class ResumableExecutor:
                     client_capabilities=execution.client_capabilities,
                 )
 
+            if step_type == "wait_until":
+                # B-1.2: clock-driven suspension. The expiry scanner in
+                # queue_worker.py fires this back into the run loop
+                # by calling executor.resume(id, {"resumed_at": <iso>})
+                # when expires_at has passed.
+                from .wait_until_step import build_suspend as _build_wait_suspend
+
+                return _build_wait_suspend(step)
+
             if step_type == "tool":
                 if self._tool_dispatcher is None:
                     raise ToolDispatchUnconfigured(

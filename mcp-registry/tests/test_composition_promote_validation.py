@@ -163,3 +163,74 @@ def test_elicit_validator_handles_step_without_step_id():
     err = _validate_elicit_steps_for_production(_Comp({}, steps))
     assert err is not None
     assert "#0" in err
+
+
+# ---------------------------------------------------------------------------
+# B-1.2 chunk 3: wait_until step validation at promote time
+# ---------------------------------------------------------------------------
+
+
+from datetime import datetime, timedelta
+
+from app.services.composition_service import _validate_wait_until_steps_for_production
+
+
+def test_wait_until_valid_relative_passes():
+    steps = [{
+        "step_id": "wait",
+        "type": "wait_until",
+        "wait_until": {"wait_seconds": 60},
+    }]
+    assert _validate_wait_until_steps_for_production(_Comp({}, steps)) is None
+
+
+def test_wait_until_valid_absolute_passes():
+    future = (datetime.utcnow() + timedelta(hours=1)).isoformat() + "Z"
+    steps = [{
+        "step_id": "wait",
+        "type": "wait_until",
+        "wait_until": {"resume_at": future},
+    }]
+    assert _validate_wait_until_steps_for_production(_Comp({}, steps)) is None
+
+
+def test_wait_until_missing_both_rejected():
+    steps = [{
+        "step_id": "wait",
+        "type": "wait_until",
+        "wait_until": {},
+    }]
+    err = _validate_wait_until_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "wait" in err
+
+
+def test_wait_until_both_forms_rejected():
+    future = (datetime.utcnow() + timedelta(hours=1)).isoformat() + "Z"
+    steps = [{
+        "step_id": "wait",
+        "type": "wait_until",
+        "wait_until": {"wait_seconds": 60, "resume_at": future},
+    }]
+    err = _validate_wait_until_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "mutually exclusive" in err
+
+
+def test_wait_until_absolute_in_past_rejected():
+    past = (datetime.utcnow() - timedelta(minutes=5)).isoformat() + "Z"
+    steps = [{
+        "step_id": "wait",
+        "type": "wait_until",
+        "wait_until": {"resume_at": past},
+    }]
+    err = _validate_wait_until_steps_for_production(_Comp({}, steps))
+    assert err is not None
+
+
+def test_wait_until_validator_ignores_non_wait_steps():
+    steps = [
+        {"step_id": "1", "type": "tool", "tool": "noop"},
+        {"step_id": "2", "type": "elicit", "elicit": {"message": "ok?", "schema": {"type": "object"}}},
+    ]
+    assert _validate_wait_until_steps_for_production(_Comp({}, steps)) is None

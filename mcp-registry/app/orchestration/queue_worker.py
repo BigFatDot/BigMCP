@@ -190,6 +190,9 @@ class QueueWorker:
                     asyncio.create_task(
                         ResumableExecutor.run_detached(execution_id)
                     )
+                # B-1.2: fire wait_until rows whose clock has hit and
+                # expire other suspended rows past their TTL.
+                await scan_expiry_batch(QUEUE_BATCH_LIMIT)
             except asyncio.CancelledError:
                 raise
             except Exception:  # noqa: BLE001
@@ -292,3 +295,158 @@ async def promote_queued_batch(batch_limit: int = QUEUE_BATCH_LIMIT) -> List[UUI
             f"Queue worker promoted {len(promoted)} execution(s): {promoted}"
         )
     return promoted
+
+
+# ---------------------------------------------------------------------------
+# B-1.2: expiry scanner (wait_until auto-resume + other-reason expire)
+# ---------------------------------------------------------------------------
+
+
+async def scan_expiry_batch(batch_limit: int = QUEUE_BATCH_LIMIT) -> dict:
+    """One worker tick: handle suspended rows whose ``expires_at`` passed.
+
+    Two paths based on the suspension reason:
+
+    - ``wait_until`` → call ``executor.resume(id, auto_resume_payload())``
+      in the background. The resume's conditional UPDATE WHERE
+      status='suspended' is atomic, so a user manually firing /resume
+      between our SELECT and the resume call simply wins (we get
+      ExecutionStateConflict and move on).
+
+    - any other reason (``elicit``, ``_test_suspend``, future
+      ``approval``/``wait_callback``) → the TTL legitimately ran out
+      → mark the row ``expired`` via UPDATE WHERE status='suspended'
+      RETURNING. Audit + timeline event emitted.
+
+    Returns ``{'resumed': [ids], 'expired': [ids]}`` for telemetry.
+    """
+    from uuid import uuid4
+    from ..models.audit_log import AuditAction
+    from ..models.composition_execution import ExecutionStepEvent
+    from ..services.audit_service import AuditService
+    from .resumable_executor import (
+        ExecutionStateConflict,
+        get_executor,
+    )
+    from .wait_until_step import auto_resume_payload
+
+    now = datetime.utcnow()
+    resumed: List[UUID] = []
+    expired: List[UUID] = []
+
+    async with _db_session_module.AsyncSessionLocal() as db:
+        candidates = (
+            await db.execute(
+                select(CompositionExecution)
+                .where(
+                    CompositionExecution.status == ExecutionStatus.SUSPENDED.value,
+                    CompositionExecution.expires_at.is_not(None),
+                    CompositionExecution.expires_at <= now,
+                )
+                .limit(batch_limit)
+            )
+        ).scalars().all()
+
+        wait_until_ids: List[UUID] = []
+        for row in candidates:
+            reason = (
+                (row.state or {}).get("suspension") or {}
+            ).get("reason")
+            if reason == "wait_until":
+                wait_until_ids.append(row.id)
+                continue
+
+            # Expire path — atomic UPDATE; emit audit + timeline if it lands.
+            updated = await db.execute(
+                update(CompositionExecution)
+                .where(
+                    CompositionExecution.id == row.id,
+                    CompositionExecution.status == ExecutionStatus.SUSPENDED.value,
+                )
+                .values(
+                    status=ExecutionStatus.EXPIRED.value,
+                    error=f"ttl_expired_on_{reason or 'unknown'}",
+                    updated_at=datetime.utcnow(),
+                )
+                .returning(CompositionExecution.id)
+            )
+            if updated.scalar_one_or_none() is None:
+                continue  # someone else changed it in the meantime
+            expired.append(row.id)
+            current_step_id = (row.state or {}).get("current_step_id") or "?"
+            db.add(
+                ExecutionStepEvent(
+                    id=uuid4(),
+                    execution_id=row.id,
+                    step_id=current_step_id,
+                    event_type="expired",
+                    payload={"reason": reason},
+                    timestamp=datetime.utcnow(),
+                )
+            )
+        await db.commit()
+
+        # Audit + tombstone events for expirations land in a separate
+        # session (mirroring the executor's audit isolation invariant)
+        if expired:
+            try:
+                async with _db_session_module.AsyncSessionLocal() as audit_db:
+                    audit = AuditService(audit_db)
+                    for ex_id in expired:
+                        owner = (
+                            await audit_db.execute(
+                                select(
+                                    CompositionExecution.user_id,
+                                    CompositionExecution.organization_id,
+                                ).where(CompositionExecution.id == ex_id)
+                            )
+                        ).first()
+                        if owner is None:
+                            continue
+                        try:
+                            await audit.log_action(
+                                action=AuditAction.COMPOSITION_EXECUTION_EXPIRED,
+                                actor_id=owner[0],
+                                organization_id=owner[1],
+                                resource_type="composition_execution",
+                                resource_id=str(ex_id),
+                                details={"reason": "ttl_expired"},
+                            )
+                        except Exception:  # noqa: BLE001
+                            logger.warning(
+                                f"audit emit failed for expired execution {ex_id}",
+                                exc_info=True,
+                            )
+            except Exception:  # noqa: BLE001
+                logger.warning(
+                    "expiry audit batch failed", exc_info=True
+                )
+
+    # Auto-resume wait_until candidates as background tasks. resume()
+    # is async + opens its own session; we don't want to serialise N
+    # resumes inside the tick.
+    for execution_id in wait_until_ids:
+        async def _fire(eid: UUID = execution_id) -> None:
+            payload = auto_resume_payload()
+            try:
+                await get_executor().resume(eid, payload)
+                resumed.append(eid)
+            except ExecutionStateConflict:
+                # User manually resumed / cancelled between our SELECT
+                # and now — fine, leave it.
+                logger.info(
+                    f"wait_until {eid}: already mutated before auto-resume"
+                )
+            except Exception:  # noqa: BLE001
+                logger.exception(
+                    f"wait_until auto-resume failed for {eid}"
+                )
+
+        asyncio.create_task(_fire())
+
+    if resumed or expired or wait_until_ids:
+        logger.info(
+            f"Expiry scan: {len(wait_until_ids)} wait_until fired, "
+            f"{len(expired)} other expired"
+        )
+    return {"resumed": resumed, "expired": expired}
