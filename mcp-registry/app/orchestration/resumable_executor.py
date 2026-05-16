@@ -41,6 +41,14 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from ..core.metrics import (
+    COMPOSITION_EXECUTIONS_ENDED,
+    COMPOSITION_EXECUTIONS_STARTED,
+    COMPOSITION_STEP_EXECUTIONS,
+    COMPOSITION_STEP_RESUMPTIONS,
+    COMPOSITION_STEP_SUSPENSIONS,
+    COMPOSITION_SUSPENSION_DURATION_SECONDS,
+)
 from ..db import session as _db_session_module
 from ..models.audit_log import AuditAction
 from ..models.composition_execution import (
@@ -186,6 +194,7 @@ class ResumableExecutor:
                     await db.commit()
                     return ExecutionStatus.QUEUED.value
                 await db.commit()
+                COMPOSITION_EXECUTIONS_STARTED.inc()
                 await self._emit_audit(
                     db,
                     AuditAction.COMPOSITION_EXECUTION_STARTED,
@@ -220,6 +229,13 @@ class ResumableExecutor:
                     f"to inject the resume response into"
                 )
 
+            # Pull suspension metadata before we null it — used below to
+            # emit suspension_duration histogram & per-reason resumption
+            # counter.
+            suspension_meta = current_state.suspension or {}
+            suspension_reason = suspension_meta.get("reason", "unknown")
+            suspended_at_raw = suspension_meta.get("suspended_at")
+
             # Build new state Python-side, then atomic UPDATE WHERE
             # status='suspended'. Two concurrent resumes: both prepare
             # mutations, both UPDATE; only the first matches the
@@ -249,6 +265,18 @@ class ResumableExecutor:
                     f"(now {refreshed.status if refreshed else 'gone'})"
                 )
             await db.commit()
+
+            COMPOSITION_STEP_RESUMPTIONS.labels(reason=suspension_reason).inc()
+            if suspended_at_raw:
+                try:
+                    suspended_at = datetime.fromisoformat(suspended_at_raw)
+                    duration = (datetime.utcnow() - suspended_at).total_seconds()
+                    if duration >= 0:
+                        COMPOSITION_SUSPENSION_DURATION_SECONDS.labels(
+                            reason=suspension_reason
+                        ).observe(duration)
+                except (TypeError, ValueError):
+                    pass
 
             await self._emit_audit(
                 db,
@@ -405,6 +433,8 @@ class ResumableExecutor:
         step_type = step.get("type", "tool")
         is_idempotent = bool(step.get("idempotent", False))
         is_optional = bool(step.get("optional", False))
+
+        COMPOSITION_STEP_EXECUTIONS.labels(step_type=step_type).inc()
 
         # Idempotence guard for resumed-after-crash steps.
         prior = state.step_status.get(step_id)
@@ -626,6 +656,7 @@ class ResumableExecutor:
         await db.commit()
 
         if landed:
+            COMPOSITION_EXECUTIONS_ENDED.labels(status=status.value).inc()
             audit_action_map = {
                 ExecutionStatus.COMPLETED: AuditAction.COMPOSITION_EXECUTION_COMPLETED,
                 ExecutionStatus.FAILED: AuditAction.COMPOSITION_EXECUTION_FAILED,
@@ -765,6 +796,11 @@ class ResumableExecutor:
         suspend: Suspend,
     ) -> str:
         state.suspension = suspend.to_jsonb()
+        # Stamp the suspension time so resume() can measure how long
+        # the step actually slept. Survives crash + restart because
+        # it lives in the persisted state JSONB.
+        suspended_at_iso = datetime.utcnow().isoformat()
+        state.suspension["suspended_at"] = suspended_at_iso
         # current_step_id was set by _execute_step at start
         expires_at = datetime.utcnow() + timedelta(seconds=suspend.ttl_seconds)
 
@@ -782,6 +818,7 @@ class ResumableExecutor:
             )
         )
         await db.commit()
+        COMPOSITION_STEP_SUSPENSIONS.labels(reason=suspend.reason).inc()
         await self._emit_audit(
             db,
             AuditAction.COMPOSITION_EXECUTION_SUSPENDED,

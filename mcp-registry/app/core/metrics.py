@@ -109,6 +109,52 @@ HTTP_DURATION = Histogram(
 )
 
 # =============================================================================
+# Composition Execution Metrics (B-1 adoption telemetry)
+# =============================================================================
+
+COMPOSITION_STEP_EXECUTIONS = Counter(
+    'bigmcp_composition_step_executions_total',
+    'Composition step executions by type',
+    ['step_type']
+)
+
+COMPOSITION_EXECUTIONS_STARTED = Counter(
+    'bigmcp_composition_executions_started_total',
+    'Composition executions started (queued -> running)'
+)
+
+COMPOSITION_EXECUTIONS_ENDED = Counter(
+    'bigmcp_composition_executions_ended_total',
+    'Composition executions ended by terminal status',
+    ['status']
+)
+
+COMPOSITION_STEP_SUSPENSIONS = Counter(
+    'bigmcp_composition_step_suspensions_total',
+    'Composition step suspensions by reason',
+    ['reason']
+)
+
+COMPOSITION_STEP_RESUMPTIONS = Counter(
+    'bigmcp_composition_step_resumptions_total',
+    'Composition step resumptions by reason',
+    ['reason']
+)
+
+COMPOSITION_STEP_ABANDONMENTS = Counter(
+    'bigmcp_composition_step_abandonments_total',
+    'Composition step abandonments (TTL expiry) by suspension reason',
+    ['reason']
+)
+
+COMPOSITION_SUSPENSION_DURATION_SECONDS = Histogram(
+    'bigmcp_composition_suspension_duration_seconds',
+    'Time between suspension and resumption',
+    ['reason'],
+    buckets=[1, 5, 30, 60, 300, 900, 3600, 21600, 86400]
+)
+
+# =============================================================================
 # Collection Functions
 # =============================================================================
 

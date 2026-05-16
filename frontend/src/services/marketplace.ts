@@ -1534,6 +1534,26 @@ export interface InputSchema {
   properties?: Record<string, InputSchemaProperty>
 }
 
+export interface CompositionTemplate {
+  id: string
+  title: string
+  description: string
+  step_types: string[]
+  category: string
+  composition: {
+    name: string
+    description: string
+    input_schema: Record<string, unknown>
+    steps: Array<Record<string, unknown>>
+    output_schema?: Record<string, unknown>
+  }
+}
+
+export interface CompositionTemplatesResponse {
+  version: number
+  templates: CompositionTemplate[]
+}
+
 export const compositionsApi = {
   /**
    * List all compositions for the current organization
@@ -1543,6 +1563,18 @@ export const compositionsApi = {
     created_by?: string
   }): Promise<{ compositions: Composition[]; total: number }> {
     const { data } = await api.get('/compositions', { params: filters })
+    return data
+  },
+
+  /**
+   * List starter composition templates bundled with the backend.
+   *
+   * Static, read-only. Used to seed the empty-state and the
+   * Advanced JSON modal so users have a working scaffold per
+   * B-1 step type.
+   */
+  async listTemplates(): Promise<CompositionTemplatesResponse> {
+    const { data } = await api.get('/compositions/templates')
     return data
   },
 

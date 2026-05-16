@@ -21,6 +21,7 @@ import {
   PuzzlePieceIcon,
   MapPinIcon,
   BoltIcon,
+  ChartBarIcon,
 } from '@heroicons/react/24/outline'
 import { useAuth, useSubscription, useEdition } from '../../hooks/useAuth'
 import { BigMCPLogoWithText } from '../brand/BigMCPLogo'
@@ -291,6 +292,14 @@ export function Navbar() {
                             >
                               <BoltIcon className="h-5 w-5 text-gray-400" />
                               Compositions review
+                            </Link>
+                            <Link
+                              to="/app/admin/composition-metrics"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <ChartBarIcon className="h-5 w-5 text-gray-400" />
+                              Composition metrics
                             </Link>
                           </div>
                         )}

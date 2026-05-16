@@ -30,6 +30,7 @@ from uuid import UUID
 
 from sqlalchemy import func, select, update
 
+from ..core.metrics import COMPOSITION_STEP_ABANDONMENTS
 from ..db import session as _db_session_module
 from ..models.composition_execution import CompositionExecution, ExecutionStatus
 from .resumable_executor import ResumableExecutor
@@ -373,6 +374,7 @@ async def scan_expiry_batch(batch_limit: int = QUEUE_BATCH_LIMIT) -> dict:
             if updated.scalar_one_or_none() is None:
                 continue  # someone else changed it in the meantime
             expired.append(row.id)
+            COMPOSITION_STEP_ABANDONMENTS.labels(reason=reason or "unknown").inc()
             current_step_id = (row.state or {}).get("current_step_id") or "?"
             db.add(
                 ExecutionStepEvent(

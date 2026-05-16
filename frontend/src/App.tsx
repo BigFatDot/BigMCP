@@ -39,6 +39,7 @@ import { SsoProviderDetailPage } from './pages/admin/SsoProviderDetailPage'
 import { MarketplaceCurationPage } from './pages/admin/MarketplaceCurationPage'
 import { DefaultPoolPage } from './pages/admin/DefaultPoolPage'
 import { CompositionsReviewPage } from './pages/admin/CompositionsReviewPage'
+import { CompositionMetricsPage } from './pages/admin/CompositionMetricsPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -277,6 +278,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CompositionsReviewPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/composition-metrics"
+            element={
+              <ProtectedRoute>
+                <CompositionMetricsPage />
               </ProtectedRoute>
             }
           />

@@ -6,8 +6,10 @@ All compositions visible to org members (team context).
 """
 
 import asyncio
+import json
 import logging
 from datetime import datetime
+from pathlib import Path
 from uuid import UUID
 from typing import Any, Dict, List, Optional
 
@@ -16,6 +18,35 @@ from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
+
+
+# Static starter templates shipped with the registry. Loaded once per
+# process and served read-only via GET /compositions/templates so the
+# UI can offer one-click "Use template" entry points instead of an
+# empty-state dead-end. Edit conf/composition_templates.json to add
+# more — keep them educational and step-type-focused.
+_TEMPLATES_PATH = (
+    Path(__file__).parent.parent.parent.parent / "conf" / "composition_templates.json"
+)
+_TEMPLATES_CACHE: Optional[Dict[str, Any]] = None
+
+
+def _load_templates() -> Dict[str, Any]:
+    global _TEMPLATES_CACHE
+    if _TEMPLATES_CACHE is None:
+        try:
+            with _TEMPLATES_PATH.open("r", encoding="utf-8") as fh:
+                _TEMPLATES_CACHE = json.load(fh)
+        except FileNotFoundError:
+            logger.warning(
+                "composition_templates.json missing at %s — serving empty",
+                _TEMPLATES_PATH,
+            )
+            _TEMPLATES_CACHE = {"version": 1, "templates": []}
+        except json.JSONDecodeError as exc:
+            logger.error("composition_templates.json invalid JSON: %s", exc)
+            _TEMPLATES_CACHE = {"version": 1, "templates": []}
+    return _TEMPLATES_CACHE
 
 from ...db.database import get_async_session
 from ...models.user import User
@@ -49,6 +80,28 @@ async def get_composition_service(
     """Get CompositionService instance."""
     return CompositionService(db)
 
+
+
+# =============================================================================
+# TEMPLATES (read-only, no auth required on bigmcp.cloud — they're
+# static JSON definitions, not user data)
+# =============================================================================
+
+@router.get(
+    "/templates",
+    summary="List composition starter templates",
+    description=(
+        "Returns the bundled set of starter composition templates "
+        "(one per major B-1 step type). The UI offers these on the "
+        "empty state of /app/compositions so new users have a working "
+        "starting point instead of a blank JSON."
+    ),
+)
+async def list_composition_templates(
+    user: User = Depends(get_current_user_jwt),
+) -> Dict[str, Any]:
+    """Static, read-only starter compositions."""
+    return _load_templates()
 
 
 # =============================================================================

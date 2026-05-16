@@ -1,0 +1,153 @@
+{
+  "version": 1,
+  "templates": [
+    {
+      "id": "approval-gated-action",
+      "title": "Approval-gated action",
+      "description": "Human-in-the-loop: gather inputs, ask a second user to approve, then execute. Demonstrates the approval step with four-eyes default.",
+      "step_types": ["elicit", "approval", "tool"],
+      "category": "human-in-the-loop",
+      "composition": {
+        "name": "approval_gated_action",
+        "description": "Collect parameters then require a second approver before executing the action.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "action_description": {
+              "type": "string",
+              "description": "Short summary of what is about to happen (shown to the approver)."
+            }
+          },
+          "required": ["action_description"]
+        },
+        "steps": [
+          {
+            "step_id": "1_collect_params",
+            "type": "elicit",
+            "elicit": {
+              "message": "Confirm the action parameters",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "target": { "type": "string", "description": "What to operate on" },
+                  "notes": { "type": "string", "description": "Optional context for the approver" }
+                },
+                "required": ["target"]
+              }
+            }
+          },
+          {
+            "step_id": "2_get_approval",
+            "type": "approval",
+            "approval": {
+              "message": "Approve ${input.action_description} on ${steps.1_collect_params.target}?",
+              "approvers": { "org_roles": ["owner", "admin"] },
+              "ttl_seconds": 86400
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "scheduled-summary",
+      "title": "Wait + execute",
+      "description": "Suspend until a future ISO timestamp (or 1h from now), then run a tool. Demonstrates wait_until for time-driven workflows.",
+      "step_types": ["wait_until", "tool"],
+      "category": "time-driven",
+      "composition": {
+        "name": "delayed_action",
+        "description": "Suspend until a specified time, then execute downstream steps.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "wake_at": {
+              "type": "string",
+              "format": "date-time",
+              "description": "ISO 8601 timestamp when the composition should resume. Defaults to one hour from launch."
+            }
+          },
+          "required": []
+        },
+        "steps": [
+          {
+            "step_id": "1_sleep",
+            "type": "wait_until",
+            "wait_until": {
+              "until": "${input.wake_at}",
+              "default_delta_seconds": 3600
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "external-callback",
+      "title": "Wait for external callback",
+      "description": "Suspend and hand the external system an HMAC-protected callback URL. Resume when the external system POSTs back. Demonstrates wait_callback.",
+      "step_types": ["wait_callback"],
+      "category": "external-integration",
+      "composition": {
+        "name": "wait_for_external_callback",
+        "description": "Suspend until an external system POSTs to the generated callback URL.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "job_label": {
+              "type": "string",
+              "description": "Tag for the external job — included in the callback payload."
+            }
+          },
+          "required": ["job_label"]
+        },
+        "steps": [
+          {
+            "step_id": "1_wait_for_callback",
+            "type": "wait_callback",
+            "wait_callback": {
+              "description": "Awaiting external system to POST back to ${suspension.callback_url}",
+              "ttl_seconds": 3600
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "simple-elicit",
+      "title": "Simple elicit (Q&A)",
+      "description": "Ask the caller a single question mid-flight and inject the answer into the next step. The minimal suspending composition.",
+      "step_types": ["elicit"],
+      "category": "human-in-the-loop",
+      "composition": {
+        "name": "ask_one_question",
+        "description": "Ask the caller a yes/no question, return the answer.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "question": {
+              "type": "string",
+              "description": "The question to put to the caller."
+            }
+          },
+          "required": ["question"]
+        },
+        "steps": [
+          {
+            "step_id": "1_ask",
+            "type": "elicit",
+            "elicit": {
+              "message": "${input.question}",
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answer": { "type": "boolean", "description": "Yes or no?" },
+                  "comment": { "type": "string", "description": "Optional reason" }
+                },
+                "required": ["answer"]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

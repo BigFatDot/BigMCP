@@ -28,7 +28,14 @@ import {
 import { Button, Card, Badge } from '@/components/ui'
 import { DynamicInputForm, ExecutionResultDisplay } from '@/components/compositions'
 import { cn } from '@/utils/cn'
-import { compositionsApi, type Composition, type CompositionVisibility, type CompositionExecuteResponse, type InputSchema } from '@/services/marketplace'
+import {
+  compositionsApi,
+  type Composition,
+  type CompositionTemplate,
+  type CompositionVisibility,
+  type CompositionExecuteResponse,
+  type InputSchema,
+} from '@/services/marketplace'
 import { useOrganization } from '@/hooks/useAuth'
 import toast from 'react-hot-toast'
 
@@ -515,6 +522,8 @@ interface ProposeModalProps {
   onClose: () => void
   onSaved: (composition: Composition) => void
   initialQuery?: string
+  /** Pre-load the modal in Advanced mode with this template's JSON. */
+  initialTemplate?: CompositionTemplate | null
 }
 
 const ADVANCED_JSON_TEMPLATE = `{
@@ -541,7 +550,13 @@ const ADVANCED_JSON_TEMPLATE = `{
   }
 }`
 
-function ProposeCompositionModal({ isOpen, onClose, onSaved, initialQuery }: ProposeModalProps) {
+function ProposeCompositionModal({
+  isOpen,
+  onClose,
+  onSaved,
+  initialQuery,
+  initialTemplate,
+}: ProposeModalProps) {
   const { t } = useTranslation('dashboard')
   const [mode, setMode] = useState<'llm' | 'advanced'>('llm')
   const [query, setQuery] = useState(initialQuery ?? '')
@@ -555,16 +570,24 @@ function ProposeCompositionModal({ isOpen, onClose, onSaved, initialQuery }: Pro
 
   useEffect(() => {
     if (isOpen) {
-      setMode('llm')
+      // If we landed here from a "Use template" click, open the modal
+      // straight into Advanced mode with the chosen template's JSON
+      // pre-filled. Otherwise default to the LLM proposer.
+      if (initialTemplate) {
+        setMode('advanced')
+        setAdvancedJson(JSON.stringify(initialTemplate.composition, null, 2))
+      } else {
+        setMode('llm')
+        setAdvancedJson(ADVANCED_JSON_TEMPLATE)
+      }
       setQuery(initialQuery ?? '')
       setFeedback('')
       setDraft(null)
       setErrorMsg(null)
       setIsLoading(false)
-      setAdvancedJson(ADVANCED_JSON_TEMPLATE)
       setAdvancedError(null)
     }
-  }, [isOpen, initialQuery])
+  }, [isOpen, initialQuery, initialTemplate])
 
   if (!isOpen) return null
 
@@ -871,6 +894,8 @@ export function CompositionsPage() {
   const composeSeed = searchParams.get('compose')
   const [showProposeModal, setShowProposeModal] = useState(!!composeSeed)
   const [proposeSeed, setProposeSeed] = useState<string | undefined>(composeSeed || undefined)
+  const [proposeTemplate, setProposeTemplate] = useState<CompositionTemplate | null>(null)
+  const [templates, setTemplates] = useState<CompositionTemplate[]>([])
   useEffect(() => {
     if (composeSeed) {
       setShowProposeModal(true)
@@ -881,6 +906,29 @@ export function CompositionsPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [composeSeed])
+
+  // Load starter templates once on mount. Failure is non-fatal — the
+  // empty state simply omits the template grid.
+  useEffect(() => {
+    let cancelled = false
+    compositionsApi
+      .listTemplates()
+      .then((res) => {
+        if (!cancelled) setTemplates(res.templates || [])
+      })
+      .catch(() => {
+        if (!cancelled) setTemplates([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const openTemplate = (tpl: CompositionTemplate) => {
+    setProposeTemplate(tpl)
+    setProposeSeed(undefined)
+    setShowProposeModal(true)
+  }
 
   // Load compositions from API
   const loadCompositions = useCallback(async () => {
@@ -1099,17 +1147,62 @@ export function CompositionsPage() {
           <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 border-t-orange mx-auto" />
         </div>
       ) : filteredCompositions.length === 0 ? (
-        <Card padding="lg">
-          <div className="text-center py-12">
-            <BoltIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('compositions.empty.title')}</h3>
-            <p className="text-gray-600 font-serif mb-6 max-w-md mx-auto">
-              {searchQuery || statusFilter !== 'all'
-                ? t('compositions.empty.noMatch')
-                : t('compositions.empty.description')}
-            </p>
-          </div>
-        </Card>
+        <div className="space-y-6">
+          <Card padding="lg">
+            <div className="text-center py-12">
+              <BoltIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('compositions.empty.title')}</h3>
+              <p className="text-gray-600 font-serif mb-6 max-w-md mx-auto">
+                {searchQuery || statusFilter !== 'all'
+                  ? t('compositions.empty.noMatch')
+                  : t('compositions.empty.description')}
+              </p>
+            </div>
+          </Card>
+
+          {/* Starter templates — only when there's no active filter,
+              otherwise the user is looking for something specific and a
+              template grid would just be noise. */}
+          {!searchQuery && statusFilter === 'all' && templates.length > 0 && (
+            <div>
+              <div className="flex items-baseline justify-between mb-3">
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
+                  Start from a template
+                </h3>
+                <span className="text-xs text-gray-500">
+                  One per B-1 step type — opens the JSON editor pre-filled.
+                </span>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {templates.map((tpl) => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => openTemplate(tpl)}
+                    className="text-left p-4 border border-gray-200 rounded-lg hover:border-orange hover:shadow-sm transition bg-white"
+                  >
+                    <div className="text-sm font-semibold text-gray-900 mb-1">
+                      {tpl.title}
+                    </div>
+                    <p className="text-xs text-gray-600 font-serif mb-3 line-clamp-3">
+                      {tpl.description}
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {tpl.step_types.map((st) => (
+                        <span
+                          key={st}
+                          className="inline-block text-[10px] uppercase tracking-wide bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded"
+                        >
+                          {st}
+                        </span>
+                      ))}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 items-stretch">
           {filteredCompositions.map((composition) => (
@@ -1144,9 +1237,11 @@ export function CompositionsPage() {
         onClose={() => {
           setShowProposeModal(false)
           setProposeSeed(undefined)
+          setProposeTemplate(null)
         }}
         onSaved={(saved) => setCompositions((prev) => [saved, ...prev])}
         initialQuery={proposeSeed}
+        initialTemplate={proposeTemplate}
       />
     </div>
   )
