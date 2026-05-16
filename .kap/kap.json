@@ -1,0 +1,16 @@
+{
+  "name": "BigMCP",
+  "pitch": "Multi-tenant MCP gateway \u2014 connect any AI assistant to 180+ MCP servers in one API",
+  "owner": "BigFatDot",
+  "repo": "BigMCP",
+  "visibility": "public",
+  "tags": [
+    "mcp",
+    "ai-agents",
+    "gateway",
+    "multi-tenant",
+    "self-hosted"
+  ],
+  "autonomy_level": 1,
+  "version": "0.1.0"
+}
