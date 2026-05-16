@@ -187,6 +187,7 @@ export function DocPage() {
       'tool-groups': 'toolGroups',
       'api-keys': 'apiKeys',
       'compositions': 'compositions',
+      'composition-step-types': 'compositionStepTypes',
       'team-services': 'teamServices',
       'claude-desktop': 'claudeDesktop',
       'mistral-lechat': 'mistralLechat',
@@ -206,6 +207,9 @@ export function DocPage() {
       'configuration': 'configuration',
       'llm-providers': 'llmProviders',
       'custom-servers': 'customServers',
+      'scaling': 'scaling',
+      'monitoring': 'monitoring',
+      'backup': 'backup',
     }
     const sectionKey = sectionKeyMap[sectionId] || sectionId
     const itemKey = itemKeyMap[itemSlug] || itemSlug
@@ -231,6 +235,7 @@ export function DocPage() {
       'tool-groups': 'toolGroups',
       'api-keys': 'apiKeys',
       'compositions': 'compositions',
+      'composition-step-types': 'compositionStepTypes',
       'team-services': 'teamServices',
       'claude-desktop': 'claudeDesktop',
       'mistral-lechat': 'mistralLechat',
@@ -250,6 +255,9 @@ export function DocPage() {
       'configuration': 'configuration',
       'llm-providers': 'llmProviders',
       'custom-servers': 'customServers',
+      'scaling': 'scaling',
+      'monitoring': 'monitoring',
+      'backup': 'backup',
     }
     const sectionKey = sectionKeyMap[sectionId] || sectionId
     const itemKey = itemKeyMap[itemSlug] || itemSlug
