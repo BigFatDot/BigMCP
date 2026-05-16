@@ -120,7 +120,6 @@ async def get_context(
 
     membership, organization_id = org_context
 
-    # TODO: Service should verify context belongs to organization
     context = await service.get_context(context_id)
 
     if not context:
@@ -129,7 +128,8 @@ async def get_context(
             detail=f"Context {context_id} not found"
         )
 
-    # Verify context belongs to user's organization
+    # Cross-org guard: same 404 shape as the "missing" branch above so
+    # callers can't enumerate context IDs from other orgs.
     if context.organization_id != organization_id:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

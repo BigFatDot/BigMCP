@@ -4,6 +4,7 @@ FastAPI dependencies for authentication and authorization.
 Provides reusable dependencies for route protection.
 """
 
+import os
 from typing import Optional
 from uuid import UUID
 
@@ -207,9 +208,34 @@ async def get_current_user(
 
 # ===== Scope Validation =====
 
-def require_scope(scope: str, log_only: bool = False):
+
+def _resolve_scope_enforce_mode(callsite_log_only: bool) -> bool:
+    """Decide whether THIS request should enforce the scope.
+
+    Resolution order:
+
+    1. ``SCOPE_ENFORCE_MODE`` env var (read EACH call so operators can
+       flip without restart):
+       - ``"enforce"`` → forces deny regardless of callsite default
+         (rolling enforcement on — the master switch)
+       - ``"log_only"`` → forces audit-only regardless of callsite
+         (master kill-switch for an emergency rollback)
+    2. Else fall back to the callsite's own ``log_only`` argument
+       (the 33 existing call sites pass ``log_only=True`` so the
+       behaviour stays identical if the env var is unset).
+
+    Returns True when we should run in log-only mode.
     """
-    Dependency factory to require a specific scope.
+    mode = (os.environ.get("SCOPE_ENFORCE_MODE") or "").strip().lower()
+    if mode == "enforce":
+        return False
+    if mode == "log_only":
+        return True
+    return callsite_log_only
+
+
+def require_scope(scope: str, log_only: bool = False):
+    """Dependency factory to require a specific scope.
 
     Usage:
         @app.post("/tools/execute")
@@ -222,15 +248,22 @@ def require_scope(scope: str, log_only: bool = False):
         # Shadow mode (initial rollout — audit denials without breaking callers)
         _: None = Depends(require_scope("tools:execute", log_only=True))
 
+    The ``SCOPE_ENFORCE_MODE`` env var overrides the per-callsite
+    ``log_only`` setting at request time — operators flip the whole
+    surface from shadow to enforce (or back) without a code change /
+    redeploy. See :func:`_resolve_scope_enforce_mode`.
+
     Args:
         scope: Required scope (e.g., "tools:execute")
-        log_only: If True, missing scopes are recorded in the audit log
-            (action=APIKEY_SCOPE_DENIED) but the request is allowed through.
-            Use during initial rollout of scope enforcement to detect
-            mis-calibrated API keys before flipping to deny mode.
+        log_only: If True (and env doesn't override), missing scopes are
+            recorded in the audit log (action=APIKEY_SCOPE_DENIED) but
+            the request is allowed through. Use during initial rollout
+            of scope enforcement to detect mis-calibrated API keys
+            before flipping to deny mode.
 
     Raises:
-        HTTPException: 403 when log_only is False and the API key lacks the scope.
+        HTTPException: 403 when log_only resolves to False and the API
+            key lacks the scope.
     """
     async def check_scope(
         request: Request = None,
@@ -245,6 +278,9 @@ def require_scope(scope: str, log_only: bool = False):
 
         if api_key.has_scope(scope):
             return None
+
+        # Resolve the effective enforcement mode for THIS request.
+        effective_log_only = _resolve_scope_enforce_mode(log_only)
 
         # API key is missing the required scope — record the denial then act.
         try:
@@ -262,7 +298,7 @@ def require_scope(scope: str, log_only: bool = False):
                     "scopes_granted": list(api_key.scopes or []),
                     "key_prefix": api_key.key_prefix,
                     "key_name": api_key.name,
-                    "enforce_mode": "log_only" if log_only else "deny",
+                    "enforce_mode": "log_only" if effective_log_only else "deny",
                 },
                 request=request,
             )
@@ -270,7 +306,7 @@ def require_scope(scope: str, log_only: bool = False):
             # Audit failures must never break the request flow.
             pass
 
-        if log_only:
+        if effective_log_only:
             return None
 
         raise HTTPException(

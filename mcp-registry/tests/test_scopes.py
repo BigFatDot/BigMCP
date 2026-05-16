@@ -172,3 +172,100 @@ async def test_jwt_auth_bypasses_scope_check(
     # auth tuple with no api_key -> JWT path -> all scopes granted.
     result = await dep(request=None, auth=(user, None), db=db_session)
     assert result is None
+
+
+# ---------------------------------------------------------------------------
+# SCOPE_ENFORCE_MODE env-driven feature flag (B-1 post-audit consolidation).
+# Operators flip enforcement on/off globally without redeploying code.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_env_enforce_overrides_callsite_log_only(
+    db_session: AsyncSession, monkeypatch
+):
+    """SCOPE_ENFORCE_MODE=enforce forces deny even if the call site
+    declared log_only=True (the master switch for rolling enforcement
+    on without touching the 33 existing call sites)."""
+    from fastapi import HTTPException
+    from app.api.dependencies import require_scope
+    from app.models.user import User
+
+    monkeypatch.setenv("SCOPE_ENFORCE_MODE", "enforce")
+    dep = require_scope("credentials:write", log_only=True)  # would have allowed before
+    user = User(email="override-enforce@example.com")
+    api_key = APIKey(
+        name="under-scoped",
+        scopes=["tools:read"],
+        key_prefix="mcphub_sk_envtest1",
+    )
+    with pytest.raises(HTTPException) as exc_info:
+        await dep(request=None, auth=(user, api_key), db=db_session)
+    assert exc_info.value.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_env_log_only_overrides_callsite_enforce(
+    db_session: AsyncSession, monkeypatch
+):
+    """SCOPE_ENFORCE_MODE=log_only is the emergency rollback knob:
+    forces audit-only even if the call site declared log_only=False."""
+    from app.api.dependencies import require_scope
+    from app.models.user import User
+
+    monkeypatch.setenv("SCOPE_ENFORCE_MODE", "log_only")
+    dep = require_scope("credentials:write", log_only=False)
+    user = User(email="override-logonly@example.com")
+    api_key = APIKey(
+        name="under-scoped",
+        scopes=["tools:read"],
+        key_prefix="mcphub_sk_envtest2",
+    )
+    result = await dep(request=None, auth=(user, api_key), db=db_session)
+    assert result is None  # let through despite missing scope
+
+
+@pytest.mark.asyncio
+async def test_env_unset_falls_back_to_callsite_default(
+    db_session: AsyncSession, monkeypatch
+):
+    """Default behaviour: when SCOPE_ENFORCE_MODE is unset, the call
+    site's own log_only= argument wins. Existing 33 call sites pass
+    log_only=True, so today's behaviour stays identical until an op
+    actively sets the env."""
+    from app.api.dependencies import require_scope
+    from app.models.user import User
+
+    monkeypatch.delenv("SCOPE_ENFORCE_MODE", raising=False)
+    dep = require_scope("credentials:write", log_only=True)
+    user = User(email="env-unset@example.com")
+    api_key = APIKey(
+        name="under-scoped",
+        scopes=["tools:read"],
+        key_prefix="mcphub_sk_envtest3",
+    )
+    result = await dep(request=None, auth=(user, api_key), db=db_session)
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_env_garbage_value_falls_back_to_callsite_default(
+    db_session: AsyncSession, monkeypatch
+):
+    """Unknown SCOPE_ENFORCE_MODE values (typo, deprecated alias) MUST
+    NOT silently change behaviour — fall back to the call site's
+    explicit decision. Prevents an operator typo from accidentally
+    flipping the enforcement mode."""
+    from app.api.dependencies import require_scope
+    from app.models.user import User
+
+    monkeypatch.setenv("SCOPE_ENFORCE_MODE", "shadow")  # not a valid mode
+    dep = require_scope("credentials:write", log_only=True)
+    user = User(email="env-garbage@example.com")
+    api_key = APIKey(
+        name="under-scoped",
+        scopes=["tools:read"],
+        key_prefix="mcphub_sk_envtest4",
+    )
+    result = await dep(request=None, auth=(user, api_key), db=db_session)
+    assert result is None  # callsite log_only=True wins

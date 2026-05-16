@@ -34,12 +34,27 @@ engine_kwargs = {
     "echo": os.environ.get("SQL_ECHO", "false").lower() == "true",
 }
 
-# Add PostgreSQL-specific pooling parameters
+# Add PostgreSQL-specific pooling parameters.
+#
+# The original pool (5 + 10 overflow = 15 max) saturated under a
+# documented stress test: 50-concurrent OAuth tools/list calls
+# during the cold-cache window post-deploy → asyncpg
+# TooManyConnections (see project_db_cold_start memory). Bumped to
+# 20 + 20 overflow = 40 max; the Postgres-side limit was lifted to
+# 200 in docker-compose.yml so a single backend process can't burn
+# the whole budget.
+#
+# Both knobs are env-overridable so an Enterprise deployer can tune
+# without forking the image. Defaults stay generous enough for the
+# SaaS instance.
+DB_POOL_SIZE = int(os.environ.get("DB_POOL_SIZE", "20"))
+DB_MAX_OVERFLOW = int(os.environ.get("DB_MAX_OVERFLOW", "20"))
+
 if is_postgresql:
     engine_kwargs.update({
         "pool_pre_ping": True,  # Verify connections before using them
-        "pool_size": 5,  # Connection pool size
-        "max_overflow": 10,  # Max connections beyond pool_size (total: 15 max)
+        "pool_size": DB_POOL_SIZE,
+        "max_overflow": DB_MAX_OVERFLOW,
         "pool_recycle": 300,  # Recycle connections after 5 minutes (prevents stale TCP)
         "pool_timeout": 30,  # Wait max 30s for a connection from pool
         "connect_args": {

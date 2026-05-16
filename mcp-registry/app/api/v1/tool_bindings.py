@@ -41,6 +41,35 @@ async def get_tool_binding_service(
     return ToolBindingService(db)
 
 
+async def _assert_context_in_org_or_404(
+    context_id: UUID,
+    organization_id: UUID,
+    db: AsyncSession,
+) -> None:
+    """Reject any cross-org access to a context by UUID.
+
+    Every endpoint here takes ``context_id`` as a query param and
+    operates on it (list / create / copy). Without this check, a
+    member of org A could pass a context_id from org B and have
+    the service blindly act on it (the ToolBindingService takes the
+    caller's ``organization_id`` separately and writes that into the
+    new binding row, so the row LOOKS legit but actually attaches
+    a binding to a foreign context — net effect: silent cross-org
+    leak / corruption).
+
+    Same 404 shape as ``get_context`` in contexts.py so callers can't
+    use it to enumerate context IDs from other orgs.
+    """
+    from ...services.context_service import ContextService
+
+    context = await ContextService(db).get_context(context_id)
+    if context is None or context.organization_id != organization_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Context {context_id} not found",
+        )
+
+
 @router.post(
     "/",
     response_model=ToolBindingResponse,
@@ -55,12 +84,16 @@ async def create_tool_binding(
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
     _scope: None = Depends(require_scope("servers:write", log_only=True)),
+    db: AsyncSession = Depends(get_async_session),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """Create a new tool binding."""
     current_user, _ = auth
     membership, organization_id = org_context
     created_by = current_user.id
+
+    # Cross-org guard: reject context_id that isn't in the caller's org.
+    await _assert_context_in_org_or_404(context_id, organization_id, db)
 
     try:
         binding = await service.create_binding(
@@ -98,14 +131,15 @@ async def list_tool_bindings(
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
     _scope: None = Depends(require_scope("tools:read", log_only=True)),
+    db: AsyncSession = Depends(get_async_session),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """List all tool bindings for a context."""
     current_user, _ = auth
     membership, organization_id = org_context
 
-    # TODO: Service should verify context belongs to organization
-    # For now, service will handle this check internally
+    # Cross-org guard: reject context_id that isn't in the caller's org.
+    await _assert_context_in_org_or_404(context_id, organization_id, db)
 
     bindings = await service.list_bindings(
         context_id=context_id,
@@ -372,6 +406,7 @@ async def copy_tool_binding(
     ),
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    db: AsyncSession = Depends(get_async_session),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """Copy a tool binding to a different context."""
@@ -385,6 +420,11 @@ async def copy_tool_binding(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Tool binding {binding_id} not found"
         )
+
+    # Cross-org guard: the TARGET context must also be in the same org.
+    # Without this check, copying a binding to a foreign context would
+    # leak access semantics across orgs.
+    await _assert_context_in_org_or_404(new_context_id, organization_id, db)
 
     try:
         new_binding = await service.copy_binding(
@@ -412,11 +452,15 @@ async def get_binding_by_name(
     context_id: UUID = Query(..., description="Context UUID"),
     auth: tuple[User, Optional[APIKey]] = Depends(get_current_user),
     org_context: tuple = Depends(get_current_organization),
+    db: AsyncSession = Depends(get_async_session),
     service: ToolBindingService = Depends(get_tool_binding_service)
 ):
     """Get a tool binding by name within a context."""
     current_user, _ = auth
     membership, organization_id = org_context
+
+    # Cross-org guard: the context must be in the caller's org.
+    await _assert_context_in_org_or_404(context_id, organization_id, db)
 
     binding = await service.get_binding_by_name(
         context_id=context_id,
