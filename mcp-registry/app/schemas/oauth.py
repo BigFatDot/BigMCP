@@ -14,7 +14,7 @@ class OAuthClientCreate(BaseModel):
     """Schema for creating a new OAuth client."""
     name: str = Field(..., min_length=1, max_length=255, description="Client application name")
     description: Optional[str] = Field(None, description="Client description")
-    redirect_uris: List[str] = Field(..., min_items=1, description="Allowed redirect URIs")
+    redirect_uris: List[str] = Field(..., min_length=1, description="Allowed redirect URIs")
     allowed_scopes: Optional[List[str]] = Field(
         default=["mcp:execute", "mcp:read"],
         description="Scopes this client can request"
@@ -107,7 +107,7 @@ class DynamicClientRegistrationRequest(BaseModel):
 
     Claude Desktop POSTs this to /register to automatically obtain credentials.
     """
-    redirect_uris: List[str] = Field(..., min_items=1, description="Array of redirect URIs")
+    redirect_uris: List[str] = Field(..., min_length=1, description="Array of redirect URIs")
     token_endpoint_auth_method: Optional[str] = Field(
         "client_secret_post",
         description="Token endpoint authentication method"

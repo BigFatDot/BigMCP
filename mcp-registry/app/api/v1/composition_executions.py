@@ -342,7 +342,7 @@ async def resume_execution(
         ok, err = _validate_elicit(suspension.get("payload") or {}, body.response)
         if not ok:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
                 detail=err or "elicit response failed schema validation",
             )
 
@@ -448,7 +448,7 @@ async def callback_execution(
                 detail="Unauthorized",
             )
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=err or "callback body failed schema validation",
         )
 
@@ -613,7 +613,7 @@ async def _record_approval_decision(
     ok, err = validate_response_schema(suspension_payload, extra_fields or {})
     if not ok:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=err or "approval response failed schema validation",
         )
 

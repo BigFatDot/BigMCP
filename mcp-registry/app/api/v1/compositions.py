@@ -356,7 +356,7 @@ async def promote_composition(
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=error)
         if "input_schema" in err_lower:
             raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=error
+                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=error
             )
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=error)
 
@@ -694,7 +694,7 @@ async def propose_composition(
     proposed = (analysis or {}).get("proposed_composition") or {}
     if not proposed or not proposed.get("steps"):
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail=(
                 analysis.get("message")
                 if isinstance(analysis, dict) and analysis.get("message")
@@ -781,7 +781,7 @@ async def share_composition(
         if "already pending" in err_lower:
             raise HTTPException(status.HTTP_409_CONFLICT, detail=error)
         if "input_schema" in err_lower:
-            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=error)
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=error)
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail=error)
 
     try:
@@ -876,7 +876,7 @@ async def approve_share_request(
         if "no pending" in err_lower:
             raise HTTPException(status.HTTP_409_CONFLICT, detail=error)
         if "input_schema" in err_lower:
-            raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail=error)
+            raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, detail=error)
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail=error)
 
     try:

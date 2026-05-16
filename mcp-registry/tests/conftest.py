@@ -183,24 +183,49 @@ async def test_user(client: AsyncClient, db_session: AsyncSession) -> dict:
         "name": "Test User"
     }
 
-    response = await client.post("/api/v1/auth/register", json=register_data)
-    # Cloud SaaS edition returns 202 (email verification required) and skips
-    # auto-login. Community/Enterprise return 201 with tokens. Either is fine
-    # for fixture setup — we mark the user verified below and then log in.
-    assert response.status_code in (201, 202), (
-        f"register returned {response.status_code}: {response.text}"
-    )
-    user_data = response.json()
+    # We used to POST /auth/register then UPDATE email_verified, but that
+    # had a flaky race in SaaS edition: the register endpoint commits in
+    # its own request scope, the UPDATE+commit lands on db_session, and
+    # the subsequent /auth/login occasionally read a snapshot where the
+    # flag flip hadn't propagated yet (test failure:
+    # "403: email_not_verified"). Insert the user directly via the ORM
+    # with email_verified=True so there's no window where the flag is
+    # false. Same end-state — user + personal org + ADMIN membership —
+    # minus the race AND minus an HTTP roundtrip per test.
+    from uuid import uuid4 as _uuid4
+    from app.models.organization import Organization, OrganizationMember, UserRole
+    from app.services.auth_service import AuthService
 
-    # In SaaS mode the user is not auto-verified; flip the flag in the same
-    # test DB session so the login fixture below succeeds regardless of edition.
-    from sqlalchemy import update
-    await db_session.execute(
-        update(User)
-        .where(User.email == register_data["email"].lower())
-        .values(email_verified=True)
+    auth_service = AuthService(db_session)
+    password_hash = auth_service.hash_password(register_data["password"])
+
+    user = User(
+        email=register_data["email"].lower(),
+        name=register_data["name"],
+        password_hash=password_hash,
+        email_verified=True,  # KEY DIFFERENCE: pre-verified
+    )
+    db_session.add(user)
+    await db_session.flush()  # need user.id for org slug + membership
+
+    org = Organization(
+        name=f"{register_data['name']}'s Organization",
+        slug=f"org-{user.id}",
+        organization_type="personal",
+    )
+    db_session.add(org)
+    await db_session.flush()  # need org.id for membership
+
+    db_session.add(
+        OrganizationMember(
+            user_id=user.id,
+            organization_id=org.id,
+            role=UserRole.ADMIN,
+        )
     )
     await db_session.commit()
+    await db_session.refresh(user)
+    user_data = {"id": str(user.id), "email": user.email}
 
     # Login to get tokens
     login_data = {
