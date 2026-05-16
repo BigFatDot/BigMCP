@@ -100,6 +100,10 @@ class AuditAction(str, enum.Enum):
     COMPOSITION_EXECUTION_FAILED    = "composition.execution_failed"
     COMPOSITION_EXECUTION_CANCELLED = "composition.execution_cancelled"
     COMPOSITION_EXECUTION_EXPIRED   = "composition.execution_expired"
+    # B-1.4: cross-user approval flow on a suspended execution
+    COMPOSITION_APPROVAL_REQUESTED  = "composition.approval_requested"
+    COMPOSITION_APPROVAL_APPROVED   = "composition.approval_approved"
+    COMPOSITION_APPROVAL_REJECTED   = "composition.approval_rejected"
 
     # Permissions & IAM
     PERMISSION_CHANGE = "iam.permission_change"

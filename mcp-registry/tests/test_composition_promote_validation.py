@@ -476,3 +476,96 @@ def test_wait_callback_validator_ignores_non_callback_steps():
         {"step_id": "2", "type": "_test_suspend"},
     ]
     assert _validate_wait_callback_steps_for_production(_Comp({}, steps)) is None
+
+
+# ---------------------------------------------------------------------------
+# B-1.4: approval step validation at promote time
+# ---------------------------------------------------------------------------
+
+
+from uuid import uuid4 as _uuid4_b14
+from app.services.composition_service import (
+    _validate_approval_steps_for_production,
+)
+
+
+def test_approval_valid_role_arm_passes():
+    steps = [{
+        "step_id": "ask",
+        "type": "approval",
+        "approval": {
+            "message": "ok?",
+            "allowed_roles": ["admin"],
+        },
+    }]
+    assert _validate_approval_steps_for_production(_Comp({}, steps)) is None
+
+
+def test_approval_valid_user_id_arm_passes():
+    steps = [{
+        "step_id": "ask",
+        "type": "approval",
+        "approval": {
+            "message": "ok?",
+            "approver_user_ids": [str(_uuid4_b14())],
+        },
+    }]
+    assert _validate_approval_steps_for_production(_Comp({}, steps)) is None
+
+
+def test_approval_missing_message_rejected():
+    steps = [{
+        "step_id": "ask",
+        "type": "approval",
+        "approval": {"allowed_roles": ["admin"]},
+    }]
+    err = _validate_approval_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "message" in err
+
+
+def test_approval_no_approver_arm_rejected():
+    steps = [{
+        "step_id": "ask",
+        "type": "approval",
+        "approval": {"message": "ok?"},
+    }]
+    err = _validate_approval_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "approver_user_ids" in err or "allowed_roles" in err
+
+
+def test_approval_unknown_role_rejected():
+    steps = [{
+        "step_id": "ask",
+        "type": "approval",
+        "approval": {
+            "message": "ok?",
+            "allowed_roles": ["chairman"],
+        },
+    }]
+    err = _validate_approval_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "chairman" in err or "valid roles" in err
+
+
+def test_approval_bad_user_uuid_rejected():
+    steps = [{
+        "step_id": "ask",
+        "type": "approval",
+        "approval": {
+            "message": "ok?",
+            "approver_user_ids": ["not-a-uuid"],
+        },
+    }]
+    err = _validate_approval_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "UUID" in err or "uuid" in err.lower()
+
+
+def test_approval_validator_ignores_non_approval_steps():
+    steps = [
+        {"step_id": "1", "type": "tool", "tool": "noop"},
+        {"step_id": "2", "type": "_test_suspend"},
+    ]
+    assert _validate_approval_steps_for_production(_Comp({}, steps)) is None

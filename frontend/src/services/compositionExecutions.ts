@@ -135,4 +135,40 @@ export const executionsApi = {
     )
     return resp.data
   },
+
+  // B-1.4: approval surface
+  async listPendingApprovals(
+    params: { limit?: number; offset?: number } = {},
+  ): Promise<ExecutionListResponse> {
+    const query: Record<string, string> = {}
+    if (params.limit !== undefined) query.limit = String(params.limit)
+    if (params.offset !== undefined) query.offset = String(params.offset)
+    const resp = await api.get<ExecutionListResponse>(
+      '/compositions/executions/pending-approvals',
+      { params: query },
+    )
+    return resp.data
+  },
+
+  async approve(
+    executionId: string,
+    extraFields?: Record<string, unknown>,
+  ): Promise<{ execution_id: string; status: ExecutionStatus; decision: 'approved' }> {
+    const resp = await api.post(
+      `/compositions/executions/${executionId}/approve`,
+      { extra_fields: extraFields ?? null },
+    )
+    return resp.data
+  },
+
+  async reject(
+    executionId: string,
+    extraFields?: Record<string, unknown>,
+  ): Promise<{ execution_id: string; status: ExecutionStatus; decision: 'rejected' }> {
+    const resp = await api.post(
+      `/compositions/executions/${executionId}/reject`,
+      { extra_fields: extraFields ?? null },
+    )
+    return resp.data
+  },
 }

@@ -493,6 +493,18 @@ class ResumableExecutor:
 
                 return _build_callback(step, state, execution.id)
 
+            if step_type == "approval":
+                # B-1.4: cross-user elicitation. Step suspends; a user
+                # in the author-declared approver gate (specific
+                # user_ids or org roles) approves/rejects via
+                # /executions/{id}/approve|reject. Four-eyes default
+                # (launcher excluded unless allow_self_approval=true).
+                from .approval_step import build_suspend as _build_approval
+
+                return _build_approval(
+                    step, state, launcher_user_id=execution.user_id,
+                )
+
             if step_type == "tool":
                 if self._tool_dispatcher is None:
                     raise ToolDispatchUnconfigured(

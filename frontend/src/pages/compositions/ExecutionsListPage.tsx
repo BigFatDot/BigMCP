@@ -216,16 +216,25 @@ export function ExecutionsListPage() {
             Track running, suspended, and completed runs of your compositions.
           </p>
         </div>
-        <Button
-          variant="secondary"
-          onClick={() => fetchExecutions(false)}
-          disabled={loading || refreshing}
-        >
-          <ArrowPathIcon
-            className={`w-4 h-4 mr-1 ${refreshing ? 'animate-spin' : ''}`}
-          />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/app/compositions/approvals"
+            className="text-sm font-medium text-pink-700 hover:underline px-3 py-2 rounded border border-pink-300 hover:border-pink-500"
+            title="Compositions waiting on your decision"
+          >
+            Pending approvals
+          </Link>
+          <Button
+            variant="secondary"
+            onClick={() => fetchExecutions(false)}
+            disabled={loading || refreshing}
+          >
+            <ArrowPathIcon
+              className={`w-4 h-4 mr-1 ${refreshing ? 'animate-spin' : ''}`}
+            />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       {/* Filter bar */}
@@ -341,6 +350,11 @@ export function ExecutionsListPage() {
                           {it.suspension_reason === 'wait_callback' && (
                             <span className="ml-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-medium">
                               webhook pending
+                            </span>
+                          )}
+                          {it.suspension_reason === 'approval' && (
+                            <span className="ml-1 px-1.5 py-0.5 rounded bg-pink-100 text-pink-800 text-xs font-medium">
+                              awaiting approval
                             </span>
                           )}
                         </>

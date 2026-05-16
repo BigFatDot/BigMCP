@@ -193,6 +193,9 @@ export function ExecutionDetailPage() {
               resume_at?: string
               callback_url?: string
               expected_schema?: Record<string, unknown>
+              approver_user_ids?: string[]
+              allowed_roles?: string[]
+              response_schema?: ElicitSchema
             }
           }
         | null
@@ -204,6 +207,37 @@ export function ExecutionDetailPage() {
     suspensionReason === 'subcomposition' ? suspension?.payload : null
   const callbackPayload =
     suspensionReason === 'wait_callback' ? suspension?.payload : null
+  const approvalPayload =
+    suspensionReason === 'approval' ? suspension?.payload : null
+
+  const handleApprovalDecision = async (
+    decision: 'approved' | 'rejected',
+    extraFields?: Record<string, unknown>,
+  ) => {
+    if (!executionId) return
+    setResuming(true)
+    try {
+      const resp =
+        decision === 'approved'
+          ? await executionsApi.approve(executionId, extraFields)
+          : await executionsApi.reject(executionId, extraFields)
+      toast.success(`${decision === 'approved' ? 'Approved' : 'Rejected'} → ${resp.status}`)
+      await fetchDetail(true)
+    } catch (err: unknown) {
+      const apiErr = err as {
+        response?: { status?: number; data?: { detail?: string } }
+      }
+      const code = apiErr.response?.status
+      const detailMsg = apiErr.response?.data?.detail
+      toast.error(
+        `${decision === 'approved' ? 'Approve' : 'Reject'} failed${
+          code ? ` (${code})` : ''
+        }${detailMsg ? `: ${detailMsg}` : ''}`,
+      )
+    } finally {
+      setResuming(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -330,6 +364,90 @@ export function ExecutionDetailPage() {
           </div>
         </div>
       </Card>
+
+      {/* Approval card (B-1.4) — caller must be in the approver gate
+          server-side. We render the controls unconditionally; the
+          REST endpoint returns 403 if the current user isn't allowed,
+          which the toast surfaces. Server-side authorisation stays the
+          single source of truth.
+
+          For the optional response_schema we reuse ElicitForm — same
+          JSON-Schema-to-fields mapper. Decision is taken by which
+          button the approver clicks (server-set, never spoofable). */}
+      {approvalPayload && (
+        <Card padding="md" className="mb-4 border-pink-300 bg-pink-50">
+          <h3 className="text-sm font-semibold text-pink-900 mb-2">
+            Approval requested
+            {approvalPayload.step_id && (
+              <span className="font-mono text-xs ml-1">
+                (step <span className="font-semibold">{approvalPayload.step_id}</span>)
+              </span>
+            )}
+          </h3>
+          {approvalPayload.message && (
+            <p className="text-sm text-pink-900 whitespace-pre-wrap mb-3">
+              {approvalPayload.message}
+            </p>
+          )}
+          {approvalPayload.response_schema ? (
+            <ElicitForm
+              message="Optional fields:"
+              schema={approvalPayload.response_schema}
+              onSubmit={(extra) =>
+                handleApprovalDecision(
+                  'approved',
+                  extra as Record<string, unknown>,
+                )
+              }
+              submitting={resuming}
+            />
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => handleApprovalDecision('approved')}
+                disabled={resuming}
+              >
+                Approve
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => handleApprovalDecision('rejected')}
+                disabled={resuming}
+              >
+                Reject
+              </Button>
+            </div>
+          )}
+          {approvalPayload.response_schema && (
+            <div className="mt-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => handleApprovalDecision('rejected')}
+                disabled={resuming}
+              >
+                Reject without submitting the form
+              </Button>
+            </div>
+          )}
+          {(approvalPayload.allowed_roles?.length ||
+            approvalPayload.approver_user_ids?.length) && (
+            <p className="text-xs text-pink-800 mt-2">
+              Allowed approvers:{' '}
+              {approvalPayload.allowed_roles?.length
+                ? `roles ${approvalPayload.allowed_roles.join(', ')}`
+                : ''}
+              {approvalPayload.allowed_roles?.length &&
+                approvalPayload.approver_user_ids?.length
+                ? ' · '
+                : ''}
+              {approvalPayload.approver_user_ids?.length
+                ? `${approvalPayload.approver_user_ids.length} specific user(s)`
+                : ''}
+            </p>
+          )}
+        </Card>
+      )}
 
       {/* Wait_callback: expose the webhook URL so authors can copy it
           into the external system (B-1.5). Plaintext token is in the

@@ -201,6 +201,31 @@ async def _load_owned_or_404(
     return row
 
 
+# ---------------------------------------------------------------------------
+# /pending-approvals MUST be declared BEFORE /{execution_id} — FastAPI
+# matches in declaration order, so the literal-segment route has to win
+# over the UUID-param route. The handler body lives further down with the
+# rest of the B-1.4 approval surface; this is just the route hook.
+# ---------------------------------------------------------------------------
+
+
+@router.get(
+    "/pending-approvals",
+    summary="List executions suspended on approval that the current user can act on",
+)
+async def _list_pending_approvals_route(
+    limit: int = Query(50, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    user: User = Depends(get_current_user_jwt),
+    org_context: tuple = Depends(get_current_organization_jwt),
+    db: AsyncSession = Depends(get_async_session),
+):
+    return await _impl_list_pending_approvals(
+        limit=limit, offset=offset, user=user,
+        org_context=org_context, db=db,
+    )
+
+
 @router.get(
     "/{execution_id}",
     response_model=ExecutionDetail,
@@ -444,4 +469,339 @@ async def callback_execution(
     return {
         "execution_id": str(execution_id),
         "status": new_status,
+    }
+
+
+# ---------------------------------------------------------------------------
+# APPROVAL (B-1.4) — cross-user resume with role/user gating
+# ---------------------------------------------------------------------------
+
+
+from pydantic import BaseModel as _BaseModel, ConfigDict as _ConfigDict, Field as _Field
+
+
+class _ApprovalDecisionRequest(_BaseModel):
+    """Body shape for /approve and /reject.
+
+    ``extra_fields`` carries the optional author-declared
+    ``response_schema`` payload (rationale, ticket id, …). Server
+    augments with ``decision`` / ``approved_by`` / ``approved_at``
+    before resuming — clients cannot spoof those.
+    """
+
+    model_config = _ConfigDict(extra="forbid")
+
+    extra_fields: Optional[dict] = _Field(
+        default=None,
+        description=(
+            "Optional payload validated against the step's "
+            "response_schema (when declared). Cannot contain "
+            "'decision', 'approved_by', or 'approved_at' — those "
+            "are server-set."
+        ),
+    )
+
+
+async def _load_for_approver_or_403(
+    db: AsyncSession,
+    execution_id: UUID,
+    user: User,
+) -> Tuple[CompositionExecution, dict, str]:
+    """Cross-user variant of _load_owned_or_404.
+
+    Returns ``(row, suspension_payload, actor_role)`` on success.
+    All failures collapse to **403 Forbidden** with a uniform
+    message — never reveals whether the row exists, whether it is
+    suspended, on what reason, or which approver gate failed. The
+    log keeps the precise reason for the auditor.
+    """
+    from ...orchestration.approval_step import can_approve
+
+    UNIFORM = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Forbidden",
+    )
+
+    row = (
+        await db.execute(
+            select(CompositionExecution).where(
+                CompositionExecution.id == execution_id
+            )
+        )
+    ).scalar_one_or_none()
+    if row is None:
+        logger.info(
+            f"approval: execution {execution_id} not found for actor {user.id}"
+        )
+        raise UNIFORM
+
+    # Same-org check — never allow cross-org approval. The approver
+    # must be a member of the execution's organization.
+    membership = (
+        await db.execute(
+            select(OrganizationMember).where(
+                OrganizationMember.user_id == user.id,
+                OrganizationMember.organization_id == row.organization_id,
+            )
+        )
+    ).scalar_one_or_none()
+    if membership is None:
+        logger.info(
+            f"approval: actor {user.id} not in org {row.organization_id} "
+            f"(execution {execution_id})"
+        )
+        raise UNIFORM
+
+    if row.status != ExecutionStatus.SUSPENDED.value:
+        logger.info(
+            f"approval: execution {execution_id} is "
+            f"{row.status!r}, not suspended"
+        )
+        raise UNIFORM
+
+    suspension = (row.state or {}).get("suspension") or {}
+    if suspension.get("reason") != "approval":
+        logger.info(
+            f"approval: execution {execution_id} suspended on "
+            f"{suspension.get('reason')!r}, not approval"
+        )
+        raise UNIFORM
+
+    payload = suspension.get("payload") or {}
+    actor_role = (
+        membership.role.value
+        if hasattr(membership.role, "value")
+        else str(membership.role)
+    )
+    ok, reason = can_approve(
+        payload,
+        actor_user_id=user.id,
+        actor_role=actor_role,
+    )
+    if not ok:
+        logger.info(
+            f"approval: actor {user.id} denied on "
+            f"execution {execution_id}: {reason}"
+        )
+        raise UNIFORM
+
+    return row, payload, actor_role
+
+
+async def _record_approval_decision(
+    db: AsyncSession,
+    *,
+    execution_id: UUID,
+    suspension_payload: dict,
+    actor_user: User,
+    decision: str,
+    extra_fields: Optional[dict],
+) -> str:
+    """Common implementation behind /approve and /reject.
+
+    Validates the optional response_schema, builds the envelope,
+    fires executor.resume, and emits the audit event. Returns the
+    new execution status string.
+    """
+    from ...models.audit_log import AuditAction
+    from ...orchestration.approval_step import (
+        build_response_envelope,
+        validate_response_schema,
+    )
+    from ...services.audit_service import AuditService
+
+    ok, err = validate_response_schema(suspension_payload, extra_fields or {})
+    if not ok:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=err or "approval response failed schema validation",
+        )
+
+    envelope = build_response_envelope(
+        decision=decision,
+        actor_user_id=actor_user.id,
+        suspension_payload=suspension_payload,
+        extra_fields=extra_fields,
+    )
+
+    try:
+        new_status = await get_executor().resume(execution_id, envelope)
+    except ExecutionNotFound:
+        # Race: the row vanished between the permission check and the
+        # resume call.  Same uniform 403 to keep the no-info-leak
+        # invariant — the row is effectively unreachable.
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden",
+        )
+    except ExecutionStateConflict as e:
+        # Two concurrent approve/reject calls — second one loses.
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(e),
+        )
+
+    audit_action = (
+        AuditAction.COMPOSITION_APPROVAL_APPROVED
+        if decision == "approved"
+        else AuditAction.COMPOSITION_APPROVAL_REJECTED
+    )
+    try:
+        await AuditService(db).log_action(
+            action=audit_action,
+            actor_id=actor_user.id,
+            organization_id=None,  # auditor will derive from execution
+            resource_type="composition_execution",
+            resource_id=str(execution_id),
+            details={
+                "step_id": suspension_payload.get("step_id"),
+                "decision": decision,
+            },
+        )
+    except Exception:
+        # Audit failures never break the user action.
+        pass
+
+    return new_status
+
+
+async def _impl_list_pending_approvals(
+    *,
+    limit: int,
+    offset: int,
+    user: User,
+    org_context: tuple,
+    db: AsyncSession,
+) -> "ExecutionListResponse":
+    """Filtered subset of pending approvals visible to the current user.
+
+    The actual route declaration lives near the top of the module so it
+    is registered BEFORE the ``/{execution_id}`` parametric route — see
+    :func:`_list_pending_approvals_route`. Keep this helper in sync.
+
+    Rules (mirror the per-row permission gate enforced by
+    :func:`_load_for_approver_or_403`):
+
+    - Execution must be in the caller's org.
+    - Status = ``suspended``.
+    - ``state.suspension.reason == 'approval'``.
+    - Caller's user_id is in ``payload.approver_user_ids`` OR caller's
+      role is in ``payload.allowed_roles``.
+    - Four-eyes: if caller IS the launcher and
+      ``allow_self_approval`` is false → excluded.
+
+    The filtering is done in-memory after a coarse SQL prefilter
+    (org + status). SQLite JSON ops are awkward enough that this is
+    simpler than a Postgres-specific WHERE; the volume of suspended
+    rows per org is bounded by the queue worker quota (50/user)
+    anyway, so the post-filter is cheap.
+    """
+    from ...orchestration.approval_step import can_approve
+
+    membership, org_id = org_context
+    actor_role = (
+        membership.role.value
+        if hasattr(membership.role, "value")
+        else str(membership.role)
+    )
+
+    candidates = (
+        await db.execute(
+            select(CompositionExecution)
+            .where(
+                CompositionExecution.organization_id == org_id,
+                CompositionExecution.status == ExecutionStatus.SUSPENDED.value,
+            )
+            .order_by(CompositionExecution.updated_at.desc())
+        )
+    ).scalars().all()
+
+    visible = []
+    for row in candidates:
+        suspension = (row.state or {}).get("suspension") or {}
+        if suspension.get("reason") != "approval":
+            continue
+        payload = suspension.get("payload") or {}
+        ok, _ = can_approve(payload, actor_user_id=user.id, actor_role=actor_role)
+        if ok:
+            visible.append(row)
+
+    total = len(visible)
+    page = visible[offset : offset + limit]
+    return ExecutionListResponse(
+        items=[_summarize_row(r) for r in page],
+        total=total,
+        limit=limit,
+        offset=offset,
+    )
+
+
+@router.post(
+    "/{execution_id}/approve",
+    summary="Approve a suspended composition execution",
+)
+async def approve_execution(
+    execution_id: UUID,
+    body: Optional[_ApprovalDecisionRequest] = None,
+    user: User = Depends(get_current_user_jwt),
+    db: AsyncSession = Depends(get_async_session),
+):
+    """Approve and resume an execution suspended on ``reason='approval'``.
+
+    Returns 200 with the new status, 403 (uniform) for any
+    permission/state failure, 409 on concurrent decision race, 422
+    on schema mismatch.
+    """
+    row, suspension_payload, _ = await _load_for_approver_or_403(
+        db, execution_id, user
+    )
+    extra = body.extra_fields if body else None
+    new_status = await _record_approval_decision(
+        db,
+        execution_id=execution_id,
+        suspension_payload=suspension_payload,
+        actor_user=user,
+        decision="approved",
+        extra_fields=extra,
+    )
+    return {
+        "execution_id": str(execution_id),
+        "status": new_status,
+        "decision": "approved",
+    }
+
+
+@router.post(
+    "/{execution_id}/reject",
+    summary="Reject a suspended composition execution",
+)
+async def reject_execution(
+    execution_id: UUID,
+    body: Optional[_ApprovalDecisionRequest] = None,
+    user: User = Depends(get_current_user_jwt),
+    db: AsyncSession = Depends(get_async_session),
+):
+    """Reject and resume an execution suspended on ``reason='approval'``.
+
+    Same permission/error shape as ``/approve``. The composition
+    step result carries ``decision='rejected'``; whether the
+    composition then fails or continues is governed by the step's
+    ``optional`` flag (B-0 contract).
+    """
+    row, suspension_payload, _ = await _load_for_approver_or_403(
+        db, execution_id, user
+    )
+    extra = body.extra_fields if body else None
+    new_status = await _record_approval_decision(
+        db,
+        execution_id=execution_id,
+        suspension_payload=suspension_payload,
+        actor_user=user,
+        decision="rejected",
+        extra_fields=extra,
+    )
+    return {
+        "execution_id": str(execution_id),
+        "status": new_status,
+        "decision": "rejected",
     }

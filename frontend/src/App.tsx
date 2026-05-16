@@ -18,6 +18,7 @@ import {
   CompositionsPage,
   ExecutionDetailPage,
   ExecutionsListPage,
+  PendingApprovalsPage,
 } from './pages/compositions'
 import {
   APIKeysPage,
@@ -131,6 +132,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ExecutionsListPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="compositions/approvals"
+            element={
+              <ProtectedRoute>
+                <PendingApprovalsPage />
               </ProtectedRoute>
             }
           />

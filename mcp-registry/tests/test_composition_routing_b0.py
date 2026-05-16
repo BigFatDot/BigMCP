@@ -150,6 +150,7 @@ def test_suspending_step_types_grows_with_each_phase():
     B-1.2: + ``wait_until`` (clock-driven auto-resume).
     B-1.3: + ``subcomposition`` (spawn another composition).
     B-1.5: + ``wait_callback`` (HMAC-signed external webhook).
+    B-1.4: + ``approval`` (cross-user elicitation, role/user gated).
     """
     expected = frozenset(
         {
@@ -158,6 +159,7 @@ def test_suspending_step_types_grows_with_each_phase():
             "wait_until",
             "subcomposition",
             "wait_callback",
+            "approval",
         }
     )
     assert SUSPENDING_STEP_TYPES == expected, (

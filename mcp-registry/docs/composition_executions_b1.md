@@ -287,8 +287,7 @@ and `pending_notification` schemas.
 - **B-1.1**: richer JSON-Schema → form mapping (sub-objects, arrays).
 - ~~**B-1.2**: `wait_until` step type (clock-driven resume).~~ ✅ Shipped.
 - ~~**B-1.3**: `subcomposition` step type (uses the B-0 propagation hook).~~ ✅ Shipped.
-- **B-1.4**: `approval` step type (cross-user elicitation, needs the
-  cross-user notification table deferred from B-0 §9).
+- ~~**B-1.4**: `approval` step type (cross-user elicitation, role/user gated).~~ ✅ Shipped.
 - ~~**B-1.5**: `wait_callback` step type (HMAC-signed external resume).~~ ✅ Shipped.
 
 ---
@@ -418,3 +417,86 @@ Config (all optional):
 Tests: 19 in test_wait_callback_step_b1.py + 8 in
 test_wait_callback_endpoint_b1.py + 6 in
 test_composition_promote_validation.py.
+
+---
+
+## B-1.4 — `approval` (shipped)
+
+Cross-user elicitation. The composition pauses; a different user
+(NOT the launcher, by default — four-eyes principle) approves or
+rejects via a dedicated REST flow.
+
+Reuses verbatim from elicit (B-1.0): ``coerce_ttl``,
+``resolve_message`` (prompt resolved at SUSPEND time), and the
+``elicit_step.validate_response`` helper for the optional
+``response_schema`` (rationale, ticket id, …).
+
+New for approval:
+- **Two-arm approver gate**: ``approver_user_ids`` (specific users)
+  OR ``allowed_roles`` (Owner/Admin/Member/Viewer). At least one of
+  the two must be set; both can be combined with OR semantics.
+- **Four-eyes default**: launcher excluded from both arms unless
+  the author opts in with ``allow_self_approval: true``.
+- **Same-org enforcement**: approver must have an
+  ``OrganizationMember`` row for the execution's org.
+- **Two terminal decisions**: ``approved`` / ``rejected``. Both
+  inject ``{decision, approved_by, approved_at, ...extra_fields}``
+  into the step result. Whether ``rejected`` fails the composition
+  is governed by the existing ``step.optional`` flag.
+- **Server-set, never spoofable**: ``decision``, ``approved_by``,
+  ``approved_at`` are always overridden by the endpoint regardless
+  of what the caller submits.
+
+REST surface:
+- ``GET /api/v1/compositions/executions/pending-approvals`` —
+  filtered queue for the current user (server-side runs the same
+  ``can_approve`` gate against every suspended-on-approval row in
+  the org and returns only the ones they can act on).
+- ``POST /api/v1/compositions/executions/{id}/approve`` and
+  ``/reject`` — uniform 403 on any permission/state failure (no
+  info leak), 409 on concurrent decision race, 422 on
+  ``response_schema`` mismatch.
+
+Audit: 3 new ``AuditAction`` values:
+``COMPOSITION_APPROVAL_REQUESTED / APPROVED / REJECTED``.
+
+UI:
+- pink "awaiting approval" badge in the executions list
+- "Approval requested" card in the detail page with Approve / Reject
+  buttons (or the ElicitForm-generated form when ``response_schema``
+  is declared) — server-side authorisation stays the single source
+  of truth, the UI just submits and lets 403 surface as a toast
+- new ``/app/compositions/approvals`` page listing pending approvals
+  for the current user, with a discovery link from the executions
+  list page header
+
+Config example:
+```json
+{
+  "step_id": "manager_approval",
+  "type": "approval",
+  "approval": {
+    "message": "Approve deletion of ${load.title}?",
+    "approver_user_ids": ["uuid-of-manager"],
+    "allowed_roles": ["admin", "owner"],
+    "response_schema": {
+      "type": "object",
+      "properties": {
+        "rationale": {"type": "string"}
+      }
+    },
+    "ttl_seconds": 86400,
+    "allow_self_approval": false
+  }
+}
+```
+
+Tests: 28 in test_approval_step_b1.py + 12 in
+test_approval_endpoint_b1.py + 7 in
+test_composition_promote_validation.py.
+
+**B-1 step type roadmap is complete after this.** Optional follow-up
+(B-1.4.1): plug the existing ``EmailService.send_email`` for opt-in
+email notification of approvers when an approval lands; the in-app
+``/app/compositions/approvals`` page already covers the no-email
+path.
