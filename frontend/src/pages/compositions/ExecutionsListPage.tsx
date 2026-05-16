@@ -28,7 +28,9 @@ import {
   executionsApi,
   type ExecutionStatus,
   type ExecutionSummary,
+  type SuspensionReason,
   NON_TERMINAL_STATUSES,
+  SUSPENSION_BADGES,
 } from '@/services/compositionExecutions'
 
 const POLL_INTERVAL_MS = 5_000
@@ -331,30 +333,25 @@ export function ExecutionsListPage() {
                           <span className="font-mono">
                             {it.suspension_reason}
                           </span>
-                          {it.suspension_reason === 'elicit' && (
-                            <span className="ml-1 px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 text-xs font-medium">
-                              needs response
-                            </span>
-                          )}
-                          {it.suspension_reason === 'wait_until' &&
-                            it.expires_at && (
-                              <span className="ml-1 px-1.5 py-0.5 rounded bg-blue-100 text-blue-800 text-xs font-medium">
-                                fires {formatRelativeFuture(it.expires_at)}
-                              </span>
-                            )}
-                          {it.suspension_reason === 'subcomposition' && (
-                            <span className="ml-1 px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 text-xs font-medium">
-                              child running
-                            </span>
-                          )}
-                          {it.suspension_reason === 'wait_callback' && (
-                            <span className="ml-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-medium">
-                              webhook pending
-                            </span>
-                          )}
-                          {it.suspension_reason === 'approval' && (
-                            <span className="ml-1 px-1.5 py-0.5 rounded bg-pink-100 text-pink-800 text-xs font-medium">
-                              awaiting approval
+                          {SUSPENSION_BADGES[
+                            it.suspension_reason as SuspensionReason
+                          ] && (
+                            <span
+                              className={`ml-1 px-1.5 py-0.5 rounded text-xs font-medium ${
+                                SUSPENSION_BADGES[
+                                  it.suspension_reason as SuspensionReason
+                                ].bg
+                              } ${
+                                SUSPENSION_BADGES[
+                                  it.suspension_reason as SuspensionReason
+                                ].text
+                              }`}
+                            >
+                              {it.suspension_reason === 'wait_until' && it.expires_at
+                                ? `fires ${formatRelativeFuture(it.expires_at)}`
+                                : SUSPENSION_BADGES[
+                                    it.suspension_reason as SuspensionReason
+                                  ].label}
                             </span>
                           )}
                         </>

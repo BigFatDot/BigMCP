@@ -11,7 +11,7 @@
  * land in B-1+ — they'll get their own bespoke widgets.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowLeftIcon,
@@ -34,7 +34,16 @@ import {
   NON_TERMINAL_STATUSES,
 } from '@/services/compositionExecutions'
 
-const POLL_INTERVAL_MS = 5_000
+// Detail-page polling is throttled compared to the list page: a
+// suspended row is OFTEN long-lived (elicit waiting for a human,
+// wait_until waiting for the clock, wait_callback waiting for an
+// external webhook). Tight polling burns network for no useful
+// signal — the user is already on the page and will Refresh
+// manually when they expect change.
+const POLL_INTERVAL_MS = 15_000
+// After this many ticks with no observable change, back off and
+// stop. The user can still hit Refresh manually.
+const POLL_MAX_QUIET_TICKS = 8
 
 const STATUS_BADGES: Record<
   ExecutionStatus,
@@ -88,6 +97,20 @@ function formatTime(iso: string | null): string {
   return d.toLocaleString()
 }
 
+function formatRelativeFuture(iso: string | null): string {
+  if (!iso) return ''
+  const then = new Date(iso).getTime()
+  const seconds = Math.floor((then - Date.now()) / 1000)
+  if (seconds <= 0) return 'now'
+  if (seconds < 60) return `in ${seconds}s`
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `in ${minutes}m`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `in ${hours}h`
+  const days = Math.floor(hours / 24)
+  return `in ${days}d`
+}
+
 export function ExecutionDetailPage() {
   const { executionId } = useParams<{ executionId: string }>()
   const navigate = useNavigate()
@@ -121,13 +144,43 @@ export function ExecutionDetailPage() {
     fetchDetail(false)
   }, [fetchDetail])
 
-  // Poll while non-terminal
+  // Poll while non-terminal — back off after POLL_MAX_QUIET_TICKS
+  // consecutive ticks where (status, updated_at) didn't change. Use
+  // refs to persist counters across the effect re-runs that happen
+  // every time `detail` changes (otherwise the local state would be
+  // reset on every fetch — silently never backing off).
+  const quietTicksRef = useRef(0)
+  const lastSignalRef = useRef<string | null>(null)
+  const pollStoppedRef = useRef(false)
+
   useEffect(() => {
     if (!detail) return
     if (!NON_TERMINAL_STATUSES.includes(detail.status)) return
+    if (pollStoppedRef.current) return  // already gave up
+
+    const currentSignal = `${detail.status}|${detail.updated_at}`
+    if (lastSignalRef.current === currentSignal) {
+      quietTicksRef.current += 1
+      if (quietTicksRef.current >= POLL_MAX_QUIET_TICKS) {
+        pollStoppedRef.current = true
+        return  // no interval scheduled — user can still Refresh
+      }
+    } else {
+      lastSignalRef.current = currentSignal
+      quietTicksRef.current = 0
+    }
+
     const t = setInterval(() => fetchDetail(true), POLL_INTERVAL_MS)
     return () => clearInterval(t)
   }, [detail, fetchDetail])
+
+  // Re-arm polling whenever the user clicks Refresh manually (they
+  // expect the page to be live again).
+  const handleManualRefresh = useCallback(async () => {
+    pollStoppedRef.current = false
+    quietTicksRef.current = 0
+    await fetchDetail(false)
+  }, [fetchDetail])
 
   const handleCancel = async () => {
     if (!executionId) return
@@ -209,6 +262,8 @@ export function ExecutionDetailPage() {
     suspensionReason === 'wait_callback' ? suspension?.payload : null
   const approvalPayload =
     suspensionReason === 'approval' ? suspension?.payload : null
+  const waitUntilPayload =
+    suspensionReason === 'wait_until' ? suspension?.payload : null
 
   const handleApprovalDecision = async (
     decision: 'approved' | 'rejected',
@@ -343,7 +398,7 @@ export function ExecutionDetailPage() {
             <Button
               variant="secondary"
               size="sm"
-              onClick={() => fetchDetail(false)}
+              onClick={handleManualRefresh}
               disabled={refreshing}
             >
               <ArrowPathIcon
@@ -400,6 +455,7 @@ export function ExecutionDetailPage() {
                 )
               }
               submitting={resuming}
+              submitLabel="Approve"
             />
           ) : (
             <div className="flex items-center gap-2">
@@ -426,7 +482,7 @@ export function ExecutionDetailPage() {
                 onClick={() => handleApprovalDecision('rejected')}
                 disabled={resuming}
               >
-                Reject without submitting the form
+                Reject
               </Button>
             </div>
           )}
@@ -507,6 +563,42 @@ export function ExecutionDetailPage() {
             >
               View child →
             </Link>
+          </p>
+        </Card>
+      )}
+
+      {/* Wait_until: show when the step will fire automatically (B-1.2).
+          Nothing to act on — the executor's expiry scanner handles the
+          resume — but the user wants to see how long they have to wait. */}
+      {waitUntilPayload && (waitUntilPayload.resume_at || detail.expires_at) && (
+        <Card padding="md" className="mb-4 border-blue-300 bg-blue-50">
+          <h3 className="text-sm font-semibold text-blue-900 mb-1">
+            Waiting for clock
+            {waitUntilPayload.step_id && (
+              <span className="font-mono text-xs ml-1">
+                (step{' '}
+                <span className="font-semibold">
+                  {waitUntilPayload.step_id}
+                </span>
+                )
+              </span>
+            )}
+          </h3>
+          <p className="text-sm text-blue-900">
+            Fires automatically at{' '}
+            <span className="font-mono">
+              {formatTime(waitUntilPayload.resume_at || detail.expires_at)}
+            </span>
+            {detail.expires_at && (
+              <>
+                {' '}—{' '}
+                <span className="font-semibold">
+                  {formatRelativeFuture(detail.expires_at)}
+                </span>
+              </>
+            )}
+            . No action needed; the executor's expiry scanner will resume
+            this step when the clock hits.
           </p>
         </Card>
       )}

@@ -43,6 +43,61 @@ export const NON_TERMINAL_STATUSES: ExecutionStatus[] = [
   'suspended',
 ]
 
+/**
+ * Known suspension reasons. The string is what the executor writes
+ * into ``state.suspension.reason`` for each step type — kept in sync
+ * with ``app/orchestration/composition_routing.SUSPENDING_STEP_TYPES``.
+ */
+export type SuspensionReason =
+  | '_test_suspend'
+  | 'elicit'
+  | 'wait_until'
+  | 'subcomposition'
+  | 'wait_callback'
+  | 'approval'
+
+/**
+ * Single source of truth for the suspension-reason badge colours +
+ * short labels. Both ExecutionsListPage and ExecutionDetailPage
+ * (and any future surface) import from here so a new step type
+ * stays consistent across screens.
+ */
+export const SUSPENSION_BADGES: Record<
+  SuspensionReason,
+  { label: string; bg: string; text: string }
+> = {
+  _test_suspend: {
+    label: 'test suspend',
+    bg: 'bg-gray-100',
+    text: 'text-gray-700',
+  },
+  elicit: {
+    label: 'needs response',
+    bg: 'bg-amber-200',
+    text: 'text-amber-900',
+  },
+  wait_until: {
+    label: 'waiting for clock',
+    bg: 'bg-blue-100',
+    text: 'text-blue-800',
+  },
+  subcomposition: {
+    label: 'child running',
+    bg: 'bg-purple-100',
+    text: 'text-purple-800',
+  },
+  wait_callback: {
+    label: 'webhook pending',
+    bg: 'bg-emerald-100',
+    text: 'text-emerald-800',
+  },
+  approval: {
+    label: 'awaiting approval',
+    bg: 'bg-pink-100',
+    text: 'text-pink-800',
+  },
+}
+
 export interface ExecutionSummary {
   id: string
   composition_id: string

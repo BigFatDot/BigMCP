@@ -40,6 +40,12 @@ interface ElicitFormProps {
   schema: ElicitSchema
   onSubmit: (response: unknown) => Promise<void>
   submitting: boolean
+  /**
+   * Override the submit button label. Defaults to "Submit response".
+   * Approval card passes "Approve" so the action is unambiguous to
+   * the operator. The submitting state always appends an ellipsis.
+   */
+  submitLabel?: string
 }
 
 function defaultForProperty(prop: ElicitSchemaProperty): unknown {
@@ -75,6 +81,7 @@ export function ElicitForm({
   schema,
   onSubmit,
   submitting,
+  submitLabel = 'Submit response',
 }: ElicitFormProps) {
   const renderable = useMemo(() => canRenderForm(schema), [schema])
   const required = useMemo(() => new Set(schema.required || []), [schema])
@@ -256,7 +263,7 @@ export function ElicitForm({
       )}
 
       <Button type="submit" disabled={submitting}>
-        {submitting ? 'Submitting…' : 'Submit response'}
+        {submitting ? `${submitLabel}…` : submitLabel}
       </Button>
     </form>
   )

@@ -64,6 +64,13 @@ export function Navbar() {
                 >
                   {t('nav.compositions')}
                 </Link>
+                <Link
+                  to="/app/compositions/executions"
+                  className="text-sm font-medium text-gray-700 hover:text-orange transition-colors"
+                  title="Running, suspended, and completed composition runs"
+                >
+                  Executions
+                </Link>
               </>
             )}
             <Link
