@@ -149,9 +149,16 @@ def test_suspending_step_types_grows_with_each_phase():
     B-1:   + ``elicit`` (human-in-the-loop, JSON-schema-validated).
     B-1.2: + ``wait_until`` (clock-driven auto-resume).
     B-1.3: + ``subcomposition`` (spawn another composition).
+    B-1.5: + ``wait_callback`` (HMAC-signed external webhook).
     """
     expected = frozenset(
-        {"_test_suspend", "elicit", "wait_until", "subcomposition"}
+        {
+            "_test_suspend",
+            "elicit",
+            "wait_until",
+            "subcomposition",
+            "wait_callback",
+        }
     )
     assert SUSPENDING_STEP_TYPES == expected, (
         f"SUSPENDING_STEP_TYPES drift: got {sorted(SUSPENDING_STEP_TYPES)}, "

@@ -289,7 +289,7 @@ and `pending_notification` schemas.
 - ~~**B-1.3**: `subcomposition` step type (uses the B-0 propagation hook).~~ ✅ Shipped.
 - **B-1.4**: `approval` step type (cross-user elicitation, needs the
   cross-user notification table deferred from B-0 §9).
-- **B-1.5**: `wait_callback` step type (HMAC-signed external resume).
+- ~~**B-1.5**: `wait_callback` step type (HMAC-signed external resume).~~ ✅ Shipped.
 
 ---
 
@@ -358,4 +358,63 @@ Constraints:
   ``mcp_session_id``, and ``client_capabilities``.
 
 Tests: 16 in test_subcomposition_step_b1.py + 6 in
+test_composition_promote_validation.py.
+
+---
+
+## B-1.5 — `wait_callback` (shipped)
+
+HMAC-protected webhook resume. Step suspends and exposes a
+per-execution per-step callback URL. An external system POSTs to
+that URL with a JSON body; the endpoint validates the token in
+constant time, optionally validates the body against an
+author-declared JSON Schema, and calls
+``executor.resume(execution_id, body)``.
+
+Pattern: useful for any integration where the parent kicks off an
+async external job (long-running pipeline, video render, batch
+import) and wants the executor to pause until that system pings
+back. Avoids polling.
+
+Security model:
+- Token: ``secrets.token_urlsafe(32)`` (~256 bits of entropy).
+  Only the SHA-256 hash lands in the DB alongside the suspension
+  payload. The plaintext lives in the ``callback_url`` field so
+  downstream steps can read it; that's the only DB copy.
+- Validation: ``hmac.compare_digest`` against the stored hash.
+  Endpoint returns a uniform 401 for bad-token / unknown-execution
+  / wrong-reason — no info leak about row existence.
+- Replay-after-success: 409 (atomic UPDATE WHERE status='suspended'
+  in resume() loses the race).
+- Body schema validation reuses the elicit helper (jsonschema),
+  returns 422 with the schema error path on mismatch — the row
+  stays suspended so the caller can retry.
+- TTL hard-cap 24h. Longer waits should split into multiple
+  wait_callbacks or use B-2 cron triggers.
+
+Module: ``app/orchestration/wait_callback_step.py``. Endpoint:
+``POST /api/v1/compositions/executions/{id}/callback/{token}`` —
+NO JWT required (the token IS the credential). Wired into the
+B-0 promote validator (defaults are valid; only bad shapes fail).
+UI: emerald "webhook pending" badge + a "copy callback URL" card
+in the detail page (with optional expected-schema preview).
+
+Config (all optional):
+```json
+{
+  "step_id": "wait_for_render",
+  "type": "wait_callback",
+  "wait_callback": {
+    "ttl_seconds": 1800,           // default 24h, hard cap 24h
+    "expected_schema": {           // optional, server-side validated
+      "type": "object",
+      "properties": {"render_url": {"type": "string"}},
+      "required": ["render_url"]
+    }
+  }
+}
+```
+
+Tests: 19 in test_wait_callback_step_b1.py + 8 in
+test_wait_callback_endpoint_b1.py + 6 in
 test_composition_promote_validation.py.

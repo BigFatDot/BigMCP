@@ -340,3 +340,108 @@ async def resume_execution(
         "execution_id": str(execution_id),
         "status": new_status,
     }
+
+
+# ---------------------------------------------------------------------------
+# CALLBACK (B-1.5) — HMAC-protected webhook resume, NO JWT
+# ---------------------------------------------------------------------------
+
+
+@router.post(
+    "/{execution_id}/callback/{token}",
+    summary=(
+        "External webhook resume — HMAC-protected, no JWT. The token IS "
+        "the auth; brute force is infeasible (32-byte entropy)."
+    ),
+)
+async def callback_execution(
+    execution_id: UUID,
+    token: str,
+    body: Optional[dict] = None,
+    db: AsyncSession = Depends(get_async_session),
+):
+    """Resume a ``wait_callback``-suspended execution via webhook.
+
+    NO authentication header required — the ``token`` segment in the
+    URL is the credential. It hashes (SHA-256, constant-time) against
+    the value stored at suspend time. Failures all return the same
+    401 shape ("Unauthorized") to avoid distinguishing
+    invalid-token vs wrong-state probes.
+
+    Body shape: any JSON the external system wants to ship. When the
+    author declared ``wait_callback.expected_schema``, the body is
+    validated against it; mismatch → 422.
+
+    Race/idempotence: the executor's atomic UPDATE WHERE
+    status='suspended' RETURNING means a token replayed after a
+    successful resume hits a 409 (no state change).
+    """
+    from ...orchestration.wait_callback_step import validate_callback
+
+    # Single SELECT — no ownership join because there's no user
+    # context. The token IS the authorisation.
+    row = (
+        await db.execute(
+            select(CompositionExecution).where(
+                CompositionExecution.id == execution_id
+            )
+        )
+    ).scalar_one_or_none()
+    if row is None:
+        # Same 401 as a bad token — no info leak about row existence.
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+        )
+    if row.status != ExecutionStatus.SUSPENDED.value:
+        # Already resumed / cancelled / expired — 409.
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"Execution is {row.status!r}, not 'suspended'. "
+                "Callback token can only fire once."
+            ),
+        )
+    suspension = (row.state or {}).get("suspension") or {}
+    if suspension.get("reason") != "wait_callback":
+        # Suspended on a different reason — 401 (no leak).
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+        )
+
+    payload = suspension.get("payload") or {}
+    received_body = body if body is not None else {}
+    ok, err = validate_callback(payload, token, received_body)
+    if not ok:
+        # Distinguish token failure from schema failure for callers
+        # — the token check failed → 401; the schema check failed →
+        # 422 with the helpful detail.
+        if err == "invalid token" or err == "execution is not waiting on a callback":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Unauthorized",
+            )
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=err or "callback body failed schema validation",
+        )
+
+    try:
+        new_status = await get_executor().resume(execution_id, received_body)
+    except ExecutionNotFound:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+        )
+    except ExecutionStateConflict:
+        # Two concurrent callbacks; second one loses the race.
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Execution was resumed concurrently",
+        )
+
+    return {
+        "execution_id": str(execution_id),
+        "status": new_status,
+    }

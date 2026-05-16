@@ -338,6 +338,11 @@ export function ExecutionsListPage() {
                               child running
                             </span>
                           )}
+                          {it.suspension_reason === 'wait_callback' && (
+                            <span className="ml-1 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-xs font-medium">
+                              webhook pending
+                            </span>
+                          )}
                         </>
                       )}
                     </div>

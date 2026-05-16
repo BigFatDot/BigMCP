@@ -415,3 +415,64 @@ async def test_subcomposition_validator_ignores_non_subcomp_steps(
     )
     err = await _validate_subcomposition_steps_for_production(db_session, parent)
     assert err is None
+
+
+# ---------------------------------------------------------------------------
+# B-1.5: wait_callback step validation at promote time
+# ---------------------------------------------------------------------------
+
+
+from app.services.composition_service import (
+    _validate_wait_callback_steps_for_production,
+)
+
+
+def test_wait_callback_defaults_pass():
+    steps = [{"step_id": "wh", "type": "wait_callback"}]
+    assert _validate_wait_callback_steps_for_production(_Comp({}, steps)) is None
+
+
+def test_wait_callback_empty_object_passes():
+    steps = [{"step_id": "wh", "type": "wait_callback", "wait_callback": {}}]
+    assert _validate_wait_callback_steps_for_production(_Comp({}, steps)) is None
+
+
+def test_wait_callback_non_dict_rejected():
+    steps = [{
+        "step_id": "wh",
+        "type": "wait_callback",
+        "wait_callback": "bogus",
+    }]
+    err = _validate_wait_callback_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "wh" in err
+
+
+def test_wait_callback_bad_schema_rejected():
+    steps = [{
+        "step_id": "wh",
+        "type": "wait_callback",
+        "wait_callback": {"expected_schema": "not a dict"},
+    }]
+    err = _validate_wait_callback_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "expected_schema" in err
+
+
+def test_wait_callback_ttl_out_of_range_rejected():
+    steps = [{
+        "step_id": "wh",
+        "type": "wait_callback",
+        "wait_callback": {"ttl_seconds": 10**6},
+    }]
+    err = _validate_wait_callback_steps_for_production(_Comp({}, steps))
+    assert err is not None
+    assert "ttl_seconds" in err
+
+
+def test_wait_callback_validator_ignores_non_callback_steps():
+    steps = [
+        {"step_id": "1", "type": "tool", "tool": "noop"},
+        {"step_id": "2", "type": "_test_suspend"},
+    ]
+    assert _validate_wait_callback_steps_for_production(_Comp({}, steps)) is None

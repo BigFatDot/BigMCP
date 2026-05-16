@@ -481,6 +481,18 @@ class ResumableExecutor:
 
                 return await _dispatch_subcomp(step, state, execution)
 
+            if step_type == "wait_callback":
+                # B-1.5: HMAC-protected webhook resume. Generates a
+                # per-execution per-step token, stores only its hash,
+                # ships the plaintext token inside callback_url so
+                # downstream steps can pass it to the external system.
+                # The REST endpoint at
+                # /api/v1/compositions/executions/{id}/callback/{token}
+                # validates + fires executor.resume.
+                from .wait_callback_step import build_suspend as _build_callback
+
+                return _build_callback(step, state, execution.id)
+
             if step_type == "tool":
                 if self._tool_dispatcher is None:
                     raise ToolDispatchUnconfigured(

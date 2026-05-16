@@ -191,6 +191,8 @@ export function ExecutionDetailPage() {
               child_execution_id?: string
               target_composition_id?: string
               resume_at?: string
+              callback_url?: string
+              expected_schema?: Record<string, unknown>
             }
           }
         | null
@@ -200,6 +202,8 @@ export function ExecutionDetailPage() {
   const suspensionReason = suspension?.reason ?? null
   const subcompositionChild =
     suspensionReason === 'subcomposition' ? suspension?.payload : null
+  const callbackPayload =
+    suspensionReason === 'wait_callback' ? suspension?.payload : null
 
   if (loading) {
     return (
@@ -326,6 +330,50 @@ export function ExecutionDetailPage() {
           </div>
         </div>
       </Card>
+
+      {/* Wait_callback: expose the webhook URL so authors can copy it
+          into the external system (B-1.5). Plaintext token is in the
+          URL, so we treat it as a credential — flag the copy action
+          to the user. */}
+      {callbackPayload && callbackPayload.callback_url && (
+        <Card padding="md" className="mb-4 border-emerald-300 bg-emerald-50">
+          <h3 className="text-sm font-semibold text-emerald-900 mb-1">
+            Waiting on webhook callback
+          </h3>
+          <p className="text-xs text-emerald-800 mb-2">
+            POST to this URL from your external system to resume the
+            execution. The token in the URL is a one-shot credential —
+            never share it broadly.
+          </p>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 break-all text-xs font-mono bg-white border border-emerald-200 rounded p-2">
+              {callbackPayload.callback_url}
+            </code>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                navigator.clipboard
+                  .writeText(callbackPayload.callback_url || '')
+                  .then(() => toast.success('Callback URL copied'))
+                  .catch(() => toast.error('Copy failed'))
+              }}
+            >
+              Copy
+            </Button>
+          </div>
+          {callbackPayload.expected_schema && (
+            <details className="mt-2 text-xs">
+              <summary className="cursor-pointer text-emerald-900">
+                Expected body schema
+              </summary>
+              <pre className="mt-1 text-xs font-mono whitespace-pre-wrap bg-white border border-emerald-200 rounded p-2 max-h-40 overflow-auto">
+                {JSON.stringify(callbackPayload.expected_schema, null, 2)}
+              </pre>
+            </details>
+          )}
+        </Card>
+      )}
 
       {/* Subcomposition: link to the child execution (B-1.3) */}
       {subcompositionChild && subcompositionChild.child_execution_id && (

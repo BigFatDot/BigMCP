@@ -52,11 +52,11 @@ logger = logging.getLogger("orchestration.composition_routing")
 
 # Step types that can yield a Suspend signal. B-0 ships
 # ``_test_suspend`` (debug); B-1 adds ``elicit`` (human-in-the-loop),
-# ``wait_until`` (clock-driven), and ``subcomposition`` (calls
-# another composition). B-1.4+ will add ``wait_callback``,
-# ``approval``.
+# ``wait_until`` (clock-driven), ``subcomposition`` (calls another
+# composition), and ``wait_callback`` (HMAC-signed external webhook).
+# B-1.4 will add ``approval`` (cross-user elicitation).
 SUSPENDING_STEP_TYPES: frozenset[str] = frozenset(
-    {"_test_suspend", "elicit", "wait_until", "subcomposition"}
+    {"_test_suspend", "elicit", "wait_until", "subcomposition", "wait_callback"}
 )
 
 
