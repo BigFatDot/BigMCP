@@ -24,6 +24,7 @@ export interface Branding {
   support_email: string | null
   instance_url: string | null
   legal_entity: string | null
+  welcome_message: string | null
   setup_completed: boolean
   customized: boolean
 }
@@ -37,6 +38,7 @@ const DEFAULT_BRANDING: Branding = {
   support_email: null,
   instance_url: null,
   legal_entity: null,
+  welcome_message: null,
   setup_completed: true,
   customized: false,
 }

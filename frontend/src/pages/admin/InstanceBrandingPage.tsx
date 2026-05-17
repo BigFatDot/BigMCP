@@ -27,6 +27,7 @@ type FormState = {
   support_email: string
   instance_url: string
   legal_entity: string
+  welcome_message: string
 }
 
 function toForm(b: Branding): FormState {
@@ -39,6 +40,7 @@ function toForm(b: Branding): FormState {
     support_email: b.support_email ?? '',
     instance_url: b.instance_url ?? '',
     legal_entity: b.legal_entity ?? '',
+    welcome_message: b.welcome_message ?? '',
   }
 }
 
@@ -97,6 +99,7 @@ export function InstanceBrandingPage() {
       support_email: '',
       instance_url: '',
       legal_entity: '',
+      welcome_message: '',
     }
     setForm(empty)
     setSaving(true)
@@ -245,6 +248,29 @@ export function InstanceBrandingPage() {
                 hint="Used by composition results and MCP responses so external systems link back to your domain, not bigmcp.cloud."
               />
             </div>
+          </Card>
+
+          <Card padding="md">
+            <h2 className="text-sm font-semibold text-gray-900 mb-1">Welcome message</h2>
+            <p className="text-xs text-gray-600 mb-3">
+              Shown on the public landing page (<code>/</code>) when this is a self-hosted
+              instance with branding customized. Markdown-lite: paragraphs separated by
+              blank lines, inline links as <code>[label](url)</code>. Keep it under ~4KB
+              — longer onboarding belongs in <code>/docs</code>.
+            </p>
+            <textarea
+              value={form.welcome_message}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, welcome_message: e.target.value }))
+              }
+              rows={6}
+              maxLength={4096}
+              placeholder="Welcome to our internal MCP gateway. Sign in with your work account to access [your docs](https://docs.example.com)."
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-orange focus:border-orange"
+            />
+            <p className="mt-1 text-xs text-gray-500 text-right">
+              {form.welcome_message.length} / 4096
+            </p>
           </Card>
 
           <div className="flex items-center justify-between pt-2">

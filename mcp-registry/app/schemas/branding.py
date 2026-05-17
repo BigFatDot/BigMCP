@@ -21,6 +21,7 @@ class BrandingResponse(BaseModel):
     support_email: Optional[str] = None
     instance_url: Optional[str] = None
     legal_entity: Optional[str] = None
+    welcome_message: Optional[str] = None
     setup_completed: bool
     customized: bool
 
@@ -37,6 +38,9 @@ class BrandingUpdate(BaseModel):
     support_email: Optional[str] = Field(default=None, max_length=254)
     instance_url: Optional[str] = Field(default=None, max_length=2048)
     legal_entity: Optional[str] = Field(default=None, max_length=240)
+    # 4KB soft cap on the markdown welcome body — enough for a
+    # paragraph and a couple of links. Longer content belongs in docs.
+    welcome_message: Optional[str] = Field(default=None, max_length=4096)
 
     @field_validator("primary_color")
     @classmethod

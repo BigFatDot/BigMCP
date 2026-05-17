@@ -19,7 +19,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 from uuid import UUID
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..db.base import Base
@@ -60,6 +60,13 @@ class InstanceSettings(Base):
     support_email: Mapped[Optional[str]] = mapped_column(String(254), nullable=True)
     instance_url: Mapped[Optional[str]] = mapped_column(String(2048), nullable=True)
     legal_entity: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
+
+    # Optional markdown welcome message for the self-hosted landing
+    # page (the SaaS marketing page is replaced by a sober welcome
+    # screen when edition != cloud_saas and branding is customized).
+    # 4KB cap is enough for a paragraph + a couple of links; longer
+    # belongs in docs.
+    welcome_message: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # Setup wizard one-shot flag. Migrations on existing instances seed
     # this to True (instance already in production use); fresh deploys

@@ -44,6 +44,7 @@ _DEFAULTS = {
     "support_email": None,
     "instance_url": None,         # None → frontend uses window.location.origin
     "legal_entity": None,
+    "welcome_message": None,      # None → no markdown body on landing page
 }
 
 
@@ -63,6 +64,7 @@ class Branding:
     support_email: Optional[str]
     instance_url: Optional[str]
     legal_entity: Optional[str]
+    welcome_message: Optional[str]
     setup_completed: bool
     # ``customized`` tells the frontend whether to keep the built-in
     # BigMCP look (False) or render the custom one (True). Cheap signal
@@ -83,6 +85,7 @@ _ENV_KEYS = {
     "support_email": "INSTANCE_SUPPORT_EMAIL",
     "instance_url": "INSTANCE_URL",
     "legal_entity": "INSTANCE_LEGAL_ENTITY",
+    "welcome_message": "INSTANCE_WELCOME_MESSAGE",
 }
 
 
@@ -133,6 +136,7 @@ async def resolve_branding(db: AsyncSession) -> Branding:
     support_email = _pick("support_email", _DEFAULTS["support_email"])
     instance_url = _pick("instance_url", _DEFAULTS["instance_url"])
     legal_entity = _pick("legal_entity", _DEFAULTS["legal_entity"])
+    welcome_message = _pick("welcome_message", _DEFAULTS["welcome_message"])
     setup_completed = bool(getattr(row, "setup_completed", True)) if row else True
 
     # "Customized" = anything beyond defaults is set. We compare each
@@ -146,6 +150,7 @@ async def resolve_branding(db: AsyncSession) -> Branding:
         or bool(support_email)
         or bool(instance_url)
         or bool(legal_entity)
+        or bool(welcome_message)
     )
 
     return Branding(
@@ -157,6 +162,7 @@ async def resolve_branding(db: AsyncSession) -> Branding:
         support_email=support_email,
         instance_url=instance_url,
         legal_entity=legal_entity,
+        welcome_message=welcome_message,
         setup_completed=setup_completed,
         customized=customized,
     )

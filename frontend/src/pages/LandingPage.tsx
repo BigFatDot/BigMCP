@@ -12,14 +12,36 @@ import { Button } from '@/components/ui'
 import { BigMCPLogo, BigMCPLogoWithText } from '@/components/brand/BigMCPLogo'
 import { PhoneMockup } from '@/components/landing/PhoneMockup'
 import { usePageMeta } from '@/hooks/usePageMeta'
+import { useBranding } from '@/contexts/BrandingContext'
+import { useEdition } from '@/hooks/useAuth'
+import { SelfHostedLandingPage } from './SelfHostedLanding'
 
 export function LandingPage() {
   const { t } = useTranslation('landing')
+  const { branding, isLoading: brandingLoading } = useBranding()
+  const { isCloudSaaS, editionLoading } = useEdition()
 
+  // Self-hosted + customized → sober welcome screen instead of the
+  // SaaS marketing pitch. Wait for both signals so we don't flash the
+  // wrong page on first paint.
+  const isLoading = brandingLoading || editionLoading
+  const shouldShowSelfHosted = !isLoading && !isCloudSaaS && branding.customized
+
+  // Hook calls must precede any conditional return — usePageMeta is
+  // only meaningful for the SaaS variant since SelfHostedLandingPage
+  // calls it itself.
   usePageMeta({
-    title: 'BigMCP - Unified MCP Server Gateway',
-    description: 'Connect, manage, and orchestrate all your MCP servers in one place. Natural language workflows with AI-powered composition.',
+    title: shouldShowSelfHosted
+      ? branding.instance_name
+      : 'BigMCP - Unified MCP Server Gateway',
+    description: shouldShowSelfHosted
+      ? branding.instance_tagline
+      : 'Connect, manage, and orchestrate all your MCP servers in one place. Natural language workflows with AI-powered composition.',
   })
+
+  if (shouldShowSelfHosted) {
+    return <SelfHostedLandingPage />
+  }
 
   return (
     <div className="min-h-screen bg-white">
