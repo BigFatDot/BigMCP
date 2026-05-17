@@ -4,8 +4,8 @@
     {
       "id": "approval-gated-action",
       "title": "Approval-gated action",
-      "description": "Human-in-the-loop: gather inputs, ask a second user to approve, then execute. Demonstrates the approval step with four-eyes default.",
-      "step_types": ["elicit", "approval", "tool"],
+      "description": "Human-in-the-loop: gather inputs, then require a second user to approve. Demonstrates the approval step with four-eyes default.",
+      "step_types": ["elicit", "approval"],
       "category": "human-in-the-loop",
       "composition": {
         "name": "approval_gated_action",
@@ -50,9 +50,9 @@
     },
     {
       "id": "scheduled-summary",
-      "title": "Wait + execute",
-      "description": "Suspend until a future ISO timestamp (or 1h from now), then run a tool. Demonstrates wait_until for time-driven workflows.",
-      "step_types": ["wait_until", "tool"],
+      "title": "Scheduled wait",
+      "description": "Suspend until a future ISO timestamp (or 1h from now). Demonstrates wait_until for time-driven workflows. Add a tool step after the wait to actually do something.",
+      "step_types": ["wait_until"],
       "category": "time-driven",
       "composition": {
         "name": "delayed_action",

@@ -348,9 +348,10 @@ export function InstanceBrandingPage() {
 
             <Card padding="md" className="bg-amber-50 border-amber-200">
               <p className="text-xs text-amber-800">
-                <strong>Tip:</strong> hardcoded headers / hero text on the public landing
-                page stay as-is. The branding here changes the app shell, login screens,
-                emails, and MCP response URLs.
+                <strong>Tip:</strong> on a non-SaaS deploy, customizing branding swaps the
+                public landing page (<code>/</code>) for a sober welcome screen with your
+                logo, name and tagline — see <code>Welcome message</code> above to add
+                your own intro text.
               </p>
             </Card>
           </div>
