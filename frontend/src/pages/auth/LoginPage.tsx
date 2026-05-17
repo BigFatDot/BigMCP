@@ -10,6 +10,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import { InstanceLogoWithText } from '../../components/brand/InstanceLogo'
+import { useBranding } from '../../contexts/BrandingContext'
 import { TOTPInput, SsoButtons } from '../../components/auth'
 import { EnvelopeIcon, ArrowPathIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 import { mfaApi } from '../../services/marketplace'
@@ -21,6 +22,7 @@ export function LoginPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { login, deploymentConfig } = useAuth()
+  const { branding } = useBranding()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -157,7 +159,7 @@ export function LoginPage() {
               </h1>
               <p className="text-gray-600">
                 {deploymentConfig.is_cloud
-                  ? t('login.subtitle')
+                  ? t('login.subtitle', { brand: branding.instance_name })
                   : t('login.subtitleSelfHosted')}
               </p>
             </div>

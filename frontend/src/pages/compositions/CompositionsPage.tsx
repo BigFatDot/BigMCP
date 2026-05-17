@@ -1170,7 +1170,7 @@ export function CompositionsPage() {
                   Start from a template
                 </h3>
                 <span className="text-xs text-gray-500">
-                  One per B-1 step type — opens the JSON editor pre-filled.
+                  Click a card to open the JSON editor pre-filled with a working scaffold.
                 </span>
               </div>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">

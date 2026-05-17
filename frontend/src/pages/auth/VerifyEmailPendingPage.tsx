@@ -8,7 +8,8 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { BigMCPLogoWithText } from '../../components/brand/BigMCPLogo'
+import { InstanceLogoWithText } from '../../components/brand/InstanceLogo'
+import { useBranding } from '../../contexts/BrandingContext'
 import { EnvelopeIcon, ArrowPathIcon, CheckCircleIcon } from '@heroicons/react/24/outline'
 
 const API_BASE = '/api/v1'
@@ -16,6 +17,7 @@ const API_BASE = '/api/v1'
 export function VerifyEmailPendingPage() {
   const { t } = useTranslation('auth')
   const location = useLocation()
+  const { branding } = useBranding()
   const email = location.state?.email || ''
 
   const [isResending, setIsResending] = useState(false)
@@ -60,7 +62,7 @@ export function VerifyEmailPendingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
-              <BigMCPLogoWithText size="sm" textSize="md" />
+              <InstanceLogoWithText size="sm" textSize="md" />
             </Link>
           </div>
         </div>
@@ -92,7 +94,7 @@ export function VerifyEmailPendingPage() {
             )}
 
             <p className="text-gray-600 mb-8">
-              {t('verify.clickToVerify')}
+              {t('verify.clickToVerify', { brand: branding.instance_name })}
             </p>
 
             {/* Resend Success */}

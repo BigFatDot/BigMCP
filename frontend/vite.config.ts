@@ -48,9 +48,15 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//, /^\/edition\//],
         runtimeCaching: [
           {
-            // Cache locale JSON files (lazy-loaded by i18next-http-backend)
+            // Lazy-loaded i18n catalogs (loaded by i18next-http-backend).
+            // StaleWhileRevalidate so a new release's strings reach the
+            // user on the NEXT page load instead of the next 7-day TTL
+            // — the UI tour caught raw i18n keys lingering after a docs
+            // update because the previous CacheFirst served the stale
+            // copy for up to a week. SWR returns the cached copy
+            // immediately AND triggers a background refresh.
             urlPattern: /\/locales\/.+\.json$/,
-            handler: 'CacheFirst',
+            handler: 'StaleWhileRevalidate',
             options: {
               cacheName: 'i18n-locales',
               expiration: {
