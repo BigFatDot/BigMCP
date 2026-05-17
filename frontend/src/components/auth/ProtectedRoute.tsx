@@ -8,6 +8,7 @@
 
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { useBranding } from '../../contexts/BrandingContext'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -18,7 +19,8 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({
   children,
 }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading } = useAuth()
+  const { isAuthenticated, isLoading, user } = useAuth()
+  const { branding, isLoading: brandingLoading } = useBranding()
   const location = useLocation()
 
   // Show loading state while checking authentication
@@ -38,6 +40,20 @@ export function ProtectedRoute({
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  // All features available — no subscription or tier checks
+  // First-run setup wizard: bounce the instance admin to the wizard
+  // until they finish it. Skip the redirect if branding hasn't loaded
+  // yet (avoids a flash to the wizard during the initial fetch) and
+  // if they're already on the wizard route.
+  const isInstanceAdmin = !!user?.is_instance_admin
+  const onWizard = location.pathname.startsWith('/app/instance-setup')
+  if (
+    !brandingLoading
+    && isInstanceAdmin
+    && !branding.setup_completed
+    && !onWizard
+  ) {
+    return <Navigate to="/app/instance-setup" replace />
+  }
+
   return <>{children}</>
 }

@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { ToastProvider } from './components/ui'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
+import { BrandingProvider } from './contexts/BrandingContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { MainLayout } from './components/layout/MainLayout'
 import { MarketplaceBrowser } from './components/marketplace/MarketplaceBrowser'
@@ -40,6 +41,8 @@ import { MarketplaceCurationPage } from './pages/admin/MarketplaceCurationPage'
 import { DefaultPoolPage } from './pages/admin/DefaultPoolPage'
 import { CompositionsReviewPage } from './pages/admin/CompositionsReviewPage'
 import { CompositionMetricsPage } from './pages/admin/CompositionMetricsPage'
+import { InstanceBrandingPage } from './pages/admin/InstanceBrandingPage'
+import { InstanceSetupWizard } from './pages/setup/InstanceSetupWizard'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
@@ -47,6 +50,7 @@ import { ReloadPrompt } from './components/pwa/ReloadPrompt'
 
 function App() {
   return (
+    <BrandingProvider>
     <AuthProvider>
       {/* Toast Notifications */}
       <ToastProvider />
@@ -289,6 +293,22 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="admin/instance-branding"
+            element={
+              <ProtectedRoute>
+                <InstanceBrandingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="instance-setup"
+            element={
+              <ProtectedRoute>
+                <InstanceSetupWizard />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* 404 Catch-all */}
@@ -298,6 +318,7 @@ function App() {
       {/* PWA Update Prompt */}
       <ReloadPrompt />
     </AuthProvider>
+    </BrandingProvider>
   )
 }
 

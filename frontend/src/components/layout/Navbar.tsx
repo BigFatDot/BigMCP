@@ -22,9 +22,10 @@ import {
   MapPinIcon,
   BoltIcon,
   ChartBarIcon,
+  BuildingOfficeIcon,
 } from '@heroicons/react/24/outline'
 import { useAuth, useSubscription, useEdition } from '../../hooks/useAuth'
-import { BigMCPLogoWithText } from '../brand/BigMCPLogo'
+import { InstanceLogoWithText } from '../brand/InstanceLogo'
 
 export function Navbar() {
   const { t } = useTranslation('common')
@@ -40,7 +41,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/app" className="flex items-center">
-            <BigMCPLogoWithText size="sm" textSize="md" />
+            <InstanceLogoWithText size="sm" textSize="md" />
           </Link>
 
           {/* Navigation Links */}
@@ -300,6 +301,14 @@ export function Navbar() {
                             >
                               <ChartBarIcon className="h-5 w-5 text-gray-400" />
                               Composition metrics
+                            </Link>
+                            <Link
+                              to="/app/admin/instance-branding"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <BuildingOfficeIcon className="h-5 w-5 text-gray-400" />
+                              Instance branding
                             </Link>
                           </div>
                         )}

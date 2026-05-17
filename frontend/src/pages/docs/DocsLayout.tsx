@@ -17,7 +17,7 @@ import {
   ChevronRightIcon,
   MagnifyingGlassIcon,
 } from '@heroicons/react/24/outline'
-import { BigMCPLogoWithText } from '@/components/brand/BigMCPLogo'
+import { InstanceLogoWithText } from '@/components/brand/InstanceLogo'
 import { cn } from '@/utils/cn'
 import { docsNavigation, getDefaultDoc } from './navigation'
 
@@ -205,7 +205,7 @@ export function DocsLayout() {
       <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-white border-b border-gray-200">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center">
-            <BigMCPLogoWithText size="sm" textSize="md" />
+            <InstanceLogoWithText size="sm" textSize="md" />
           </Link>
           <button
             onClick={() => setSidebarOpen(true)}
@@ -226,7 +226,7 @@ export function DocsLayout() {
           <div className="absolute left-0 top-0 bottom-0 w-72 bg-white shadow-xl">
             <div className="flex items-center justify-between px-4 h-16 border-b border-gray-200">
               <Link to="/" className="flex items-center">
-                <BigMCPLogoWithText size="sm" textSize="md" />
+                <InstanceLogoWithText size="sm" textSize="md" />
               </Link>
               <button
                 onClick={() => setSidebarOpen(false)}
@@ -245,7 +245,7 @@ export function DocsLayout() {
         {/* Logo */}
         <div className="flex items-center px-6 h-16 border-b border-gray-200 bg-white">
           <Link to="/" className="flex items-center">
-            <BigMCPLogoWithText size="sm" textSize="md" />
+            <InstanceLogoWithText size="sm" textSize="md" />
           </Link>
           <span className="ml-3 px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded">
             {t('layout.badge')}

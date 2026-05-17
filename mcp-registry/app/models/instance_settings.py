@@ -19,7 +19,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 from uuid import UUID
 
-from sqlalchemy import CheckConstraint, DateTime, ForeignKey, Integer, func
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, Integer, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from ..db.base import Base
@@ -43,6 +43,29 @@ class InstanceSettings(Base):
     # env-var defaults under whatever is stored here.
     client_control: Mapped[Dict[str, Any]] = mapped_column(
         JSONType, nullable=False, default=dict
+    )
+
+    # ------------------------------------------------------------------
+    # White-label branding (self-hosted persona).
+    # ------------------------------------------------------------------
+    # Every field is nullable so a fresh instance falls back to env vars
+    # (INSTANCE_NAME, INSTANCE_LOGO_URL, ...) and ultimately to the
+    # built-in BigMCP defaults. The /api/v1/instance/branding endpoint
+    # returns the merged view; admin PATCH only writes here.
+    instance_name: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
+    instance_tagline: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
+    logo_url: Mapped[Optional[str]] = mapped_column(String(2048), nullable=True)
+    favicon_url: Mapped[Optional[str]] = mapped_column(String(2048), nullable=True)
+    primary_color: Mapped[Optional[str]] = mapped_column(String(16), nullable=True)
+    support_email: Mapped[Optional[str]] = mapped_column(String(254), nullable=True)
+    instance_url: Mapped[Optional[str]] = mapped_column(String(2048), nullable=True)
+    legal_entity: Mapped[Optional[str]] = mapped_column(String(240), nullable=True)
+
+    # Setup wizard one-shot flag. Migrations on existing instances seed
+    # this to True (instance already in production use); fresh deploys
+    # default to False so the first instance admin lands on the wizard.
+    setup_completed: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
     )
 
     updated_at: Mapped[datetime] = mapped_column(

@@ -18,6 +18,8 @@ from .subscriptions import router as subscriptions_router
 from .webhooks import router as webhooks_router
 from .admin import router as admin_router
 from .admin_registry import router as admin_registry_router
+from .branding import public_router as instance_branding_public_router
+from .branding import admin_router as instance_branding_admin_router
 
 
 # Main API router for v1
@@ -96,6 +98,12 @@ api_router.include_router(
     admin_registry_router,
     tags=["Instance Admin - Registry"]
 )
+
+# Instance branding: a public GET (login page hydration) + admin PATCH
+# behind require_instance_admin. Both share the singleton row in
+# instance_settings (extended in migration add_instance_branding).
+api_router.include_router(instance_branding_public_router)
+api_router.include_router(instance_branding_admin_router)
 
 
 __all__ = ["api_router"]

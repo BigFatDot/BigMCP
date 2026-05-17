@@ -9,7 +9,7 @@ import { useState, FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
-import { BigMCPLogoWithText } from '../../components/brand/BigMCPLogo'
+import { InstanceLogoWithText } from '../../components/brand/InstanceLogo'
 
 export function SignupPage() {
   const { t } = useTranslation('auth')
@@ -77,7 +77,7 @@ export function SignupPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
-              <BigMCPLogoWithText size="sm" textSize="md" />
+              <InstanceLogoWithText size="sm" textSize="md" />
             </Link>
 
             <Link

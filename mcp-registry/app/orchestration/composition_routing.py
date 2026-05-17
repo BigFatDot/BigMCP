@@ -149,7 +149,19 @@ async def route_composition_call(
     # can be refined later — for B-0 the uniform payload is safe and
     # informative for all clients.
     resource_uri = f"composition://executions/{execution_id}"
-    webapp_url = f"https://bigmcp.cloud/app/compositions/executions/{execution_id}"
+    # Webapp URL uses INSTANCE_URL (or DOMAIN as legacy fallback) so a
+    # self-hosted deploy doesn't ship clients a bigmcp.cloud link they
+    # can't reach. Defaults to bigmcp.cloud only if neither is set —
+    # matches existing prod behaviour.
+    import os
+    _instance_base = (
+        (os.environ.get("INSTANCE_URL") or "").rstrip("/")
+        or (os.environ.get("DOMAIN") or "").rstrip("/")
+        or "https://bigmcp.cloud"
+    )
+    if not _instance_base.startswith("http"):
+        _instance_base = f"https://{_instance_base}"
+    webapp_url = f"{_instance_base}/app/compositions/executions/{execution_id}"
 
     return {
         "execution_id": str(execution_id),

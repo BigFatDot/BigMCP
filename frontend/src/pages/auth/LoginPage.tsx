@@ -9,7 +9,7 @@ import { useState, FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
-import { BigMCPLogoWithText } from '../../components/brand/BigMCPLogo'
+import { InstanceLogoWithText } from '../../components/brand/InstanceLogo'
 import { TOTPInput, SsoButtons } from '../../components/auth'
 import { EnvelopeIcon, ArrowPathIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 import { mfaApi } from '../../services/marketplace'
@@ -132,7 +132,7 @@ export function LoginPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center">
-              <BigMCPLogoWithText size="sm" textSize="md" />
+              <InstanceLogoWithText size="sm" textSize="md" />
             </Link>
 
             <Link

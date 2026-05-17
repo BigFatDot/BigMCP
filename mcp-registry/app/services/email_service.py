@@ -47,6 +47,25 @@ class EmailService:
         self.use_ssl = settings.SMTP_USE_SSL
 
     @property
+    def brand_name(self) -> str:
+        """White-label brand for self-hosted deploys.
+
+        Falls back through INSTANCE_NAME env → SMTP_FROM_NAME → "BigMCP".
+        We resolve from env each call so a container restart picks up an
+        ops-side change without a code deploy. DB-stored branding
+        (instance_settings.instance_name) doesn't flow here — the email
+        path is sync and we don't want a DB hit per send. Operators who
+        want fully dynamic email branding can set INSTANCE_NAME and call
+        the admin PATCH endpoint together.
+        """
+        import os
+        return (
+            (os.environ.get("INSTANCE_NAME") or "").strip()
+            or self.from_name
+            or "BigMCP"
+        )
+
+    @property
     def is_configured(self) -> bool:
         """Check if SMTP is properly configured."""
         return bool(self.host and self.user and self.password)
@@ -167,7 +186,8 @@ class EmailService:
         Returns:
             EmailResult with success status
         """
-        subject = "Reset your BigMCP password"
+        brand = self.brand_name
+        subject = f"Reset your {brand} password"
 
         greeting = f"Hi {user_name}," if user_name else "Hi,"
 
@@ -181,7 +201,7 @@ class EmailService:
 </head>
 <body style="font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #171717; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FAFAFA;">
     <div style="background: #D97757; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">BigMCP</h1>
+        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">{brand}</h1>
     </div>
 
     <div style="background: #ffffff; padding: 30px; border: 1px solid #E5E5E5; border-top: none; border-radius: 0 0 10px 10px;">
@@ -204,7 +224,7 @@ class EmailService:
     </div>
 
     <div style="text-align: center; padding: 20px; color: #737373; font-size: 12px;">
-        <p>&copy; BigMCP - MCP Server Management Platform</p>
+        <p>&copy; {brand} - MCP Server Management Platform</p>
     </div>
 </body>
 </html>
@@ -223,7 +243,7 @@ This link will expire in {expires_hours} hours.
 If you didn't request this password reset, you can safely ignore this email.
 
 ---
-BigMCP - MCP Server Management Platform
+{brand} - MCP Server Management Platform
 """
 
         return self.send_email(to_email, subject, html_body, text_body)
@@ -257,7 +277,8 @@ BigMCP - MCP Server Management Platform
         Returns:
             EmailResult with success status
         """
-        subject = f"You've been invited to join {organization_name} on BigMCP"
+        brand = self.brand_name
+        subject = f"You've been invited to join {organization_name} on {brand}"
 
         inviter_text = f"{inviter_name} has" if inviter_name else "You have been"
         role_display = "an admin" if role == "admin" else "a team member"
@@ -283,7 +304,7 @@ BigMCP - MCP Server Management Platform
 </head>
 <body style="font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #171717; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FAFAFA;">
     <div style="background: #D97757; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">BigMCP</h1>
+        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">{brand}</h1>
     </div>
 
     <div style="background: #ffffff; padding: 30px; border: 1px solid #E5E5E5; border-top: none; border-radius: 0 0 10px 10px;">
@@ -308,7 +329,7 @@ BigMCP - MCP Server Management Platform
     </div>
 
     <div style="text-align: center; padding: 20px; color: #737373; font-size: 12px;">
-        <p>&copy; BigMCP - MCP Server Management Platform</p>
+        <p>&copy; {brand} - MCP Server Management Platform</p>
     </div>
 </body>
 </html>
@@ -328,7 +349,7 @@ This invitation will expire in {expires_days} days.
 If you don't know who sent this invitation, you can safely ignore this email.
 
 ---
-BigMCP - MCP Server Management Platform
+{brand} - MCP Server Management Platform
 """
 
         return self.send_email(to_email, subject, html_body, text_body)
@@ -356,7 +377,8 @@ BigMCP - MCP Server Management Platform
         Returns:
             EmailResult with success status
         """
-        subject = "Verify your BigMCP email address"
+        brand = self.brand_name
+        subject = f"Verify your {brand} email address"
 
         greeting = f"Hi {user_name}," if user_name else "Hi,"
 
@@ -370,11 +392,11 @@ BigMCP - MCP Server Management Platform
 </head>
 <body style="font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #171717; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #FAFAFA;">
     <div style="background: #D97757; padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">BigMCP</h1>
+        <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 700;">{brand}</h1>
     </div>
 
     <div style="background: #ffffff; padding: 30px; border: 1px solid #E5E5E5; border-top: none; border-radius: 0 0 10px 10px;">
-        <h2 style="color: #171717; margin-top: 0; font-weight: 600;">Welcome to BigMCP!</h2>
+        <h2 style="color: #171717; margin-top: 0; font-weight: 600;">Welcome to {brand}!</h2>
 
         <p style="font-size: 16px; color: #525252;">{greeting}</p>
 
@@ -386,7 +408,7 @@ BigMCP - MCP Server Management Platform
 
         <p style="font-size: 14px; color: #525252;">This link will expire in {expires_hours} hours.</p>
 
-        <p style="font-size: 14px; color: #525252;">If you didn't create an account on BigMCP, you can safely ignore this email.</p>
+        <p style="font-size: 14px; color: #525252;">If you didn't create an account on {brand}, you can safely ignore this email.</p>
 
         <hr style="border: none; border-top: 1px solid #E5E5E5; margin: 30px 0;">
 
@@ -395,7 +417,7 @@ BigMCP - MCP Server Management Platform
     </div>
 
     <div style="text-align: center; padding: 20px; color: #737373; font-size: 12px;">
-        <p>&copy; BigMCP - MCP Server Management Platform</p>
+        <p>&copy; {brand} - MCP Server Management Platform</p>
     </div>
 </body>
 </html>
@@ -404,17 +426,17 @@ BigMCP - MCP Server Management Platform
         text_body = f"""
 {greeting}
 
-Welcome to BigMCP!
+Welcome to {brand}!
 
 Thanks for signing up! Please verify your email address by clicking the link below:
 {verification_link}
 
 This link will expire in {expires_hours} hours.
 
-If you didn't create an account on BigMCP, you can safely ignore this email.
+If you didn't create an account on {brand}, you can safely ignore this email.
 
 ---
-BigMCP - MCP Server Management Platform
+{brand} - MCP Server Management Platform
 """
 
         return self.send_email(to_email, subject, html_body, text_body)
