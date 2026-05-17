@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="CHANGELOG.md">
-    <img src="https://img.shields.io/badge/version-2.0.0-blue.svg" alt="Version"/>
+    <img src="https://img.shields.io/badge/version-2.4.0-blue.svg" alt="Version"/>
   </a>
   <a href="LICENSE">
     <img src="https://img.shields.io/badge/license-AGPLv3-blue.svg" alt="License"/>
@@ -47,7 +47,7 @@ docker compose up -d
 docker compose exec backend alembic upgrade head
 ```
 
-Open **http://localhost:3000** — the first user to register becomes instance admin.
+Open **http://localhost** — the first user to register becomes instance admin (Community / Enterprise edition).
 
 > Want to try it first? [bigmcp.cloud](https://app.bigmcp.cloud) is a free demo platform.
 
@@ -97,7 +97,7 @@ The core use case: **register your internal MCP servers, create Tool Groups per 
 ### Custom MCP Server Management
 - Register servers from **any source**: npm, pip, GitHub, Docker, HTTP URL, local binary
 - **Auto-discovery** via `tools/list` — tools are indexed automatically
-- **Mode closed** available: disable marketplace entirely, use only your own servers
+- **Closed mode**: instance admin can disable each marketplace source individually via `/api/v1/admin/sources/{source_id}` so a hardened deploy can run with custom servers only
 - **Team vs Personal** servers with granular visibility
 
 ### Selective Service Exposure
@@ -126,13 +126,19 @@ The core use case: **register your internal MCP servers, create Tool Groups per 
 - **One-click installation** with credential detection
 - Marketplace can be fully disabled for closed environments
 
-### AI Orchestration
+### AI Orchestration & Durable Workflows
 - **Intent analysis** — Natural language to workflow
-- **Auto-workflow generation** — "Sync Grist to Sheets daily"
-- **Composition store** with lifecycle (temporary to production)
+- **Composition lifecycle** — temporary → validated → production; promoted compositions become first-class MCP tools
+- **5 suspending step types** that survive crashes & restarts (Phase B-1):
+  - `elicit` — pause for human input mid-flight
+  - `wait_until` — clock-driven resume at a future timestamp
+  - `wait_callback` — HMAC-protected webhook resume (external systems POST back)
+  - `subcomposition` — call another composition; parent suspends until child terminates
+  - `approval` — cross-user gate with four-eyes default, role + user_id approver list
+- **Resumable executor** persists every step in Postgres; clients subscribe to `composition://executions/{id}` for live updates
 
 ### MCP Protocol Compliance
-- **MCP 2025-03-26** — Streamable HTTP + SSE
+- **MCP 2025-06-18** — Streamable HTTP + SSE
 - **OAuth 2.0** authorization for MCP clients
 - Works with **Claude Desktop, Cursor, Continue.dev, Cline**, and any MCP-compatible client
 
@@ -210,7 +216,7 @@ docker compose up -d
 # 4. Initialize database
 docker compose exec backend alembic upgrade head
 
-# 5. Access at http://localhost:3000
+# 5. Access at http://localhost (nginx serves the frontend on port 80)
 ```
 
 ### Environment Variables
@@ -251,7 +257,7 @@ SMTP_PASSWORD=your-password
 | **Frontend** | React 18, TypeScript, Tailwind CSS, Vite |
 | **Infrastructure** | Docker Compose, Uvicorn, Nginx |
 | **Monitoring** | Prometheus metrics |
-| **Protocols** | MCP 2025-03-26, SSE, JSON-RPC 2.0 |
+| **Protocols** | MCP 2025-06-18, SSE, JSON-RPC 2.0 |
 
 ---
 
@@ -263,7 +269,8 @@ SMTP_PASSWORD=your-password
 | [Changelog](CHANGELOG.md) | Version history |
 | [Contributing](CONTRIBUTING.md) | How to contribute |
 | [Licensing](LICENSING.md) | AGPLv3 license details |
-| [Deploy Guide](DEPLOY_VPS.md) | Production VPS deployment |
+| [Self-Hosting](https://bigmcp.cloud/docs/self-hosting/self-host-overview) | Full self-hosting guide (Docker, SSL, backup, scaling) |
+| [Security](https://bigmcp.cloud/docs/concepts/security) | Threat model, encryption, RBAC, audit, responsible disclosure |
 
 ---
 

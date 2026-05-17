@@ -255,64 +255,135 @@ API Keys offer more control through Toolboxes:
   security: `
 # Security Model
 
-BigMCP implements a comprehensive security model to protect your credentials and data.
+This page is the single source of truth for BigMCP's security posture.
+DSI / security teams should be able to evaluate the platform from this
+page alone, and ops teams should know exactly what to harden before
+opening up to real users.
 
-## Credential Types
+## Threat model
 
-| Type | Example | Use Case |
-|------|---------|----------|
-| API Key | \`sk-abc123...\` | Most APIs |
-| OAuth Token | Access + Refresh | User data |
-| Basic Auth | Username/Password | Legacy systems |
-| Path | \`/home/user/docs\` | Local files |
-| Connection String | \`postgres://...\` | Databases |
+What BigMCP **protects against**:
 
-## Security Model
+- **Credential exfiltration** — every credential (MCP server API key, OAuth
+  refresh token, DB connection string) is encrypted at rest with Fernet
+  (AES-128-CBC + HMAC-SHA256). Plaintext only exists in memory during
+  tool execution. A leaked database dump alone is not enough to read
+  credentials — the attacker also needs \`ENCRYPTION_KEY\` from the env.
+- **Privilege escalation across orgs** — every CRUD endpoint that takes
+  an object id checks that the object belongs to the caller's org
+  before returning it. Cross-org references surface as 404
+  ("does not exist") rather than 403 — no info leak.
+- **Unscoped API key abuse** — API keys carry a list of scopes
+  (\`tools:read\`, \`tools:execute\`, \`credentials:read\`, \`servers:write\`,
+  \`admin\`, …). With \`SCOPE_ENFORCE_MODE=enforce\`, missing scopes return
+  403 + audit log entry. With \`log_only\` (default during initial
+  rollout) the call goes through but is recorded — flip to \`enforce\`
+  after a few days of shadow auditing.
+- **Audit-log tampering** — every \`audit_log\` row carries an HMAC-SHA256
+  signature over the canonical JSON of the action; \`verify_integrity()\`
+  returns False if anyone edits a row in-place. The HMAC key is
+  derived from \`SECRET_KEY\` so attackers without that key can't forge
+  rows either.
+- **Token replay after sign-out** — refresh tokens carry a JTI; per-JTI
+  revocation in \`oauth_sessions\` lets a user kill a stolen token
+  without nuking every active device (\`/auth/connected-apps\`).
+- **CSRF on cookie-bearing endpoints** — every state-changing request
+  requires a \`Bearer\` token or API key in the \`Authorization\` header,
+  not a cookie. Browsers don't send \`Authorization\` cross-origin
+  automatically, so CSRF doesn't apply.
+- **Rate-limit-based abuse** — \`RATE_LIMIT_PER_MINUTE=60\` globally;
+  \`/auth/\` is harder-capped at 20/min; \`/api-keys/\` at 30/min.
 
-### Encryption
-All credentials are encrypted:
-- AES-128 encryption at rest (Fernet)
-- TLS 1.3 in transit
-- Per-user encryption keys
+What BigMCP **does NOT protect against** (call this out to your team):
 
-### Access Control
-- Credentials are user-scoped
-- Team credentials require Team plan
-- No credential sharing by default
+- **Loss of \`ENCRYPTION_KEY\`** — irrecoverable. Every credential becomes
+  permanently unreadable. Back the key up out-of-band (vault, hardware
+  token, sealed envelope) before deploying to prod.
+- **Compromised LLM provider** — composition execution sends tool
+  outputs to your configured \`LLM_API_URL\`. If you don't trust the
+  LLM provider with that data, point \`LLM_API_URL\` at a self-hosted
+  endpoint (Ollama, vLLM, Mistral on-prem).
+- **MCP server vulnerabilities** — BigMCP doesn't sandbox 3rd-party
+  MCP servers. A malicious server you install can read its own env,
+  write to its own working dir, and talk to the network. Install only
+  from sources you trust (your own, the curated marketplace, or
+  carefully audited 3rd parties).
 
-### Audit Trail
-- All access is logged
-- Credential usage tracked
-- Alerts for suspicious activity
+## At rest
 
-## Managing Credentials
+| What | Algorithm | Key source |
+|------|-----------|------------|
+| User credentials (per-user + per-org) | Fernet (AES-128-CBC + HMAC-SHA256) | \`ENCRYPTION_KEY\` env, single instance-wide key |
+| Passwords | bcrypt (cost 12) | Per-row salt |
+| API keys | bcrypt (the secret is shown once at creation, only the hash is stored) | Per-row salt |
+| Audit log integrity | HMAC-SHA256 over canonical JSON | Derived from \`SECRET_KEY\` |
+| JWT signing | HS256 | \`SECRET_KEY\` env |
 
-### Adding Credentials
-1. Connect a server from marketplace
-2. Enter required values
-3. Credentials are encrypted and stored
+## In transit
 
-### Updating Credentials
-To update credentials for a server:
-1. Delete the current connection
-2. Reconnect from the Marketplace
-3. Enter the new credentials
+- Frontend → backend: TLS terminated at nginx (or your reverse proxy).
+  The default docker-compose ships a self-signed cert; for production,
+  use Caddy / Traefik or certbot to mount a real one.
+- Backend → MCP servers: TLS where the server supports it. The
+  \`HttpMCPWrapper\` doesn't downgrade.
+- Backend → LLM / embeddings provider: HTTPS to your configured
+  \`LLM_API_URL\`. Cleartext only if you point it at an HTTP endpoint
+  (don't).
+- MCP gateway endpoint (\`/mcp/sse\`, \`/mcp/message\`): TLS via nginx.
+  Per-session auth via \`Authorization: Bearer <api_key>\`.
 
-### Rotating Credentials
-Best practice is to rotate regularly:
-1. Generate new credentials at provider
-2. Reconnect the server in BigMCP with new credentials
-3. Verify connection works
-4. Revoke old credentials at provider
+## Access control
 
-## Team Credentials
+Four layers, evaluated left-to-right:
 
-With a Team plan:
-- Share credentials across organization
-- Set per-credential permissions
-- Central credential management
+1. **Authentication** — JWT (login + refresh) or API key (\`bigmcp_sk_*\`).
+2. **Edition gating** — billing routes only loaded under
+   \`EDITION=cloud_saas\`; MFA optional on community.
+3. **Organization membership** — every authenticated request resolves
+   the caller's active org (\`Mcp-Session-Id\` for MCP, \`org_id\` claim
+   on JWT, \`organization_id\` on API key). Every object query joins
+   on this org.
+4. **RBAC role** — four tiers: \`Owner > Admin > Member > Viewer\`.
+   Admin actions (invite, key rotation, audit access) require
+   Admin+; instance-wide actions (SSO, branding, scope policy)
+   require \`user.preferences.instance_admin = true\`.
 
-> **Note:** Team credentials are only available on Team and Enterprise plans.
+## Audit
+
+Every action that changes state writes a row to \`audit_log\`:
+
+\`\`\`
+action          | actor_id | organization_id | resource_type | resource_id | details | signature
+auth.login      | <uuid>   | <uuid>          | user          | <uuid>      | {...}   | <hmac>
+key.created     | <uuid>   | <uuid>          | api_key       | <uuid>      | {...}   | <hmac>
+composition.X   | <uuid>   | <uuid>          | composition   | <uuid>      | {...}   | <hmac>
+security.apikey_scope_denied | <uuid> | <uuid> | api_key | <uuid> | {scope_required, scopes_granted} | <hmac>
+\`\`\`
+
+Visible to instance admins at \`/api/v1/admin/audit-logs\` with filters
+on action prefix, actor, org, date range. PII fields are masked
+before output (\`pii_sanitizer.py\`).
+
+## Compliance posture (honest)
+
+- **SOC 2 / ISO 27001**: BigMCP is not certified. Self-hosting puts
+  the compliance perimeter on YOUR infrastructure, not ours — which
+  is usually what regulated orgs want.
+- **GDPR**: self-hosted = data residency is your choice. SaaS demo
+  (bigmcp.cloud) runs on a single VPS in EU; treat it as a
+  preview environment, not a system of record.
+- **AGPLv3**: deploying internally is fine; if you fork and host a
+  modified version for third parties, you must publish your changes.
+  No CLA required to contribute.
+
+## Responsible disclosure
+
+Found a vulnerability? Email **security@bigmcp.cloud** with reproduction
+steps and PoC. We'll acknowledge within 48h and aim for a fix or
+mitigation within 14 days for high-severity, 30 days for others.
+
+Do NOT open a public GitHub issue for security bugs — use the email
+above.
 
 ## Two-Factor Authentication (2FA)
 

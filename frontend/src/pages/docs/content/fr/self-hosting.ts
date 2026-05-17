@@ -99,7 +99,7 @@ nano .env
 docker compose up -d
 \`\`\`
 
-Visitez \`http://localhost:3000\` pour accéder à BigMCP.
+Visitez \`http://localhost\` pour accéder à BigMCP.
 `,
 
   'docker-setup': `
