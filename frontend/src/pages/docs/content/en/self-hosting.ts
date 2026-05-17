@@ -1165,6 +1165,29 @@ Check Prometheus targets at \`http://localhost:9090/targets\` - BigMCP should sh
 
 Protect your BigMCP data with regular backups. This guide shows you how to create backups and restore them when needed.
 
+## ⚠️ Critical: back up your ENCRYPTION_KEY separately
+
+BigMCP encrypts every user credential at rest using a Fernet key from
+\`ENCRYPTION_KEY\`. **If you lose that key, every credential in your
+backup becomes permanently unreadable** — there is no master override,
+no support recovery, no reset link. The encryption is exactly as strong
+as it sounds.
+
+**What to do:**
+
+1. After generating \`ENCRYPTION_KEY\` for production, copy it to an
+   out-of-band store you trust: password manager (1Password / Bitwarden
+   organization vault), HashiCorp Vault, AWS Secrets Manager, sealed
+   envelope in a physical safe. Pick at least two so a single failure
+   doesn't lose it.
+2. NEVER commit it to git. NEVER share it over chat or email.
+3. Rotate it only with a planned migration (re-encrypt every credential
+   under the new key); rotating without re-encryption is identical to
+   losing it.
+
+A database backup without the key is forensic evidence, not a restorable
+backup. Treat the two as a pair.
+
 ## Why Backup?
 
 Backups are your safety net. They protect you against:
@@ -1395,5 +1418,111 @@ For very large databases (>10GB), consider incremental backup strategies.
 
 - Set up [Monitoring](/docs/self-hosting/monitoring) to catch issues before they become disasters
 - Review [Scaling & Performance](/docs/self-hosting/scaling) for capacity planning
+`,
+
+  sso: `
+# Single Sign-On (OIDC)
+
+Wire BigMCP to your identity provider so employees log in with their work account instead of a local password. Tested with **Google Workspace**, **Microsoft Entra (Azure AD)**, **Okta**, **Authentik**, and **Keycloak** — BigMCP ships presets for all five.
+
+> **Prereq:** You must be **instance admin** to configure SSO. On a fresh self-host, the first registered user is auto-promoted; on the SaaS demo, contact support.
+
+## What SSO unlocks
+
+- **One click to sign in** with Google / Microsoft / Okta — no password to forget
+- **JIT user provisioning** — employees who appear in your IdP appear in BigMCP on first login
+- **Role mapping** — IdP groups map to BigMCP roles (Owner / Admin / Member / Viewer)
+- **Force-SSO toggle** — locks local password login so only IdP-authenticated users can connect (with a lockout safety net for the instance admin)
+
+## Setup in 5 minutes
+
+### 1. Pick a preset
+
+Go to **Settings menu → Admin → SSO Providers** (\`/app/admin/sso-providers\`). Click **Add Provider** and pick one of the five presets. The preset pre-fills:
+
+- Issuer URL pattern (e.g. \`https://accounts.google.com\` for Google)
+- Authorization, token, and userinfo endpoint paths
+- Default scopes (\`openid email profile\`)
+- Discovery URL (\`/.well-known/openid-configuration\` per the spec)
+
+You only need to fill in your **Client ID**, **Client Secret**, and **tenant/domain** (where applicable).
+
+### 2. Register BigMCP as an app in your IdP
+
+Create an OIDC application in your IdP with these settings:
+
+| Field | Value |
+|-------|-------|
+| Application type | Web |
+| Redirect URI | \`https://your-bigmcp-domain/api/v1/sso/{provider_id}/callback\` |
+| Post-logout redirect | \`https://your-bigmcp-domain/login\` |
+| Scopes | \`openid email profile\` (and \`groups\` if you want role mapping) |
+| Token endpoint auth method | \`client_secret_post\` (or \`client_secret_basic\` — both work) |
+
+Copy the Client ID + Client Secret your IdP generates and paste them into the BigMCP form.
+
+### 3. (Optional) Role mapping
+
+If your IdP exposes groups in the userinfo response, configure mappings in the same form:
+
+\`\`\`
+IdP claim         | BigMCP role
+------------------|------------
+groups            | admin   if "bigmcp-admin" in groups
+groups            | member  if "bigmcp-user"  in groups
+                  | viewer  (fallback)
+\`\`\`
+
+Without mapping, every JIT-provisioned user lands as **Viewer** by default. The instance admin can promote them manually from the Team page.
+
+### 4. Test the flow
+
+Save the provider, sign out of BigMCP, and click the **Sign in with {Provider}** button on the login page. The first time, your IdP will ask consent — accept, and you should land back on BigMCP signed in as the IdP user.
+
+If it fails, check \`/api/v1/admin/audit-logs?action_prefix=sso\` for the exact failure reason (BigMCP logs the discovery URL fetch, token exchange, and any claim-mapping mismatches).
+
+### 5. (Optional) Force SSO
+
+Once you've validated the IdP flow, flip **Force SSO** on the provider page. This:
+
+- Hides the email + password fields on the login page
+- Rejects local password login attempts with a 403
+- **Leaves a backdoor for the instance admin** (you) so a misconfigured IdP can't lock you out — the backdoor is documented in \`/app/admin/sso-providers\` when you toggle the switch
+
+## Provider-specific gotchas
+
+### Google Workspace
+- **Verify the domain** in Google Cloud Console first, otherwise OAuth consent stays on "Unverified app" with a warning screen
+- Use \`hd\` parameter (domain hint) to restrict to your workspace
+
+### Microsoft Entra (Azure AD)
+- Use the **v2.0 endpoint** (Entra preset does this automatically)
+- For multi-tenant apps, set \`tenant_id=common\` in the issuer
+- Group membership comes from the \`groups\` claim only when the user is in <200 groups — otherwise switch to graph API lookup (post-MVP)
+
+### Okta
+- The preset uses the org-wide authorization server (\`https://{your-org}.okta.com/oauth2/default\`)
+- For custom auth servers, edit \`issuer\` after picking the preset
+
+### Authentik
+- Self-host Authentik tends to use HTTPS only — make sure your BigMCP also runs HTTPS (callback URL must match)
+
+### Keycloak
+- Realm-specific issuer: \`https://{your-keycloak}/realms/{realm}\`
+- Confidential client with \`client_secret_post\` works best
+
+## Troubleshooting
+
+| Symptom | Likely cause |
+|---------|--------------|
+| \`invalid_redirect_uri\` from IdP | Redirect URI in IdP app doesn't match \`https://your-domain/api/v1/sso/{provider_id}/callback\` exactly (trailing slash, http vs https) |
+| User signs in but lands as Viewer | Role mapping not configured, or the IdP doesn't include \`groups\` in userinfo |
+| "Discovery failed" on save | Your network / firewall blocks egress to the IdP's \`/.well-known/openid-configuration\` — whitelist outbound HTTPS |
+| Force-SSO locked you out | Use the instance-admin backdoor URL printed in the Force-SSO confirmation dialog; if you lost it, run \`docker compose exec backend python -m app.scripts.unlock_sso_admin\` |
+
+## Next Steps
+
+- Configure [Backup & Restore](/docs/self-hosting/backup) — your SSO config lives in the database too
+- Set per-org [Tool Group](/docs/guides/tool-groups) policies for IdP-provisioned users
 `,
 }

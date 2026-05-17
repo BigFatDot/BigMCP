@@ -12,6 +12,7 @@ import {
   CommandLineIcon,
   ServerStackIcon,
   CodeBracketIcon,
+  MapIcon,
 } from '@heroicons/react/24/outline'
 
 export interface DocItem {
@@ -272,6 +273,28 @@ export const docsNavigation: DocSection[] = [
         title: 'Backup & Restore',
         description: 'Database backup and disaster recovery procedures',
         keywords: ['backup', 'restore', 'disaster recovery', 'postgresql', 'database', 'security'],
+      },
+      {
+        slug: 'sso',
+        title: 'Single Sign-On (OIDC)',
+        description: 'Plug your IdP (Google Workspace, Microsoft Entra, Okta, Authentik, Keycloak)',
+        keywords: ['sso', 'oidc', 'sso providers', 'okta', 'azure', 'google workspace', 'authentik', 'keycloak', 'authentication'],
+      },
+    ],
+  },
+  // ============================================================================
+  // 7. PROJECT - Meta: roadmap, release process, how to follow along
+  // ============================================================================
+  {
+    id: 'project',
+    title: 'Project',
+    icon: MapIcon,
+    items: [
+      {
+        slug: 'roadmap',
+        title: 'Roadmap',
+        description: "What's shipped, what's next, what's deliberately not in scope",
+        keywords: ['roadmap', 'plans', 'releases', 'changelog', 'future', 'next'],
       },
     ],
   },

@@ -13,6 +13,7 @@ import { guidesContent as enGuides } from './en/guides'
 import { apiContent as enApi } from './en/api'
 import { selfHostingContent as enSelfHosting } from './en/self-hosting'
 import { integrationsContent as enIntegrations } from './en/integrations'
+import { projectContent as enProject } from './en/project'
 
 // Import French content
 import { gettingStartedContent as frGettingStarted } from './fr/getting-started'
@@ -32,6 +33,7 @@ const enContent: DocsContentType = {
   'api': enApi,
   'self-hosting': enSelfHosting,
   'integrations': enIntegrations,
+  'project': enProject,
 }
 
 // French content

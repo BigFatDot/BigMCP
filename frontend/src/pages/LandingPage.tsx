@@ -263,6 +263,133 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Comparison Section */}
+      <section id="comparison" className="py-24 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-2 text-orange font-semibold text-sm uppercase tracking-wider mb-4">
+              <div className="w-2 h-2 bg-orange rounded-full" />
+              How We Compare
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+              BigMCP vs the alternatives
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto font-serif">
+              Honest comparison. BigMCP isn't always the answer — but if you're aggregating
+              many MCP servers behind one URL with org-level governance and durable workflows,
+              it's purpose-built for that.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto bg-white rounded-2xl shadow-sm border border-gray-200">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="text-left py-4 px-6 font-semibold text-gray-700">Capability</th>
+                  <th className="text-center py-4 px-4 font-semibold text-orange">BigMCP</th>
+                  <th className="text-center py-4 px-4 font-semibold text-gray-600">n8n</th>
+                  <th className="text-center py-4 px-4 font-semibold text-gray-600">Composio</th>
+                  <th className="text-center py-4 px-4 font-semibold text-gray-600">LangGraph</th>
+                  <th className="text-center py-4 px-4 font-semibold text-gray-600">Roll your own</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                <tr>
+                  <td className="py-3 px-6 text-gray-700 font-medium">MCP-native gateway</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-600">partial</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-400">build</td>
+                </tr>
+                <tr>
+                  <td className="py-3 px-6 text-gray-700 font-medium">Aggregate 180+ servers behind one URL</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-600">~150 tools</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-400">build</td>
+                </tr>
+                <tr>
+                  <td className="py-3 px-6 text-gray-700 font-medium">Durable suspending workflows (Postgres state)</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓ B-1</td>
+                  <td className="text-center py-3 px-4 text-gray-600">via webhooks</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                  <td className="text-center py-3 px-4 text-gray-400">build</td>
+                </tr>
+                <tr>
+                  <td className="py-3 px-6 text-gray-700 font-medium">Org-level RBAC (4 roles + scoped API keys)</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                  <td className="text-center py-3 px-4 text-gray-600">paid only</td>
+                  <td className="text-center py-3 px-4 text-gray-600">basic</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-400">build</td>
+                </tr>
+                <tr>
+                  <td className="py-3 px-6 text-gray-700 font-medium">Audit log with HMAC integrity</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                  <td className="text-center py-3 px-4 text-gray-600">paid only</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-400">build</td>
+                </tr>
+                <tr>
+                  <td className="py-3 px-6 text-gray-700 font-medium">Self-host fully free (AGPLv3)</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                  <td className="text-center py-3 px-4 text-gray-400">SaaS only</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                </tr>
+                <tr>
+                  <td className="py-3 px-6 text-gray-700 font-medium">Visual workflow editor</td>
+                  <td className="text-center py-3 px-4 text-gray-600">JSON + LLM</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓ best-in-class</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-400">code-only</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                </tr>
+                <tr>
+                  <td className="py-3 px-6 text-gray-700 font-medium">Per-org marketplace curation</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-600">single global</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-400">build</td>
+                </tr>
+                <tr>
+                  <td className="py-3 px-6 text-gray-700 font-medium">Single MCP URL across clients (Claude, Cursor, n8n, …)</td>
+                  <td className="text-center py-3 px-4 text-orange font-bold">✓</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-600">SDK per language</td>
+                  <td className="text-center py-3 px-4 text-gray-400">—</td>
+                  <td className="text-center py-3 px-4 text-gray-400">build</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-8 grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="p-5 rounded-lg bg-white border border-gray-200">
+              <p className="font-semibold text-gray-900 mb-2">When BigMCP is the right answer</p>
+              <p className="text-sm text-gray-600 font-serif leading-relaxed">
+                You have 5+ MCP servers (internal or third-party), multiple teams,
+                and you want one URL with org RBAC + audit + durable workflows.
+              </p>
+            </div>
+            <div className="p-5 rounded-lg bg-white border border-gray-200">
+              <p className="font-semibold text-gray-900 mb-2">When it's overkill</p>
+              <p className="text-sm text-gray-600 font-serif leading-relaxed">
+                Solo dev with 1–2 MCP servers. Native config in Claude Desktop or
+                Cursor is simpler. Come back when your team grows or compliance
+                lands on your desk.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section id="features" className="py-24 px-6 bg-gray-900 text-white">
         <div className="max-w-7xl mx-auto">
@@ -353,6 +480,37 @@ export function LandingPage() {
               {t('pricing.note')}
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Early Adopter Program */}
+      <section className="py-20 px-6 bg-gray-900 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange/20 text-orange text-xs font-semibold uppercase tracking-wider mb-4">
+            <span className="w-1.5 h-1.5 bg-orange rounded-full animate-pulse" />
+            Early Adopter Program
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold mb-4">
+            Deploy BigMCP at your org with personal support from the maintainer
+          </h2>
+          <p className="text-lg text-gray-300 mb-3 font-serif max-w-2xl mx-auto">
+            We're not chasing logos for the homepage — we're looking for the first 5 orgs
+            who'll deploy BigMCP internally and tell us what's missing.
+          </p>
+          <p className="text-base text-gray-400 mb-8 font-serif max-w-2xl mx-auto">
+            If you join: direct line to the maintainer, prioritised bug fixes, feature requests
+            heard before the roadmap closes. No fee, no commitment, no NDA.
+          </p>
+          <a
+            href="mailto:contact@bigmcp.cloud?subject=Early%20Adopter%20Program&body=Hi%2C%0A%0AOur%20org%20%3CXXX%3E%20is%20interested%20in%20deploying%20BigMCP%20internally.%20A%20few%20words%20on%20our%20context%3A%0A%0A-%20Team%20size%3A%20%0A-%20MCP%20servers%20we%27d%20connect%3A%20%0A-%20Deployment%20constraints%20(on-prem%20%2F%20cloud%20%2F%20hybrid)%3A%20%0A%0AThanks%2C%0A"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-orange hover:bg-orange/90 text-white font-semibold rounded-lg transition-colors"
+          >
+            Request early adopter access
+            <ArrowRightIcon className="w-4 h-4" />
+          </a>
+          <p className="text-xs text-gray-500 mt-4">
+            Reply within 24h. No automated funnel.
+          </p>
         </div>
       </section>
 

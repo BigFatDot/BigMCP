@@ -164,6 +164,7 @@ export function DocPage() {
       'concepts': 'sections.concepts.title',
       'api': 'sections.api.title',
       'self-hosting': 'sections.selfHosting.title',
+      'project': 'sections.project.title',
     }
     return t(sectionKeyMap[sectionId] || sectionId)
   }, [t])
@@ -177,6 +178,7 @@ export function DocPage() {
       'concepts': 'concepts',
       'api': 'api',
       'self-hosting': 'selfHosting',
+      'project': 'project',
     }
     const itemKeyMap: Record<string, string> = {
       'introduction': 'introduction',
@@ -210,6 +212,8 @@ export function DocPage() {
       'scaling': 'scaling',
       'monitoring': 'monitoring',
       'backup': 'backup',
+      'sso': 'sso',
+      'roadmap': 'roadmap',
     }
     const sectionKey = sectionKeyMap[sectionId] || sectionId
     const itemKey = itemKeyMap[itemSlug] || itemSlug
@@ -225,6 +229,7 @@ export function DocPage() {
       'concepts': 'concepts',
       'api': 'api',
       'self-hosting': 'selfHosting',
+      'project': 'project',
     }
     const itemKeyMap: Record<string, string> = {
       'introduction': 'introduction',
@@ -258,6 +263,8 @@ export function DocPage() {
       'scaling': 'scaling',
       'monitoring': 'monitoring',
       'backup': 'backup',
+      'sso': 'sso',
+      'roadmap': 'roadmap',
     }
     const sectionKey = sectionKeyMap[sectionId] || sectionId
     const itemKey = itemKeyMap[itemSlug] || itemSlug

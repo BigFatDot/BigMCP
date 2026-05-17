@@ -143,6 +143,29 @@
       "customServers": {
         "title": "Custom MCP Servers",
         "description": "Add your own MCP servers to Enterprise instances"
+      },
+      "scaling": {
+        "title": "Scaling",
+        "description": "Horizontal scaling, load balancing, multi-instance deployments"
+      },
+      "monitoring": {
+        "title": "Monitoring",
+        "description": "Prometheus metrics, audit logs, health probes"
+      },
+      "backup": {
+        "title": "Backup & restore",
+        "description": "PostgreSQL backup strategies and disaster recovery"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Plug Google Workspace, Microsoft Entra, Okta, Authentik or Keycloak"
+      }
+    },
+    "project": {
+      "title": "Project",
+      "roadmap": {
+        "title": "Roadmap",
+        "description": "What's shipped, what's next, what's deliberately not in scope"
       }
     }
   }

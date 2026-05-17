@@ -16,15 +16,15 @@
     "ctaSecondary": "See How It Works"
   },
   "mobileDemo": {
-    "badge": "One Connector",
-    "title": "Turn Hours of Manual Work",
-    "titleHighlight": "Into Seconds of Automation",
-    "description": "BigMCP lets you compose custom workflows that orchestrate multiple services with a single command. Create your own multi-tool compositions once, then execute them instantly from anywhere.",
+    "badge": "Durable Compositions",
+    "title": "Workflows that survive",
+    "titleHighlight": "crashes, restarts, and humans",
+    "description": "Compose multi-tool workflows once, expose them as first-class MCP tools, and let them suspend for human approval, an external webhook, or a future timestamp. The executor persists every step in Postgres — your composition resumes exactly where it left off after any restart.",
     "features": [
-      "Compose workflows from your existing tools (HubSpot, Drive, Gmail, Slack...)",
-      "Execute multi-service operations with natural language",
-      "Your custom compositions become callable tools for your whole team",
-      "Run complex workflows from Claude—desktop or mobile"
+      "5 durable step types: elicit (ask), wait_until (clock), wait_callback (webhook), subcomposition (call), approval (four-eyes)",
+      "Promoted compositions become callable MCP tools for your whole team",
+      "Execute from any MCP client (Claude, Cursor, Continue.dev, Mistral Le Chat, n8n) with one URL",
+      "Live execution timeline at /app/compositions/executions with audit trail"
     ]
   },
   "phoneMockup": {

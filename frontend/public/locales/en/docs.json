@@ -155,6 +155,17 @@
       "backup": {
         "title": "Backup & restore",
         "description": "PostgreSQL backup strategies and disaster recovery"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Plug Google Workspace, Microsoft Entra, Okta, Authentik or Keycloak"
+      }
+    },
+    "project": {
+      "title": "Project",
+      "roadmap": {
+        "title": "Roadmap",
+        "description": "What's shipped, what's next, what's deliberately not in scope"
       }
     }
   }
