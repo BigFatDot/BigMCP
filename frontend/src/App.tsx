@@ -37,7 +37,6 @@ import { ClientPolicyPage } from './pages/admin/ClientPolicyPage'
 import { OAuthClientsPage } from './pages/admin/OAuthClientsPage'
 import { SsoProvidersPage } from './pages/admin/SsoProvidersPage'
 import { SsoProviderDetailPage } from './pages/admin/SsoProviderDetailPage'
-import { MarketplaceCurationPage } from './pages/admin/MarketplaceCurationPage'
 import { DefaultPoolPage } from './pages/admin/DefaultPoolPage'
 import { CompositionsReviewPage } from './pages/admin/CompositionsReviewPage'
 import { CompositionMetricsPage } from './pages/admin/CompositionMetricsPage'
@@ -258,14 +257,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <SsoProviderDetailPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="admin/marketplace-curation"
-            element={
-              <ProtectedRoute>
-                <MarketplaceCurationPage />
               </ProtectedRoute>
             }
           />

@@ -23,7 +23,6 @@ from .api.v1.api_keys import router as api_keys_router
 from .api.v1.oauth import router as oauth_router
 from .api.v1.oidc import router as oidc_router
 from .api.v1.sso_admin import router as sso_admin_router
-from .api.v1.marketplace_curation import router as marketplace_curation_router
 from .api.v1.pool_persistent import (
     admin_router as pool_admin_router,
     user_router as pool_user_router,
@@ -261,7 +260,6 @@ app.include_router(api_keys_router, prefix="/api/v1", tags=["API Keys"])
 app.include_router(oauth_router, prefix="/api/v1", tags=["OAuth 2.0"])
 app.include_router(oidc_router, prefix="/api/v1", tags=["SSO"])
 app.include_router(sso_admin_router, prefix="/api/v1", tags=["SSO Admin"])
-app.include_router(marketplace_curation_router, prefix="/api/v1", tags=["Marketplace Curation"])
 app.include_router(pool_admin_router, prefix="/api/v1", tags=["Default Pool Admin"])
 app.include_router(pool_user_router, prefix="/api/v1", tags=["User Pool Pins"])
 app.include_router(marketplace_keys_router, prefix="/api/v1", tags=["Marketplace Keys"])

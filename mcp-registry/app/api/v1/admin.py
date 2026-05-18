@@ -244,7 +244,6 @@ async def get_admin_info(
         }
     elif edition == Edition.CLOUD_SAAS:
         info["saas"] = {
-            "marketplace_curation": True,
             "license_generation": True
         }
 
