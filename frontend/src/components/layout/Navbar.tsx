@@ -25,6 +25,7 @@ import {
   BuildingOfficeIcon,
 } from '@heroicons/react/24/outline'
 import { useAuth, useSubscription, useEdition } from '../../hooks/useAuth'
+import { useTeamAdmin } from '../../hooks/useTeamAdmin'
 import { InstanceLogoWithText } from '../brand/InstanceLogo'
 
 export function Navbar() {
@@ -32,6 +33,7 @@ export function Navbar() {
   const { isAuthenticated, user, logout } = useAuth()
   const { isInTrial, daysUntilTrialEnd, isActive, subscription } = useSubscription()
   const { isCloudSaaS } = useEdition()
+  const isTeamAdmin = useTeamAdmin()
   const isTrialExpired = isCloudSaaS && subscription && !isActive
   const [showUserMenu, setShowUserMenu] = useState(false)
 
@@ -151,7 +153,7 @@ export function Navbar() {
                       <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-20">
                         {/* User Info */}
                         <div className="px-4 py-3 border-b border-gray-200">
-                          <p className="text-sm font-medium text-gray-900">{user?.full_name}</p>
+                          <p className="text-sm font-medium text-gray-900">{user?.name}</p>
                           <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                         </div>
 
@@ -216,6 +218,24 @@ export function Navbar() {
                           </Link>
                         </div>
 
+                        {/* Workspace admin section — team admins (org ADMIN/OWNER)
+                            and instance admins. Surfaces protected by require_admin. */}
+                        {isTeamAdmin && (
+                          <div className="border-t border-gray-200 py-2">
+                            <div className="px-4 pb-1 text-[10px] uppercase tracking-wide text-gray-400">
+                              Workspace
+                            </div>
+                            <Link
+                              to="/app/admin/default-pool"
+                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <MapPinIcon className="h-5 w-5 text-gray-400" />
+                              Default pool
+                            </Link>
+                          </div>
+                        )}
+
                         {/* Instance admin section — only visible to instance admins */}
                         {user?.is_instance_admin && (
                           <div className="border-t border-gray-200 py-2">
@@ -269,22 +289,6 @@ export function Navbar() {
                             >
                               <ShieldCheckIcon className="h-5 w-5 text-gray-400" />
                               SSO providers
-                            </Link>
-                            <Link
-                              to="/app/admin/marketplace-curation"
-                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                              onClick={() => setShowUserMenu(false)}
-                            >
-                              <PuzzlePieceIcon className="h-5 w-5 text-gray-400" />
-                              Marketplace curation
-                            </Link>
-                            <Link
-                              to="/app/admin/default-pool"
-                              className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                              onClick={() => setShowUserMenu(false)}
-                            >
-                              <MapPinIcon className="h-5 w-5 text-gray-400" />
-                              Default pool
                             </Link>
                             <Link
                               to="/app/admin/compositions-review"
