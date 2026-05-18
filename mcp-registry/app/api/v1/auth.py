@@ -75,12 +75,26 @@ async def register(
         )
 
     # Check if this is the first user (for auto-admin promotion)
-    from ...core.edition import get_edition, Edition
+    from ...core.edition import get_edition, Edition, get_max_users
     from sqlalchemy import func
 
     user_count_result = await db.execute(select(func.count(User.id)))
     user_count = user_count_result.scalar()
     is_first_user = user_count == 0
+
+    # Edition-level seat cap. Community: 1 user. Enterprise/Cloud SaaS:
+    # effectively unlimited (999999). Enforced at signup so the second
+    # user is rejected with a clear message rather than silently created.
+    max_users = get_max_users()
+    if user_count >= max_users:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                "This instance has reached its user limit "
+                f"({max_users}). The Community edition is single-user; "
+                "run the Enterprise edition or Cloud SaaS for multi-user."
+            ),
+        )
 
     # Hash password
     password_hash = auth_service.hash_password(data.password)

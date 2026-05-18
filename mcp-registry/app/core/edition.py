@@ -340,9 +340,12 @@ def get_max_users() -> int:
     """
     Get maximum number of users for current edition.
 
-    Returns:
-        999999 (unlimited) for all editions
+    - Community: single-user. The instance is meant for one operator.
+      Teams should run Enterprise self-host or Cloud SaaS.
+    - Enterprise / Cloud SaaS: unlimited.
     """
+    if is_community():
+        return 1
     return 999999
 
 
