@@ -344,9 +344,26 @@ Four layers, evaluated left-to-right:
    on JWT, \`organization_id\` on API key). Every object query joins
    on this org.
 4. **RBAC role** — four tiers: \`Owner > Admin > Member > Viewer\`.
-   Admin actions (invite, key rotation, audit access) require
-   Admin+; instance-wide actions (SSO, branding, scope policy)
-   require \`user.preferences.instance_admin = true\`.
+   Admin actions (invite, key rotation, audit access, org default
+   pool) require Admin+; instance-wide actions (SSO, branding,
+   scope policy, users) require \`user.preferences.instance_admin
+   = true\`. The instance admin is a **super-role**: orthogonal to
+   the org hierarchy, it implicitly elevates the caller to Owner
+   on every org via an override path. Override usage is logged as
+   \`iam.cross_org_instance_override\` and denials as
+   \`iam.authorization_denied\`.
+
+   All org-scoped endpoints go through the same
+   \`app/api/rbac.py::require_role\` factory (aliases:
+   \`require_viewer\`, \`require_member\`, \`require_admin\`,
+   \`require_owner\`). The factory returns a typed \`AuthContext\`
+   (user + org_id + role_level + is_instance_override) so endpoints
+   don't re-fetch the membership.
+
+   Cross-org leaks are blocked by \`assert_resource_in_org\`: when
+   a resource is loaded by ID, the helper checks that its
+   \`organization_id\` matches the JWT context and raises **404**
+   on mismatch (not 403, to prevent ID enumeration).
 
 ## Audit
 

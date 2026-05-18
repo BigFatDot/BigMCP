@@ -30,15 +30,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...db.database import get_db
 from ...models.audit_log import AuditAction
 from ...models.composition import Composition
-from ...models.organization import OrganizationMember
 from ...models.pool_persistent import (
     OrgDefaultPoolEntry,
     UserPersistentPoolEntry,
 )
 from ...models.tool import Tool
-from ...models.user import User
 from ...services.audit_service import AuditService
-from ..dependencies import get_current_user_jwt, require_instance_admin
+from ..rbac import AuthContext, require_admin, require_viewer
 
 
 router = APIRouter(tags=["Persistent Pool"])
@@ -87,17 +85,6 @@ class UserPinResponse(BaseModel):
 class UserPinListResponse(BaseModel):
     user_id: UUID
     pins: List[UserPinResponse]
-
-
-def _resolve_org_id(user: User) -> UUID:
-    if not user.organization_memberships:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User has no organization membership.",
-        )
-    return sorted(
-        user.organization_memberships, key=lambda m: m.created_at
-    )[0].organization_id
 
 
 async def _validate_entry_belongs_to_org(
@@ -156,7 +143,7 @@ async def _notify_user_tools_changed(user_id: UUID) -> None:
 
 
 # ===========================================================================
-# /admin/org/default-pool — instance admin
+# /admin/org/default-pool — team admin (ADMIN+OWNER) or instance admin
 # ===========================================================================
 
 admin_router = APIRouter(
@@ -166,10 +153,10 @@ admin_router = APIRouter(
 
 @admin_router.get("", response_model=OrgDefaultPoolListResponse)
 async def list_default_pool(
-    admin_user: User = Depends(require_instance_admin),
+    auth: AuthContext = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    org_id = _resolve_org_id(admin_user)
+    org_id = auth.organization_id
     rows = (
         await db.execute(
             select(OrgDefaultPoolEntry)
@@ -204,11 +191,12 @@ class DefaultPoolAddRequest(PoolEntryRef):
 )
 async def add_default_pool_entry(
     payload: DefaultPoolAddRequest,
-    admin_user: User = Depends(require_instance_admin),
+    auth: AuthContext = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
     payload.validate_xor()
-    org_id = _resolve_org_id(admin_user)
+    org_id = auth.organization_id
+    admin_user = auth.user
     await _validate_entry_belongs_to_org(
         db, org_id, payload.tool_id, payload.composition_id
     )
@@ -287,10 +275,11 @@ async def add_default_pool_entry(
 @admin_router.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def remove_default_pool_entry(
     entry_id: UUID,
-    admin_user: User = Depends(require_instance_admin),
+    auth: AuthContext = Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    org_id = _resolve_org_id(admin_user)
+    org_id = auth.organization_id
+    admin_user = auth.user
     row = (
         await db.execute(
             select(OrgDefaultPoolEntry).where(
@@ -334,9 +323,10 @@ user_router = APIRouter(prefix="/pool/pin", tags=["User Pool Pins"])
 
 @user_router.get("", response_model=UserPinListResponse)
 async def list_user_pins(
-    user: User = Depends(get_current_user_jwt),
+    auth: AuthContext = Depends(require_viewer),
     db: AsyncSession = Depends(get_db),
 ):
+    user = auth.user
     rows = (
         await db.execute(
             select(UserPersistentPoolEntry)
@@ -364,11 +354,12 @@ async def list_user_pins(
 )
 async def pin_entry(
     payload: PoolEntryRef,
-    user: User = Depends(get_current_user_jwt),
+    auth: AuthContext = Depends(require_viewer),
     db: AsyncSession = Depends(get_db),
 ):
     payload.validate_xor()
-    org_id = _resolve_org_id(user)
+    user = auth.user
+    org_id = auth.organization_id
     await _validate_entry_belongs_to_org(
         db, org_id, payload.tool_id, payload.composition_id
     )
@@ -414,9 +405,10 @@ async def pin_entry(
 @user_router.delete("/{pin_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def unpin_entry(
     pin_id: UUID,
-    user: User = Depends(get_current_user_jwt),
+    auth: AuthContext = Depends(require_viewer),
     db: AsyncSession = Depends(get_db),
 ):
+    user = auth.user
     row = (
         await db.execute(
             select(UserPersistentPoolEntry).where(
@@ -463,7 +455,7 @@ async def list_pin_suggestions(
     days: int = 7,
     limit: int = 10,
     min_count: int = 3,
-    user: User = Depends(get_current_user_jwt),
+    auth: AuthContext = Depends(require_viewer),
     db: AsyncSession = Depends(get_db),
 ):
     """Return tools/compositions the user invoked at least ``min_count``
@@ -473,7 +465,8 @@ async def list_pin_suggestions(
     the user has no value in pinning what is already permanently visible
     in their pool.
     """
-    org_id = _resolve_org_id(user)
+    user = auth.user
+    org_id = auth.organization_id
 
     from ...services.usage_analytics import (
         top_tools_for_user,

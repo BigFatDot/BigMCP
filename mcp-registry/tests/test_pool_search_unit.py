@@ -26,10 +26,16 @@ class _FakeTool:
 
 def test_pool_tools_definitions_have_search_execute_and_describe():
     """Phase 1 added ``describe_tool`` so the LLM can fetch the verbose
-    description on demand when ``MCP_COMPACT_MODE`` ships only titles."""
+    description on demand when ``MCP_COMPACT_MODE`` ships only titles.
+    Phase B-0 chunk 8 added ``composition_status`` for durable workflow polling."""
     tools = get_pool_tools()
     names = {t["name"] for t in tools}
-    assert names == POOL_TOOL_NAMES == {"search", "execute", "describe_tool"}
+    assert names == POOL_TOOL_NAMES == {
+        "search",
+        "execute",
+        "describe_tool",
+        "composition_status",
+    }
 
 
 def test_search_input_schema_requires_query():

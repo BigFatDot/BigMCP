@@ -19,6 +19,7 @@ from ...db.database import get_async_session
 from ...models.user import User
 from ...models.api_key import APIKey
 from ..dependencies import get_current_user, get_current_organization, require_scope
+from ..rbac import assert_resource_in_org
 from ...services.tool_binding_service import ToolBindingService
 from ...schemas.tool_binding import (
     ToolBindingCreate,
@@ -56,18 +57,18 @@ async def _assert_context_in_org_or_404(
     new binding row, so the row LOOKS legit but actually attaches
     a binding to a foreign context — net effect: silent cross-org
     leak / corruption).
-
-    Same 404 shape as ``get_context`` in contexts.py so callers can't
-    use it to enumerate context IDs from other orgs.
     """
     from ...services.context_service import ContextService
 
     context = await ContextService(db).get_context(context_id)
-    if context is None or context.organization_id != organization_id:
+    if context is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Context {context_id} not found",
         )
+    assert_resource_in_org(
+        context.organization_id, organization_id, f"Context {context_id}"
+    )
 
 
 @router.post(
@@ -175,11 +176,9 @@ async def get_tool_binding(
         )
 
     # Verify binding belongs to user's organization
-    if binding.organization_id != organization_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Tool binding {binding_id} not found"
-        )
+    assert_resource_in_org(
+        binding.organization_id, organization_id, f"Tool binding {binding_id}"
+    )
 
     return ToolBindingResponse.model_validate(binding)
 
@@ -204,11 +203,14 @@ async def get_binding_info(
 
     # Verify binding belongs to user's organization
     binding = await service.get_binding(binding_id)
-    if not binding or binding.organization_id != organization_id:
+    if not binding:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Tool binding {binding_id} not found"
         )
+    assert_resource_in_org(
+        binding.organization_id, organization_id, f"Tool binding {binding_id}"
+    )
 
     try:
         info = await service.get_binding_info(binding_id)
@@ -248,11 +250,9 @@ async def update_tool_binding(
         )
 
     # Verify binding belongs to user's organization
-    if binding.organization_id != organization_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Tool binding {binding_id} not found"
-        )
+    assert_resource_in_org(
+        binding.organization_id, organization_id, f"Tool binding {binding_id}"
+    )
 
     try:
         binding = await service.update_binding(
@@ -298,11 +298,9 @@ async def delete_tool_binding(
         )
 
     # Verify binding belongs to user's organization
-    if binding.organization_id != organization_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Tool binding {binding_id} not found"
-        )
+    assert_resource_in_org(
+        binding.organization_id, organization_id, f"Tool binding {binding_id}"
+    )
 
     try:
         await service.delete_binding(binding_id)
@@ -335,11 +333,14 @@ async def execute_tool_binding(
 
     # Verify binding belongs to user's organization before execution
     binding = await service.get_binding(binding_id)
-    if not binding or binding.organization_id != organization_id:
+    if not binding:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Tool binding {binding_id} not found"
         )
+    assert_resource_in_org(
+        binding.organization_id, organization_id, f"Tool binding {binding_id}"
+    )
 
     try:
         import time
@@ -415,11 +416,14 @@ async def copy_tool_binding(
 
     # Verify source binding belongs to user's organization
     binding = await service.get_binding(binding_id)
-    if not binding or binding.organization_id != organization_id:
+    if not binding:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Tool binding {binding_id} not found"
         )
+    assert_resource_in_org(
+        binding.organization_id, organization_id, f"Tool binding {binding_id}"
+    )
 
     # Cross-org guard: the TARGET context must also be in the same org.
     # Without this check, copying a binding to a foreign context would
@@ -474,10 +478,10 @@ async def get_binding_by_name(
         )
 
     # Verify binding belongs to user's organization
-    if binding.organization_id != organization_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Tool binding '{binding_name}' not found in context {context_id}"
-        )
+    assert_resource_in_org(
+        binding.organization_id,
+        organization_id,
+        f"Tool binding '{binding_name}' in context {context_id}",
+    )
 
     return ToolBindingResponse.model_validate(binding)

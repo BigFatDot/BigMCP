@@ -46,7 +46,7 @@ pytestmark = pytest.mark.asyncio
 async def test_pool_tools_advertise_three_meta_tools():
     tools = get_pool_tools()
     names = {t["name"] for t in tools}
-    assert names == {"search", "execute", "describe_tool"}
+    assert names == {"search", "execute", "describe_tool", "composition_status"}
     assert names == set(POOL_TOOL_NAMES)
 
 

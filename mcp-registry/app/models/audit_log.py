@@ -109,6 +109,9 @@ class AuditAction(str, enum.Enum):
     PERMISSION_CHANGE = "iam.permission_change"
     ROLE_ASSIGN = "iam.role_assign"
     ROLE_REVOKE = "iam.role_revoke"
+    # RBAC enforcement signals (recorded by app/api/rbac.py)
+    AUTHORIZATION_DENIED = "iam.authorization_denied"
+    CROSS_ORG_INSTANCE_OVERRIDE = "iam.cross_org_instance_override"
 
     # Data & Export
     DATA_EXPORT = "data.export"

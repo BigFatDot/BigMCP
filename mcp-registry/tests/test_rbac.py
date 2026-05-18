@@ -816,3 +816,83 @@ class TestPermissionService:
                 composition=composition
             )
             assert can_view is True, f"Role {role} should be able to view"
+
+
+# ===== Tests: app/api/rbac.py — Integration via /admin/org/default-pool =====
+
+
+class TestRequireAdminOnDefaultPool:
+    """Integration tests for the unified ``require_admin`` dependency.
+
+    ``/admin/org/default-pool`` was the first endpoint migrated off
+    ``require_instance_admin``. It accepts:
+      - org OWNER and org ADMIN (team admin) — natural access
+      - instance admin (super-role) — via the override path
+
+    and rejects:
+      - org MEMBER and org VIEWER — sub-admin roles
+      - users with no membership in the JWT-resolved org
+    """
+
+    @pytest.mark.asyncio
+    async def test_owner_can_list_default_pool(
+        self, client: AsyncClient, organization_with_roles: dict
+    ):
+        resp = await client.get(
+            "/api/v1/admin/org/default-pool",
+            headers=organization_with_roles["owner"]["headers"],
+        )
+        assert resp.status_code == 200, resp.text
+        assert resp.json()["entries"] == []
+
+    @pytest.mark.asyncio
+    async def test_admin_can_list_default_pool(
+        self, client: AsyncClient, organization_with_roles: dict
+    ):
+        resp = await client.get(
+            "/api/v1/admin/org/default-pool",
+            headers=organization_with_roles["admin"]["headers"],
+        )
+        assert resp.status_code == 200, resp.text
+
+    @pytest.mark.asyncio
+    async def test_member_is_denied(
+        self, client: AsyncClient, organization_with_roles: dict
+    ):
+        resp = await client.get(
+            "/api/v1/admin/org/default-pool",
+            headers=organization_with_roles["member"]["headers"],
+        )
+        assert resp.status_code == 403
+        assert "ADMIN" in resp.json()["detail"]
+
+    @pytest.mark.asyncio
+    async def test_viewer_is_denied(
+        self, client: AsyncClient, organization_with_roles: dict
+    ):
+        resp = await client.get(
+            "/api/v1/admin/org/default-pool",
+            headers=organization_with_roles["viewer"]["headers"],
+        )
+        assert resp.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_instance_admin_override(
+        self,
+        client: AsyncClient,
+        db_session: AsyncSession,
+        organization_with_roles: dict,
+    ):
+        """An instance admin demoted to MEMBER still gets through via override."""
+        # Take the member user, mark them as instance admin in preferences.
+        member_user = organization_with_roles["member"]["user"]
+        prefs = dict(member_user.preferences or {})
+        prefs["instance_admin"] = True
+        member_user.preferences = prefs
+        await db_session.commit()
+
+        resp = await client.get(
+            "/api/v1/admin/org/default-pool",
+            headers=organization_with_roles["member"]["headers"],
+        )
+        assert resp.status_code == 200, resp.text

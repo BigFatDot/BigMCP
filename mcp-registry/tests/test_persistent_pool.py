@@ -157,7 +157,15 @@ async def test_admin_can_add_list_remove_default_pool(
 async def test_non_admin_cannot_mutate_default_pool(
     client: AsyncClient, db_session: AsyncSession, test_user: dict
 ):
-    # Register a 2nd, non-admin user
+    """A MEMBER of the org (not ADMIN/OWNER, not instance admin) is denied.
+
+    Since RBAC migration the default-pool admin surface is gated by
+    ``require_admin`` — any ADMIN/OWNER of the org passes, and instance
+    admins still pass via the override. Only sub-admin roles (MEMBER,
+    VIEWER) get a 403.
+    """
+    from app.models.organization import UserRole
+
     register = await client.post(
         "/api/v1/auth/register",
         json={
@@ -172,7 +180,19 @@ async def test_non_admin_cannot_mutate_default_pool(
         .where(User.email == "non-admin-pool@example.com")
         .values(email_verified=True)
     )
+    # Downgrade their membership in their auto-org from ADMIN to MEMBER.
+    user = (
+        await db_session.execute(
+            select(User).where(User.email == "non-admin-pool@example.com")
+        )
+    ).scalar_one()
+    await db_session.execute(
+        update(OrganizationMember)
+        .where(OrganizationMember.user_id == user.id)
+        .values(role=UserRole.MEMBER)
+    )
     await db_session.commit()
+
     login = await client.post(
         "/api/v1/auth/login",
         json={"email": "non-admin-pool@example.com", "password": "NotAdmin123!"},

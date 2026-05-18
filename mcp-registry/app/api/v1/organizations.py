@@ -65,7 +65,19 @@ async def require_org_admin(
     user_id: UUID,
     organization_id: UUID
 ) -> OrganizationMember:
-    """Require user to be admin or owner of organization."""
+    """Require user to be admin or owner of the given organization.
+
+    This helper deliberately diverges from ``app/api/rbac.py::require_admin``:
+    the rbac.py factory pulls the org_id from the JWT claim, whereas
+    org-management endpoints take the org_id from the **URL path**
+    (e.g. ``DELETE /organizations/{org_id}/members/{member_id}``) so a
+    caller can act on an org other than their current context.
+
+    Instance-admin override is NOT applied here — only true org
+    ADMIN/OWNER members can mutate org membership. Cross-org instance
+    admin operations should go through dedicated ``/admin/...``
+    surfaces with their own audit trail.
+    """
     membership = await get_user_membership(db, user_id, organization_id)
     if not membership:
         raise HTTPException(
@@ -76,26 +88,6 @@ async def require_org_admin(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin or Owner role required"
-        )
-    return membership
-
-
-async def require_org_owner(
-    db: AsyncSession,
-    user_id: UUID,
-    organization_id: UUID
-) -> OrganizationMember:
-    """Require user to be owner of organization."""
-    membership = await get_user_membership(db, user_id, organization_id)
-    if not membership:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not a member of this organization"
-        )
-    if membership.role != UserRole.OWNER:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Owner role required"
         )
     return membership
 

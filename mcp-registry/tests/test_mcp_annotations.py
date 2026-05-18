@@ -20,7 +20,7 @@ def test_pool_meta_tools_carry_annotations():
     from app.routers.mcp_gateway.pool.definitions import get_pool_tools
 
     by_name = {t["name"]: t for t in get_pool_tools()}
-    assert set(by_name) == {"search", "execute", "describe_tool"}
+    assert set(by_name) == {"search", "execute", "describe_tool", "composition_status"}
 
     # search: writes the pool, no external side-effect, NOT idempotent.
     s = by_name["search"]["annotations"]
