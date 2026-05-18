@@ -82,7 +82,7 @@ export function ServerConfigForm({ server, onSuccess, onError, onBack, hasTeamCo
         case 'url':
           fieldSchema = z.string()
           if (field.required) {
-            fieldSchema = fieldSchema.min(1, `${field.display_name || field.name} is required`)
+            fieldSchema = (fieldSchema as z.ZodString).min(1, `${field.display_name || field.name} is required`)
           }
           if (field.validation_regex) {
             fieldSchema = (fieldSchema as z.ZodString).regex(
@@ -100,7 +100,7 @@ export function ServerConfigForm({ server, onSuccess, onError, onBack, hasTeamCo
         case 'number':
           fieldSchema = z.coerce.number()
           if (field.required) {
-            fieldSchema = fieldSchema.min(0)
+            fieldSchema = (fieldSchema as z.ZodNumber).min(0)
           }
           break
         case 'boolean':

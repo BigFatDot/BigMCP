@@ -150,7 +150,7 @@ export function MarketplaceBrowser() {
     setFilters((prev) => ({ ...prev, category }))
   }
 
-  const isConnected = (serverId: string) => false
+  const isConnected = (_serverId: string) => false
 
   const handleConnect = (server: MCPServer) => {
     setSelectedServer(server)
@@ -280,8 +280,8 @@ export function MarketplaceBrowser() {
       {adminMode && isInstanceAdmin && (
         <AdminPanel
           activeSection={adminSection}
-          categoryFilter={filters.category}
-          searchFilter={filters.search}
+          categoryFilter={filters.category ?? ''}
+          searchFilter={filters.search ?? ''}
           onViewDetails={handleViewDetails}
           adminServers={adminServers || []}
           adminServersLoading={adminServersLoading}
@@ -603,7 +603,7 @@ function AdminPanel({ activeSection, categoryFilter, searchFilter, onViewDetails
     requires_credentials: server.credentials_count > 0,
     icon_url: server.icon_url,
     icon_urls: server.icon_urls,
-  } as MCPServer)
+  } as unknown as MCPServer)
 
   return (
     <div className="space-y-4">

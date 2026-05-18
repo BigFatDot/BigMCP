@@ -16,7 +16,6 @@ import {
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui'
 import { organizationMembersApi, type PendingInvitation, type MemberRole } from '@/services/marketplace'
-import { cn } from '@/utils/cn'
 import toast from 'react-hot-toast'
 
 const ROLE_LABELS: Record<MemberRole, string> = {
@@ -123,7 +122,7 @@ export function PendingInvitationsBanner() {
 
 // Single invitation quick actions
 function SingleInvitationActions({
-  invitation,
+  invitation: _invitation,
   onAccept,
   onDecline,
   isAccepting,
@@ -179,7 +178,7 @@ function MultipleInvitationsView({
   invitations,
   onAccept,
   onDecline,
-  onDismiss,
+  onDismiss: _onDismiss,
   isAccepting,
   isDeclining,
 }: {

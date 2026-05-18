@@ -390,7 +390,7 @@ type ServerTabType = 'personal' | 'team'
 export function ToolsDashboard() {
   const { t } = useTranslation('dashboard')
   const queryClient = useQueryClient()
-  const { organizationName, hasOrganization, isTeamOrg } = useOrganization()
+  const { hasOrganization, isTeamOrg } = useOrganization()
   const { features } = useFeatureAccess()
   const [viewMode, setViewMode] = useState<ViewMode>('servers')
   const [serverTab, setServerTab] = useState<ServerTabType>('personal')
@@ -414,7 +414,7 @@ export function ToolsDashboard() {
   // No separate API call needed - credentials already have all the info
 
   // Fetch available tools
-  const { data: availableTools = [], isLoading: isLoadingTools, error: toolsError } = useQuery({
+  const { data: availableTools = [] } = useQuery({
     queryKey: ['available-tools'],
     queryFn: () => toolGroupsApi.listAvailableTools(),
     retry: 1,
@@ -635,8 +635,6 @@ export function ToolsDashboard() {
 
   // Stats
   const groups: ToolGroup[] = groupsData || []
-  const activeServers = credentials.filter((c) => getServerState(c) === 'active').length
-  const totalTools = availableTools.length
   const totalGroups = groups.length
   const teamServersCount = orgCredentials.length
 

@@ -91,9 +91,6 @@ const ENTERPRISE_PLAN = {
   ],
 }
 
-// SaaS platform URL for license purchases
-const SAAS_URL = 'https://app.bigmcp.cloud'
-
 // ============================================================================
 // Edition-Specific Components
 // ============================================================================
@@ -215,7 +212,7 @@ function CommunityUpgradeSection() {
 export function SubscriptionPage() {
   const { t } = useTranslation('settings')
   const { tier, isActive, isInTrial, daysUntilTrialEnd, cancelAtPeriodEnd } = useSubscription()
-  const { edition, editionLoading, isCloudSaaS, isEnterprise, isCommunity } = useEdition()
+  const { edition, editionLoading, isCloudSaaS, isEnterprise } = useEdition()
   const [searchParams, setSearchParams] = useSearchParams()
   const [usageMetrics, setUsageMetrics] = useState<UsageMetric[]>([])
   const [isLoading, setIsLoading] = useState(true)

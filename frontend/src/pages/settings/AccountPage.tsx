@@ -15,9 +15,7 @@ import {
   KeyIcon,
   TrashIcon,
   ShieldCheckIcon,
-  BuildingOfficeIcon,
   CheckCircleIcon,
-  ArrowUpIcon,
 } from '@heroicons/react/24/outline'
 import { Button, Card } from '@/components/ui'
 import { MFASetupModal, MFADisableModal } from '@/components/auth'
@@ -26,27 +24,10 @@ import { useInstanceAdmin } from '@/hooks/useInstanceAdmin'
 import { authApi, mfaApi } from '@/services/marketplace'
 import type { MFAStatus } from '@/types/auth'
 
-// SaaS platform URL for license purchases
-const SAAS_URL = 'https://app.bigmcp.cloud'
-
-// Enterprise plan info
-const ENTERPRISE_PLAN = {
-  price: 'Free',
-  priceNote: 'launch offer • 3 months',
-  features: [
-    'Unlimited users',
-    'SSO / SAML authentication',
-    'Full audit logs',
-    'Custom branding',
-    'Priority support',
-    'Perpetual license',
-  ],
-}
-
 export function AccountPage() {
   const { t } = useTranslation('settings')
   const { user, logout, refreshUser } = useAuth()
-  const { edition, editionLoading, isCloudSaaS, isEnterprise, isCommunity, licenseOrg, licenseFeatures } = useEdition()
+  const { editionLoading, isCloudSaaS, isEnterprise, licenseOrg, licenseFeatures } = useEdition()
   const {
     isInstanceAdmin,
     isLoading: adminLoading,
@@ -59,7 +40,6 @@ export function AccountPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [name, setName] = useState(user?.name || '')
-  const [email] = useState(user?.email || '')  // Email is read-only
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 

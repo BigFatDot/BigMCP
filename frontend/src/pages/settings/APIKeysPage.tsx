@@ -283,7 +283,7 @@ export function APIKeysPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newKeySecret, setNewKeySecret] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [, setError] = useState<string | null>(null)
   const { organizationId } = useOrganization()
 
   // Fetch tool groups for linking

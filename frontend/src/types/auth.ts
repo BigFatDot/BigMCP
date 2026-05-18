@@ -22,7 +22,7 @@ export interface OrganizationMembership {
 export interface User {
   id: string
   email: string
-  full_name: string
+  name: string
   is_active: boolean
   is_verified: boolean
   is_superuser: boolean
@@ -88,7 +88,7 @@ export interface LoginRequest {
 export interface SignupRequest {
   email: string
   password: string
-  full_name: string
+  name: string
 }
 
 export interface AuthResponse {

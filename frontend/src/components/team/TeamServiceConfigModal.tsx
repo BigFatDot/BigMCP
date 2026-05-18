@@ -283,7 +283,7 @@ export function TeamServiceConfigModal({
               autoFocus
             />
             {errors.serviceName && (
-              <p className="text-xs text-red-600">{errors.serviceName.message}</p>
+              <p className="text-xs text-red-600">{String(errors.serviceName.message ?? '')}</p>
             )}
           </div>
 

@@ -497,8 +497,8 @@ function ServerConfigCard({ server, onUpdate, onRename, onUpdateMetadata, onDele
                         alt="Icon preview"
                         className="w-8 h-8 rounded border border-gray-200 object-contain bg-white"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = ''
-                          (e.target as HTMLImageElement).className = 'w-8 h-8 rounded border border-gray-200 bg-gray-100'
+                          ;(e.target as HTMLImageElement).src = ''
+                          ;(e.target as HTMLImageElement).className = 'w-8 h-8 rounded border border-gray-200 bg-gray-100'
                         }}
                       />
                     ) : (
@@ -954,8 +954,8 @@ function AddServerCard({ onAdd }: AddServerCardProps) {
                         alt="Icon"
                         className="w-12 h-12 rounded-lg border border-gray-200 object-contain bg-white"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = ''
-                          (e.target as HTMLImageElement).className = 'w-12 h-12 rounded-lg border border-gray-200 bg-gray-100'
+                          ;(e.target as HTMLImageElement).src = ''
+                          ;(e.target as HTMLImageElement).className = 'w-12 h-12 rounded-lg border border-gray-200 bg-gray-100'
                         }}
                       />
                     ) : (

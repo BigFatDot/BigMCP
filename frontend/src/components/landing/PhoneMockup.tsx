@@ -225,7 +225,7 @@ export function PhoneMockup({ className }: PhoneMockupProps) {
   )
 }
 
-function ResultCard({ icon, title, subtitle, details }: {
+function ResultCard({ title, subtitle, details }: {
   icon: string
   title: string
   subtitle: string

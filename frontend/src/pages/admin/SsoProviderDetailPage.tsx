@@ -19,7 +19,7 @@
  */
 
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import {
   ArrowLeftIcon,
   PlusIcon,
@@ -194,7 +194,6 @@ function CreateMappingForm({
 
 export function SsoProviderDetailPage() {
   const { providerId } = useParams<{ providerId: string }>()
-  const navigate = useNavigate()
   const [provider, setProvider] = useState<OIDCProvider | null>(null)
   const [mappings, setMappings] = useState<OIDCGroupMapping[]>([])
   const [organizations, setOrganizations] = useState<AdminOrganization[]>([])

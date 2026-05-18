@@ -85,13 +85,20 @@ export function OnboardingWizard() {
       .then((servers) => {
         if (cancelled || !servers || servers.length === 0) return
         setPopularServers(
-          servers.map((s) => ({
-            id: s.id,
-            name: s.name,
-            description: s.description?.slice(0, 80) || 'MCP server',
-            icon: CATEGORY_EMOJI[(s.category || '').toLowerCase()] || '🔌',
-            category: s.category || 'Other',
-          })),
+          servers.map((s) => {
+            // The marketplace API returns ``category`` as a string[]
+            // (multi-category support). Pick the first one for the card.
+            const firstCategory = Array.isArray(s.category)
+              ? s.category[0] || ''
+              : (s.category as unknown as string) || ''
+            return {
+              id: s.id,
+              name: s.name,
+              description: s.description?.slice(0, 80) || 'MCP server',
+              icon: CATEGORY_EMOJI[firstCategory.toLowerCase()] || '🔌',
+              category: firstCategory || 'Other',
+            }
+          }),
         )
       })
       .catch(() => {

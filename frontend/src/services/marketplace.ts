@@ -1037,8 +1037,6 @@ export const authApi = {
 import type {
   MFAStatus,
   MFASetupResponse,
-  MFAChallengeResponse,
-  MFALoginRequest,
 } from '@/types/auth'
 
 export const mfaApi = {
@@ -2030,7 +2028,6 @@ export const instanceAdminApi = {
       features: string[]
     }
     saas?: {
-      marketplace_curation: boolean
       license_generation: boolean
     }
   }> {

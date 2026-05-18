@@ -11,7 +11,7 @@ import { EyeIcon, EyeSlashIcon, CheckCircleIcon, ExclamationCircleIcon } from '@
 import { Button, Input, Alert } from '@/components/ui'
 import { marketplaceApi } from '@/services/marketplace'
 import { useOrganization } from '@/hooks/useAuth'
-import type { MCPServer, CredentialField } from '@/types/marketplace'
+import type { MCPServer } from '@/types/marketplace'
 
 export interface APIKeyFormProps {
   server: MCPServer
@@ -44,7 +44,7 @@ export function APIKeyForm({ server, onSuccess, onError, onBack }: APIKeyFormPro
         case 'url':
           fieldSchema = z.string()
           if (field.required) {
-            fieldSchema = fieldSchema.min(1, `${field.name} is required`)
+            fieldSchema = (fieldSchema as z.ZodString).min(1, `${field.name} is required`)
           }
           if (field.validation_regex) {
             fieldSchema = (fieldSchema as z.ZodString).regex(
@@ -59,7 +59,7 @@ export function APIKeyForm({ server, onSuccess, onError, onBack }: APIKeyFormPro
         case 'number':
           fieldSchema = z.coerce.number()
           if (field.required) {
-            fieldSchema = fieldSchema.min(0)
+            fieldSchema = (fieldSchema as z.ZodNumber).min(0)
           }
           break
         case 'boolean':
@@ -86,7 +86,6 @@ export function APIKeyForm({ server, onSuccess, onError, onBack }: APIKeyFormPro
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
   })
@@ -110,7 +109,7 @@ export function APIKeyForm({ server, onSuccess, onError, onBack }: APIKeyFormPro
         true  // auto_start - start server immediately with user credentials
       )
     },
-    onSuccess: async (response) => {
+    onSuccess: async (_response) => {
       setValidationStatus('success')
       setTimeout(() => {
         onSuccess()

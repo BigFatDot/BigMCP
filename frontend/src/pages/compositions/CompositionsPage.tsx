@@ -298,7 +298,7 @@ function ExecuteModal({ composition, isOpen, onClose, onExecute }: ExecuteModalP
 
   if (!isOpen || !composition) return null
 
-  const inputSchema = composition.input_schema as InputSchema | undefined
+  const inputSchema = composition.input_schema as unknown as InputSchema | undefined
   const hasInputs = inputSchema?.properties && Object.keys(inputSchema.properties).length > 0
   const steps = composition.steps || []
 
@@ -1017,7 +1017,7 @@ export function CompositionsPage() {
     }
   }
 
-  const handleExecuteConfirm = async (params: Record<string, unknown>) => {
+  const handleExecuteConfirm = async (_params: Record<string, unknown>) => {
     // Just reload to update execution count - modal handles the execution
     loadCompositions()
   }

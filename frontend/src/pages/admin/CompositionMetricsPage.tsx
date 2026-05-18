@@ -17,7 +17,7 @@
 
 import { useEffect, useState } from 'react'
 import { ArrowPathIcon, ChartBarIcon } from '@heroicons/react/24/outline'
-import { Card, Button, Badge } from '@/components/ui'
+import { Card, Button } from '@/components/ui'
 import { apiClient as api } from '@/services/api'
 
 interface CompositionMetrics {

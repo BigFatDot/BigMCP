@@ -30,7 +30,6 @@ import {
 } from '@dnd-kit/core'
 import {
   ArchiveBoxIcon,
-  ArrowPathIcon,
   BoltIcon,
   MagnifyingGlassIcon,
   PencilSquareIcon,
@@ -40,7 +39,7 @@ import {
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
-import { Button, Badge } from '@/components/ui'
+import { Button } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import {
   poolApi,
@@ -327,7 +326,7 @@ export function ToolsWorkspace() {
     })
     // Pool size stays approximate during the round-trip (we don't know how
     // many were already in the pool); bump the cached counter optimistically.
-    queryClient.setQueryData<any>(poolStateKey, (old) => {
+    queryClient.setQueryData<any>(poolStateKey, (old: any) => {
       if (!old) return old
       const delta = next
         ? toolIds.filter((id) => {
@@ -385,7 +384,7 @@ export function ToolsWorkspace() {
       queryClient.setQueryData<any[]>(toolsQueryKey, (old) =>
         (old || []).map((row) => ({ ...row, is_visible_to_oauth_clients: false })),
       )
-      queryClient.setQueryData<any>(poolStateKey, (old) =>
+      queryClient.setQueryData<any>(poolStateKey, (old: any) =>
         old ? { ...old, pool_size: 0 } : old,
       )
       return { previous }

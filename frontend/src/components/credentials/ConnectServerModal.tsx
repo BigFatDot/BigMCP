@@ -38,7 +38,7 @@ export function ConnectServerModal({
 }: ConnectServerModalProps) {
   const [error, setError] = useState<string | null>(null)
   const [connectionName, setConnectionName] = useState('')
-  const [isConnecting, setIsConnecting] = useState(false)
+  const [, setIsConnecting] = useState(false)
   const { isCloudSaaS } = useAuth()
   const { organizationId } = useOrganization()
   const navigate = useNavigate()

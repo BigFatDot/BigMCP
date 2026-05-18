@@ -25,7 +25,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { cn } from '@/utils/cn'
 import { usePageMeta } from '@/hooks/usePageMeta'
-import { docsNavigation, findDocBySlug, getAllDocItems } from './navigation'
+import { findDocBySlug, getAllDocItems } from './navigation'
 import { getDocPageContent } from './content'
 import { MermaidDiagram } from '@/components/docs/MermaidDiagram'
 
@@ -295,11 +295,6 @@ export function DocPage() {
 
   const prevDoc = currentIndex > 0 ? allDocs[currentIndex - 1] : null
   const nextDoc = currentIndex < allDocs.length - 1 ? allDocs[currentIndex + 1] : null
-
-  // Get section info
-  const sectionInfo = useMemo(() => {
-    return docsNavigation.find((s) => s.id === section)
-  }, [section])
 
   // Update document title and meta tags
   const translatedTitle = section && slug ? getItemTitle(section, slug) : docInfo?.title

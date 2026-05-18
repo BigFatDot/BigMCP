@@ -13,7 +13,6 @@ import type {
   DeploymentConfig,
   AuthTokens,
   FeatureLimits,
-  SubscriptionTier,
   EditionInfo,
   MFAChallengeResponse,
 } from '../types/auth'
@@ -192,9 +191,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const url = `${deploymentConfig.marketplace_api_url}${endpoint}`
       const token = getAccessToken()
 
-      const headers: HeadersInit = {
+      const headers: Record<string, string> = {
         'Content-Type': 'application/json',
-        ...options.headers,
+        ...(options.headers as Record<string, string> | undefined),
       }
 
       if (token) {

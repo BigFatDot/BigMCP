@@ -2,7 +2,7 @@ import { HTMLAttributes, forwardRef } from 'react'
 import { cn } from '@/utils/cn'
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: 'orange' | 'gray' | 'success' | 'error' | 'info' | 'warning'
+  variant?: 'orange' | 'gray' | 'success' | 'error' | 'info' | 'warning' | 'primary' | 'default'
   size?: 'sm' | 'md' | 'lg'
 }
 
@@ -33,6 +33,10 @@ export const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
       error: 'bg-red-100 text-red-800',
       info: 'bg-blue-100 text-blue-800',
       warning: 'bg-amber-100 text-amber-800',
+      // ``default`` is a neutral fallback alias for callers that don't
+      // need to pick a semantic color. ``primary`` is the brand badge.
+      default: 'bg-gray-100 text-gray-800',
+      primary: 'bg-orange-100 text-orange-800',
     }
 
     const sizes = {
