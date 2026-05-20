@@ -69,13 +69,6 @@ class MarketplaceServerResponse(BaseModel):
     last_updated: Optional[str] = None
     discovered_at: Optional[str] = None
 
-    # Phase 2: org-scoped marketplace curation. None when the caller's org has
-    # no curation rule for this server (default = visible). Set to one of
-    # 'approved' / 'featured' / 'hidden' (the latter never appears in the
-    # response for non-admin queries since hidden servers are filtered out).
-    org_curation_status: Optional[str] = None
-    org_curation_featured_order: Optional[int] = None
-
 
 class MarketplaceListResponse(BaseModel):
     """Response model for paginated server list."""

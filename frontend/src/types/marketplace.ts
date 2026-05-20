@@ -55,12 +55,6 @@ export interface MCPServer {
   // SaaS compatibility
   requires_local_access?: boolean  // True if server needs local filesystem/docker access
 
-  // Phase 2 — org-scoped marketplace curation. Set when the caller's
-  // org has a curation rule for this server. Hidden servers are filtered
-  // out before reaching the frontend.
-  org_curation_status?: 'approved' | 'featured' | 'hidden' | null
-  org_curation_featured_order?: number | null
-
   // Metadata
   tags: string[]
   created_at: string

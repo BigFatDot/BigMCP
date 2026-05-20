@@ -2617,17 +2617,6 @@ class MarketplaceSyncService:
             # Apply credential templates (template-first approach)
             self._apply_credential_template(server_dict, curation)
 
-            # Surface org-scoped curation in the response so the UI can
-            # display badges ("Approved", "Featured") without a second hop.
-            if org_curation:
-                org_entry = org_curation.get(server.id)
-                server_dict["org_curation_status"] = (
-                    org_entry["status"] if org_entry else None
-                )
-                server_dict["org_curation_featured_order"] = (
-                    org_entry.get("featured_order") if org_entry else None
-                )
-
             enriched.append(server_dict)
 
         return {
