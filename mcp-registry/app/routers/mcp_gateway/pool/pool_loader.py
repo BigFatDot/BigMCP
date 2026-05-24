@@ -270,6 +270,37 @@ async def load_searchable_pool(
     return entries
 
 
+def _output_hint(entry: PoolEntry) -> Dict[str, Any]:
+    """Summarise a tool's OUTPUT format for the planner.
+
+    The planner only ever saw input `parameters`, so it optimistically
+    referenced structured paths (${step_N.datasets[*].id}) on tools that
+    actually return one prose string — those references never resolve. We
+    surface returns_schema so the planner knows when to bridge with a
+    `transform` step.
+    """
+    if entry.kind != "tool" or entry.raw_tool is None:
+        return {"format": "unknown"}
+    rs = getattr(entry.raw_tool, "returns_schema", None)
+    if isinstance(rs, dict) and isinstance(rs.get("properties"), dict) and rs["properties"]:
+        props = rs["properties"]
+        # FastMCP str-return signature: a single `result: string` property.
+        if set(props.keys()) == {"result"} and props["result"].get("type") == "string":
+            return {
+                "format": "prose_text",
+                "note": (
+                    "Returns ONE unstructured text string at "
+                    "${step_N.structuredContent.result}. Its fields are NOT "
+                    "navigable. To use any value (id, name, …) from it in a later "
+                    "step you MUST insert a `transform` step with source "
+                    "${step_N.structuredContent.result}. Do NOT reference "
+                    "${step_N.<field>} on this tool — it will not resolve."
+                ),
+            }
+        return {"format": "structured", "schema": rs}
+    return {"format": "unknown"}
+
+
 def serialize_for_intent_analyzer(entry: PoolEntry) -> Dict[str, Any]:
     """Shape expected by IntentAnalyzer.analyze(available_tools=...)."""
     return {
@@ -277,6 +308,7 @@ def serialize_for_intent_analyzer(entry: PoolEntry) -> Dict[str, Any]:
         "name": entry.name,
         "description": entry.description,
         "parameters": entry.parameters_schema,
+        "output": _output_hint(entry),
         "metadata": {
             "kind": entry.kind,
             "server_uuid": entry.server_id,

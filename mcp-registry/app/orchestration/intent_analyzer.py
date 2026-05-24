@@ -406,10 +406,20 @@ bridges the prose into a navigable id.
         Build user prompt with query, tools, and context.
         """
         # Format tools for the prompt
+        def _fmt_output(tool: Dict[str, Any]) -> str:
+            out = tool.get("output") or {}
+            fmt = out.get("format")
+            if fmt == "prose_text":
+                return f"Output: PROSE TEXT ⚠️ {out.get('note', '')}"
+            if fmt == "structured":
+                return f"Output (structured, navigable): {out.get('schema', {})}"
+            return "Output: unknown"
+
         tools_description = "\n\n".join([
             f"Tool: {tool.get('name')}\n"
             f"Description: {tool.get('description', 'No description')}\n"
-            f"Parameters: {tool.get('parameters', {})}"
+            f"Parameters: {tool.get('parameters', {})}\n"
+            f"{_fmt_output(tool)}"
             for tool in available_tools[:10]  # Limit to top 10 tools
         ])
 
