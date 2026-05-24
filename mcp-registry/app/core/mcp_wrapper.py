@@ -734,16 +734,23 @@ class HttpMCPWrapper(MCPServerWrapper):
             "params": params or {}
         }
 
-        # Add session ID if we have one
+        # MCP streamable-http spec (2025-03-26): session ID travels via the
+        # `Mcp-Session-Id` HEADER, never in the JSON-RPC body. Strict servers
+        # (e.g. n8n's Zod-validated bridge) reject any unknown keys in the
+        # body and respond -32700 Parse error.
         if self._session_id:
-            # Try adding session ID in BOTH top-level and params
-            payload["sessionId"] = self._session_id  # Top-level for streamable-http
-            payload["params"]["sessionId"] = self._session_id  # In params as well
-            logger.info(f"📤 Sending session ID for {self.server_id}: {self._session_id}")
+            headers["Mcp-Session-Id"] = self._session_id
 
         url = self.url.rstrip('/')
 
         async with session.post(url, headers=headers, json=payload) as response:
+            # Server-issued session ID (per spec). Capture it before reading the
+            # body so subsequent requests carry the right header.
+            header_session = response.headers.get("Mcp-Session-Id")
+            if header_session and header_session != self._session_id:
+                self._session_id = header_session
+                logger.info(f"📝 Session ID captured from header for {self.server_id}: {self._session_id}")
+
             if response.status != 200:
                 text = await response.text()
                 raise RuntimeError(f"HTTP {response.status}: {text}")
@@ -839,10 +846,12 @@ class HttpMCPWrapper(MCPServerWrapper):
         # Start the HTTP server process first
         await self._start_process()
 
-        # Generate session ID before initialize for servers that need it in the request
-        if not self._session_id:
-            self._session_id = str(uuid.uuid4())
-            logger.info(f"🔑 Client-side session ID generated for {self.server_id}: {self._session_id}")
+        # Per MCP streamable-http spec: the session ID is server-issued. The
+        # first `initialize` request carries no session ID; the server returns
+        # one via the `Mcp-Session-Id` response header which we capture in
+        # `_send_jsonrpc_request` and reuse on subsequent calls. Generating a
+        # client-side UUID would inject an unsolicited header that strict
+        # servers reject (and is non-conformant either way).
 
         result = await self._send_jsonrpc_request(
             "initialize",
