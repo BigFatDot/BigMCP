@@ -450,6 +450,36 @@ Do NOT use any other tool names.
             "note": "Full intent analysis requires LLM API connection"
         }
 
+    @staticmethod
+    def _strip_unknown_params(step: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
+        """Remove step parameters not declared in the tool's inputSchema.
+
+        Mutates ``step["parameters"]`` in place and returns the list of dropped
+        keys. No-op (returns []) when the schema is open or unusable:
+        - schema declares no ``properties`` → can't know what's valid
+        - ``additionalProperties`` is explicitly ``True`` → extra keys allowed
+
+        JSON Schema's default for additionalProperties is technically ``true``,
+        but real MCP servers (data.gouv, n8n, …) validate strictly and 400 on
+        unknown keys, so we treat "absent" as strict here.
+        """
+        params = step.get("parameters")
+        if not isinstance(params, dict) or not params:
+            return []
+        if not isinstance(schema, dict):
+            return []
+        properties = schema.get("properties")
+        if not isinstance(properties, dict) or not properties:
+            return []
+        if schema.get("additionalProperties") is True:
+            return []
+
+        allowed = set(properties.keys())
+        dropped = [k for k in params if k not in allowed]
+        for k in dropped:
+            del params[k]
+        return dropped
+
     async def _enrich_analysis(
         self,
         analysis: Dict[str, Any],
@@ -522,12 +552,26 @@ Do NOT use any other tool names.
                 )
 
                 if tool_info:
+                    schema = tool_info.get("parameters") or {}
                     step["tool_info"] = {
                         "description": tool_info.get("description"),
-                        "parameters_schema": tool_info.get("parameters"),
+                        "parameters_schema": schema,
                         "server_id": tool_info.get("server_id"),
                         "metadata": tool_info.get("metadata", {})
                     }
+
+                    # Strip LLM-hallucinated parameters: the model is handed the
+                    # tool's inputSchema but still invents plausible-looking keys
+                    # (e.g. sort=-last_modified on a tool that has no `sort`),
+                    # which strict servers reject with HTTP 400. Drop any key not
+                    # declared in the schema's properties — unless the schema
+                    # explicitly opts into extra keys via additionalProperties.
+                    dropped = self._strip_unknown_params(step, schema)
+                    if dropped:
+                        logger.info(
+                            f"Stripped hallucinated params {dropped} from step "
+                            f"{step.get('step_id')} (tool {resolved_name})"
+                        )
 
                 valid_steps.append(step)
 

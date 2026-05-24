@@ -113,6 +113,31 @@ def _score_pool_against_goal(
     return scored
 
 
+def _single_entry_failed(result: Dict[str, Any]) -> bool:
+    """True when an L1/L2 single-entry attempt did not succeed.
+
+    The L2 textual shortcut can misfire on a multi-step goal: a tool whose
+    name overlaps the goal (e.g. ``list_dataset_resources`` for a goal about
+    "datasets") wins the lexical score, the IntentAnalyzer gets scoped to that
+    lone tool, and it emits a 1-step plan that can't fill a required param it
+    was supposed to receive from an earlier step. Detecting that here lets the
+    caller escalate to full L3 orchestration instead of surfacing a confusing
+    single-tool error.
+    """
+    if not isinstance(result, dict):
+        return False
+    level = result.get("level", "")
+    if isinstance(level, str) and level.endswith("_extraction_failed"):
+        return True
+    if result.get("error"):
+        return True
+    # _run_inline_composition wraps execute_direct under "result"
+    inner = result.get("result")
+    if isinstance(inner, dict) and inner.get("status") in ("failed", "partial"):
+        return True
+    return False
+
+
 # ---------------------------------------------------------------------------
 # Core execution paths.
 # ---------------------------------------------------------------------------
@@ -598,16 +623,22 @@ async def handle_execute(
         top_score, top_entry = scored[0]
         runner_up = scored[1][0] if len(scored) >= 2 else 0
         if top_score >= _L2_MIN_TOP_SCORE and (top_score - runner_up) >= _L2_MIN_GAP:
-            return _log(
-                await _run_with_single_entry(
-                    gateway,
-                    top_entry,
-                    goal=goal,
-                    params=params,
-                    user_id=user_id,
-                    organization_id=organization_id,
-                ),
-                mode="goal",
+            l2_result = await _run_with_single_entry(
+                gateway,
+                top_entry,
+                goal=goal,
+                params=params,
+                user_id=user_id,
+                organization_id=organization_id,
+            )
+            # The lexical winner may have been a red herring for a multi-step
+            # goal. If the scoped single-entry run failed, escalate to L3 over
+            # the full pool rather than returning the misleading error.
+            if not _single_entry_failed(l2_result):
+                return _log(l2_result, mode="goal")
+            logger.info(
+                "L2 single-entry '%s' failed for goal — escalating to L3 full orchestration",
+                getattr(top_entry, "name", "?"),
             )
 
     # L3: full orchestration

@@ -12,6 +12,7 @@ from app.routers.mcp_gateway.pool.execute_handler import (
     _L2_MIN_TOP_SCORE,
     _sanitize_server_prefix,
     _score_pool_against_goal,
+    _single_entry_failed,
     handle_execute,
 )
 
@@ -62,6 +63,26 @@ def test_l2_thresholds_are_conservative():
     triggers_l2 = top1[0] >= _L2_MIN_TOP_SCORE and (top1[0] - runner_up) >= _L2_MIN_GAP
     # Both tools have "send" in name → tie or near-tie, must NOT trigger L2.
     assert not triggers_l2
+
+
+def test_single_entry_failed_detects_failure_modes():
+    # Extraction could not infer params for the lone tool.
+    assert _single_entry_failed({"level": "L1_or_L2_tool_extraction_failed", "error": "x"})
+    assert _single_entry_failed({"level": "L1_or_L2_composition_extraction_failed"})
+    # Top-level error.
+    assert _single_entry_failed({"error": "boom"})
+    # Inline composition executed but the step failed (the multi-step misfire).
+    assert _single_entry_failed({"level": "L1_or_L2_tool_via_intent", "result": {"status": "failed"}})
+    assert _single_entry_failed({"level": "L1_or_L2_tool_via_intent", "result": {"status": "partial"}})
+
+
+def test_single_entry_failed_passes_successful_runs():
+    # Genuine single-tool success must NOT escalate.
+    assert not _single_entry_failed({"level": "L1_or_L2_tool_direct", "result": {"status": "success"}})
+    assert not _single_entry_failed({"level": "L1_or_L2_tool_via_intent", "result": {"status": "success"}})
+    assert not _single_entry_failed({"level": "L1_or_L2_composition_direct", "result": {}})
+    assert not _single_entry_failed({})
+    assert not _single_entry_failed("not a dict")
 
 
 @pytest.mark.asyncio
