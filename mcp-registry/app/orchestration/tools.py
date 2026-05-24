@@ -389,6 +389,12 @@ class OrchestrationTools:
                     original_to_prefixed[key] = tool.get("name")
 
             for step in steps:
+                # Non-tool step types (transform, elicit, wait_until, approval,
+                # subcomposition, wait_callback) don't carry a `tool` field —
+                # they're validated by their own promote-time validators, not
+                # against the tool registry. Only tool steps are checked here.
+                if step.get("type", "tool") != "tool":
+                    continue
                 tool_name = step.get("tool")
                 if not tool_name:
                     validation_errors.append(f"Step {step.get('step_id')} missing 'tool' field")

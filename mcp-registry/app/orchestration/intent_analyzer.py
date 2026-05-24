@@ -522,6 +522,13 @@ Do NOT use any other tool names.
             valid_steps = []
 
             for step in composition["steps"]:
+                # Non-tool step types (transform, elicit, …) carry no `tool`
+                # field and aren't registry tools — keep them as-is rather
+                # than flagging them hallucinated/invalid.
+                if step.get("type", "tool") != "tool":
+                    valid_steps.append(step)
+                    continue
+
                 tool_name = step.get("tool")
 
                 if not tool_name:
