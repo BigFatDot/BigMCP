@@ -2297,6 +2297,34 @@ multi-step plan (L3) without you wiring anything by hand.
 - `${{_index}}` - Current iteration index (0, 1, 2...)
 - `${{_now}}` - ISO timestamp
 
+**⚠️ Structured vs prose tools — and the `transform` step:**
+Not every tool returns navigable JSON. Many return a single human-readable
+TEXT string at `${{step_N.structuredContent.result}}` (e.g. data.gouv.fr
+tools: "Found 3 organizations... ID: 5c81..."). For those, a structured path
+like `${{step_N.datasets[0].id}}` resolves to NOTHING and the step fails.
+To pull a value out of prose, insert a `transform` step — it runs an LLM that
+extracts a JSON object conforming to an `output_schema` you provide:
+```json
+{{
+  "step_id": "1b",
+  "type": "transform",
+  "source": "${{step_1.structuredContent.result}}",
+  "output_schema": {{"type":"object","properties":{{
+      "datasets":{{"type":"array","items":{{"type":"object",
+        "properties":{{"id":{{"type":"string"}}}},"required":["id"]}}}}}},
+    "required":["datasets"]}}
+}}
+```
+Rules:
+- `source` MUST be the RAW text — almost always
+  `${{step_N.structuredContent.result}}`. Never a made-up structured path.
+- Reference the transform's output DIRECTLY (no `.structuredContent`):
+  `${{step_1b.datasets[0].id}}`.
+- Skip `transform` when a tool already returns structured fields — reference
+  them directly. Use it only to bridge prose into the data-flow (1 LLM call).
+- Unsure of a tool's output shape? Run it once and inspect
+  `structuredContent`: a single `result` string ⇒ prose ⇒ needs transform.
+
 **Save the workflow via the REST API** (or via the legacy
 `orchestrator_create_composition` dispatch — still functional but no longer
 exposed in tools/list):
