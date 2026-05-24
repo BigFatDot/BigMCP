@@ -311,6 +311,22 @@ Use `transform` ONLY when a downstream step genuinely needs a value buried in
 prose — it costs one LLM call. If a tool already returns structured fields,
 reference them directly and skip transform.
 
+### Fan-out over a list → `foreach` step
+When the goal needs a tool run ONCE PER ITEM of a list (e.g. "for each
+dataset, get its metrics") and that tool takes a SINGLE value (not an array),
+do NOT pass a wildcard list to a single-value param — it fails validation.
+Use a `foreach` step: it runs the inner `do` sub-step once per element, with
+the current element available as ${_item}:
+{
+  "step_id": "3",
+  "type": "foreach",
+  "items": "${step_2b.datasets[*].id}",
+  "do": {"tool": "DataGouv__get_metrics", "parameters": {"dataset_id": "${_item}"}}
+}
+Its result is {"results": [...], "count": N}; reference downstream as
+${step_3.results[*]...}. (If the tool itself ACCEPTS an array param, prefer the
+_template/_map pattern in a single call instead of foreach.)
+
 ### Wildcard [*] - Extract ALL from array
 - ${step_1.items[*].id} → ["id1", "id2", "id3"]
 - ${step_1.workspaces[*].docs[*].id} → flattened list

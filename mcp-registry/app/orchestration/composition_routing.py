@@ -230,11 +230,13 @@ def build_tool_dispatcher(user_server_pool) -> ToolDispatcher:
             "step_results": public_step_results,
         }
 
-        # `transform` steps run their own LLM extraction (synchronous, no
-        # suspension) through the same legacy helper so resumable-routed
-        # compositions get identical behaviour.
+        # `transform` and `foreach` steps run synchronously (no suspension)
+        # through the same legacy helpers so resumable-routed compositions get
+        # identical behaviour.
         if step.get("type") == "transform":
             return await legacy._execute_transform(step, context)
+        if step.get("type") == "foreach":
+            return await legacy._execute_foreach(step, context)
 
         # Resolve ${input.X} and ${step_X.path} substitutions via the
         # legacy executor's existing helper — DRY, single source of

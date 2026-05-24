@@ -67,6 +67,26 @@ def _validate_elicit_steps_for_production(composition: Composition) -> Optional[
     return None
 
 
+def _validate_foreach_steps_for_production(composition: Composition) -> Optional[str]:
+    """Reject promote-to-production when a ``foreach`` step is malformed.
+
+    Mirrors ``_validate_transform_steps_for_production``.
+    """
+    from ..orchestration.foreach_step import ForeachConfigError, validate_config
+
+    for idx, step in enumerate(composition.steps or []):
+        if not isinstance(step, dict):
+            continue
+        if step.get("type") != "foreach":
+            continue
+        try:
+            validate_config(step)
+        except ForeachConfigError as e:
+            step_label = step.get("step_id") or step.get("id") or f"step #{idx}"
+            return f"Step {step_label!r} (type=foreach) is invalid: {e}"
+    return None
+
+
 def _validate_transform_steps_for_production(composition: Composition) -> Optional[str]:
     """Reject promote-to-production when a ``transform`` step is malformed.
 
@@ -703,6 +723,9 @@ class CompositionService:
             transform_error = _validate_transform_steps_for_production(composition)
             if transform_error:
                 return (None, transform_error)
+            foreach_error = _validate_foreach_steps_for_production(composition)
+            if foreach_error:
+                return (None, foreach_error)
 
         composition.status = new_status
         composition.ttl = None  # Remove TTL when promoted
@@ -779,6 +802,9 @@ class CompositionService:
             transform_error = _validate_transform_steps_for_production(composition)
             if transform_error:
                 return (None, transform_error, False)
+            foreach_error = _validate_foreach_steps_for_production(composition)
+            if foreach_error:
+                return (None, foreach_error, False)
             composition.visibility = CompositionVisibility.ORGANIZATION.value
             composition.status = CompositionStatus.PRODUCTION.value
             composition.ttl = None
@@ -859,6 +885,9 @@ class CompositionService:
         transform_error = _validate_transform_steps_for_production(composition)
         if transform_error:
             return (None, transform_error)
+        foreach_error = _validate_foreach_steps_for_production(composition)
+        if foreach_error:
+            return (None, foreach_error)
 
         composition.visibility = CompositionVisibility.ORGANIZATION.value
         composition.status = CompositionStatus.PRODUCTION.value

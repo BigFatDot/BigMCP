@@ -463,26 +463,28 @@ class CompositionExecutor:
         max_retries = step.get("retry_strategy", {}).get("max_retries", self.max_retries)
         timeout = step.get("timeout_seconds", self.default_timeout)
 
-        # Non-tool step types dispatch here. `transform` is synchronous
-        # (LLM extraction, no suspension) so it lives on this legacy path
+        # Non-tool step types dispatch here. `transform` and `foreach` are
+        # synchronous (no suspension) so they live on this legacy path
         # alongside tool steps; suspending step types are handled by
         # ResumableExecutor.
-        if step.get("type") == "transform":
+        step_type = step.get("type", "tool")
+        if step_type in ("transform", "foreach"):
             t_start = time.time()
+            runner = self._execute_transform if step_type == "transform" else self._execute_foreach
             try:
-                result = await self._execute_transform(step, context)
+                result = await runner(step, context)
                 return StepExecution(
                     step_id=step_id,
-                    tool="transform",
+                    tool=step_type,
                     status="success",
                     result=result,
                     duration_ms=int((time.time() - t_start) * 1000),
                 )
             except Exception as e:
-                logger.warning(f"Transform step {step_id} failed: {e}")
+                logger.warning(f"{step_type.capitalize()} step {step_id} failed: {e}")
                 return StepExecution(
                     step_id=step_id,
-                    tool="transform",
+                    tool=step_type,
                     status="failed",
                     error=str(e),
                     duration_ms=int((time.time() - t_start) * 1000),
@@ -506,43 +508,11 @@ class CompositionExecutor:
 
                 duration_ms = int((time.time() - start_time) * 1000)
 
-                # Check if result indicates an error (multiple detection methods)
-                is_error = False
-                error_msg = "Tool execution failed"
-
-                if isinstance(result, dict):
-                    # Method 1: Check isError flag
-                    if result.get("isError"):
-                        is_error = True
-                        if "content" in result and len(result["content"]) > 0:
-                            content = result["content"][0]
-                            if isinstance(content, dict) and "text" in content:
-                                error_msg = content["text"]
-
-                    # Method 2: Check structuredContent.success === false
-                    # Some tools return errors without setting isError
-                    structured = result.get("structuredContent", {})
-                    if isinstance(structured, dict) and structured.get("success") is False:
-                        is_error = True
-                        error_msg = structured.get("message", error_msg)
-
-                    # Method 3: error-shaped prose. Some servers (e.g. data.gouv)
-                    # return an error MESSAGE as plain text with isError=false —
-                    # an HTTP 404/400 surfaced as "Error: Client error '404 ...'".
-                    # Treat a result whose text begins with "Error:" as a failure
-                    # so the composition reports it honestly (and L2 can escalate
-                    # to L3) instead of marking a 404 as success.
-                    if not is_error:
-                        err_text = None
-                        if isinstance(structured, dict) and isinstance(structured.get("result"), str):
-                            err_text = structured["result"]
-                        elif result.get("content"):
-                            first = result["content"][0]
-                            if isinstance(first, dict) and isinstance(first.get("text"), str):
-                                err_text = first["text"]
-                        if err_text and err_text.lstrip().lower().startswith("error:"):
-                            is_error = True
-                            error_msg = err_text.strip()[:500]
+                # Detect tool failure: isError flag, structuredContent.success
+                # === false, or error-shaped prose (text starting with "Error:",
+                # e.g. data.gouv 404s surfaced as text with isError=false).
+                error_msg = self._result_error_message(result)
+                is_error = error_msg is not None
 
                 if is_error:
                     logger.warning(
@@ -622,6 +592,109 @@ class CompositionExecutor:
 
         resolved = self._resolve_parameters({"source": step.get("source")}, context)
         return await transform_execute(step, resolved.get("source"))
+
+    async def _execute_foreach(
+        self, step: Dict[str, Any], context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Run a `foreach` step: fan the `do` sub-step over each item of `items`.
+
+        Resolves `items` to a list, then for each element builds an iteration
+        context (${_item}, ${_index}) — the same machinery _template/_map uses —
+        resolves the sub-step's parameters against it, and executes the sub-step
+        (a tool or a transform). Aggregates into {results, count, errors}.
+
+        Shared by the legacy executor and the ResumableExecutor bridge.
+        """
+        from .foreach_step import validate_config, MAX_ITEMS
+
+        validate_config(step)
+        step_id = step.get("step_id")
+
+        resolved = self._resolve_parameters({"items": step.get("items")}, context)
+        items = resolved.get("items")
+        if items is None:
+            items = []
+        if not isinstance(items, list):
+            # A single scalar is treated as a one-element list — convenient when
+            # an upstream non-wildcard ref yields one value.
+            items = [items]
+        if len(items) > MAX_ITEMS:
+            logger.warning(
+                f"foreach step {step_id}: capping {len(items)} items to {MAX_ITEMS}"
+            )
+            items = items[:MAX_ITEMS]
+
+        do = step["do"]
+        do_type = do.get("type", "tool")
+        results: List[Any] = []
+        errors: List[Dict[str, Any]] = []
+
+        for idx, item in enumerate(items):
+            iteration_context = {
+                "_item": item,
+                "_index": idx,
+                "_root": items,
+            }
+            try:
+                if do_type == "transform":
+                    from .transform_step import execute as transform_execute
+                    src = self._resolve_parameters(
+                        {"source": do.get("source")}, context, iteration_context
+                    ).get("source")
+                    r = await transform_execute(do, src)
+                else:
+                    params = self._resolve_parameters(
+                        do.get("parameters", {}), context, iteration_context
+                    )
+                    r = await self._execute_tool(do.get("tool"), params, context)
+                    # Honor the same error-shaped-prose detection as _execute_step:
+                    # a tool that 404s as text (isError=false) must not count as a
+                    # successful iteration.
+                    err = self._result_error_message(r)
+                    if err:
+                        errors.append({"index": idx, "error": err})
+                        continue
+                results.append(r)
+            except Exception as e:
+                errors.append({"index": idx, "error": str(e)})
+
+        if items and not results:
+            first = errors[0]["error"] if errors else "unknown"
+            raise ValueError(
+                f"foreach step {step_id}: all {len(items)} iteration(s) failed "
+                f"(first error: {first})"
+            )
+
+        return {"results": results, "count": len(results), "errors": errors}
+
+    @staticmethod
+    def _result_error_message(result: Any) -> Optional[str]:
+        """Return an error message if a tool result represents a failure.
+
+        Consolidates the three detection methods used in _execute_step:
+        isError flag, structuredContent.success === false, and error-shaped
+        prose (text beginning with "Error:").
+        """
+        if not isinstance(result, dict):
+            return None
+        if result.get("isError"):
+            content = result.get("content") or []
+            if content and isinstance(content[0], dict) and "text" in content[0]:
+                return str(content[0]["text"])[:500]
+            return "Tool execution failed"
+        structured = result.get("structuredContent", {})
+        if isinstance(structured, dict) and structured.get("success") is False:
+            return str(structured.get("message", "Tool execution failed"))[:500]
+        err_text = None
+        if isinstance(structured, dict) and isinstance(structured.get("result"), str):
+            err_text = structured["result"]
+        elif result.get("content"):
+            first = result["content"][0]
+            if isinstance(first, dict) and isinstance(first.get("text"), str):
+                err_text = first["text"]
+        if err_text and err_text.lstrip().lower().startswith("error:"):
+            return err_text.strip()[:500]
+        return None
 
     def _resolve_parameters(
         self,
