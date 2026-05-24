@@ -526,6 +526,24 @@ class CompositionExecutor:
                         is_error = True
                         error_msg = structured.get("message", error_msg)
 
+                    # Method 3: error-shaped prose. Some servers (e.g. data.gouv)
+                    # return an error MESSAGE as plain text with isError=false —
+                    # an HTTP 404/400 surfaced as "Error: Client error '404 ...'".
+                    # Treat a result whose text begins with "Error:" as a failure
+                    # so the composition reports it honestly (and L2 can escalate
+                    # to L3) instead of marking a 404 as success.
+                    if not is_error:
+                        err_text = None
+                        if isinstance(structured, dict) and isinstance(structured.get("result"), str):
+                            err_text = structured["result"]
+                        elif result.get("content"):
+                            first = result["content"][0]
+                            if isinstance(first, dict) and isinstance(first.get("text"), str):
+                                err_text = first["text"]
+                        if err_text and err_text.lstrip().lower().startswith("error:"):
+                            is_error = True
+                            error_msg = err_text.strip()[:500]
+
                 if is_error:
                     logger.warning(
                         f"Step {step_id} failed with error: {error_msg} "
