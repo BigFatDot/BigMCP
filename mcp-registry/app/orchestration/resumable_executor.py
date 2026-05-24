@@ -535,7 +535,10 @@ class ResumableExecutor:
                     step, state, launcher_user_id=execution.user_id,
                 )
 
-            if step_type == "tool":
+            if step_type in ("tool", "transform"):
+                # `transform` is synchronous (LLM extraction, no suspension);
+                # it shares the tool dispatcher bridge, which routes on
+                # step["type"] to the legacy executor's transform handler.
                 if self._tool_dispatcher is None:
                     raise ToolDispatchUnconfigured(
                         "ResumableExecutor.set_tool_dispatcher() not called — "

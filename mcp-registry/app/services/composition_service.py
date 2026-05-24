@@ -67,6 +67,30 @@ def _validate_elicit_steps_for_production(composition: Composition) -> Optional[
     return None
 
 
+def _validate_transform_steps_for_production(composition: Composition) -> Optional[str]:
+    """Reject promote-to-production when a ``transform`` step is malformed.
+
+    A transform step needs a ``source`` reference and a valid JSON-Schema
+    ``output_schema``. Catching it here saves the author a test run. Mirrors
+    ``_validate_elicit_steps_for_production``.
+    """
+    from ..orchestration.transform_step import TransformConfigError, validate_config
+
+    for idx, step in enumerate(composition.steps or []):
+        if not isinstance(step, dict):
+            continue
+        if step.get("type") != "transform":
+            continue
+        try:
+            validate_config(step)
+        except TransformConfigError as e:
+            step_label = (
+                step.get("step_id") or step.get("id") or f"step #{idx}"
+            )
+            return f"Step {step_label!r} (type=transform) is invalid: {e}"
+    return None
+
+
 async def _validate_subcomposition_steps_for_production(
     db: AsyncSession,
     composition: Composition,
@@ -676,6 +700,9 @@ class CompositionService:
             approval_error = _validate_approval_steps_for_production(composition)
             if approval_error:
                 return (None, approval_error)
+            transform_error = _validate_transform_steps_for_production(composition)
+            if transform_error:
+                return (None, transform_error)
 
         composition.status = new_status
         composition.ttl = None  # Remove TTL when promoted
@@ -749,6 +776,9 @@ class CompositionService:
             approval_error = _validate_approval_steps_for_production(composition)
             if approval_error:
                 return (None, approval_error, False)
+            transform_error = _validate_transform_steps_for_production(composition)
+            if transform_error:
+                return (None, transform_error, False)
             composition.visibility = CompositionVisibility.ORGANIZATION.value
             composition.status = CompositionStatus.PRODUCTION.value
             composition.ttl = None
@@ -826,6 +856,9 @@ class CompositionService:
         approval_error = _validate_approval_steps_for_production(composition)
         if approval_error:
             return (None, approval_error)
+        transform_error = _validate_transform_steps_for_production(composition)
+        if transform_error:
+            return (None, transform_error)
 
         composition.visibility = CompositionVisibility.ORGANIZATION.value
         composition.status = CompositionStatus.PRODUCTION.value

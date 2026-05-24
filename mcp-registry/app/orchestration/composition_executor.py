@@ -463,6 +463,31 @@ class CompositionExecutor:
         max_retries = step.get("retry_strategy", {}).get("max_retries", self.max_retries)
         timeout = step.get("timeout_seconds", self.default_timeout)
 
+        # Non-tool step types dispatch here. `transform` is synchronous
+        # (LLM extraction, no suspension) so it lives on this legacy path
+        # alongside tool steps; suspending step types are handled by
+        # ResumableExecutor.
+        if step.get("type") == "transform":
+            t_start = time.time()
+            try:
+                result = await self._execute_transform(step, context)
+                return StepExecution(
+                    step_id=step_id,
+                    tool="transform",
+                    status="success",
+                    result=result,
+                    duration_ms=int((time.time() - t_start) * 1000),
+                )
+            except Exception as e:
+                logger.warning(f"Transform step {step_id} failed: {e}")
+                return StepExecution(
+                    step_id=step_id,
+                    tool="transform",
+                    status="failed",
+                    error=str(e),
+                    duration_ms=int((time.time() - t_start) * 1000),
+                )
+
         logger.info(f"Executing step {step_id}: {tool_name}")
 
         start_time = time.time()
@@ -566,6 +591,20 @@ class CompositionExecutor:
                 # Wait before retry
                 await asyncio.sleep(1)
 
+    async def _execute_transform(
+        self, step: Dict[str, Any], context: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Run a `transform` step: resolve its source ref, then LLM-extract.
+
+        Shared by the legacy `_execute_step` path and the ResumableExecutor
+        tool-dispatcher bridge so both executors get identical semantics.
+        Returns the validated structured object; raises on failure.
+        """
+        from .transform_step import execute as transform_execute
+
+        resolved = self._resolve_parameters({"source": step.get("source")}, context)
+        return await transform_execute(step, resolved.get("source"))
+
     def _resolve_parameters(
         self,
         parameters: Dict[str, Any],
@@ -666,8 +705,24 @@ class CompositionExecutor:
                                 str_value = str(extracted_value)
                             value = value.replace(f"${{{match}}}", str_value)
                     else:
+                        # Reference could not be resolved.
+                        if is_single_reference and match.startswith(("step_", "input.")):
+                            # A WHOLE-value data-flow reference that failed.
+                            # Passing the literal "${...}" placeholder downstream
+                            # produces confusing failures (e.g. a 404 on a URL
+                            # containing "%7Bstep_2...%7D"). Fail the step loudly —
+                            # the upstream step produced no such field (often
+                            # because its output is unstructured text or empty).
+                            raise ValueError(
+                                f"Unresolved data-flow reference '${{{match}}}' "
+                                f"for parameter '{key}': the referenced step "
+                                f"produced no value at that path. Upstream output "
+                                f"may be unstructured or empty."
+                            )
                         if not is_single_reference:
-                            # Path navigation failed for embedded reference
+                            # Embedded reference in a larger string — keep the
+                            # legacy graceful "null" fill (some compositions
+                            # intentionally interpolate optional fields).
                             value = value.replace(f"${{{match}}}", "null")
 
                 resolved[key] = value
