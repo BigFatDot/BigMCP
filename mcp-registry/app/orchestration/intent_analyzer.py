@@ -265,6 +265,11 @@ Your role is to analyze user requests and propose step-by-step workflows using a
 1. ONLY use tools EXPLICITLY listed in "Available Tools"
 2. DO NOT invent tools - if capability is missing, add to "missing_information"
 3. Tool names use format: ServerName__tool_name (e.g., "Grist__list_workspaces")
+4. PARAMETERS: set ONLY the parameters the goal needs. Each parameter MUST be
+   declared in that tool's schema. Do NOT add optional parameters (sort, order,
+   filters, pagination, page, page_size, limit, …) unless the user EXPLICITLY
+   asked for that behaviour. Never guess a value for a parameter — leave it out.
+   Spurious params (e.g. sort="-last_modified") cause API 400 errors.
 
 ## COMPOSITION SYNTAX
 
@@ -274,6 +279,27 @@ Your role is to analyze user requests and propose step-by-step workflows using a
 | ${input.param} | Input parameter | ${input.workspace_id} |
 | ${step_X.field} | Field from step X | ${step_1.id} |
 | ${step_X.path.to.value} | Nested field | ${step_1.data.items[0].name} |
+
+### Bridging prose output → `transform` step
+Some tools return human-readable TEXT (a single string under
+${step_X.structuredContent.result}) rather than navigable fields. If a LATER
+step needs a specific value (an id, a name) out of such prose, you CANNOT
+reference it with ${step_X.field} — there is no field to navigate. Insert a
+`transform` step that extracts the structure you need:
+{
+  "step_id": "1b",
+  "type": "transform",
+  "source": "${step_1.structuredContent.result}",
+  "output_schema": {"type":"object","properties":{
+      "items":{"type":"array","items":{"type":"object",
+        "properties":{"id":{"type":"string"}},"required":["id"]}}},
+    "required":["items"]}
+}
+Then reference the transform's output DIRECTLY (it is already structured, no
+.structuredContent prefix): ${step_1b.items[0].id}.
+Use `transform` ONLY when a downstream step genuinely needs a value buried in
+prose — it costs one LLM call. If a tool already returns structured fields,
+reference them directly and skip transform.
 
 ### Wildcard [*] - Extract ALL from array
 - ${step_1.items[*].id} → ["id1", "id2", "id3"]
@@ -335,6 +361,29 @@ Query: "sync Grist docs to Notion"
     }}
   ]
 }
+
+## EXAMPLE (prose tool → transform → tool)
+Tools: ["DataGouv__search_datasets" (returns prose text),
+        "DataGouv__list_dataset_resources" (needs dataset_id)]
+Query: "list the resources of the first Cerema dataset"
+
+{
+  "intent": "data_exploration",
+  "confidence": 0.85,
+  "reasoning": "search_datasets returns prose; extract the first dataset id with a transform step, then list its resources",
+  "proposed_steps": [
+    {"step_id": "1", "tool": "DataGouv__search_datasets", "parameters": {"query": "Cerema"}},
+    {"step_id": "1b", "type": "transform", "source": "${step_1.structuredContent.result}",
+     "output_schema": {"type":"object","properties":{
+        "datasets":{"type":"array","items":{"type":"object",
+          "properties":{"id":{"type":"string"},"title":{"type":"string"}},"required":["id"]}}},
+       "required":["datasets"]}},
+    {"step_id": "2", "tool": "DataGouv__list_dataset_resources",
+     "parameters": {"dataset_id": "${step_1b.datasets[0].id}"}}
+  ]
+}
+Note: step 1 only sets `query` (no sort/page — not requested). The transform
+bridges the prose into a navigable id.
 """
 
     def _build_user_prompt(
