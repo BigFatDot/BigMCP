@@ -968,24 +968,54 @@ async def connect_server(
             except ValueError as e:
                 raise HTTPException(status_code=400, detail=str(e))
 
-        # Step 3: Install and start server with user's credentials if auto_start requested
-        # This applies to both team services and normal flow
+        # Step 3: Install + dry-run handshake to validate the connection actually works.
+        # We go through UserServerPool.get_or_start_server which actually opens the
+        # transport and performs the MCP `initialize` handshake (HTTP request for
+        # remote servers, subprocess + stdin/stdout for stdio servers). Without this,
+        # a misconfigured connection would land in DB as status=running but blow up
+        # at first tool invocation — historic source of zombie rows the user can't tell
+        # apart from healthy ones.
         if request.auto_start:
-            logger.info(f"Auto-starting server {server_name} with user credentials")
+            logger.info(f"Validating connection for {server_name} (install + handshake)")
             try:
-                # Install the package (pip/npm) first - required since auto_start=False in create_server
                 await mcp_service.install(server_uuid)
-                # Now start with user credentials
-                await mcp_service.start(
-                    server_id=server_uuid,
+
+                from ...routers.mcp_unified import gateway as _mcp_gateway
+                await _mcp_gateway.user_server_pool.get_or_start_server(
                     user_id=user.id,
-                    organization_id=request.organization_id
+                    server_id=server_uuid,
+                    organization_id=request.organization_id,
+                    db=db,
+                    skip_rebuild=True
                 )
-                logger.info(f"Server {server_name} started successfully")
+                logger.info(f"Server {server_name} handshake succeeded")
             except Exception as start_error:
-                logger.error(f"Failed to auto-start server {server_name}: {start_error}")
-                # Don't fail the whole connection if start fails
-                # User can manually start from dashboard
+                logger.error(
+                    f"Connection validation failed for {server_name}: {start_error}",
+                    exc_info=True
+                )
+                # Roll back what we just persisted so the user isn't left with a zombie
+                # row. Team-service flow reuses the org's existing server, so only the
+                # user credential is ours to clean up; in the normal flow we also drop
+                # the server row we just created.
+                try:
+                    await credential_service.delete_user_credential(
+                        user_id=user.id,
+                        server_id=server_uuid
+                    )
+                except Exception as cleanup_err:
+                    logger.warning(f"Rollback: failed to delete user credential: {cleanup_err}")
+
+                if not request.use_org_credentials:
+                    try:
+                        await mcp_service.delete_server(server_uuid)
+                    except Exception as cleanup_err:
+                        logger.warning(f"Rollback: failed to delete server row: {cleanup_err}")
+
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Could not connect to {server_name}: {start_error}"
+                )
 
         # Invalidate user tool cache since a new server was connected
         from ...services.user_tool_cache import get_user_tool_cache

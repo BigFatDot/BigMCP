@@ -33,6 +33,27 @@ from sqlalchemy import select
 logger = logging.getLogger(__name__)
 
 
+_PLACEHOLDER_RE = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def _expand_placeholders(template: str, values: Dict[str, str]) -> str:
+    """Replace ${VAR} occurrences in template with matching values.
+
+    Unknown placeholders are left as-is (safe substitution) so a misconfigured
+    remote URL fails loud at connect time rather than silently producing a
+    request to a malformed host.
+    """
+    if not template or "${" not in template:
+        return template
+
+    def _sub(match: "re.Match[str]") -> str:
+        key = match.group(1)
+        val = values.get(key)
+        return str(val) if val is not None else match.group(0)
+
+    return _PLACEHOLDER_RE.sub(_sub, template)
+
+
 class UserServerPool:
     """
     Manages MCP server instances per user.
@@ -256,6 +277,8 @@ class UserServerPool:
         env = os.environ.copy()
         env.update(server.env or {})
 
+        credentials: Optional[Dict[str, str]] = None
+
         # 4. Resolve credentials based on server type
         # Team servers: merge org + user credentials
         # Personal servers: use only user credentials
@@ -305,6 +328,8 @@ class UserServerPool:
             or (server.env or {}).get("_EXTERNAL_URL")
         )
         if external_url:
+            # Expand ${VAR} placeholders from credentials (e.g. ${N8N_USER_ID} in the URL)
+            external_url = _expand_placeholders(external_url, credentials or {})
             wrapper_config["url"] = external_url
 
         wrapper = create_wrapper(str(server.server_id), wrapper_config, credentials=credentials)
