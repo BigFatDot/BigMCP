@@ -3214,19 +3214,54 @@ The MCP Gateway aggregates tools from **{len(servers)} MCP servers** into a unif
                 )
                 logger.info(f"_route_tool_execution: Got {len(all_tools)} tools for user {user_id}")
 
-                # Auto-recovery: if 0 tools, servers may have been cleaned up after
-                # inactivity, or list_tools() returned cached tools while servers
-                # are still starting in background (race condition).
-                # Strategy:
+                # Auto-recovery: trigger when the REQUESTED tool isn't among the
+                # currently-running servers' tools — not only when the pool is
+                # totally empty. A direct execute(tool_name=...) for a server
+                # that simply hasn't been started yet (other servers may be
+                # running) must still resolve + start that server, mirroring the
+                # L3 orchestration path. Strategy:
                 #   1. Check cache for tool routing info → start ONLY the needed server
                 #   2. Fallback: start ALL configured servers if cache miss
-                if not all_tools:
+                def _tool_present(tools: list) -> bool:
+                    if any(t.get("name") == tool_name for t in tools):
+                        return True
+                    if "__" in tool_name:
+                        pfx, orig = tool_name.split("__", 1)
+                        for t in tools:
+                            md = t.get("metadata", {}) or {}
+                            if md.get("original_tool_name") != orig:
+                                continue
+                            disp = re.sub(r'[^a-zA-Z0-9_]', '_', md.get("server_display_name", ""))
+                            disp = re.sub(r'_+', '_', disp).strip('_')
+                            if disp == pfx:
+                                return True
+                    return False
+
+                if not _tool_present(all_tools):
                     from ..services.user_tool_cache import get_user_tool_cache
                     tool_cache = get_user_tool_cache()
-                    cached_tools = await tool_cache.get(user_uuid)
 
                     target_server_id = None
-                    if cached_tools:
+
+                    # Most reliable resolution: map the display-name prefix to a
+                    # server UUID via the DB — the SAME mechanism the L3
+                    # orchestration path uses. Works even when the server has
+                    # never run this session and isn't in the tool cache yet.
+                    try:
+                        resolved = await self.orchestration_tools.composition_executor._resolve_server_from_prefix(
+                            tool_name, str(user_uuid), str(org_uuid), self.user_server_pool, {}
+                        )
+                        if resolved:
+                            target_server_id = resolved[0]
+                            logger.info(
+                                f"_route_tool_execution: resolved '{tool_name}' to server "
+                                f"{target_server_id} via DB prefix map"
+                            )
+                    except Exception as e:
+                        logger.warning(f"_route_tool_execution: prefix→DB resolution failed: {e}")
+
+                    cached_tools = await tool_cache.get(user_uuid) if target_server_id is None else None
+                    if target_server_id is None and cached_tools:
                         # Find the requested tool in cache to get its server_id
                         for ct in cached_tools:
                             ct_name = ct.get("name", "")
@@ -3310,19 +3345,21 @@ The MCP Gateway aggregates tools from **{len(servers)} MCP servers** into a unif
                 original_tool_name = parts[1]
                 logger.info(f"Parsing prefixed tool: prefix={server_prefix}, original={original_tool_name}")
 
-                # Find tool by original name AND matching server prefix
-                # This handles multi-instance scenarios (e.g., github_perso vs github_work)
+                # Find tool by original name AND matching server prefix.
+                # The prefix is the sanitized SERVER DISPLAY NAME — exactly how
+                # get_user_tools builds the prefixed `name` (NOT the server_id).
+                # Handles multi-instance scenarios (e.g., github_perso vs github_work).
                 for tool in all_tools:
-                    tool_original_name = tool.get("name")
                     tool_metadata = tool.get("metadata", {})
-                    tool_server_id = tool_metadata.get("server_id", "")
-                    # Sanitize server_id same way as list_tools (- to _)
-                    tool_server_prefix = tool_server_id.replace("-", "_")
+                    tool_original = tool_metadata.get("original_tool_name", "")
+                    disp = tool_metadata.get("server_display_name", "")
+                    tool_prefix = re.sub(r'[^a-zA-Z0-9_]', '_', disp)
+                    tool_prefix = re.sub(r'_+', '_', tool_prefix).strip('_')
 
                     # Match by BOTH original name AND server prefix
-                    if tool_original_name == original_tool_name and tool_server_prefix == server_prefix:
+                    if tool_original == original_tool_name and tool_prefix == server_prefix:
                         tool_info = tool
-                        logger.info(f"✅ Found tool: {original_tool_name} (server: {tool_server_id})")
+                        logger.info(f"✅ Found tool: {original_tool_name} (server: {disp})")
                         break
 
                 # Fallback: if no exact server match, try just tool name (single server scenario)
