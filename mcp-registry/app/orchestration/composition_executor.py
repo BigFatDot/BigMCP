@@ -763,8 +763,12 @@ class CompositionExecutor:
 
                         if step_result is not None:
                             if len(parts) > 1:
-                                # Navigate the path to extract specific value
-                                extracted_value = self._extract_value_from_path(
+                                # Navigate the path to extract specific value.
+                                # _extract_value_smart absorbs the tool/transform
+                                # asymmetry: tool results wrap data under
+                                # `structuredContent`, transform results are naked
+                                # dicts — references resolve either way.
+                                extracted_value = self._extract_value_smart(
                                     step_result,
                                     parts[1]
                                 )
@@ -1068,6 +1072,37 @@ class CompositionExecutor:
                 })
 
         return results
+
+    def _extract_value_smart(self, step_result: Any, path: str) -> Any:
+        """Navigate a path into a step result, absorbing the wrapper asymmetry.
+
+        A TOOL result wraps payload under ``structuredContent`` (and the raw
+        text under ``structuredContent.result``); a TRANSFORM/foreach result is
+        a naked dict. Authors (and the LLM planner) routinely use the wrong
+        convention when chaining — e.g. pointing ${step_4.structuredContent...}
+        at a transform output, or ${step_2.datasets} at a tool output. Try the
+        direct path, then under ``structuredContent``, then with a leading
+        ``structuredContent.`` stripped — so references resolve regardless.
+        """
+        candidates = [self._extract_value_from_path(step_result, path)]
+        if isinstance(step_result, dict) and isinstance(step_result.get("structuredContent"), dict):
+            candidates.append(
+                self._extract_value_from_path(step_result["structuredContent"], path)
+            )
+        if path.startswith("structuredContent."):
+            candidates.append(
+                self._extract_value_from_path(step_result, path[len("structuredContent."):])
+            )
+        # Prefer the first NON-EMPTY candidate. A wildcard that matched nothing
+        # returns [] (not None), so we must look past an empty direct hit to the
+        # asymmetry fallbacks before giving up.
+        for c in candidates:
+            if c is not None and c != [] and c != {}:
+                return c
+        for c in candidates:  # preserve a legitimately empty/None result
+            if c is not None:
+                return c
+        return None
 
     def _extract_value_from_path(self, obj: Any, path: str) -> Any:
         """
