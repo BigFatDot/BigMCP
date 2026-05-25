@@ -55,6 +55,10 @@ logger = logging.getLogger(__name__)
 _L2_MIN_TOP_SCORE = 4
 _L2_MIN_GAP = 2
 
+# L3 sends at most this many goal-ranked pool entries to the planner. Bounds
+# prompt size while ensuring the relevant tools (top of the ranking) get in.
+_L3_MAX_TOOLS = 30
+
 
 # ---------------------------------------------------------------------------
 # Backward-compat helpers exposed for unit tests written before refactor.
@@ -403,8 +407,18 @@ async def _run_full_orchestration(
     user_id: str,
     organization_id: str,
 ) -> Dict[str, Any]:
-    """L3 — full IntentAnalyzer over the entire pool (tools + compositions)."""
-    serialized = [serialize_for_intent_analyzer(e) for e in pool]
+    """L3 — IntentAnalyzer over the goal-relevant slice of the pool.
+
+    The pool can hold every visible tool of the org (dozens). Rank by the same
+    substring scorer L2 uses and send the top slice so the planner reliably
+    sees the tools that match the goal — substring matching puts e.g. all
+    `DataGouv__*` entries on top for a "data.gouv.fr" goal even when the goal
+    is French and the tool descriptions are English (the pool-visibility bug).
+    """
+    tokens = _tokenize(goal)
+    ranked = sorted(pool, key=lambda e: score_entry(tokens, e), reverse=True)
+    top = ranked[:_L3_MAX_TOOLS]
+    serialized = [serialize_for_intent_analyzer(e) for e in top]
     analysis = await gateway.orchestration_tools.intent_analyzer.analyze(
         query=goal,
         context={"pool_orchestration": True, "pool_size": len(pool)},

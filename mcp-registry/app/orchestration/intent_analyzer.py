@@ -87,16 +87,14 @@ class IntentAnalyzer:
         try:
             # Step 1: Use provided tools or search for relevant tools
             if available_tools:
-                # Filter tools by relevance to the query (simple text match)
-                query_lower = query.lower()
-                relevant_tools = [
-                    tool for tool in available_tools
-                    if query_lower in tool.get("name", "").lower()
-                    or query_lower in tool.get("description", "").lower()
-                    or any(word in tool.get("description", "").lower()
-                           for word in query_lower.split() if len(word) > 3)
-                ][:10]  # Limit to 10 most relevant
-                logger.info(f"Using {len(relevant_tools)} tools from {len(available_tools)} available (multi-tenant)")
+                # The caller (L3 _run_full_orchestration) already selected and
+                # ranked the relevant pool entries against the goal. Trust that
+                # selection — re-filtering here with a naive lexical match that
+                # only inspected the (often English) description, against a
+                # possibly French goal, silently dropped the real tools and left
+                # only an arbitrary subset (the pool-visibility bug).
+                relevant_tools = available_tools
+                logger.info(f"Using {len(relevant_tools)} caller-provided tools (multi-tenant)")
             else:
                 # Fallback to registry search (legacy mode)
                 relevant_tools = await self._search_relevant_tools(query)
@@ -431,16 +429,21 @@ bridges the prose into a navigable id.
                 return f"Output (structured, navigable): {out.get('schema', {})}"
             return "Output: unknown"
 
+        # The caller already caps + ranks the pool (L3 sends the top-N relevant
+        # entries). Render them all — truncating to 10 here previously hid the
+        # relevant tools when the pool was larger.
+        _PROMPT_TOOL_CAP = 40
+        prompt_tools = available_tools[:_PROMPT_TOOL_CAP]
         tools_description = "\n\n".join([
             f"Tool: {tool.get('name')}\n"
             f"Description: {tool.get('description', 'No description')}\n"
             f"Parameters: {tool.get('parameters', {})}\n"
             f"{_fmt_output(tool)}"
-            for tool in available_tools[:10]  # Limit to top 10 tools
+            for tool in prompt_tools
         ])
 
         # Create explicit list of tool names
-        tool_names = [tool.get('name') for tool in available_tools[:10]]
+        tool_names = [tool.get('name') for tool in prompt_tools]
         tool_names_str = ", ".join(tool_names)
 
         prompt = f"""User Query: {query}
