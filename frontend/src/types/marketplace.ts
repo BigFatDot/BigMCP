@@ -93,6 +93,9 @@ export interface UserCredential {
   server_enabled?: boolean
   // Visibility for OAuth clients (web dashboard) - hidden servers still accessible via API keys
   is_visible_to_oauth_clients?: boolean
+  // Marketplace base ID this connection came from (e.g. 'n8n') — lets the
+  // marketplace flag already-connected servers.
+  marketplace_server_id?: string
 }
 
 export interface OrganizationCredential {

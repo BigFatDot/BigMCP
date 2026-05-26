@@ -117,6 +117,10 @@ class UserCredentialResponse(BaseModel):
         None,
         description="Whether server is visible to OAuth clients (web dashboard). Hidden servers are still accessible via API keys."
     )
+    marketplace_server_id: Optional[str] = Field(
+        None,
+        description="Marketplace base ID this connection was created from (e.g. 'n8n'), so the marketplace can flag already-connected servers."
+    )
 
     class Config:
         from_attributes = True

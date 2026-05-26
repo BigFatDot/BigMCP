@@ -25,7 +25,7 @@ import { Input, CenteredSpinner, Alert, Card, Button } from '@/components/ui'
 import { ServerCard } from './ServerCard'
 import { ServerDetailModal } from './ServerDetailModal'
 import { LocalRegistryManager } from './LocalRegistryManager'
-import { marketplaceApi, adminRegistryApi } from '@/services/marketplace'
+import { marketplaceApi, adminRegistryApi, credentialsApi } from '@/services/marketplace'
 import type { SourceInfo, AdminServerInfo } from '@/services/marketplace'
 import { useInstanceAdmin } from '@/hooks/useInstanceAdmin'
 // useAuth import removed — edition gating no longer needed here
@@ -150,7 +150,21 @@ export function MarketplaceBrowser() {
     setFilters((prev) => ({ ...prev, category }))
   }
 
-  const isConnected = (_serverId: string) => false
+  // Which marketplace servers the user has already connected — derived from
+  // their credentials' marketplace_server_id, so cards can show "connected"
+  // instead of inviting a duplicate connect.
+  const { data: userCredentials } = useQuery({
+    queryKey: ['credentials'],
+    queryFn: () => credentialsApi.listUserCredentials(),
+  })
+  const connectedMarketplaceIds = useMemo(() => {
+    const s = new Set<string>()
+    for (const c of userCredentials || []) {
+      if (c.is_active && c.marketplace_server_id) s.add(c.marketplace_server_id)
+    }
+    return s
+  }, [userCredentials])
+  const isConnected = (serverId: string) => connectedMarketplaceIds.has(serverId)
 
   const handleConnect = (server: MCPServer) => {
     setSelectedServer(server)

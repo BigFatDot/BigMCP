@@ -165,6 +165,7 @@ async def list_user_credentials(
             responses[i].server_status = server.status.value if hasattr(server.status, 'value') else str(server.status)
             responses[i].server_enabled = server.enabled
             responses[i].is_visible_to_oauth_clients = server.is_visible_to_oauth_clients
+            responses[i].marketplace_server_id = (server.env or {}).get("_MARKETPLACE_SERVER_ID")
 
         # Add masked credentials if requested
         if show_masked and secrets_manager:
@@ -217,6 +218,7 @@ async def get_user_credential(
         response.server_status = server.status.value if hasattr(server.status, 'value') else str(server.status)
         response.server_enabled = server.enabled
         response.is_visible_to_oauth_clients = server.is_visible_to_oauth_clients
+        response.marketplace_server_id = (server.env or {}).get("_MARKETPLACE_SERVER_ID")
 
     # Add masked credentials if requested
     if show_masked:
