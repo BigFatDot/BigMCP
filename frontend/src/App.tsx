@@ -5,7 +5,6 @@ import { BrandingProvider } from './contexts/BrandingContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { MainLayout } from './components/layout/MainLayout'
 import { MarketplaceBrowser } from './components/marketplace/MarketplaceBrowser'
-import { ToolsDashboard } from './components/dashboard/ToolsDashboard'
 import { ToolsWorkspace } from './components/dashboard/workspace/ToolsWorkspace'
 import { OnboardingWizard } from './components/onboarding/OnboardingWizard'
 import { LoginPage } from './pages/auth/LoginPage'
@@ -104,15 +103,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <ToolsWorkspace />
-              </ProtectedRoute>
-            }
-          />
-          {/* Legacy dashboard kept reachable for fallback while the workspace UX matures. */}
-          <Route
-            path="tools/legacy"
-            element={
-              <ProtectedRoute>
-                <ToolsDashboard />
               </ProtectedRoute>
             }
           />
