@@ -9,7 +9,7 @@
  */
 
 import { useState, useMemo } from 'react'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -43,6 +43,7 @@ export function ServerConfigForm({ server, onSuccess, onError, onBack, hasTeamCo
   const [showOptionalConfig, setShowOptionalConfig] = useState(false)
   const [validationStatus, setValidationStatus] = useState<'idle' | 'validating' | 'success' | 'error'>('idle')
   const [connectError, setConnectError] = useState<string>('')
+  const queryClient = useQueryClient()
   const { organizationId } = useOrganization()
   const { isCloudSaaS } = useAuth()
 
@@ -186,7 +187,18 @@ export function ServerConfigForm({ server, onSuccess, onError, onBack, hasTeamCo
         true // auto_start
       )
     },
-    onSuccess: () => {
+    onSuccess: async () => {
+      // Refresh the Services workspace so the newly-connected server and its
+      // tools appear without a manual page reload. These are the exact query
+      // keys ToolsWorkspace reads (plus the legacy keys for older views).
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['credentials'] }),
+        queryClient.invalidateQueries({ queryKey: ['workspace-tools'] }),
+        queryClient.invalidateQueries({ queryKey: ['pool-state'] }),
+        queryClient.invalidateQueries({ queryKey: ['tool-groups'] }),
+        queryClient.invalidateQueries({ queryKey: ['user-credentials'] }),
+        queryClient.invalidateQueries({ queryKey: ['available-tools'] }),
+      ])
       setValidationStatus('success')
       setTimeout(() => {
         onSuccess()

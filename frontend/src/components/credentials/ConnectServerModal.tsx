@@ -81,9 +81,17 @@ export function ConnectServerModal({
     },
     onSuccess: async () => {
       setIsConnecting(false)
-      // Invalidate queries to refresh data
-      await queryClient.invalidateQueries({ queryKey: ['user-credentials'] })
-      await queryClient.invalidateQueries({ queryKey: ['available-tools'] })
+      // Invalidate every query the Services workspace reads so the server +
+      // its tools appear immediately (no manual reload). Includes the legacy
+      // keys for older views.
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['credentials'] }),
+        queryClient.invalidateQueries({ queryKey: ['workspace-tools'] }),
+        queryClient.invalidateQueries({ queryKey: ['pool-state'] }),
+        queryClient.invalidateQueries({ queryKey: ['tool-groups'] }),
+        queryClient.invalidateQueries({ queryKey: ['user-credentials'] }),
+        queryClient.invalidateQueries({ queryKey: ['available-tools'] }),
+      ])
       onComplete()
       // Navigate to Services page
       navigate('/app/tools')
@@ -133,9 +141,16 @@ export function ConnectServerModal({
   }, [server, hasTeamConfig, isFullyConfigured, missingTeamCredentials])
 
   const handleConnectionSuccess = async () => {
-    // Invalidate queries to refresh data
-    await queryClient.invalidateQueries({ queryKey: ['user-credentials'] })
-    await queryClient.invalidateQueries({ queryKey: ['available-tools'] })
+    // Invalidate every query the Services workspace reads so the new server +
+    // its tools appear immediately, without a manual reload.
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['credentials'] }),
+      queryClient.invalidateQueries({ queryKey: ['workspace-tools'] }),
+      queryClient.invalidateQueries({ queryKey: ['pool-state'] }),
+      queryClient.invalidateQueries({ queryKey: ['tool-groups'] }),
+      queryClient.invalidateQueries({ queryKey: ['user-credentials'] }),
+      queryClient.invalidateQueries({ queryKey: ['available-tools'] }),
+    ])
     onComplete()
     // Navigate to Services page
     navigate('/app/tools')
