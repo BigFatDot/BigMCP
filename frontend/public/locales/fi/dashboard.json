@@ -311,7 +311,9 @@
       "loadAllHint": "Lataa kaikki tämän palvelun työkalut pooliin",
       "revokeHint": "Kumoa tämä palvelu (poista sen tunnistetiedot)",
       "revokeConfirm": "Kumotaanko ”{{name}}”? Tallennetut tunnistetiedot poistetaan; työkalut eivät enää tavoita tätä palvelua.",
-      "revokedToast": "Palvelu kumottu."
+      "revokedToast": "Palvelu kumottu.",
+      "statusError": "Yhteysvirhe — ei työkaluja saatavilla",
+      "statusStarting": "Käynnistetään…"
     },
     "newToolbox": {
       "title": "Uusi työkalupakki",
@@ -323,7 +325,10 @@
       "create": "Luo työkalupakki",
       "creating": "Luodaan…",
       "created": "Työkalupakki luotu."
-    }
+    },
+    "loading": "Ladataan työkaluja…",
+    "loadError": "Työkalujasi ei voitu ladata.",
+    "retry": "Yritä uudelleen"
   },
   "compositions": {
     "title": "Kompositiot",

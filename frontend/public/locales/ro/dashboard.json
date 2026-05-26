@@ -311,7 +311,9 @@
       "loadAllHint": "Încarcă fiecare instrument al acestui serviciu în pool",
       "revokeHint": "Revocă acest serviciu (șterge-i credențialele)",
       "revokeConfirm": "Revoci „{{name}}”? Credențialele stocate sunt șterse; instrumentele nu vor mai putea ajunge la acest serviciu.",
-      "revokedToast": "Serviciu revocat."
+      "revokedToast": "Serviciu revocat.",
+      "statusError": "Eroare de conexiune — niciun instrument disponibil",
+      "statusStarting": "Se pornește…"
     },
     "newToolbox": {
       "title": "Trusă de instrumente nouă",
@@ -323,7 +325,10 @@
       "create": "Creează trusă de instrumente",
       "creating": "Se creează…",
       "created": "Trusa de instrumente a fost creată."
-    }
+    },
+    "loading": "Se încarcă instrumentele…",
+    "loadError": "Instrumentele tale nu au putut fi încărcate.",
+    "retry": "Reîncearcă"
   },
   "compositions": {
     "title": "Compoziții",

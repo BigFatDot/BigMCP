@@ -314,7 +314,9 @@
       "loadAllHint": "Załaduj wszystkie narzędzia z tej usługi do puli",
       "revokeHint": "Cofnij tę usługę (usuń jej poświadczenia)",
       "revokeConfirm": "Cofnąć „{{name}}”? Zapisane poświadczenia zostaną usunięte; narzędzia nie będą już sięgać do tej usługi.",
-      "revokedToast": "Usługa cofnięta."
+      "revokedToast": "Usługa cofnięta.",
+      "statusError": "Błąd połączenia — brak dostępnych narzędzi",
+      "statusStarting": "Uruchamianie…"
     },
     "newToolbox": {
       "title": "Nowy przybornik",
@@ -326,7 +328,10 @@
       "create": "Utwórz przybornik",
       "creating": "Tworzenie…",
       "created": "Przybornik utworzony."
-    }
+    },
+    "loading": "Ładowanie narzędzi…",
+    "loadError": "Nie udało się załadować Twoich narzędzi.",
+    "retry": "Ponów próbę"
   },
   "compositions": {
     "title": "Kompozycje",

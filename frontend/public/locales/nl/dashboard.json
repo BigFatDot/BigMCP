@@ -311,7 +311,9 @@
       "loadAllHint": "Alle tools van deze service in de pool laden",
       "revokeHint": "Deze service intrekken (inloggegevens verwijderen)",
       "revokeConfirm": "«{{name}}» intrekken? Opgeslagen inloggegevens worden verwijderd; tools kunnen deze service dan niet meer bereiken.",
-      "revokedToast": "Service ingetrokken."
+      "revokedToast": "Service ingetrokken.",
+      "statusError": "Verbindingsfout — geen tools beschikbaar",
+      "statusStarting": "Bezig met starten…"
     },
     "newToolbox": {
       "title": "Nieuwe toolbox",
@@ -323,7 +325,10 @@
       "create": "Toolbox aanmaken",
       "creating": "Bezig met aanmaken…",
       "created": "Toolbox aangemaakt."
-    }
+    },
+    "loading": "Tools laden…",
+    "loadError": "Je tools konden niet worden geladen.",
+    "retry": "Opnieuw proberen"
   },
   "compositions": {
     "title": "Composities",

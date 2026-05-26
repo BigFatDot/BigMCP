@@ -311,7 +311,9 @@
       "loadAllHint": "Alle Tools dieses Dienstes in den Pool laden",
       "revokeHint": "Diesen Dienst widerrufen (seine Anmeldedaten löschen)",
       "revokeConfirm": "„{{name}}“ widerrufen? Gespeicherte Anmeldedaten werden gelöscht; Tools erreichen diesen Dienst dann nicht mehr.",
-      "revokedToast": "Dienst widerrufen."
+      "revokedToast": "Dienst widerrufen.",
+      "statusError": "Verbindungsfehler – keine Tools verfügbar",
+      "statusStarting": "Wird gestartet…"
     },
     "newToolbox": {
       "title": "Neue Toolbox",
@@ -323,7 +325,10 @@
       "create": "Toolbox erstellen",
       "creating": "Wird erstellt…",
       "created": "Toolbox erstellt."
-    }
+    },
+    "loading": "Tools werden geladen…",
+    "loadError": "Ihre Tools konnten nicht geladen werden.",
+    "retry": "Erneut versuchen"
   },
   "compositions": {
     "title": "Compositions",

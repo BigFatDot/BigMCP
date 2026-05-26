@@ -311,7 +311,9 @@
       "loadAllHint": "Bu hizmetteki tüm araçları havuza yükle",
       "revokeHint": "Bu hizmeti iptal et (kimlik bilgilerini sil)",
       "revokeConfirm": "\"{{name}}\" iptal edilsin mi? Kayıtlı kimlik bilgileri silinir; araçlar artık bu hizmete erişemez.",
-      "revokedToast": "Hizmet iptal edildi."
+      "revokedToast": "Hizmet iptal edildi.",
+      "statusError": "Bağlantı hatası — kullanılabilir araç yok",
+      "statusStarting": "Başlatılıyor…"
     },
     "newToolbox": {
       "title": "Yeni araç kutusu",
@@ -323,7 +325,10 @@
       "create": "Araç kutusu oluştur",
       "creating": "Oluşturuluyor…",
       "created": "Araç kutusu oluşturuldu."
-    }
+    },
+    "loading": "Araçlar yükleniyor…",
+    "loadError": "Araçlarınız yüklenemedi.",
+    "retry": "Yeniden dene"
   },
   "compositions": {
     "title": "Komposizyonlar",

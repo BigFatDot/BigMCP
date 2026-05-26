@@ -311,7 +311,9 @@
       "loadAllHint": "Load every tool from this service into the pool",
       "revokeHint": "Revoke this service (delete its credentials)",
       "revokeConfirm": "Revoke \"{{name}}\"? Stored credentials are deleted; tools will no longer reach this service.",
-      "revokedToast": "Service revoked."
+      "revokedToast": "Service revoked.",
+      "statusError": "Connection error — no tools available",
+      "statusStarting": "Starting…"
     },
     "newToolbox": {
       "title": "New toolbox",
@@ -323,7 +325,10 @@
       "create": "Create toolbox",
       "creating": "Creating…",
       "created": "Toolbox created."
-    }
+    },
+    "loading": "Loading tools…",
+    "loadError": "Could not load your tools.",
+    "retry": "Retry"
   },
   "compositions": {
     "title": "Compositions",

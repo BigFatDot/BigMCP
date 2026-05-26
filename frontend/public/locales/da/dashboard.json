@@ -311,7 +311,9 @@
       "loadAllHint": "Indlæs alle værktøjer fra denne tjeneste i poolen",
       "revokeHint": "Tilbagekald denne tjeneste (slet dens legitimationsoplysninger)",
       "revokeConfirm": "Tilbagekald \"{{name}}\"? Gemte legitimationsoplysninger slettes; værktøjer vil ikke længere nå denne tjeneste.",
-      "revokedToast": "Tjeneste tilbagekaldt."
+      "revokedToast": "Tjeneste tilbagekaldt.",
+      "statusError": "Forbindelsesfejl — ingen værktøjer tilgængelige",
+      "statusStarting": "Starter…"
     },
     "newToolbox": {
       "title": "Ny værktøjskasse",
@@ -323,7 +325,10 @@
       "create": "Opret værktøjskasse",
       "creating": "Opretter…",
       "created": "Værktøjskasse oprettet."
-    }
+    },
+    "loading": "Indlæser værktøjer…",
+    "loadError": "Dine værktøjer kunne ikke indlæses.",
+    "retry": "Prøv igen"
   },
   "compositions": {
     "title": "Kompositioner",

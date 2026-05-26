@@ -311,7 +311,9 @@
       "loadAllHint": "Charger tous les outils de ce service dans le pool",
       "revokeHint": "Révoquer ce service (supprimer ses identifiants)",
       "revokeConfirm": "Révoquer « {{name}} » ? Les identifiants stockés sont supprimés ; les outils ne pourront plus atteindre ce service.",
-      "revokedToast": "Service révoqué."
+      "revokedToast": "Service révoqué.",
+      "statusError": "Erreur de connexion — aucun outil disponible",
+      "statusStarting": "Démarrage…"
     },
     "newToolbox": {
       "title": "Nouvelle boîte à outils",
@@ -323,7 +325,10 @@
       "create": "Créer la boîte",
       "creating": "Création…",
       "created": "Boîte créée."
-    }
+    },
+    "loading": "Chargement des outils…",
+    "loadError": "Impossible de charger vos outils.",
+    "retry": "Réessayer"
   },
   "compositions": {
     "title": "Tools Composés",

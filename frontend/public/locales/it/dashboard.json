@@ -311,7 +311,9 @@
       "loadAllHint": "Carica tutti gli strumenti di questo servizio nel pool",
       "revokeHint": "Revoca questo servizio (elimina le sue credenziali)",
       "revokeConfirm": "Revocare «{{name}}»? Le credenziali memorizzate vengono eliminate; gli strumenti non potranno più raggiungere questo servizio.",
-      "revokedToast": "Servizio revocato."
+      "revokedToast": "Servizio revocato.",
+      "statusError": "Errore di connessione — nessuno strumento disponibile",
+      "statusStarting": "Avvio in corso…"
     },
     "newToolbox": {
       "title": "Nuova toolbox",
@@ -323,7 +325,10 @@
       "create": "Crea toolbox",
       "creating": "Creazione…",
       "created": "Toolbox creata."
-    }
+    },
+    "loading": "Caricamento degli strumenti…",
+    "loadError": "Impossibile caricare i tuoi strumenti.",
+    "retry": "Riprova"
   },
   "compositions": {
     "title": "Composizioni",

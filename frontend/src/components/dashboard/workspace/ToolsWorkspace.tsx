@@ -30,7 +30,9 @@ import {
 } from '@dnd-kit/core'
 import {
   ArchiveBoxIcon,
+  ArrowPathIcon,
   BoltIcon,
+  ExclamationTriangleIcon,
   MagnifyingGlassIcon,
   PencilSquareIcon,
   PlusIcon,
@@ -199,18 +201,40 @@ export function ToolsWorkspace() {
       entry.toolIds.push(t.id)
       map.set(t.serverId, entry)
     }
-    return Array.from(map.entries()).map(([id, { name, toolIds }]) => {
-      // Match the server with the user's credential (so we can revoke it).
-      const credential = (credentialsQuery.data || []).find(
-        (c: any) => String(c.server_id) === String(id) || String(c.id) === String(id),
-      )
+    const creds = (credentialsQuery.data || []) as any[]
+    const credFor = (id: string) =>
+      creds.find((c) => String(c.server_id) === String(id) || String(c.id) === String(id))
+
+    const fromTools = Array.from(map.entries()).map(([id, { name, toolIds }]) => {
+      const credential = credFor(id)
       return {
         id,
         name,
         toolIds,
         credentialId: credential?.id ?? null,
+        status: (credential?.server_status as string | undefined) ?? null,
       }
     })
+
+    // Connected servers that produced NO tools (handshake failed, still
+    // starting, or disabled) are otherwise invisible — and thus impossible to
+    // diagnose or revoke. Surface them as 0-tool chips with their status so
+    // the user can see and clean them up ("compté mais pas affiché" fix).
+    const seen = new Set(fromTools.map((s) => String(s.id)))
+    const zombies = new Map<string, typeof fromTools[number]>()
+    for (const c of creds) {
+      if (!c.server_id || seen.has(String(c.server_id))) continue
+      const id = String(c.server_id)
+      if (zombies.has(id)) continue
+      zombies.set(id, {
+        id,
+        name: c.name || id,
+        toolIds: [],
+        credentialId: c.id ?? null,
+        status: (c.server_status as string | undefined) ?? null,
+      })
+    }
+    return [...fromTools, ...Array.from(zombies.values())]
   }, [allTools, credentialsQuery.data])
 
   // Map tool/composition id → existing pin row (for the unpin DELETE).
@@ -639,6 +663,18 @@ export function ToolsWorkspace() {
                     }}
                     className="text-xs px-2.5 py-1"
                   >
+                    {(s.status === 'error' || s.status === 'disabled') && (
+                      <span
+                        title={t('workspace.servers.statusError', { defaultValue: 'Connection error — no tools available' }) as string}
+                        className="inline-block w-1.5 h-1.5 rounded-full bg-red-500 mr-1 align-middle"
+                      />
+                    )}
+                    {s.status === 'starting' && (
+                      <span
+                        title={t('workspace.servers.statusStarting', { defaultValue: 'Starting…' }) as string}
+                        className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 mr-1 align-middle animate-pulse"
+                      />
+                    )}
                     {s.name}{' '}
                     <span className="text-gray-400">({s.toolIds.length})</span>
                   </button>
@@ -735,7 +771,23 @@ export function ToolsWorkspace() {
               </span>
             </div>
             <div className="space-y-1.5 max-h-[60vh] overflow-y-auto pr-1">
-              {filteredCatalog.length === 0 ? (
+              {toolsQuery.isLoading && !toolsQuery.data ? (
+                <div className="text-center py-10 text-gray-500" role="status">
+                  <ArrowPathIcon className="h-6 w-6 mx-auto mb-2 animate-spin text-gray-400" />
+                  <p className="text-sm">{t('workspace.loading', { defaultValue: 'Loading tools…' })}</p>
+                </div>
+              ) : toolsQuery.isError ? (
+                <div className="text-center py-10 px-4">
+                  <ExclamationTriangleIcon className="h-8 w-8 mx-auto text-red-400 mb-2" />
+                  <p className="text-sm text-gray-700 mb-3">
+                    {t('workspace.loadError', { defaultValue: 'Could not load your tools.' })}
+                  </p>
+                  <Button size="sm" variant="secondary" onClick={() => toolsQuery.refetch()}>
+                    <ArrowPathIcon className="h-4 w-4 mr-1" />
+                    {t('workspace.retry', { defaultValue: 'Retry' })}
+                  </Button>
+                </div>
+              ) : filteredCatalog.length === 0 ? (
                 searchQuery ? (
                   <div className="text-sm text-gray-500 text-center py-8">
                     {t('workspace.empty.noMatch', {

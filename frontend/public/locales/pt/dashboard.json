@@ -311,7 +311,9 @@
       "loadAllHint": "Carregar todas as ferramentas deste serviço no pool",
       "revokeHint": "Revogar este serviço (eliminar as suas credenciais)",
       "revokeConfirm": "Revogar «{{name}}»? As credenciais armazenadas são eliminadas; as ferramentas deixarão de poder aceder a este serviço.",
-      "revokedToast": "Serviço revogado."
+      "revokedToast": "Serviço revogado.",
+      "statusError": "Erro de ligação — nenhuma ferramenta disponível",
+      "statusStarting": "A iniciar…"
     },
     "newToolbox": {
       "title": "Nova caixa de ferramentas",
@@ -323,7 +325,10 @@
       "create": "Criar caixa de ferramentas",
       "creating": "A criar…",
       "created": "Caixa de ferramentas criada."
-    }
+    },
+    "loading": "A carregar ferramentas…",
+    "loadError": "Não foi possível carregar as suas ferramentas.",
+    "retry": "Tentar novamente"
   },
   "compositions": {
     "title": "Composições",

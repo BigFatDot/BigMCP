@@ -311,7 +311,9 @@
       "loadAllHint": "Ladda in alla verktyg från denna tjänst i poolen",
       "revokeHint": "Återkalla denna tjänst (radera dess autentiseringsuppgifter)",
       "revokeConfirm": "Återkalla \"{{name}}\"? Sparade autentiseringsuppgifter raderas; verktyg kommer inte längre att nå denna tjänst.",
-      "revokedToast": "Tjänst återkallad."
+      "revokedToast": "Tjänst återkallad.",
+      "statusError": "Anslutningsfel — inga verktyg tillgängliga",
+      "statusStarting": "Startar…"
     },
     "newToolbox": {
       "title": "Ny verktygslåda",
@@ -323,7 +325,10 @@
       "create": "Skapa verktygslåda",
       "creating": "Skapar…",
       "created": "Verktygslåda skapad."
-    }
+    },
+    "loading": "Läser in verktyg…",
+    "loadError": "Dina verktyg kunde inte läsas in.",
+    "retry": "Försök igen"
   },
   "compositions": {
     "title": "Kompositioner",

@@ -311,7 +311,9 @@
       "loadAllHint": "Učitaj sve alate ove usluge u bazen",
       "revokeHint": "Opozovi ovu uslugu (obriši njene akreditive)",
       "revokeConfirm": "Opozvati „{{name}}”? Sačuvane akreditive biće obrisane; alati više neće moći da dosegnu ovu uslugu.",
-      "revokedToast": "Usluga opozvana."
+      "revokedToast": "Usluga opozvana.",
+      "statusError": "Greška u vezi — nema dostupnih alata",
+      "statusStarting": "Pokretanje…"
     },
     "newToolbox": {
       "title": "Nova kutija sa alatima",
@@ -323,7 +325,10 @@
       "create": "Napravi kutiju sa alatima",
       "creating": "Pravljenje…",
       "created": "Kutija sa alatima napravljena."
-    }
+    },
+    "loading": "Učitavanje alata…",
+    "loadError": "Nije moguće učitati vaše alate.",
+    "retry": "Pokušaj ponovo"
   },
   "compositions": {
     "title": "Kompozicije",

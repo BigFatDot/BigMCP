@@ -311,7 +311,9 @@
       "loadAllHint": "Ennek a szolgáltatásnak minden eszközét betölti a poolba",
       "revokeHint": "Ennek a szolgáltatásnak a visszavonása (hitelesítő adatainak törlése)",
       "revokeConfirm": "Visszavonod a(z) „{{name}}” szolgáltatást? A tárolt hitelesítő adatok törlődnek; az eszközök többé nem érik el ezt a szolgáltatást.",
-      "revokedToast": "Szolgáltatás visszavonva."
+      "revokedToast": "Szolgáltatás visszavonva.",
+      "statusError": "Kapcsolódási hiba — nincs elérhető eszköz",
+      "statusStarting": "Indítás…"
     },
     "newToolbox": {
       "title": "Új eszközkészlet",
@@ -323,7 +325,10 @@
       "create": "Eszközkészlet létrehozása",
       "creating": "Létrehozás…",
       "created": "Az eszközkészlet létrejött."
-    }
+    },
+    "loading": "Eszközök betöltése…",
+    "loadError": "Nem sikerült betölteni az eszközeit.",
+    "retry": "Újrapróbálkozás"
   },
   "compositions": {
     "title": "Kompozíciók",

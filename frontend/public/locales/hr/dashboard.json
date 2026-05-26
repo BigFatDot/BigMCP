@@ -311,7 +311,9 @@
       "loadAllHint": "Učitaj sve alate ove usluge u bazen",
       "revokeHint": "Opozovi ovu uslugu (izbriši njezine vjerodajnice)",
       "revokeConfirm": "Opozvati „{{name}}”? Pohranjeni vjerodajnice bit će izbrisane; alati više neće moći dosegnuti ovu uslugu.",
-      "revokedToast": "Usluga opozvana."
+      "revokedToast": "Usluga opozvana.",
+      "statusError": "Pogreška veze — nema dostupnih alata",
+      "statusStarting": "Pokretanje…"
     },
     "newToolbox": {
       "title": "Nova kutija s alatima",
@@ -323,7 +325,10 @@
       "create": "Stvori kutiju s alatima",
       "creating": "Stvaranje…",
       "created": "Kutija s alatima stvorena."
-    }
+    },
+    "loading": "Učitavanje alata…",
+    "loadError": "Nije moguće učitati vaše alate.",
+    "retry": "Pokušaj ponovno"
   },
   "compositions": {
     "title": "Kompozicije",

@@ -311,7 +311,9 @@
       "loadAllHint": "Last inn alle verktøy fra denne tjenesten i poolen",
       "revokeHint": "Trekk tilbake denne tjenesten (slett legitimasjonene dens)",
       "revokeConfirm": "Trekke tilbake \"{{name}}\"? Lagrede legitimasjoner slettes; verktøy vil ikke lenger nå denne tjenesten.",
-      "revokedToast": "Tjeneste trukket tilbake."
+      "revokedToast": "Tjeneste trukket tilbake.",
+      "statusError": "Tilkoblingsfeil — ingen verktøy tilgjengelig",
+      "statusStarting": "Starter…"
     },
     "newToolbox": {
       "title": "Ny verktøykasse",
@@ -323,7 +325,10 @@
       "create": "Opprett verktøykasse",
       "creating": "Oppretter…",
       "created": "Verktøykasse opprettet."
-    }
+    },
+    "loading": "Laster inn verktøy…",
+    "loadError": "Kunne ikke laste inn verktøyene dine.",
+    "retry": "Prøv igjen"
   },
   "compositions": {
     "title": "Komposisjoner",

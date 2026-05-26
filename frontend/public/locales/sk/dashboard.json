@@ -311,7 +311,9 @@
       "loadAllHint": "Načítať všetky nástroje z tejto služby do fondu",
       "revokeHint": "Odvolať túto službu (vymazať jej prihlasovacie údaje)",
       "revokeConfirm": "Odvolať „{{name}}“? Uložené prihlasovacie údaje budú vymazané; nástroje už nebudú môcť kontaktovať túto službu.",
-      "revokedToast": "Služba odvolaná."
+      "revokedToast": "Služba odvolaná.",
+      "statusError": "Chyba pripojenia — žiadne nástroje nie sú k dispozícii",
+      "statusStarting": "Spúšťa sa…"
     },
     "newToolbox": {
       "title": "Nová súprava nástrojov",
@@ -323,7 +325,10 @@
       "create": "Vytvoriť súpravu nástrojov",
       "creating": "Vytváranie…",
       "created": "Súprava nástrojov vytvorená."
-    }
+    },
+    "loading": "Načítavajú sa nástroje…",
+    "loadError": "Vaše nástroje sa nepodarilo načítať.",
+    "retry": "Skúsiť znova"
   },
   "compositions": {
     "title": "Kompozície",
