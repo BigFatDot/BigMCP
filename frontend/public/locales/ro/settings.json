@@ -105,7 +105,9 @@
         "marketplaceAccess": "Acces la marketplace",
         "mcpServerManagement": "Gestionarea serverelor MCP",
         "aiOrchestration": "Orchestrare AI",
-        "instanceAdmin": "Admin instanță"
+        "instanceAdmin": "Admin instanță",
+        "teamFeatures": "Utilizatori și organizații nelimitate",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {

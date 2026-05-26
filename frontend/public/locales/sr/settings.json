@@ -106,10 +106,8 @@
         "mcpServerManagement": "Upravljanje MCP serverima",
         "aiOrchestration": "AI orkestracija",
         "instanceAdmin": "Administrator instance",
-        "upgradeTitle": "Nadogradite na Enterprise",
-        "upgradeSubtitle": "Neograničeni korisnici, SSO, timske funkcije i prioritetna podrška.",
-        "oneTime": "jednokratno",
-        "upgrade": "Nadogradite"
+        "teamFeatures": "Neograničen broj korisnika i organizacija",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {
@@ -207,10 +205,7 @@
       "marketplaceAccess": "Pristup marketplace-u",
       "mcpServerManagement": "Upravljanje MCP serverima",
       "aiOrchestration": "AI orkestracija",
-      "semanticSearch": "Semantička pretraga",
-      "upgradeTitle": "Nadogradite na Enterprise",
-      "upgradeSubtitle": "Neograničeni korisnici, SSO, timske funkcije i prioritetna podrška.",
-      "purchaseNote": "Kupite na BigMCP Cloud, zatim konfigurišite vaš LICENSE_KEY da biste aktivirali."
+      "semanticSearch": "Semantička pretraga"
     },
     "plans": {
       "individual": {

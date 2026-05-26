@@ -52,6 +52,10 @@
         "title": "Composities bouwen",
         "description": "Tools koppelen voor complexe workflows"
       },
+      "compositionStepTypes": {
+        "title": "Compositiestaptypen",
+        "description": "Opschortende stappen: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Teamdiensten",
         "description": "Gedeelde diensten beheren voor je team (Teamabonnement)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Aangepaste MCP-servers",
         "description": "Je eigen MCP-servers toevoegen aan Enterprise-instanties"
+      },
+      "scaling": {
+        "title": "Schalen",
+        "description": "Horizontaal schalen, load balancing, multi-instance-implementaties"
+      },
+      "monitoring": {
+        "title": "Monitoring",
+        "description": "Prometheus-metrics, auditlogs, health-probes"
+      },
+      "backup": {
+        "title": "Back-up & herstel",
+        "description": "PostgreSQL-back-upstrategieën en noodherstel"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Koppel Google Workspace, Microsoft Entra, Okta, Authentik of Keycloak"
+      }
+    },
+    "project": {
+      "title": "Project",
+      "roadmap": {
+        "title": "Roadmap",
+        "description": "Wat is opgeleverd, wat komt eraan, wat bewust buiten scope valt"
       }
     }
   }

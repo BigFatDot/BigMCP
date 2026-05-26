@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Proefperiode",
     "daysLeft": "{{count}} dag resterend in proefperiode",
-    "daysLeft_plural": "{{count}} dagen resterend in proefperiode"
+    "daysLeft_plural": "{{count}} dagen resterend in proefperiode",
+    "expired": "Demo beëindigd — Self-hosted implementeren"
   },
   "empty": {
     "noData": "Geen gegevens beschikbaar",

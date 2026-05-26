@@ -139,8 +139,7 @@
         "Neograničeni MCP serveri",
         "AI orkestracija",
         "Semantička pretraga",
-        "Kompozicije i tokovi rada",
-        "Upravljani LLM uključen"
+        "Kompozicije i tokovi rada"
       ],
       "cta": "Pokrenite besplatnu probu"
     },
@@ -155,7 +154,8 @@
         "Do 20 korisnika",
         "Organizacije i RBAC",
         "Deljeni akreditivi",
-        "Napredni revizijski zapisi"
+        "Napredni revizijski zapisi",
+        "Vaši podaci ostaju na vašim serverima"
       ],
       "cta": "Pokrenite besplatnu probu"
     },
@@ -170,9 +170,7 @@
         "Puna administratorska kontrola",
         "Centralni MCP server pool",
         "SSO (SAML, OIDC) - Uskoro",
-        "Napredna revizija i usklađenost",
-        "Vaš izbor LLM-a",
-        "Trajna licenca"
+        "Napredna revizija i usklađenost"
       ],
       "cta": "Nabavi Enterprise"
     },

@@ -105,7 +105,9 @@
         "marketplaceAccess": "Marketplace-adgang",
         "mcpServerManagement": "MCP-serveradministration",
         "aiOrchestration": "AI-orkestrering",
-        "instanceAdmin": "Instans-administrator"
+        "instanceAdmin": "Instans-administrator",
+        "teamFeatures": "Ubegrænsede brugere og organisationer",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {

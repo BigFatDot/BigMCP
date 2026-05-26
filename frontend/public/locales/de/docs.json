@@ -52,6 +52,10 @@
         "title": "Compositions erstellen",
         "description": "Tools für komplexe Workflows miteinander verknüpfen"
       },
+      "compositionStepTypes": {
+        "title": "Kompositions-Schritttypen",
+        "description": "Suspendierende Schritte: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Team-Dienste",
         "description": "Geteilte Dienste für Ihr Team verwalten (Team-Tarif)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Benutzerdefinierte MCP-Server",
         "description": "Eigene MCP-Server zu Enterprise-Instanzen hinzufügen"
+      },
+      "scaling": {
+        "title": "Skalierung",
+        "description": "Horizontale Skalierung, Load Balancing, Multi-Instanz-Deployments"
+      },
+      "monitoring": {
+        "title": "Monitoring",
+        "description": "Prometheus-Metriken, Audit-Logs, Health-Probes"
+      },
+      "backup": {
+        "title": "Sicherung & Wiederherstellung",
+        "description": "PostgreSQL-Backup-Strategien und Notfallwiederherstellung"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Google Workspace, Microsoft Entra, Okta, Authentik oder Keycloak anbinden"
+      }
+    },
+    "project": {
+      "title": "Projekt",
+      "roadmap": {
+        "title": "Roadmap",
+        "description": "Was ausgeliefert ist, was als Nächstes kommt, was bewusst nicht im Umfang liegt"
       }
     }
   }

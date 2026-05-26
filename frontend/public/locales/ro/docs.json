@@ -52,6 +52,10 @@
         "title": "Construiește compoziții",
         "description": "Înlănțuie instrumente pentru fluxuri de lucru complexe"
       },
+      "compositionStepTypes": {
+        "title": "Tipuri de pași de compoziție",
+        "description": "Pași suspensivi: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Servicii echipă",
         "description": "Gestionează serviciile partajate pentru echipa ta (plan Echipă)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Servere MCP personalizate",
         "description": "Adaugă propriile servere MCP în instanțele Enterprise"
+      },
+      "scaling": {
+        "title": "Scalare",
+        "description": "Scalare orizontală, echilibrarea încărcării, implementări multi-instanță"
+      },
+      "monitoring": {
+        "title": "Monitorizare",
+        "description": "Metrici Prometheus, jurnale de audit, probe de sănătate"
+      },
+      "backup": {
+        "title": "Backup și restaurare",
+        "description": "Strategii de backup PostgreSQL și recuperare în caz de dezastru"
+      },
+      "sso": {
+        "title": "Autentificare unică (OIDC)",
+        "description": "Conectează Google Workspace, Microsoft Entra, Okta, Authentik sau Keycloak"
+      }
+    },
+    "project": {
+      "title": "Proiect",
+      "roadmap": {
+        "title": "Foaie de parcurs",
+        "description": "Ce a fost livrat, ce urmează, ce este în mod deliberat în afara domeniului"
       }
     }
   }

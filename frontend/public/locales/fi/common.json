@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Kokeilu",
     "daysLeft": "{{count}} päivä jäljellä kokeilujaksossa",
-    "daysLeft_plural": "{{count}} päivää jäljellä kokeilujaksossa"
+    "daysLeft_plural": "{{count}} päivää jäljellä kokeilujaksossa",
+    "expired": "Demo päättyi — Ota käyttöön self-hosted"
   },
   "empty": {
     "noData": "Ei tietoja saatavilla",

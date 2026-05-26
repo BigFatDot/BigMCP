@@ -52,6 +52,10 @@
         "title": "Изграждайте композиции",
         "description": "Верижно свързвайте инструменти за сложни работни потоци"
       },
+      "compositionStepTypes": {
+        "title": "Типове стъпки на композиция",
+        "description": "Суспендиращи стъпки: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Екипни услуги",
         "description": "Управлявайте споделени услуги за вашия екип (Екипен план)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Персонализирани MCP сървъри",
         "description": "Добавете собствени MCP сървъри към Enterprise инстанции"
+      },
+      "scaling": {
+        "title": "Мащабиране",
+        "description": "Хоризонтално мащабиране, балансиране на натоварването, многоинстанционни внедрявания"
+      },
+      "monitoring": {
+        "title": "Мониторинг",
+        "description": "Prometheus метрики, одитни логове, проби за здраве"
+      },
+      "backup": {
+        "title": "Резервно копие и възстановяване",
+        "description": "Стратегии за backup на PostgreSQL и възстановяване при бедствие"
+      },
+      "sso": {
+        "title": "Единен вход (OIDC)",
+        "description": "Включете Google Workspace, Microsoft Entra, Okta, Authentik или Keycloak"
+      }
+    },
+    "project": {
+      "title": "Проект",
+      "roadmap": {
+        "title": "Пътна карта",
+        "description": "Какво е доставено, какво следва, какво умишлено не е в обхвата"
       }
     }
   }

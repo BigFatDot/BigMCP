@@ -139,8 +139,7 @@
         "Sınırsız MCP sunucusu",
         "Yapay zeka düzenlemesi",
         "Anlamsal arama",
-        "Komposizyonlar ve iş akışları",
-        "Yönetilen LLM dahil"
+        "Komposizyonlar ve iş akışları"
       ],
       "cta": "Ücretsiz Denemeyi Başlat"
     },
@@ -155,7 +154,8 @@
         "20'ye kadar kullanıcı",
         "Organizasyonlar ve RBAC",
         "Paylaşılan kimlik bilgileri",
-        "Gelişmiş denetim günlükleri"
+        "Gelişmiş denetim günlükleri",
+        "Verileriniz kendi sunucularınızda kalır"
       ],
       "cta": "Ücretsiz Denemeyi Başlat"
     },
@@ -170,9 +170,7 @@
         "Tam yönetici kontrolü",
         "Merkezi MCP sunucu havuzu",
         "SSO (SAML, OIDC) - Yakında",
-        "Gelişmiş denetim ve uyumluluk",
-        "LLM seçiminiz",
-        "Süresiz lisans"
+        "Gelişmiş denetim ve uyumluluk"
       ],
       "cta": "Enterprise Edinin"
     },

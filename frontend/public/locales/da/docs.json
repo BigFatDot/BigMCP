@@ -52,6 +52,10 @@
         "title": "Byg kompositioner",
         "description": "Kæd værktøjer sammen til komplekse arbejdsforløb"
       },
+      "compositionStepTypes": {
+        "title": "Kompositionstrintyper",
+        "description": "Suspenderende trin: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Teamtjenester",
         "description": "Administrer delte tjenester til dit team (Teamabonnement)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Brugerdefinerede MCP-servere",
         "description": "Tilføj dine egne MCP-servere til Enterprise-instanser"
+      },
+      "scaling": {
+        "title": "Skalering",
+        "description": "Horisontal skalering, load balancing, multi-instans-implementeringer"
+      },
+      "monitoring": {
+        "title": "Overvågning",
+        "description": "Prometheus-metrikker, auditlogs, helbredsprober"
+      },
+      "backup": {
+        "title": "Backup & gendannelse",
+        "description": "PostgreSQL-backupstrategier og katastrofeberedskab"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Tilslut Google Workspace, Microsoft Entra, Okta, Authentik eller Keycloak"
+      }
+    },
+    "project": {
+      "title": "Projekt",
+      "roadmap": {
+        "title": "Roadmap",
+        "description": "Hvad er leveret, hvad er det næste, hvad er bevidst uden for omfang"
       }
     }
   }

@@ -52,6 +52,10 @@
         "title": "Bygg komposisjoner",
         "description": "Kjed verktøy sammen for komplekse arbeidsflyter"
       },
+      "compositionStepTypes": {
+        "title": "Komposisjonstrinntyper",
+        "description": "Suspenderende trinn: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Teamtjenester",
         "description": "Administrer delte tjenester for teamet ditt (Teamplan)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Egendefinerte MCP-servere",
         "description": "Legg til egne MCP-servere i Enterprise-instanser"
+      },
+      "scaling": {
+        "title": "Skalering",
+        "description": "Horisontal skalering, lastbalansering, distribusjoner med flere instanser"
+      },
+      "monitoring": {
+        "title": "Overvåking",
+        "description": "Prometheus-metrikker, revisjonslogger, helsesjekker"
+      },
+      "backup": {
+        "title": "Sikkerhetskopiering og gjenoppretting",
+        "description": "PostgreSQL-backupstrategier og katastrofegjenoppretting"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Koble til Google Workspace, Microsoft Entra, Okta, Authentik eller Keycloak"
+      }
+    },
+    "project": {
+      "title": "Prosjekt",
+      "roadmap": {
+        "title": "Veikart",
+        "description": "Hva som er levert, hva som kommer, hva som bevisst er utenfor omfang"
       }
     }
   }

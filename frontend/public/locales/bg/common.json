@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Пробен период",
     "daysLeft": "{{count}} ден остава в пробния период",
-    "daysLeft_plural": "{{count}} дни остават в пробния период"
+    "daysLeft_plural": "{{count}} дни остават в пробния период",
+    "expired": "Демото приключи — Внедрете self-hosted"
   },
   "empty": {
     "noData": "Няма налични данни",

@@ -52,6 +52,10 @@
         "title": "Bygg kompositioner",
         "description": "Länka samman verktyg för komplexa arbetsflöden"
       },
+      "compositionStepTypes": {
+        "title": "Kompositionsstegtyper",
+        "description": "Suspenderande steg: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Teamtjänster",
         "description": "Hantera delade tjänster för ditt team (Teamplan)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Anpassade MCP-servrar",
         "description": "Lägg till egna MCP-servrar i Enterprise-instanser"
+      },
+      "scaling": {
+        "title": "Skalning",
+        "description": "Horisontell skalning, lastbalansering, distributioner med flera instanser"
+      },
+      "monitoring": {
+        "title": "Övervakning",
+        "description": "Prometheus-mätvärden, granskningsloggar, hälsoprobar"
+      },
+      "backup": {
+        "title": "Säkerhetskopiering och återställning",
+        "description": "PostgreSQL-backupstrategier och katastrofåterställning"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Anslut Google Workspace, Microsoft Entra, Okta, Authentik eller Keycloak"
+      }
+    },
+    "project": {
+      "title": "Projekt",
+      "roadmap": {
+        "title": "Färdplan",
+        "description": "Vad som har levererats, vad som kommer härnäst, vad som medvetet ligger utanför omfattningen"
       }
     }
   }

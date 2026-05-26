@@ -52,6 +52,10 @@
         "title": "Kompozíciók készítése",
         "description": "Eszközök láncolása összetett munkafolyamatokhoz"
       },
+      "compositionStepTypes": {
+        "title": "Kompozíciós lépéstípusok",
+        "description": "Felfüggesztő lépések: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Csapat szolgáltatások",
         "description": "Megosztott szolgáltatások kezelése a csapat számára (Team csomag)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Egyedi MCP szerverek",
         "description": "Saját MCP szerverek hozzáadása Enterprise példányokhoz"
+      },
+      "scaling": {
+        "title": "Skálázás",
+        "description": "Vízszintes skálázás, terheléselosztás, több-instanciás telepítések"
+      },
+      "monitoring": {
+        "title": "Megfigyelés",
+        "description": "Prometheus metrikák, auditnaplók, állapotellenőrzések"
+      },
+      "backup": {
+        "title": "Mentés és visszaállítás",
+        "description": "PostgreSQL biztonsági mentési stratégiák és katasztrófa-helyreállítás"
+      },
+      "sso": {
+        "title": "Egyszeri bejelentkezés (OIDC)",
+        "description": "Csatlakoztass Google Workspace, Microsoft Entra, Okta, Authentik vagy Keycloak rendszert"
+      }
+    },
+    "project": {
+      "title": "Projekt",
+      "roadmap": {
+        "title": "Ütemterv",
+        "description": "Mi készült el, mi következik, mi marad ki szándékosan a hatókörből"
       }
     }
   }

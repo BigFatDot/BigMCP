@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Skúšobná doba",
     "daysLeft": "{{count}} deň zostáva v skúšobnej dobe",
-    "daysLeft_plural": "{{count}} dní zostáva v skúšobnej dobe"
+    "daysLeft_plural": "{{count}} dní zostáva v skúšobnej dobe",
+    "expired": "Demo skončilo — nasaďte self-hosted"
   },
   "empty": {
     "noData": "Žiadne údaje k dispozícii",

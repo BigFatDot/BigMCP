@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Deneme",
     "daysLeft": "Denemede {{count}} gün kaldı",
-    "daysLeft_plural": "Denemede {{count}} gün kaldı"
+    "daysLeft_plural": "Denemede {{count}} gün kaldı",
+    "expired": "Demo sona erdi — Kendi sunucunuzda dağıtın"
   },
   "empty": {
     "noData": "Veri yok",

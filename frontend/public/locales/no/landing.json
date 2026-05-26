@@ -133,14 +133,13 @@
       "title": "Demoplattform",
       "subtitle": "Sky",
       "price": "Gratis",
-      "period": "",
+      "period": "no time limit",
       "features": [
         "1 bruker",
         "Alle funksjoner inkludert",
         "AI-orkestrering",
         "Semantisk søk",
-        "Komposisjoner og arbeidsflyter",
-        "Administrert LLM inkludert"
+        "Komposisjoner og arbeidsflyter"
       ],
       "cta": "Prøv demoen"
     },
@@ -148,14 +147,15 @@
       "title": "Selvhostet",
       "subtitle": "Anbefalt",
       "price": "Gratis",
-      "period": "",
+      "period": "forever (AGPLv3)",
       "badge": "Anbefalt",
       "features": [
         "Ubegrensede brukere",
         "Ubegrensede organisasjoner",
         "Organisasjoner og RBAC",
         "Delte legitimasjoner",
-        "Avanserte revisionslogger"
+        "Avanserte revisionslogger",
+        "Dataene dine forblir på serverne dine"
       ],
       "cta": "Kom i gang"
     },
@@ -163,16 +163,14 @@
       "title": "Enterprise",
       "subtitle": "For organisasjoner",
       "price": "Gratis",
-      "period": "",
+      "period": "open source",
       "features": [
         "Alt i Selvhostet",
         "Ubegrensede brukere og team",
         "Full administratorkontroll",
         "Sentral MCP-serverpool",
         "SSO (SAML, OIDC) - Kommer snart",
-        "Avansert revisjon og samsvar",
-        "Ditt valg av LLM",
-        "Prioritert støtte"
+        "Avansert revisjon og samsvar"
       ],
       "cta": "Kom i gang"
     },

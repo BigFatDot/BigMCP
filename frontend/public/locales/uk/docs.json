@@ -52,6 +52,10 @@
         "title": "Побудувати композиції",
         "description": "Об'єднуйте інструменти для складних робочих процесів"
       },
+      "compositionStepTypes": {
+        "title": "Типи кроків композиції",
+        "description": "Призупиняючі кроки: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Командні сервіси",
         "description": "Керуйте спільними сервісами для вашої команди (тарифний план «Команда»)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Власні MCP-сервери",
         "description": "Додайте власні MCP-сервери до Enterprise-інстанцій"
+      },
+      "scaling": {
+        "title": "Масштабування",
+        "description": "Горизонтальне масштабування, балансування навантаження, багатоінстансні розгортання"
+      },
+      "monitoring": {
+        "title": "Моніторинг",
+        "description": "Метрики Prometheus, журнали аудиту, проби стану"
+      },
+      "backup": {
+        "title": "Резервне копіювання та відновлення",
+        "description": "Стратегії backup PostgreSQL та аварійне відновлення"
+      },
+      "sso": {
+        "title": "Єдиний вхід (OIDC)",
+        "description": "Підключіть Google Workspace, Microsoft Entra, Okta, Authentik або Keycloak"
+      }
+    },
+    "project": {
+      "title": "Проєкт",
+      "roadmap": {
+        "title": "Дорожня карта",
+        "description": "Що випущено, що далі, що навмисно поза межами обсягу"
       }
     }
   }

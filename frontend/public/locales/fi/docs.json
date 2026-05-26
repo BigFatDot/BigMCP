@@ -52,6 +52,10 @@
         "title": "Rakenna kompositioita",
         "description": "Ketjuta työkaluja yhteen monimutkaisiin työnkulkuihin"
       },
+      "compositionStepTypes": {
+        "title": "Komposition vaihetyypit",
+        "description": "Keskeyttävät vaiheet: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Tiimin palvelut",
         "description": "Hallitse jaettuja palveluja tiimillesi (Tiimi-paketti)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Mukautetut MCP-palvelimet",
         "description": "Lisää omia MCP-palvelimia Enterprise-instansseihin"
+      },
+      "scaling": {
+        "title": "Skaalaus",
+        "description": "Vaakasuora skaalaus, kuormituksen tasaus, usean instanssin käyttöönotot"
+      },
+      "monitoring": {
+        "title": "Valvonta",
+        "description": "Prometheus-mittarit, auditlokit, terveystarkistukset"
+      },
+      "backup": {
+        "title": "Varmuuskopiointi ja palautus",
+        "description": "PostgreSQL-varmuuskopiointistrategiat ja palautuminen katastrofista"
+      },
+      "sso": {
+        "title": "Kertakirjautuminen (OIDC)",
+        "description": "Liitä Google Workspace, Microsoft Entra, Okta, Authentik tai Keycloak"
+      }
+    },
+    "project": {
+      "title": "Projekti",
+      "roadmap": {
+        "title": "Tiekartta",
+        "description": "Mitä on toimitettu, mitä seuraavaksi, mitä on tarkoituksellisesti jätetty laajuuden ulkopuolelle"
       }
     }
   }

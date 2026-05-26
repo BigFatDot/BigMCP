@@ -105,7 +105,9 @@
         "marketplaceAccess": "Dostęp do marketplace",
         "mcpServerManagement": "Zarządzanie serwerami MCP",
         "aiOrchestration": "Orkiestracja AI",
-        "instanceAdmin": "Administrator instancji"
+        "instanceAdmin": "Administrator instancji",
+        "teamFeatures": "Nieograniczona liczba użytkowników i organizacji",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {
@@ -203,8 +205,7 @@
       "marketplaceAccess": "Dostęp do marketplace",
       "mcpServerManagement": "Zarządzanie serwerami MCP",
       "aiOrchestration": "Orkiestracja AI",
-      "semanticSearch": "Wyszukiwanie semantyczne",
-      "purchaseNote": "Kup na BigMCP Cloud, a następnie skonfiguruj LICENSE_KEY, aby aktywować."
+      "semanticSearch": "Wyszukiwanie semantyczne"
     },
     "plans": {
       "individual": {

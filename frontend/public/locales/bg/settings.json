@@ -106,10 +106,8 @@
         "mcpServerManagement": "Управление на MCP сървър",
         "aiOrchestration": "AI оркестрация",
         "instanceAdmin": "Администратор на инстанцията",
-        "upgradeTitle": "Надградете до Enterprise",
-        "upgradeSubtitle": "Неограничени потребители, SSO, екипни функции и приоритетна поддръжка.",
-        "oneTime": "еднократно",
-        "upgrade": "Надградете"
+        "teamFeatures": "Неограничени потребители и организации",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {
@@ -207,10 +205,7 @@
       "marketplaceAccess": "Достъп до маркетплейса",
       "mcpServerManagement": "Управление на MCP сървър",
       "aiOrchestration": "AI оркестрация",
-      "semanticSearch": "Семантично търсене",
-      "upgradeTitle": "Надградете до Enterprise",
-      "upgradeSubtitle": "Неограничени потребители, SSO, екипни функции и приоритетна поддръжка.",
-      "purchaseNote": "Купете в BigMCP Cloud, след което конфигурирайте LICENSE_KEY за активиране."
+      "semanticSearch": "Семантично търсене"
     },
     "plans": {
       "individual": {

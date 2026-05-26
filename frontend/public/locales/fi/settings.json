@@ -106,10 +106,8 @@
         "mcpServerManagement": "MCP-palvelimen hallinta",
         "aiOrchestration": "Tekoälyorkestrointi",
         "instanceAdmin": "Instanssin ylläpitäjä",
-        "upgradeTitle": "Päivitä Enterprise-versioon",
-        "upgradeSubtitle": "Rajoittamattomat käyttäjät, SSO, tiimitoiminnot ja prioriteettituki.",
-        "oneTime": "kertaluonteinen",
-        "upgrade": "Päivitä"
+        "teamFeatures": "Rajattomasti käyttäjiä ja organisaatioita",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {
@@ -207,10 +205,7 @@
       "marketplaceAccess": "Markkinapaikan pääsy",
       "mcpServerManagement": "MCP-palvelimen hallinta",
       "aiOrchestration": "Tekoälyorkestrointi",
-      "semanticSearch": "Semanttinen haku",
-      "upgradeTitle": "Päivitä Enterprise-versioon",
-      "upgradeSubtitle": "Rajoittamattomat käyttäjät, SSO, tiimitoiminnot ja prioriteettituki.",
-      "purchaseNote": "Osta BigMCP Cloudista, konfiguroi sitten LICENSE_KEY aktivoidaksesi."
+      "semanticSearch": "Semanttinen haku"
     },
     "plans": {
       "individual": {

@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Avaliação",
     "daysLeft": "{{count}} dia restante na avaliação",
-    "daysLeft_plural": "{{count}} dias restantes na avaliação"
+    "daysLeft_plural": "{{count}} dias restantes na avaliação",
+    "expired": "Demonstração encerrada — Implantar auto-hospedado"
   },
   "empty": {
     "noData": "Nenhum dado disponível",

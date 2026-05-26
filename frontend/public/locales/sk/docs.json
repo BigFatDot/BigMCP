@@ -52,6 +52,10 @@
         "title": "Tvorba kompozícií",
         "description": "Reťazte nástroje pre komplexné pracovné postupy"
       },
+      "compositionStepTypes": {
+        "title": "Typy krokov kompozície",
+        "description": "Pozastavujúce kroky: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Tímové služby",
         "description": "Spravujte zdieľané služby pre váš tím (plán Team)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Vlastné MCP servery",
         "description": "Pridajte vlastné MCP servery do Enterprise inštancií"
+      },
+      "scaling": {
+        "title": "Škálovanie",
+        "description": "Horizontálne škálovanie, vyvažovanie záťaže, viacnásobné nasadenia"
+      },
+      "monitoring": {
+        "title": "Monitorovanie",
+        "description": "Metriky Prometheus, logy auditu, sondy stavu"
+      },
+      "backup": {
+        "title": "Záloha a obnovenie",
+        "description": "Stratégie zálohovania PostgreSQL a obnova po havárii"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Pripojte Google Workspace, Microsoft Entra, Okta, Authentik alebo Keycloak"
+      }
+    },
+    "project": {
+      "title": "Projekt",
+      "roadmap": {
+        "title": "Plán rozvoja",
+        "description": "Čo je hotové, čo bude ďalej a čo je zámerne mimo rozsahu"
       }
     }
   }

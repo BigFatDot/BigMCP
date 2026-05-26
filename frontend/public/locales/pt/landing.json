@@ -133,14 +133,13 @@
       "title": "Plataforma Demo",
       "subtitle": "Cloud",
       "price": "Gratuito",
-      "period": "",
+      "period": "no time limit",
       "features": [
         "Todas as funcionalidades incluídas",
         "Servidores MCP ilimitados",
         "Orquestração de IA",
         "Busca semântica",
-        "Composições e workflows",
-        "LLM gerenciado incluído"
+        "Composições e workflows"
       ],
       "cta": "Experimentar a Demo"
     },
@@ -148,14 +147,15 @@
       "title": "Auto-hospedado",
       "subtitle": "Recomendado",
       "price": "Gratuito",
-      "period": "",
+      "period": "forever (AGPLv3)",
       "badge": "Recomendado",
       "features": [
         "Todas as funcionalidades incluídas",
         "Utilizadores e equipas ilimitados",
         "Organizações e RBAC",
         "Credenciais compartilhadas",
-        "Logs de auditoria avançados"
+        "Logs de auditoria avançados",
+        "Os seus dados permanecem nos seus servidores"
       ],
       "cta": "Começar"
     },
@@ -163,16 +163,14 @@
       "title": "Para Organizações",
       "subtitle": "Auto-hospedado",
       "price": "Gratuito",
-      "period": "",
+      "period": "open source",
       "features": [
         "Todas as funcionalidades incluídas",
         "Utilizadores e equipas ilimitados",
         "Controle total de administração",
         "Pool central de servidores MCP",
         "SSO (SAML, OIDC) - Em breve",
-        "Auditoria e conformidade avançadas",
-        "Sua escolha de LLM",
-        "Deployment Docker / Kubernetes"
+        "Auditoria e conformidade avançadas"
       ],
       "cta": "Começar"
     },

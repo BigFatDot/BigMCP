@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Essai",
     "daysLeft": "{{count}} jour restant",
-    "daysLeft_plural": "{{count}} jours restants"
+    "daysLeft_plural": "{{count}} jours restants",
+    "expired": "Démo terminée — Déployez en auto-hébergé"
   },
   "empty": {
     "noData": "Aucune donnée disponible",

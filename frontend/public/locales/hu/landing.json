@@ -139,8 +139,7 @@
         "Korlátlan MCP szerver",
         "AI összehangolás",
         "Szemantikus keresés",
-        "Kompozíciók és munkafolyamatok",
-        "Felügyelt LLM mellékelve"
+        "Kompozíciók és munkafolyamatok"
       ],
       "cta": "Ingyenes próba indítása"
     },
@@ -155,7 +154,8 @@
         "Legfeljebb 20 felhasználó",
         "Szervezetek és RBAC",
         "Megosztott hitelesítő adatok",
-        "Speciális audit naplók"
+        "Speciális audit naplók",
+        "Az adataid a saját szervereiden maradnak"
       ],
       "cta": "Ingyenes próba indítása"
     },
@@ -170,9 +170,7 @@
         "Teljes adminisztrátori irányítás",
         "Központi MCP szerver pool",
         "SSO (SAML, OIDC) - Hamarosan",
-        "Speciális audit és megfelelőség",
-        "Saját LLM választható",
-        "Örökös licenc"
+        "Speciális audit és megfelelőség"
       ],
       "cta": "Enterprise megszerzése"
     },

@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Zkušební verze",
     "daysLeft": "Zbývá {{count}} den zkušební verze",
-    "daysLeft_plural": "Zbývají {{count}} dny zkušební verze"
+    "daysLeft_plural": "Zbývají {{count}} dny zkušební verze",
+    "expired": "Demo skončilo — nasaďte self-hosted"
   },
   "empty": {
     "noData": "Nejsou k dispozici žádná data",

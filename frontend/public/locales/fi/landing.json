@@ -139,8 +139,7 @@
         "Rajoittamattomat MCP-palvelimet",
         "Tekoälyorkestrointi",
         "Semanttinen haku",
-        "Kompositiot ja työnkulut",
-        "Hallittu LLM sisältyy"
+        "Kompositiot ja työnkulut"
       ],
       "cta": "Aloita ilmainen kokeilu"
     },
@@ -155,7 +154,8 @@
         "Jopa 20 käyttäjää",
         "Organisaatiot ja RBAC",
         "Jaetut tunnistetiedot",
-        "Edistyneet auditointilokit"
+        "Edistyneet auditointilokit",
+        "Tietosi pysyvät omilla palvelimillasi"
       ],
       "cta": "Aloita ilmainen kokeilu"
     },
@@ -170,9 +170,7 @@
         "Täysi ylläpitohallinta",
         "Keskitetty MCP-palvelinpooli",
         "SSO (SAML, OIDC) - Tulossa pian",
-        "Edistynyt auditointi ja vaatimustenmukaisuus",
-        "Oma valintasi LLM:stä",
-        "Ikuinen lisenssi"
+        "Edistynyt auditointi ja vaatimustenmukaisuus"
       ],
       "cta": "Hanki Enterprise"
     },

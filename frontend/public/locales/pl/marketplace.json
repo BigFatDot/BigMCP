@@ -86,7 +86,6 @@
     "syncing": "Synchronizowanie...",
     "lastSync": "Ostatnia synchronizacja",
     "serverCount": "{{count}} serwer",
-    "serverCount_2": "{{count}} serwery",
     "serverCount_plural": "{{count}} serwerów",
     "enable": "Włącz",
     "disable": "Wyłącz",
@@ -109,7 +108,8 @@
     "errorLoading": "Błąd podczas ładowania serwerów",
     "failedToLoad": "Nie udało się załadować serwerów",
     "noTeamServices": "Nie skonfigurowano jeszcze żadnych usług zespołowych. Administratorzy mogą udostępniać usługi z marketplace.",
-    "noMatchingServers": "Nie znaleziono serwerów spełniających Twoje kryteria."
+    "noMatchingServers": "Nie znaleziono serwerów spełniających Twoje kryteria.",
+    "serverCount_2": "{{count}} serwery"
   },
   "credentials": {
     "title": "Skonfiguruj dane uwierzytelniające",
@@ -159,7 +159,6 @@
     "title": "Rejestr lokalny",
     "subtitle": "Niestandardowe serwery MCP skonfigurowane na tej instancji",
     "serverCount": "{{count}} serwer",
-    "serverCount_2": "{{count}} serwery",
     "serverCount_plural": "{{count}} serwerów",
     "noDescription": "Brak dostępnego opisu",
     "editMetadata": "Edytuj metadane",
@@ -230,6 +229,7 @@
       "security": "Bezpieczeństwo",
       "media": "Media",
       "other": "Inne"
-    }
+    },
+    "serverCount_2": "{{count}} serwery"
   }
 }

@@ -133,14 +133,13 @@
       "title": "Demoplattform",
       "subtitle": "Cloud",
       "price": "Gratis",
-      "period": "",
+      "period": "no time limit",
       "features": [
         "1 användare",
         "Alla funktioner inkluderade",
         "AI-orkestrering",
         "Semantisk sökning",
-        "Kompositioner & arbetsflöden",
-        "Hanterad LLM ingår"
+        "Kompositioner & arbetsflöden"
       ],
       "cta": "Prova demon"
     },
@@ -148,14 +147,15 @@
       "title": "Självhostad",
       "subtitle": "Rekommenderad",
       "price": "Gratis",
-      "period": "",
+      "period": "forever (AGPLv3)",
       "badge": "Rekommenderad",
       "features": [
         "Obegränsade användare",
         "Obegränsade organisationer",
         "Organisationer & RBAC",
         "Delade credentials",
-        "Avancerade granskningsloggar"
+        "Avancerade granskningsloggar",
+        "Dina data stannar på dina servrar"
       ],
       "cta": "Kom igång"
     },
@@ -163,16 +163,14 @@
       "title": "Enterprise",
       "subtitle": "För organisationer",
       "price": "Gratis",
-      "period": "",
+      "period": "open source",
       "features": [
         "Allt i Självhostad",
         "Obegränsade användare & team",
         "Full adminkontroll",
         "Central MCP-serverpool",
         "SSO (SAML, OIDC) - Kommer snart",
-        "Avancerad granskning & regelefterlevnad",
-        "Ditt val av LLM",
-        "Prioriterad support"
+        "Avancerad granskning & regelefterlevnad"
       ],
       "cta": "Kom igång"
     },

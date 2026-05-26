@@ -20,6 +20,13 @@
       "forExternalIntegrations": "Do integracji zewnętrznych",
       "manageConnections": "Zarządzaj połączeniami →"
     },
+    "pool": {
+      "label": "Aktywna pula",
+      "toolsLoaded": "narzędzi załadowanych",
+      "composedTools": "kompozycje zawsze aktywne",
+      "clear": "Wyczyść pulę",
+      "clearConfirm": "Wyczyścić aktywną pulę? Twój klient MCP będzie musiał ponownie wywołać `search`, aby przeładować narzędzia."
+    },
     "serverState": {
       "active": "Aktywny",
       "apiOnly": "Tylko API",
@@ -30,6 +37,8 @@
     "serverActions": {
       "visible": "Widoczny",
       "hidden": "Ukryty",
+      "enableServerHint": "Narzędzia z tego serwera mogą trafić do puli, gdy klient MCP ich wyszuka.",
+      "suspendServerHint": "Serwer pozostaje połączony, ale jego narzędzia nigdy nie trafiają do puli — przydatne, by wstrzymać hałaśliwego dostawcę.",
       "stopServer": "Zatrzymać serwer?",
       "deleteServerConfirm": "Usunąć ten serwer i jego dane uwierzytelniające?",
       "serverError": "Serwer napotkał błąd",
@@ -59,8 +68,8 @@
       "makePrivate": "Kliknij, aby ustawić jako prywatny",
       "shareWithTeam": "Kliknij, aby udostępnić zespołowi",
       "used": "Użyty {{count}} raz",
-      "used_2": "Użyty {{count}} razy",
-      "used_plural": "Użyty {{count}} razy"
+      "used_plural": "Użyty {{count}} razy",
+      "used_2": "Użyty {{count}} razy"
     },
     "createModal": {
       "title": "Utwórz zestaw narzędzi",
@@ -76,7 +85,6 @@
       "visibilityOrganization": "Organizacja",
       "visibilityOrganizationDesc": "Udostępnij swojemu zespołowi",
       "toolsSelected": "{{count}} narzędzie wybrane",
-      "toolsSelected_2": "{{count}} narzędzia wybrane",
       "toolsSelected_plural": "{{count}} narzędzi wybranych",
       "clearAll": "Wyczyść wszystko",
       "selectAll": "Zaznacz wszystko",
@@ -87,7 +95,8 @@
       "cancel": "Anuluj",
       "nextSelectTools": "Dalej: Wybierz narzędzia",
       "creating": "Tworzenie...",
-      "createGroup": "Utwórz zestaw narzędzi ({{count}} narzędzi)"
+      "createGroup": "Utwórz zestaw narzędzi ({{count}} narzędzi)",
+      "toolsSelected_2": "{{count}} narzędzia wybrane"
     },
     "server": {
       "connected": "Połączony",
@@ -95,8 +104,8 @@
       "error": "Błąd",
       "reconnect": "Połącz ponownie",
       "tools": "{{count}} narzędzie",
-      "tools_2": "{{count}} narzędzia",
-      "tools_plural": "{{count}} narzędzi"
+      "tools_plural": "{{count}} narzędzi",
+      "tools_2": "{{count}} narzędzia"
     }
   },
   "myServers": {
@@ -152,6 +161,7 @@
       "hidden": "Ukryte",
       "hideFromOauth": "Ukryj przed OAuth",
       "showToOauth": "Pokaż w OAuth",
+      "manualOverrideHint": "Ręczna edycja — następne `search` Twojego klienta MCP może to cofnąć.",
       "discovering": "Odkrywanie narzędzi...",
       "discoveringNote": "Narzędzia pojawią się po inicjalizacji serwera",
       "notConnected": "Serwer niepołączony",
@@ -216,9 +226,115 @@
       "saveChanges": "Zapisz zmiany"
     }
   },
+  "workspace": {
+    "subtitle": "Przeciągaj narzędzia do aktywnej puli, grupuj je w przyborniki lub pozwól asystentowi zasugerować, co załadować.",
+    "searchPlaceholder": "Szukaj narzędzia po nazwie, opisie lub serwerze…",
+    "loadFiltered": "Załaduj odfiltrowane ({{count}}) do puli",
+    "bulkLoadConfirm": "Załadować {{count}} narzędzi do puli?",
+    "askAssistant": "Zapytaj asystenta",
+    "clearFilters": "Wyczyść filtry",
+    "catalog": "Katalog",
+    "pool": "Aktywna pula",
+    "toolsShort": "narzędzia",
+    "toolboxLoadHint": "Załaduj wszystkie narzędzia z tego przybornika do puli",
+    "newToolboxDrop": "Przeciągnij tu narzędzia, aby utworzyć nowy przybornik",
+    "empty": {
+      "noMatch": "Żadne narzędzie nie pasuje do Twojego wyszukiwania.",
+      "catalog": "Brak narzędzi — podłącz serwer w Marketplace.",
+      "pool": "Pula pusta — przeciągnij narzędzia z katalogu lub użyj asystenta.",
+      "toolboxes": "Brak przyborników — przeciągnij kilka narzędzi na obszar nowego przybornika, aby go utworzyć."
+    },
+    "toast": {
+      "loaded": "Załadowano do puli.",
+      "unloaded": "Usunięto z puli.",
+      "cleared": "Pula wyczyszczona.",
+      "toolboxAdded": "Dodano do przybornika.",
+      "toolboxLoaded": "Przybornik załadowany do puli.",
+      "compositionAlwaysIn": "Kompozycje są zawsze w puli.",
+      "compositionToolboxBlocked": "Kompozycji nie można jeszcze dodawać do przyborników."
+    },
+    "assistant": {
+      "title": "Zaproponuj narzędzia do celu",
+      "hint": "Opisz, co chcesz zrobić; asystent oceni Twoje włączone narzędzia i zaproponuje wybór do załadowania do puli.",
+      "goalLabel": "Twój cel",
+      "goalPlaceholder": "np. Zarządzaj rekordami DNS w Hostinger",
+      "suggest": "Zasugeruj",
+      "refresh": "Odśwież",
+      "searching": "Wyszukiwanie…",
+      "suggestionsHeader": "Sugestie",
+      "selectAll": "Zaznacz wszystko",
+      "deselectAll": "Odznacz wszystko",
+      "alreadyInPool": "w puli",
+      "loadSelection": "Załaduj wybór ({{count}})",
+      "loadedToast": "Załadowano do Twojej puli.",
+      "alsoCompose": "Szukasz wieloetapowego przepływu pracy? Skomponuj go z LLM.",
+      "gotoCompose": "Skomponuj to →",
+      "toolboxTitle": "Zbuduj przybornik według intencji",
+      "toolboxHint": "Opisz personę, powtarzające się zadanie lub rodzaj pomocy, jakiej oczekujesz. Asystent oceni Twoje włączone narzędzia i zaproponuje gotowy do zapisania przybornik.",
+      "intentLabel": "Intencja / persona",
+      "intentPlaceholder": "np. Asystent DevOps do zarządzania moim DNS, VPS i rozliczeniami w Hostinger",
+      "propose": "Zaproponuj",
+      "regenerate": "Wygeneruj ponownie",
+      "thinking": "Myślenie…",
+      "toolboxName": "Nazwa przybornika",
+      "toolboxColor": "Kolor",
+      "toolboxDescription": "Opis",
+      "toolsHeader": "Wybrane narzędzia",
+      "noPick": "LLM nie wybrał żadnego narzędzia. Spróbuj bardziej szczegółowej intencji.",
+      "compositionSuggestionTitle": "Sugerowana kompozycja",
+      "compose": "Otwórz kreator kompozycji →",
+      "createToolbox": "Utwórz przybornik",
+      "createAndLoad": "Utwórz + załaduj do puli",
+      "cancel": "Anuluj",
+      "toolboxCreated": "Przybornik utworzony.",
+      "toolboxCreatedAndLoaded": "Przybornik utworzony, a {{count}} narzędzi załadowano do puli.",
+      "toolboxRenamed": "Przybornik o tej samej nazwie już istniał — zapisano jako „{{name}}”."
+    },
+    "toolboxEdit": {
+      "title": "Edytuj przybornik",
+      "hint": "Zmień nazwę, kolor, usuń elementy lub usuń cały ten przybornik.",
+      "name": "Nazwa",
+      "color": "Kolor",
+      "description": "Opis",
+      "itemsHeader": "Narzędzia w tym przyborniku",
+      "empty": "Ten przybornik jest pusty.",
+      "loadIntoPool": "Załaduj wszystko do puli",
+      "removeItem": "Usuń z tego przybornika",
+      "save": "Zapisz",
+      "close": "Zamknij",
+      "delete": "Usuń przybornik",
+      "deleteConfirm": "Usunąć ten przybornik? Same narzędzia zostają zachowane.",
+      "savedToast": "Przybornik zaktualizowany.",
+      "deletedToast": "Przybornik usunięty.",
+      "loadedToast": "{{count}} narzędzi załadowano do puli.",
+      "openHint": "Kliknij, aby edytować ten przybornik",
+      "editHint": "Edytuj przybornik"
+    },
+    "servers": {
+      "loadAllHint": "Załaduj wszystkie narzędzia z tej usługi do puli",
+      "revokeHint": "Cofnij tę usługę (usuń jej poświadczenia)",
+      "revokeConfirm": "Cofnąć „{{name}}”? Zapisane poświadczenia zostaną usunięte; narzędzia nie będą już sięgać do tej usługi.",
+      "revokedToast": "Usługa cofnięta."
+    },
+    "newToolbox": {
+      "title": "Nowy przybornik",
+      "hint": "Pogrupuj te narzędzia pod jedną nazwą. Przyborniki można później załadować do puli jednym kliknięciem.",
+      "seedNotice": "Rozpocznie się od:",
+      "namePlaceholder": "np. Zestaw DNS",
+      "descriptionPlaceholder": "Do czego służy ten przybornik? (opcjonalnie)",
+      "visibility": "Widoczność",
+      "create": "Utwórz przybornik",
+      "creating": "Tworzenie…",
+      "created": "Przybornik utworzony."
+    }
+  },
   "compositions": {
     "title": "Kompozycje",
     "subtitle": "Zarządzaj i wykonuj wieloetapowe przepływy pracy narzędzi",
+    "testWithPrompt": "Testuj z promptem",
+    "testWithPromptHint": "Opisz w języku naturalnym, czego chcesz — LLM wywnioskuje dane wejściowe z Twojego promptu.",
+    "modeForm": "Tryb formularza",
+    "modeNL": "Tryb promptu",
     "create": "Utwórz kompozycję",
     "edit": "Edytuj kompozycję",
     "delete": "Usuń kompozycję",

@@ -155,6 +155,17 @@
       "backup": {
         "title": "Sauvegarde & restauration",
         "description": "Stratégies de backup PostgreSQL et plan de reprise"
+      },
+      "sso": {
+        "title": "Authentification unique (OIDC)",
+        "description": "Branchez Google Workspace, Microsoft Entra, Okta, Authentik ou Keycloak"
+      }
+    },
+    "project": {
+      "title": "Projet",
+      "roadmap": {
+        "title": "Feuille de route",
+        "description": "Ce qui est livré, ce qui arrive, ce qui est délibérément hors périmètre"
       }
     }
   }

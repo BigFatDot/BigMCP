@@ -133,14 +133,13 @@
       "title": "Platformă Demo",
       "subtitle": "Cloud",
       "price": "Gratuit",
-      "period": "",
+      "period": "no time limit",
       "features": [
         "Toate funcționalitățile incluse",
         "Servere MCP nelimitate",
         "Orchestrare AI",
         "Căutare semantică",
-        "Compoziții și fluxuri de lucru",
-        "LLM gestionat inclus"
+        "Compoziții și fluxuri de lucru"
       ],
       "cta": "Încearcă Demo"
     },
@@ -148,14 +147,15 @@
       "title": "Auto-găzduit",
       "subtitle": "Recomandat",
       "price": "Gratuit",
-      "period": "",
+      "period": "forever (AGPLv3)",
       "badge": "Recomandat",
       "features": [
         "Toate funcționalitățile incluse",
         "Utilizatori și echipe nelimitate",
         "Organizații și RBAC",
         "Credențiale partajate",
-        "Jurnale de audit avansate"
+        "Jurnale de audit avansate",
+        "Datele tale rămân pe serverele tale"
       ],
       "cta": "Începe"
     },
@@ -163,16 +163,14 @@
       "title": "Pentru Organizații",
       "subtitle": "Auto-găzduit",
       "price": "Gratuit",
-      "period": "",
+      "period": "open source",
       "features": [
         "Toate funcționalitățile incluse",
         "Utilizatori și echipe nelimitate",
         "Control admin complet",
         "Pool central de servere MCP",
         "SSO (SAML, OIDC) - în curând",
-        "Audit avansat și conformitate",
-        "LLM-ul tău ales",
-        "Deployment Docker / Kubernetes"
+        "Audit avansat și conformitate"
       ],
       "cta": "Începe"
     },

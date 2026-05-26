@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Proba",
     "daysLeft": "Još {{count}} dan probe",
-    "daysLeft_plural": "Još {{count}} dana probe"
+    "daysLeft_plural": "Još {{count}} dana probe",
+    "expired": "Demo je završen — primenite self-hosted"
   },
   "empty": {
     "noData": "Nema dostupnih podataka",

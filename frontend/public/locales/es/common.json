@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Prueba",
     "daysLeft": "{{count}} día restante en la prueba",
-    "daysLeft_plural": "{{count}} días restantes en la prueba"
+    "daysLeft_plural": "{{count}} días restantes en la prueba",
+    "expired": "Demo finalizada — Implementar autoalojado"
   },
   "empty": {
     "noData": "No hay datos disponibles",

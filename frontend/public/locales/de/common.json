@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Testversion",
     "daysLeft": "Noch {{count}} Tag in der Testversion",
-    "daysLeft_plural": "Noch {{count}} Tage in der Testversion"
+    "daysLeft_plural": "Noch {{count}} Tage in der Testversion",
+    "expired": "Demo beendet — Self-Hosted bereitstellen"
   },
   "empty": {
     "noData": "Keine Daten verfügbar",

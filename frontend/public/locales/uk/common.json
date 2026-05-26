@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Пробний",
     "daysLeft": "Залишився {{count}} день пробного періоду",
-    "daysLeft_plural": "Залишилося {{count}} днів пробного періоду"
+    "daysLeft_plural": "Залишилося {{count}} днів пробного періоду",
+    "expired": "Демо завершено — Розгорніть self-hosted"
   },
   "empty": {
     "noData": "Дані відсутні",

@@ -48,8 +48,9 @@
   "trial": {
     "badge": "Okres próbny",
     "daysLeft": "{{count}} dzień pozostały w okresie próbnym",
-    "daysLeft_2": "{{count}} dni pozostałe w okresie próbnym",
-    "daysLeft_plural": "{{count}} dni pozostałych w okresie próbnym"
+    "daysLeft_plural": "{{count}} dni pozostałych w okresie próbnym",
+    "expired": "Demo zakończone — wdróż self-hosted",
+    "daysLeft_2": "{{count}} dni pozostałe w okresie próbnym"
   },
   "empty": {
     "noData": "Brak dostępnych danych",

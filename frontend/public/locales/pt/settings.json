@@ -105,7 +105,9 @@
         "marketplaceAccess": "Acesso ao marketplace",
         "mcpServerManagement": "Gerenciamento de servidores MCP",
         "aiOrchestration": "Orquestração de IA",
-        "instanceAdmin": "Administrador da Instância"
+        "instanceAdmin": "Administrador da Instância",
+        "teamFeatures": "Utilizadores e organizações ilimitados",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {

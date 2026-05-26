@@ -133,14 +133,13 @@
       "title": "Demoplatform",
       "subtitle": "Cloud",
       "price": "Gratis",
-      "period": "",
+      "period": "no time limit",
       "features": [
         "1 bruger",
         "Alle funktioner inkluderet",
         "AI-orkestrering",
         "Semantisk søgning",
-        "Kompositioner og arbejdsforløb",
-        "Administreret LLM inkluderet"
+        "Kompositioner og arbejdsforløb"
       ],
       "cta": "Prøv demoen"
     },
@@ -148,14 +147,15 @@
       "title": "Selvhostet",
       "subtitle": "Anbefalet",
       "price": "Gratis",
-      "period": "",
+      "period": "forever (AGPLv3)",
       "badge": "Anbefalet",
       "features": [
         "Ubegrænsede brugere",
         "Ubegrænsede organisationer",
         "Organisationer og RBAC",
         "Delte legitimationsoplysninger",
-        "Avancerede revisionslogfiler"
+        "Avancerede revisionslogfiler",
+        "Dine data forbliver på dine servere"
       ],
       "cta": "Kom i gang"
     },
@@ -163,16 +163,14 @@
       "title": "Enterprise",
       "subtitle": "For organisationer",
       "price": "Gratis",
-      "period": "",
+      "period": "open source",
       "features": [
         "Alt i Selvhostet",
         "Ubegrænsede brugere og teams",
         "Fuld administratorkontrol",
         "Centralt MCP-serverpulje",
         "SSO (SAML, OIDC) – kommer snart",
-        "Avanceret revision og compliance",
-        "Dit valg af LLM",
-        "Prioritetssupport"
+        "Avanceret revision og compliance"
       ],
       "cta": "Kom i gang"
     },

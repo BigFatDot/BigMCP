@@ -106,10 +106,8 @@
         "mcpServerManagement": "Správa MCP serverov",
         "aiOrchestration": "Orchestrácia AI",
         "instanceAdmin": "Správca inštancie",
-        "upgradeTitle": "Prejsť na Enterprise",
-        "upgradeSubtitle": "Neobmedzení používatelia, SSO, tímové funkcie a prioritná podpora.",
-        "oneTime": "jednorazová platba",
-        "upgrade": "Upgradovať"
+        "teamFeatures": "Neobmedzený počet používateľov a organizácií",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {
@@ -207,10 +205,7 @@
       "marketplaceAccess": "Prístup k marketplace",
       "mcpServerManagement": "Správa MCP serverov",
       "aiOrchestration": "Orchestrácia AI",
-      "semanticSearch": "Sémantické vyhľadávanie",
-      "upgradeTitle": "Prejsť na Enterprise",
-      "upgradeSubtitle": "Neobmedzení používatelia, SSO, tímové funkcie a prioritná podpora.",
-      "purchaseNote": "Kúpte na BigMCP Cloud a potom nakonfigurujte LICENSE_KEY na aktiváciu."
+      "semanticSearch": "Sémantické vyhľadávanie"
     },
     "plans": {
       "individual": {

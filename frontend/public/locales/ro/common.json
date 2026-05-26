@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Probă",
     "daysLeft": "{{count}} zi rămasă în perioada de probă",
-    "daysLeft_plural": "{{count}} zile rămase în perioada de probă"
+    "daysLeft_plural": "{{count}} zile rămase în perioada de probă",
+    "expired": "Demo încheiat — Implementează self-hosted"
   },
   "empty": {
     "noData": "Nu există date disponibile",

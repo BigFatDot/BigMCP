@@ -106,10 +106,8 @@
         "mcpServerManagement": "MCP szerver kezelés",
         "aiOrchestration": "AI összehangolás",
         "instanceAdmin": "Példány adminisztrátor",
-        "upgradeTitle": "Váltás Enterprise-ra",
-        "upgradeSubtitle": "Korlátlan felhasználók, SSO, csapatfunkciók és prioritásos támogatás.",
-        "oneTime": "egyszeri",
-        "upgrade": "Váltás"
+        "teamFeatures": "Korlátlan felhasználó és szervezet",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {
@@ -207,10 +205,7 @@
       "marketplaceAccess": "Piactér hozzáférés",
       "mcpServerManagement": "MCP szerver kezelés",
       "aiOrchestration": "AI összehangolás",
-      "semanticSearch": "Szemantikus keresés",
-      "upgradeTitle": "Váltás Enterprise-ra",
-      "upgradeSubtitle": "Korlátlan felhasználók, SSO, csapatfunkciók és prioritásos támogatás.",
-      "purchaseNote": "Vásárolja meg a BigMCP Cloudon, majd konfigurálja a LICENSE_KEY változót az aktiváláshoz."
+      "semanticSearch": "Szemantikus keresés"
     },
     "plans": {
       "individual": {

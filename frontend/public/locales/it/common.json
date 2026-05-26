@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Prova",
     "daysLeft": "{{count}} giorno rimanente nella prova",
-    "daysLeft_plural": "{{count}} giorni rimanenti nella prova"
+    "daysLeft_plural": "{{count}} giorni rimanenti nella prova",
+    "expired": "Demo terminata — Distribuisci in self-hosting"
   },
   "empty": {
     "noData": "Nessun dato disponibile",

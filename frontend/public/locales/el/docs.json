@@ -52,6 +52,10 @@
         "title": "Δημιουργία Compositions",
         "description": "Συνδέστε εργαλεία για σύνθετες ροές εργασίας"
       },
+      "compositionStepTypes": {
+        "title": "Τύποι βημάτων σύνθεσης",
+        "description": "Βήματα αναστολής: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Υπηρεσίες Ομάδας",
         "description": "Διαχειριστείτε κοινόχρηστες υπηρεσίες για την ομάδα σας (πλάνο Team)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Προσαρμοσμένοι MCP Servers",
         "description": "Προσθέστε τους δικούς σας MCP servers σε εγκαταστάσεις Enterprise"
+      },
+      "scaling": {
+        "title": "Κλιμάκωση",
+        "description": "Οριζόντια κλιμάκωση, εξισορρόπηση φορτίου, αναπτύξεις πολλαπλών στιγμιότυπων"
+      },
+      "monitoring": {
+        "title": "Παρακολούθηση",
+        "description": "Μετρικές Prometheus, αρχεία καταγραφής ελέγχου, έλεγχοι υγείας"
+      },
+      "backup": {
+        "title": "Αντίγραφα ασφαλείας & επαναφορά",
+        "description": "Στρατηγικές αντιγράφων ασφαλείας PostgreSQL και ανάκαμψη από καταστροφές"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Συνδέστε Google Workspace, Microsoft Entra, Okta, Authentik ή Keycloak"
+      }
+    },
+    "project": {
+      "title": "Έργο",
+      "roadmap": {
+        "title": "Οδικός χάρτης",
+        "description": "Τι έχει παραδοθεί, τι ακολουθεί, τι σκόπιμα δεν περιλαμβάνεται στο πεδίο εφαρμογής"
       }
     }
   }

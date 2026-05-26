@@ -139,8 +139,7 @@
         "Neobmedzené MCP servery",
         "Orchestrácia AI",
         "Sémantické vyhľadávanie",
-        "Kompozície a pracovné postupy",
-        "Spravovaný LLM v cene"
+        "Kompozície a pracovné postupy"
       ],
       "cta": "Začať bezplatnú skúšobnú dobu"
     },
@@ -155,7 +154,8 @@
         "Až 20 používateľov",
         "Organizácie a RBAC",
         "Zdieľané prihlasovacie údaje",
-        "Pokročilé audit záznamy"
+        "Pokročilé audit záznamy",
+        "Vaše dáta zostávajú na vašich serveroch"
       ],
       "cta": "Začať bezplatnú skúšobnú dobu"
     },
@@ -170,9 +170,7 @@
         "Plná kontrola správcu",
         "Centrálny pool MCP serverov",
         "SSO (SAML, OIDC) – čoskoro",
-        "Pokročilý audit a súlad s predpismi",
-        "Váš výber LLM",
-        "Trvalá licencia"
+        "Pokročilý audit a súlad s predpismi"
       ],
       "cta": "Získať Enterprise"
     },

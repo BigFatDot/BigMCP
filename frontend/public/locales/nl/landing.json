@@ -133,14 +133,13 @@
       "title": "Demoplatform",
       "subtitle": "Cloud",
       "price": "Gratis",
-      "period": "",
+      "period": "no time limit",
       "features": [
         "1 gebruiker",
         "Alle functies inbegrepen",
         "AI-orkestratie",
         "Semantisch zoeken",
-        "Composities & workflows",
-        "Beheerde LLM inbegrepen"
+        "Composities & workflows"
       ],
       "cta": "Demo proberen"
     },
@@ -148,14 +147,15 @@
       "title": "Zelf gehost",
       "subtitle": "Aanbevolen",
       "price": "Gratis",
-      "period": "",
+      "period": "forever (AGPLv3)",
       "badge": "Aanbevolen",
       "features": [
         "Onbeperkt aantal gebruikers",
         "Onbeperkte organisaties",
         "Organisaties & RBAC",
         "Gedeelde credentials",
-        "Geavanceerde auditlogboeken"
+        "Geavanceerde auditlogboeken",
+        "Uw gegevens blijven op uw servers"
       ],
       "cta": "Aan de slag"
     },
@@ -163,16 +163,14 @@
       "title": "Enterprise",
       "subtitle": "Voor organisaties",
       "price": "Gratis",
-      "period": "",
+      "period": "open source",
       "features": [
         "Alles in Zelf gehost",
         "Onbeperkte gebruikers & teams",
         "Volledig beheerbeheer",
         "Centrale MCP-serverpool",
         "SSO (SAML, OIDC) - Binnenkort beschikbaar",
-        "Geavanceerde audit & compliance",
-        "Jouw keuze van LLM",
-        "Prioriteitssupport"
+        "Geavanceerde audit & compliance"
       ],
       "cta": "Aan de slag"
     },

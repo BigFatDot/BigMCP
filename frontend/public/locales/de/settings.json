@@ -105,7 +105,9 @@
         "marketplaceAccess": "Marketplace-Zugriff",
         "mcpServerManagement": "MCP-Server-Verwaltung",
         "aiOrchestration": "KI-Orchestrierung",
-        "instanceAdmin": "Instanz-Administrator"
+        "instanceAdmin": "Instanz-Administrator",
+        "teamFeatures": "Unbegrenzte Benutzer & Organisationen",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {
@@ -203,10 +205,7 @@
       "marketplaceAccess": "Marketplace-Zugriff",
       "mcpServerManagement": "MCP-Server-Verwaltung",
       "aiOrchestration": "KI-Orchestrierung",
-      "semanticSearch": "Semantische Suche",
-      "upgradeTitle": "Auf Enterprise upgraden",
-      "upgradeSubtitle": "Unbegrenzte Benutzer, SSO, Team-Funktionen und vorrangiger Support.",
-      "purchaseNote": "Kaufen Sie auf BigMCP Cloud und konfigurieren Sie dann Ihren LICENSE_KEY zur Aktivierung."
+      "semanticSearch": "Semantische Suche"
     },
     "plans": {
       "individual": {

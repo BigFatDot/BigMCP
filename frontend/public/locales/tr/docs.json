@@ -52,6 +52,10 @@
         "title": "Komposizyon Oluştur",
         "description": "Karmaşık iş akışları için araçları birbirine bağlayın"
       },
+      "compositionStepTypes": {
+        "title": "Kompozisyon adım türleri",
+        "description": "Askıya alan adımlar: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Ekip Servisleri",
         "description": "Ekibiniz için paylaşılan servisleri yönetin (Ekip planı)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Özel MCP Sunucuları",
         "description": "Enterprise örneklerine kendi MCP sunucularınızı ekleyin"
+      },
+      "scaling": {
+        "title": "Ölçeklendirme",
+        "description": "Yatay ölçeklendirme, yük dengeleme, çok örnekli dağıtımlar"
+      },
+      "monitoring": {
+        "title": "İzleme",
+        "description": "Prometheus metrikleri, denetim günlükleri, sağlık kontrolleri"
+      },
+      "backup": {
+        "title": "Yedekleme ve geri yükleme",
+        "description": "PostgreSQL yedekleme stratejileri ve felaket kurtarma"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Google Workspace, Microsoft Entra, Okta, Authentik veya Keycloak bağlayın"
+      }
+    },
+    "project": {
+      "title": "Proje",
+      "roadmap": {
+        "title": "Yol haritası",
+        "description": "Neyin teslim edildiği, sırada ne olduğu, neyin bilerek kapsam dışı bırakıldığı"
       }
     }
   }

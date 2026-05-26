@@ -52,6 +52,10 @@
         "title": "Izgradnja kompozicija",
         "description": "Povežite alate za složene tokove rada"
       },
+      "compositionStepTypes": {
+        "title": "Vrste koraka kompozicije",
+        "description": "Koraci za suspenziju: elicit, wait_until, subcomposition, wait_callback, approval (B-1)"
+      },
       "teamServices": {
         "title": "Timski servisi",
         "description": "Upravljanje deljenim servisima za vaš tim (Team plan)"
@@ -139,6 +143,29 @@
       "customServers": {
         "title": "Prilagođeni MCP serveri",
         "description": "Dodajte sopstvene MCP servere u Enterprise instance"
+      },
+      "scaling": {
+        "title": "Skaliranje",
+        "description": "Horizontalno skaliranje, balansiranje opterećenja, primene sa više instanci"
+      },
+      "monitoring": {
+        "title": "Praćenje",
+        "description": "Prometheus metrike, evidencije revizije, sonde stanja"
+      },
+      "backup": {
+        "title": "Rezervna kopija i vraćanje",
+        "description": "Strategije rezervnih kopija PostgreSQL i oporavak od katastrofe"
+      },
+      "sso": {
+        "title": "Single Sign-On (OIDC)",
+        "description": "Priključite Google Workspace, Microsoft Entra, Okta, Authentik ili Keycloak"
+      }
+    },
+    "project": {
+      "title": "Projekat",
+      "roadmap": {
+        "title": "Plan razvoja",
+        "description": "Šta je isporučeno, šta sledi, šta je namerno van opsega"
       }
     }
   }

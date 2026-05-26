@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Prøveperiode",
     "daysLeft": "{{count}} dag tilbage af prøveperioden",
-    "daysLeft_plural": "{{count}} dage tilbage af prøveperioden"
+    "daysLeft_plural": "{{count}} dage tilbage af prøveperioden",
+    "expired": "Demo afsluttet — Implementér selv-hostet"
   },
   "empty": {
     "noData": "Ingen data tilgængelig",

@@ -105,7 +105,9 @@
         "marketplaceAccess": "Πρόσβαση στο marketplace",
         "mcpServerManagement": "Διαχείριση MCP servers",
         "aiOrchestration": "Ενορχήστρωση AI",
-        "instanceAdmin": "Instance Admin"
+        "instanceAdmin": "Instance Admin",
+        "teamFeatures": "Απεριόριστοι χρήστες και οργανισμοί",
+        "rbac": "RBAC, OAuth 2.0, Team Credentials"
       }
     },
     "danger": {
@@ -203,8 +205,7 @@
       "marketplaceAccess": "Πρόσβαση στο marketplace",
       "mcpServerManagement": "Διαχείριση MCP servers",
       "aiOrchestration": "Ενορχήστρωση AI",
-      "semanticSearch": "Σημασιολογική αναζήτηση",
-      "purchaseNote": "Αγοράστε στο BigMCP Cloud, μετά διαμορφώστε το LICENSE_KEY για ενεργοποίηση."
+      "semanticSearch": "Σημασιολογική αναζήτηση"
     },
     "plans": {
       "individual": {

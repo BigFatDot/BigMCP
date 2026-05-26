@@ -48,7 +48,8 @@
   "trial": {
     "badge": "Próbaidőszak",
     "daysLeft": "{{count}} nap maradt a próbaidőszakból",
-    "daysLeft_plural": "{{count}} nap maradt a próbaidőszakból"
+    "daysLeft_plural": "{{count}} nap maradt a próbaidőszakból",
+    "expired": "A demó véget ért — Telepítsd self-hosted módban"
   },
   "empty": {
     "noData": "Nem áll rendelkezésre adat",
