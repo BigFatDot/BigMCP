@@ -681,6 +681,11 @@ export function ToolsWorkspace() {
                   <button
                     type="button"
                     onClick={() => loadMutation.mutate(s.toolIds)}
+                    aria-label={
+                      t('workspace.servers.loadAllHint', {
+                        defaultValue: 'Load every tool from this service into the pool',
+                      }) as string
+                    }
                     title={
                       t('workspace.servers.loadAllHint', {
                         defaultValue: 'Load every tool from this service into the pool',
@@ -688,7 +693,7 @@ export function ToolsWorkspace() {
                     }
                     className="px-1.5 border-l border-current/20 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-orange/10"
                   >
-                    <BoltIcon className="w-3 h-3" />
+                    <BoltIcon className="w-3 h-3" aria-hidden="true" />
                   </button>
                   {s.credentialId && (
                     <button
@@ -706,6 +711,11 @@ export function ToolsWorkspace() {
                           revokeServerMutation.mutate(s.credentialId as string)
                         }
                       }}
+                      aria-label={
+                        t('workspace.servers.revokeHint', {
+                          defaultValue: 'Revoke this service (delete its credentials)',
+                        }) as string
+                      }
                       title={
                         t('workspace.servers.revokeHint', {
                           defaultValue: 'Revoke this service (delete its credentials)',
@@ -713,7 +723,7 @@ export function ToolsWorkspace() {
                       }
                       className="px-1.5 border-l border-current/20 opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:bg-red-50"
                     >
-                      <TrashIcon className="w-3 h-3" />
+                      <TrashIcon className="w-3 h-3" aria-hidden="true" />
                     </button>
                   )}
                 </div>
