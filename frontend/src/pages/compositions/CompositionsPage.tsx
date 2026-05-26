@@ -90,10 +90,12 @@ function CompositionCard({
   // browsing their compositions, and the prefix makes the chain unreadable.
   // The full qualified name is still kept in the title attribute for hover.
   const _stepNames = composition.steps?.map((s) => {
-    const idx = s.tool?.indexOf('__') ?? -1
-    return idx >= 0 ? s.tool.slice(idx + 2) : s.tool
+    // transform/foreach steps have no `tool` — fall back to their type label.
+    const label = s.tool ?? s.type ?? 'step'
+    const idx = label.indexOf('__')
+    return idx >= 0 ? label.slice(idx + 2) : label
   }) ?? []
-  const _stepNamesFull = composition.steps?.map((s) => s.tool).join(' → ') || ''
+  const _stepNamesFull = composition.steps?.map((s) => s.tool ?? s.type ?? 'step').join(' → ') || ''
   const stepTools = _stepNames.length > 0
     ? _stepNames.join(' → ')
     : t('compositions.noSteps')
@@ -426,14 +428,20 @@ function ExecuteModal({ composition, isOpen, onClose, onExecute }: ExecuteModalP
                 {steps.length > 0 ? (
                   <div className="space-y-2">
                     {steps.map((step, index) => (
-                      <div key={step.id} className="flex items-center gap-3">
+                      <div key={step.id ?? step.step_id ?? index} className="flex items-center gap-3">
                         <div className="w-6 h-6 rounded-full bg-orange text-white flex items-center justify-center text-sm font-medium">
                           {index + 1}
                         </div>
                         <div className="flex-1 p-3 bg-gray-50 rounded-lg">
-                          <p className="font-medium text-gray-900">{step.tool}</p>
+                          <p className="font-medium text-gray-900">
+                            {step.tool ?? (step.type === 'transform' ? '🔁 transform (extraction)' : step.type === 'foreach' ? '🔁 foreach (boucle)' : step.type ?? 'step')}
+                          </p>
                           <p className="text-xs text-gray-500">
-                            {t('compositions.parameters', { count: Object.keys(step.params || {}).length })}
+                            {step.type === 'foreach'
+                              ? `items: ${step.items ?? '?'}`
+                              : step.type === 'transform'
+                                ? `source: ${step.source ?? '?'}`
+                                : t('compositions.parameters', { count: Object.keys(step.params || step.parameters || {}).length })}
                           </p>
                         </div>
                       </div>

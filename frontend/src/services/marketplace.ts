@@ -1434,10 +1434,22 @@ export interface Composition {
   description?: string
   visibility: CompositionVisibility
   steps: Array<{
-    id: string
-    tool: string
-    params: Record<string, unknown>
-    depends_on: string[]
+    id?: string
+    /** Canonical id field used by the backend (alias of `id`). */
+    step_id?: string
+    /** Step type: "tool" (default) | "transform" | "foreach" | B-1 suspending types. */
+    type?: string
+    /** Present for tool steps; absent for transform/foreach. */
+    tool?: string
+    params?: Record<string, unknown>
+    parameters?: Record<string, unknown>
+    depends_on?: string[]
+    // transform step
+    source?: string
+    output_schema?: Record<string, unknown>
+    // foreach step
+    items?: string
+    do?: Record<string, unknown>
   }>
   data_mappings: Array<{
     from: string
@@ -1494,10 +1506,12 @@ export interface CreateCompositionRequest {
 export interface StepResult {
   /** Unique step identifier from composition definition */
   step_id: string
-  /** Name of the tool that was executed */
+  /** Name of the tool executed, or the step type ("transform" / "foreach"). */
   tool: string
+  /** Step type when not a plain tool call ("transform" | "foreach" | ...). */
+  type?: string
   /** Step execution status */
-  status: 'success' | 'failed' | 'skipped'
+  status: 'success' | 'failed' | 'skipped' | 'error'
   /** Step execution duration in milliseconds */
   duration_ms: number
   /** Step output if successful (structure depends on tool) */

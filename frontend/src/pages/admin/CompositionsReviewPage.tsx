@@ -176,12 +176,13 @@ export function CompositionsReviewPage() {
                 {comp.steps && comp.steps.length > 0 && (
                   <div
                     className="text-xs font-mono bg-gray-50 border border-gray-200 rounded px-2 py-1.5 mb-3 truncate"
-                    title={comp.steps.map((s) => s.tool).join(' → ')}
+                    title={comp.steps.map((s) => s.tool ?? s.type ?? 'step').join(' → ')}
                   >
                     {comp.steps
                       .map((s) => {
-                        const idx = s.tool?.indexOf('__') ?? -1
-                        return idx >= 0 ? s.tool.slice(idx + 2) : s.tool
+                        const label = s.tool ?? s.type ?? 'step'
+                        const idx = label.indexOf('__')
+                        return idx >= 0 ? label.slice(idx + 2) : label
                       })
                       .join(' → ')}
                   </div>

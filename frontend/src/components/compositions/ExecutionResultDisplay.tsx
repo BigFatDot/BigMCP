@@ -64,13 +64,28 @@ function formatDuration(ms: number): string {
  */
 function StepCard({ step, index }: StepCardProps) {
   const { t } = useTranslation('dashboard')
-  const [isExpanded, setIsExpanded] = useState(step.status === 'failed')
+  const [isExpanded, setIsExpanded] = useState(step.status === 'failed' || step.status === 'error')
 
   const statusColors = {
     success: 'border-green-200 bg-green-50',
     failed: 'border-red-200 bg-red-50',
+    error: 'border-red-200 bg-red-50',
+    partial: 'border-amber-200 bg-amber-50',
     skipped: 'border-gray-200 bg-gray-50',
   }
+
+  // Friendly label for non-tool step types (backend sets step.tool = the type).
+  const stepKind = step.type ?? step.tool
+  const toolLabel =
+    stepKind === 'transform' ? '🔁 transform — extraction'
+    : stepKind === 'foreach' ? '🔁 foreach — fan-out'
+    : step.tool
+
+  // foreach results carry {results, count, errors}: surface count + errors so a
+  // partially-failed fan-out isn't hidden inside a raw JSON dump.
+  const fr = step.result as { results?: unknown[]; count?: number; errors?: unknown[] } | undefined
+  const isForeach = stepKind === 'foreach' || (!!fr && (Array.isArray(fr.results) || typeof fr.count === 'number'))
+  const foreachErrors = isForeach && Array.isArray(fr?.errors) ? fr!.errors as unknown[] : []
 
   return (
     <div
@@ -88,7 +103,7 @@ function StepCard({ step, index }: StepCardProps) {
         <div className={cn(
           "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold",
           step.status === 'success' && "bg-green-500 text-white",
-          step.status === 'failed' && "bg-red-500 text-white",
+          (step.status === 'failed' || step.status === 'error') && "bg-red-500 text-white",
           step.status === 'skipped' && "bg-gray-400 text-white"
         )}>
           {index}
@@ -96,7 +111,7 @@ function StepCard({ step, index }: StepCardProps) {
 
         {/* Tool name */}
         <div className="flex-1 text-left">
-          <p className="font-medium text-gray-900">{step.tool}</p>
+          <p className="font-medium text-gray-900">{toolLabel}</p>
           <p className="text-xs text-gray-500">
             {step.step_id} • {formatDuration(step.duration_ms)}
             {step.retries && step.retries > 0 && (
@@ -131,6 +146,26 @@ function StepCard({ step, index }: StepCardProps) {
                 {step.error}
               </p>
             </div>
+          )}
+
+          {/* foreach summary: iteration count + any per-item errors (a
+              partially-failed fan-out can still have status=success). */}
+          {isForeach && (
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                {(fr?.count ?? (Array.isArray(fr?.results) ? fr!.results!.length : 0))} itération(s)
+              </span>
+              {foreachErrors.length > 0 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                  {foreachErrors.length} en erreur
+                </span>
+              )}
+            </div>
+          )}
+          {foreachErrors.length > 0 && (
+            <pre className="mt-2 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg overflow-auto text-xs font-mono max-h-32">
+              {JSON.stringify(foreachErrors, null, 2)}
+            </pre>
           )}
 
           {/* Result */}
