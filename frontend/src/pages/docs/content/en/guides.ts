@@ -909,7 +909,62 @@ A composition step has a \`type\` field that decides what the executor does when
 
 When a composition contains at least one suspending step, the executor routes it through the **durable layer** (Pattern C) — the execution row is persisted in PostgreSQL, the run becomes resumable across crashes, and clients can subscribe to the \`composition://executions/{id}\` MCP resource to get notified on transitions.
 
-This page documents the 5 suspending step types shipped in B-1.
+There are also two **non-suspending data-flow step types** — \`transform\` and \`foreach\` — that run synchronously (no durable layer) and exist to chain tools reliably. They're documented first, then the 5 suspending step types from B-1.
+
+---
+
+## \`transform\` — turn prose into structured data
+
+Many MCP tools return a single human-readable **text** string (under \`\${step_N.structuredContent.result}\`) rather than navigable JSON — the data.gouv.fr tools are a typical example. A structured reference like \`\${step_N.datasets[0].id}\` resolves to nothing against prose, so the next step can't use it.
+
+A \`transform\` step bridges the gap: it runs an LLM that extracts a JSON object conforming to an \`output_schema\` you provide.
+
+\`\`\`json
+{
+  "step_id": "1b",
+  "type": "transform",
+  "source": "\${step_1.structuredContent.result}",
+  "output_schema": {
+    "type": "object",
+    "properties": {
+      "datasets": { "type": "array", "items": {
+        "type": "object",
+        "properties": { "id": { "type": "string" }, "title": { "type": "string" } },
+        "required": ["id"]
+      } }
+    },
+    "required": ["datasets"]
+  }
+}
+\`\`\`
+
+- **\`source\`** must point at the RAW text — almost always \`\${step_N.structuredContent.result}\`. Never a made-up structured path.
+- Reference the transform's output **directly** (no \`.structuredContent\` prefix): \`\${step_1b.datasets[0].id}\`.
+- The output is validated against \`output_schema\` (one retry on non-conformance, then the step fails).
+- Use it **only** to bridge prose; if a tool already returns structured fields, reference them directly and skip the LLM call.
+
+## \`foreach\` — run a sub-step once per list item
+
+When a tool takes a SINGLE value but the goal needs it run once per element of a list ("for each dataset, get its metrics"), don't pass a wildcard list to a single-value parameter — it fails validation. A \`foreach\` step fans out an inner \`do\` sub-step over each item, exposing the current element as \`\${_item}\` (and its index as \`\${_index}\`).
+
+\`\`\`json
+{
+  "step_id": "3",
+  "type": "foreach",
+  "items": "\${step_2b.datasets[*].id}",
+  "do": {
+    "tool": "DataGouv__get_metrics",
+    "parameters": { "dataset_id": "\${_item}" }
+  }
+}
+\`\`\`
+
+- **\`items\`** resolves to a list (use the \`[*]\` wildcard).
+- **\`do\`** is a normal \`tool\` (or \`transform\`) sub-step; \`\${_item}\` is the current element.
+- The result is \`{ "results": [...], "count": N, "errors": [...] }\` — reference downstream as \`\${step_3.results[*]...}\`.
+- Capped at **50 items** per foreach. If the tool itself ACCEPTS an array parameter, prefer the \`_template\`/\`_map\` pattern in a single call instead.
+
+A full prose-chaining pipeline therefore looks like: \`search → transform → search → transform → foreach(get_metrics)\`.
 
 ---
 
