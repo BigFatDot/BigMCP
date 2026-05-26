@@ -119,7 +119,7 @@
       "deleteWarning": "Túto akciu nie je možné vrátiť späť. Všetky vaše údaje budú natrvalo odstránené.",
       "deleteButton": "Odstrániť môj účet",
       "confirmPrompt": "Naozaj chcete odstrániť svoj účet? Túto akciu nie je možné vrátiť späť a všetky vaše údaje budú natrvalo odstránené.",
-      "typeDelete": "Napíšte „DELETE" na potvrdenie odstránenia účtu:"
+      "typeDelete": "Napíšte „DELETE” na potvrdenie odstránenia účtu:"
     }
   },
   "subscription": {
@@ -376,7 +376,7 @@
     },
     "credentialVisibilityUpdated": "Viditeľnosť prihlasovacích údajov aktualizovaná",
     "credentialVisibilityFailed": "Nepodarilo sa aktualizovať viditeľnosť prihlasovacích údajov",
-    "deleteCredentialConfirm": "Odstrániť „{{name}}"? Tým sa odstránia tímové prihlasovacie údaje a súvisiaci server. Túto akciu nie je možné vrátiť späť.",
+    "deleteCredentialConfirm": "Odstrániť „{{name}}”? Tým sa odstránia tímové prihlasovacie údaje a súvisiaci server. Túto akciu nie je možné vrátiť späť.",
     "credentialDeleted": "Tímové prihlasovacie údaje odstránené",
     "credentialDeleteFailed": "Nepodarilo sa odstrániť tímové prihlasovacie údaje",
     "clickToHide": "Kliknutím skryjete pred členmi",

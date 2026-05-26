@@ -162,7 +162,7 @@
     "noDescription": "Žiadny popis k dispozícii",
     "editMetadata": "Upraviť metadáta",
     "deleteServer": "Odstrániť server",
-    "deleteConfirm": "Odstrániť server „{{id}}" z lokálneho registra?",
+    "deleteConfirm": "Odstrániť server „{{id}}” z lokálneho registra?",
     "name": "Názov",
     "category": "Kategória",
     "description": "Popis",
@@ -212,7 +212,7 @@
     "failedToSave": "Nepodarilo sa uložiť",
     "failedToAdd": "Nepodarilo sa pridať server",
     "curationFailed": "Kurátorstvo zlyhalo",
-    "cannotChangeId": "Nie je možné zmeniť ID servera z „{{oldId}}" na „{{newId}}". Namiesto toho server odstráňte a znova vytvorte.",
+    "cannotChangeId": "Nie je možné zmeniť ID servera z „{{oldId}}” na „{{newId}}”. Namiesto toho server odstráňte a znova vytvorte.",
     "categories": {
       "custom": "Vlastné",
       "productivity": "Produktivita",
