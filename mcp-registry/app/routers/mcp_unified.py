@@ -2325,6 +2325,25 @@ Rules:
 - Unsure of a tool's output shape? Run it once and inspect
   `structuredContent`: a single `result` string ⇒ prose ⇒ needs transform.
 
+**🔁 Fan-out over a list — the `foreach` step:**
+When you must run a tool ONCE PER ITEM of a list (e.g. "for each dataset, get
+its metrics") and that tool takes a SINGLE value (not an array), do NOT pass a
+wildcard list to a single-value param — it fails validation. Use a `foreach`
+step: it runs the inner `do` sub-step once per element, exposing the current
+element as `${{_item}}` (and `${{_index}}`):
+```json
+{{
+  "step_id": "3",
+  "type": "foreach",
+  "items": "${{step_2b.datasets[*].id}}",
+  "do": {{"tool": "DataGouv__get_metrics", "parameters": {{"dataset_id": "${{_item}}"}}}}
+}}
+```
+Its result is `{{"results": [...], "count": N, "errors": [...]}}`; reference
+downstream as `${{step_3.results[*]...}}`. (If the tool itself ACCEPTS an array
+param, prefer the `_template/_map` pattern in a single call instead.) Cap: 50
+items per foreach.
+
 **Save the workflow via the REST API** (or via the legacy
 `orchestrator_create_composition` dispatch — still functional but no longer
 exposed in tools/list):
@@ -2334,10 +2353,12 @@ POST /api/v1/compositions
   "name": "My Workflow",
   "description": "{goal}",
   "steps": [
-    {{"tool": "grist_mcp_grist_gouv__list_organizations", "parameters": {{}}}},
-    {{"tool": "grist_mcp_grist_gouv__list_workspaces", "parameters": {{"org_id": "${{step_1.structuredContent.organizations[0].id}}"}}}}
+    {{"step_id": "1", "tool": "grist_mcp_grist_gouv__list_organizations", "parameters": {{}}}},
+    {{"step_id": "2", "tool": "grist_mcp_grist_gouv__list_workspaces", "parameters": {{"org_id": "${{step_1.structuredContent.organizations[0].id}}"}}}}
   ]
 }}
+(Every step REQUIRES a unique `step_id`; `parameters` not `params`. Extra keys
+are rejected.)
 ```
 
 ### Step 4: Execute the saved composition

@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2026-05-25
+
+Reliable multi-step composition chaining, especially for tools that return
+unstructured prose (e.g. the data.gouv.fr MCP server). Two new **non-suspending**
+step types complete the data-flow story alongside the B-1 suspending types.
+
+### Composition step types
+
+- **`transform`** — LLM-backed extraction that converts a tool's prose output
+  (`${step_N.structuredContent.result}`) into a JSON object conforming to an
+  author-supplied `output_schema`, so downstream steps can navigate its fields.
+- **`foreach`** — fan-out: runs an inner `do` sub-step once per item of a list
+  (`${_item}`/`${_index}`), aggregating `{results, count, errors}`. Cap: 50 items.
+
+Both run synchronously (not members of `SUSPENDING_STEP_TYPES`), are dispatched
+from the legacy executor and the resumable bridge, and have promote-time
+validators.
+
+### Orchestration fixes
+
+- Goal-mode planner now sees the goal-relevant slice of the pool (ranked by the
+  L2 substring scorer), fixing `L3_no_plan` when the loaded tools didn't lexically
+  match a foreign-language goal; it is also taught to emit `transform`/`foreach`.
+- Data-flow references absorb the tool (`structuredContent`-wrapped) vs
+  transform/foreach (naked dict) asymmetry — chaining no longer silently yields
+  empty values.
+- L2->L3 escalation on a failed single-entry run; hallucinated tool params are
+  stripped against the tool's `inputSchema`; error-shaped prose (HTTP 404 returned
+  as text with `isError=false`) is treated as a step failure.
+- `execute(tool_name=...)` resolves and starts a not-yet-running server by its
+  display-name prefix (parity with L3).
+
+### Gateway & marketplace
+
+- MCP session ID sent via the `Mcp-Session-Id` header (streamable-http
+  conformance) — fixes handshakes with strict servers (n8n, qgis bridges).
+- `/marketplace/connect` performs a dry-run handshake and rolls back + returns
+  400 with the real error when a connection can't be established.
+- Remote marketplace servers support `${VAR}` placeholders in their URL, expanded
+  per-user from credentials at start time.
+
 ## [2.4.0] - 2026-05-16
 
 Phase B-1: five production-ready suspending step types built on the
