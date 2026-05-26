@@ -303,6 +303,25 @@ api.interceptors.response.use(
 )
 
 /**
+ * Extract a human-readable error message from an axios/API error.
+ * FastAPI returns `{ detail: "..." }` on 4xx/5xx — surface that real reason
+ * (e.g. the dry-run handshake's "Could not connect to X: <cause>") instead of
+ * axios's generic "Request failed with status code 400".
+ */
+export function extractApiError(error: unknown, fallback = 'An unexpected error occurred'): string {
+  const anyErr = error as { response?: { data?: { detail?: unknown } }; message?: string }
+  const detail = anyErr?.response?.data?.detail
+  if (typeof detail === 'string' && detail.trim()) return detail
+  // FastAPI validation errors come as an array of {msg, loc, ...}
+  if (Array.isArray(detail) && detail.length > 0) {
+    const msgs = detail.map((d) => (d && typeof d === 'object' && 'msg' in d ? String((d as { msg: unknown }).msg) : String(d)))
+    if (msgs.length) return msgs.join('; ')
+  }
+  if (anyErr?.message && anyErr.message.trim()) return anyErr.message
+  return fallback
+}
+
+/**
  * Marketplace Server Discovery
  */
 export const marketplaceApi = {
@@ -335,16 +354,22 @@ export const marketplaceApi = {
     credential_id: string
     already_installed: boolean
   }> {
-    const { data } = await api.post('/marketplace/connect', {
-      server_id: serverId,
-      organization_id: organizationId,
-      credentials,
-      name,
-      auto_start: autoStart,
-      use_org_credentials: useOrgCredentials,
-      additional_credentials: additionalCredentials,
-    })
-    return data
+    try {
+      const { data } = await api.post('/marketplace/connect', {
+        server_id: serverId,
+        organization_id: organizationId,
+        credentials,
+        name,
+        auto_start: autoStart,
+        use_org_credentials: useOrgCredentials,
+        additional_credentials: additionalCredentials,
+      })
+      return data
+    } catch (err) {
+      // Surface the backend's real reason (dry-run handshake failure, missing
+      // credential, etc.) rather than axios's generic status-code message.
+      throw new Error(extractApiError(err, 'Could not connect to the server'))
+    }
   },
 
   /**

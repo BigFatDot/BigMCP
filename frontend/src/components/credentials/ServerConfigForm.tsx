@@ -42,6 +42,7 @@ export function ServerConfigForm({ server, onSuccess, onError, onBack, hasTeamCo
   const [showValues, setShowValues] = useState<Record<string, boolean>>({})
   const [showOptionalConfig, setShowOptionalConfig] = useState(false)
   const [validationStatus, setValidationStatus] = useState<'idle' | 'validating' | 'success' | 'error'>('idle')
+  const [connectError, setConnectError] = useState<string>('')
   const { organizationId } = useOrganization()
   const { isCloudSaaS } = useAuth()
 
@@ -192,12 +193,15 @@ export function ServerConfigForm({ server, onSuccess, onError, onBack, hasTeamCo
       }, 1500)
     },
     onError: (err) => {
+      const msg = err instanceof Error ? err.message : 'Failed to connect server'
+      setConnectError(msg)
       setValidationStatus('error')
-      onError(err instanceof Error ? err.message : 'Failed to connect server')
+      onError(msg)
     },
   })
 
   const onSubmit = (data: FormData) => {
+    setConnectError('')
     setValidationStatus('validating')
     connectServerMutation.mutate(data)
   }
@@ -309,7 +313,7 @@ export function ServerConfigForm({ server, onSuccess, onError, onBack, hasTeamCo
       {validationStatus === 'error' && (
         <Alert variant="error" title="Connection Failed">
           <ExclamationCircleIcon className="h-5 w-5 inline mr-2" />
-          Could not connect. Please check your credentials and try again.
+          {connectError || 'Could not connect. Please check your credentials and try again.'}
         </Alert>
       )}
 
