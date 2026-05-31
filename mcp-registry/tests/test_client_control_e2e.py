@@ -202,7 +202,14 @@ async def test_authorize_blocked_for_pending_and_rejected(
     )
     cid = dcr.json()["client_id"]
 
-    # /authorize must refuse with 403 because approval_status=pending
+    # /authorize must refuse with 403 because approval_status=pending.
+    # state + PKCE are now mandatory (see oauth security hardening), so
+    # we supply valid dummy values to reach the approval gate.
+    _pkce_params = {
+        "state": "csrf-state-token",
+        "code_challenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+        "code_challenge_method": "S256",
+    }
     auth_resp = await client.get(
         "/api/v1/oauth/authorize",
         params={
@@ -210,6 +217,7 @@ async def test_authorize_blocked_for_pending_and_rejected(
             "client_id": cid,
             "redirect_uri": "https://gated.example/cb",
             "scope": "mcp:execute",
+            **_pkce_params,
         },
     )
     assert auth_resp.status_code == 403
@@ -233,6 +241,7 @@ async def test_authorize_blocked_for_pending_and_rejected(
             "client_id": cid,
             "redirect_uri": "https://gated.example/cb",
             "scope": "mcp:execute",
+            **_pkce_params,
         },
     )
     assert auth_resp2.status_code == 403
@@ -421,3 +430,98 @@ async def test_admin_revoke_sets_is_active_false(
         )
     ).scalar_one()
     assert after.is_active is False
+
+
+# ---------------------------------------------------------------------------
+# OAuth security hardening: mandatory state + PKCE (S256) on /authorize
+# ---------------------------------------------------------------------------
+
+
+async def _seed_authorize_ready_client(
+    client: AsyncClient,
+) -> str:
+    """Register a DCR client that is immediately authorize-ready."""
+    dcr = await client.post(
+        "/api/v1/oauth/register",
+        json={
+            "redirect_uris": ["https://sec.example/cb"],
+            "client_name": "sec",
+        },
+    )
+    assert dcr.status_code == 201, dcr.text
+    return dcr.json()["client_id"]
+
+
+@pytest.mark.asyncio
+async def test_authorize_rejects_missing_state(
+    client: AsyncClient,
+    seed_instance_settings,
+):
+    """RFC 6749 §10.12 — ``state`` is mandatory (CSRF protection)."""
+    cid = await _seed_authorize_ready_client(client)
+    resp = await client.get(
+        "/api/v1/oauth/authorize",
+        params={
+            "response_type": "code",
+            "client_id": cid,
+            "redirect_uri": "https://sec.example/cb",
+            "scope": "mcp:execute",
+            # state omitted on purpose
+            "code_challenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+            "code_challenge_method": "S256",
+        },
+    )
+    assert resp.status_code == 400, resp.text
+    body = resp.json()
+    assert body["error"] == "invalid_request"
+    assert "state" in body["error_description"].lower()
+
+
+@pytest.mark.asyncio
+async def test_authorize_rejects_missing_code_challenge(
+    client: AsyncClient,
+    seed_instance_settings,
+):
+    """RFC 7636 — PKCE ``code_challenge`` is mandatory."""
+    cid = await _seed_authorize_ready_client(client)
+    resp = await client.get(
+        "/api/v1/oauth/authorize",
+        params={
+            "response_type": "code",
+            "client_id": cid,
+            "redirect_uri": "https://sec.example/cb",
+            "scope": "mcp:execute",
+            "state": "csrf-state-token",
+            # code_challenge omitted on purpose
+            "code_challenge_method": "S256",
+        },
+    )
+    assert resp.status_code == 400, resp.text
+    body = resp.json()
+    assert body["error"] == "invalid_request"
+    assert "code_challenge" in body["error_description"].lower()
+
+
+@pytest.mark.asyncio
+async def test_authorize_rejects_plain_code_challenge_method(
+    client: AsyncClient,
+    seed_instance_settings,
+):
+    """Only the ``S256`` challenge method is accepted."""
+    cid = await _seed_authorize_ready_client(client)
+    resp = await client.get(
+        "/api/v1/oauth/authorize",
+        params={
+            "response_type": "code",
+            "client_id": cid,
+            "redirect_uri": "https://sec.example/cb",
+            "scope": "mcp:execute",
+            "state": "csrf-state-token",
+            "code_challenge": "an-unhashed-verifier",
+            "code_challenge_method": "plain",
+        },
+    )
+    assert resp.status_code == 400, resp.text
+    body = resp.json()
+    assert body["error"] == "invalid_request"
+    assert "s256" in body["error_description"].lower()

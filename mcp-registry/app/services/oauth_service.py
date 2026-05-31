@@ -311,22 +311,32 @@ class OAuthService:
         """
         Verify PKCE code challenge.
 
+        Only the ``S256`` method is supported (RFC 7636). The ``plain``
+        method is explicitly refused as it provides no protection against
+        an attacker who captures the authorization code in transit.
+
         Args:
             code_verifier: Code verifier from client
             code_challenge: Code challenge from authorization request
-            method: Challenge method (S256 or plain)
+            method: Challenge method (must be ``S256``)
 
         Returns:
-            True if valid, False otherwise
+            True if valid, False otherwise (including ``plain`` method)
         """
-        if method == "S256":
-            # SHA-256 hash of verifier, base64url encoded (RFC 7636)
-            # code_challenge = BASE64URL(SHA256(ASCII(code_verifier)))
-            sha256_hash = hashlib.sha256(code_verifier.encode('ascii')).digest()
-            computed_challenge = base64.urlsafe_b64encode(sha256_hash).decode('ascii').rstrip('=')
-        else:
-            # Plain (not recommended but supported)
-            computed_challenge = code_verifier
+        if method != "S256":
+            # Refuse anything that is not S256 (notably "plain").
+            # See RFC 7636 §4.2 and current MCP security guidance.
+            import logging
+            logging.getLogger("oauth").warning(
+                "PKCE verification refused: unsupported method %r (only S256 is allowed)",
+                method,
+            )
+            return False
+
+        # SHA-256 hash of verifier, base64url encoded (RFC 7636)
+        # code_challenge = BASE64URL(SHA256(ASCII(code_verifier)))
+        sha256_hash = hashlib.sha256(code_verifier.encode('ascii')).digest()
+        computed_challenge = base64.urlsafe_b64encode(sha256_hash).decode('ascii').rstrip('=')
 
         return computed_challenge == code_challenge
 

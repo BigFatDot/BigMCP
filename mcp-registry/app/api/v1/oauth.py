@@ -6,11 +6,57 @@ Implements OAuth 2.0 Authorization Code Flow with PKCE support.
 
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request, Form, Cookie
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from urllib.parse import urlencode
+
+
+def _oauth_invalid_request(description: str) -> JSONResponse:
+    """
+    Build a 400 ``invalid_request`` JSON response per RFC 6749 §5.2.
+
+    Used by the OAuth endpoints when state/PKCE pre-flight checks fail —
+    a misbehaving client must never see the HTML login/consent pages.
+    """
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content={
+            "error": "invalid_request",
+            "error_description": description,
+        },
+    )
+
+
+def _validate_oauth_security_params(
+    state: Optional[str],
+    code_challenge: Optional[str],
+    code_challenge_method: Optional[str],
+) -> Optional[JSONResponse]:
+    """
+    Enforce mandatory CSRF + PKCE parameters on the authorization request.
+
+    - ``state`` is REQUIRED (RFC 6749 §10.12 — CSRF protection)
+    - ``code_challenge`` is REQUIRED (RFC 7636 — PKCE)
+    - ``code_challenge_method`` must be ``S256`` (the ``plain`` method
+      is explicitly refused)
+
+    Returns a JSONResponse on failure, or ``None`` if all checks pass.
+    """
+    if not state:
+        return _oauth_invalid_request(
+            "state is required (RFC 6749 §10.12)"
+        )
+    if not code_challenge:
+        return _oauth_invalid_request(
+            "PKCE code_challenge is required (RFC 7636)"
+        )
+    if code_challenge_method != "S256":
+        return _oauth_invalid_request(
+            "Only S256 code_challenge_method is supported"
+        )
+    return None
 
 from ...db.database import get_db
 from ...models.user import User
@@ -366,9 +412,9 @@ async def oauth_login(
     client_id: str = Form(...),
     redirect_uri: str = Form(...),
     scope: str = Form("mcp:execute"),
-    state: Optional[str] = Form(None),
-    code_challenge: Optional[str] = Form(None),
-    code_challenge_method: Optional[str] = Form("S256"),
+    state: str = Form(...),
+    code_challenge: str = Form(...),
+    code_challenge_method: str = Form("S256"),
     auth_service: AuthService = Depends(get_auth_service),
     oauth_service: OAuthService = Depends(get_oauth_service),
     db: AsyncSession = Depends(get_db)
@@ -378,7 +424,19 @@ async def oauth_login(
 
     Called by the OAuth login page when user submits credentials.
     Creates session cookie with JWT and redirects back to /authorize.
+
+    ``state`` and ``code_challenge`` are REQUIRED (RFC 6749 §10.12 +
+    RFC 7636). Only ``code_challenge_method=S256`` is accepted.
     """
+    # Enforce CSRF + PKCE before doing any user lookup or auth work.
+    security_error = _validate_oauth_security_params(
+        state=state,
+        code_challenge=code_challenge,
+        code_challenge_method=code_challenge_method,
+    )
+    if security_error is not None:
+        return security_error
+
     # Authenticate user
     user = await auth_service.authenticate_user(email, password)
 
@@ -491,9 +549,9 @@ async def authorize(
     - client_id: OAuth client ID
     - redirect_uri: Where to redirect after authorization
     - scope: Requested scopes (space-separated)
-    - state: Client state for CSRF protection (recommended)
-    - code_challenge: PKCE code challenge (recommended)
-    - code_challenge_method: PKCE method (S256 or plain)
+    - state: Client state for CSRF protection (REQUIRED, RFC 6749 §10.12)
+    - code_challenge: PKCE code challenge (REQUIRED, RFC 7636)
+    - code_challenge_method: PKCE method (must be S256; plain is refused)
     - prompt: "login" to force re-authentication, "consent" to always show consent
 
     Authorization: Optional - shows login page if not authenticated
@@ -504,6 +562,17 @@ async def authorize(
             status_code=400,
             detail="Invalid response_type. Only 'code' is supported."
         )
+
+    # Enforce CSRF + PKCE parameters before doing anything else. A
+    # client that omits state or code_challenge is broken or hostile,
+    # and must NEVER be shown the HTML login/consent pages.
+    security_error = _validate_oauth_security_params(
+        state=state,
+        code_challenge=code_challenge,
+        code_challenge_method=code_challenge_method,
+    )
+    if security_error is not None:
+        return security_error
 
     # Get and validate OAuth client
     client = await oauth_service.get_client_by_id(client_id)
