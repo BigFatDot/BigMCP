@@ -112,8 +112,11 @@ class TestCreateWrapperWithCredentials:
         assert isinstance(wrapper, HttpMCPWrapper)
         assert wrapper._auth_headers == {"Authorization": "Bearer my-token"}
 
-    def test_external_url_wrapper(self):
+    def test_external_url_wrapper(self, monkeypatch):
         """External URL-only config creates HTTP wrapper without command."""
+        # SSRF guard refuses localhost URLs in external-server mode; the test
+        # bypass env var keeps the auth-header focus intact for this case.
+        monkeypatch.setenv("MCP_ALLOW_INTERNAL_HOSTS", "1")
         config = {
             "command": "",
             "args": [],
@@ -128,8 +131,9 @@ class TestCreateWrapperWithCredentials:
         assert wrapper.command == ""
         assert wrapper._auth_headers == {"X-API-Key": "key_xyz"}
 
-    def test_external_url_no_credentials(self):
+    def test_external_url_no_credentials(self, monkeypatch):
         """External URL wrapper works without credentials."""
+        monkeypatch.setenv("MCP_ALLOW_INTERNAL_HOSTS", "1")
         config = {
             "command": "",
             "args": [],

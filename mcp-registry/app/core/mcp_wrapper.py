@@ -13,6 +13,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 import aiohttp
 
+from app.core.url_validation import validate_external_url
+
 logger = logging.getLogger(__name__)
 
 
@@ -590,6 +592,15 @@ class HttpMCPWrapper(MCPServerWrapper):
             auth_headers: Pre-built HTTP auth headers to inject in proxied requests
         """
         super().__init__(server_id, url)
+        # SSRF guard: refuse URLs pointing to internal infrastructure
+        # (loopback, RFC1918, IMDS, Docker service names, ...). Only applied
+        # to *external* URLs — when `command` is set, the gateway spawns the
+        # MCP server locally and proxies to http://localhost:<port>/mcp,
+        # which is legitimate and must not be blocked.
+        # Raises ValueError on rejection; surfaces at construction time so
+        # bad servers fail to register rather than at first proxied request.
+        if not command:
+            validate_external_url(url)
         self.command = command
         self.args = args
         self.env = env
@@ -742,6 +753,16 @@ class HttpMCPWrapper(MCPServerWrapper):
             headers["Mcp-Session-Id"] = self._session_id
 
         url = self.url.rstrip('/')
+
+        # SSRF guard: re-validate just before the outbound request. Protects
+        # against (a) self.url mutated after construction and (b) the case
+        # where a wrapper was constructed under the env bypass but is now
+        # being reused after the bypass was removed. Skipped for locally
+        # spawned processes (self.command set) since those legitimately use
+        # http://localhost:<port>/mcp. Does NOT defend against DNS rebinding
+        # (see url_validation.py limitations note).
+        if not self.command:
+            validate_external_url(url)
 
         async with session.post(url, headers=headers, json=payload) as response:
             # Server-issued session ID (per spec). Capture it before reading the
