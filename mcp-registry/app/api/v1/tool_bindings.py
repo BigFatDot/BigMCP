@@ -348,7 +348,9 @@ async def execute_tool_binding(
 
         result = await service.execute_binding(
             binding_id=binding_id,
-            user_parameters=execution_data.parameters
+            user_parameters=execution_data.parameters,
+            user_id=current_user.id,
+            organization_id=organization_id,
         )
 
         execution_time_ms = (time.time() - start_time) * 1000
@@ -360,7 +362,10 @@ async def execute_tool_binding(
             success=result.get("success", True),
             result=result.get("result"),
             execution_time_ms=execution_time_ms,
-            error=None,
+            # Surface in-band MCP errors (success=False but no exception
+            # raised). For transport failures we still hit the RuntimeError
+            # branch below.
+            error=result.get("error"),
             binding_id=binding_id,
             binding_name=binding.binding_name,
             tool_name=info["tool"]["tool_name"] if info.get("tool") else "unknown",

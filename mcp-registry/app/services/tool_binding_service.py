@@ -300,7 +300,9 @@ class ToolBindingService:
     async def execute_binding(
         self,
         binding_id: UUID,
-        user_parameters: Optional[Dict[str, Any]] = None
+        user_parameters: Optional[Dict[str, Any]] = None,
+        user_id: Optional[UUID] = None,
+        organization_id: Optional[UUID] = None,
     ) -> Dict[str, Any]:
         """
         Execute a tool binding with merged parameters.
@@ -308,13 +310,19 @@ class ToolBindingService:
         Args:
             binding_id: Binding UUID
             user_parameters: Parameters provided by user
+            user_id: ID of the caller (required to route to that user's
+                MCP server pool — each user owns isolated MCP server
+                processes with their own credentials).
+            organization_id: Caller's org (used for credential resolution
+                via UserServerPool). When omitted, the pool falls back
+                to the server's organization_id.
 
         Returns:
             Tool execution result
 
         Raises:
             ValueError: If binding not found or parameters invalid
-            RuntimeError: If MCP server not running or execution fails
+            RuntimeError: If MCP server cannot be started or execution fails
         """
         binding = await self.get_binding(binding_id)
         if not binding:
@@ -345,14 +353,26 @@ class ToolBindingService:
         if not server:
             raise ValueError(f"MCP Server {tool.server_id} not found")
 
-        if server.status != ServerStatus.RUNNING:
-            raise RuntimeError(
-                f"MCP Server '{server.server_id}' is not running (status: {server.status})"
+        if user_id is None:
+            # execute_binding used to be callable without a user (placeholder).
+            # Now that execution is real we MUST know which user pool to hit
+            # so the right credentials are loaded. Refuse silently fixing
+            # this — would otherwise leak server state across users.
+            raise ValueError(
+                "user_id is required to execute a tool binding "
+                "(per-user MCP server isolation)"
             )
 
         # Execute tool via MCP server
         try:
-            result = await self._execute_via_mcp(server, tool.tool_name, merged_params)
+            result = await self._execute_via_mcp(
+                server=server,
+                tool_name=tool.tool_name,
+                parameters=merged_params,
+                user_id=user_id,
+                organization_id=organization_id,
+                binding_id=binding_id,
+            )
 
             # Update server statistics
             server.total_requests += 1
@@ -379,49 +399,117 @@ class ToolBindingService:
         self,
         server: MCPServer,
         tool_name: str,
-        parameters: Dict[str, Any]
+        parameters: Dict[str, Any],
+        user_id: UUID,
+        organization_id: Optional[UUID],
+        binding_id: UUID,
     ) -> Dict[str, Any]:
         """
-        Execute tool via MCP server using STDIO protocol.
+        Execute a tool by routing through the caller's UserServerPool.
+
+        The pool owns the lifecycle of MCP server wrappers per user
+        (lazy start, credential injection, LRU eviction, health check).
+        We re-use it instead of opening a parallel STDIO connection here
+        so a single subprocess per (user, server) is shared with the
+        gateway, OAuth tools/call, and compositions.
 
         Args:
-            server: MCPServer instance
-            tool_name: Tool name
-            parameters: Merged parameters
+            server: MCPServer ORM instance owning the tool
+            tool_name: Native tool name as exposed by the MCP server
+                (NOT the prefixed display name used by the gateway)
+            parameters: Merged + schema-validated arguments
+            user_id: Caller (drives credential resolution + isolation)
+            organization_id: Caller's org for credential resolution
+            binding_id: ToolBinding UUID, for logging only
 
         Returns:
-            Tool execution result
+            Structured result envelope:
+                {"success": True, "result": <mcp result>,
+                 "tool": <name>, "server": <server_id>}
+            On MCP-side errors the envelope flips success=False with
+            an error string but the function returns normally so the
+            caller can decide HTTP status — RuntimeError is reserved
+            for hard failures (pool/server cannot start).
 
         Raises:
-            RuntimeError: If execution fails
+            RuntimeError: If the server cannot be started for the user
+                or if the wrapper call itself raises (timeout / process
+                crashed / transport error).
         """
-        # This is a simplified implementation
-        # In production, this would use a proper MCP client library
-        # and maintain persistent connections to MCP servers
-
-        # Build MCP request
-        request = {
-            "jsonrpc": "2.0",
-            "id": 1,
-            "method": "tools/call",
-            "params": {
-                "name": tool_name,
-                "arguments": parameters
-            }
-        }
-
-        # For now, we'll return a placeholder
-        # TODO: Implement actual MCP STDIO communication
-        logger.warning(
-            f"MCP execution not fully implemented. "
-            f"Would execute {tool_name} on {server.server_id} with params: {parameters}"
+        logger.info(
+            f"🔧 Executing tool {tool_name} via binding {binding_id} "
+            f"for user {user_id} (server: {server.server_id})"
         )
+
+        # Late import to avoid a circular dependency:
+        # tool_binding_service is imported by routers/api at startup,
+        # while mcp_unified imports services indirectly. The gateway
+        # is only constructed inside the app lifespan, so importing
+        # at module scope would either give us a stale (None) ref or
+        # a circular import.
+        from ..routers.mcp_unified import gateway
+
+        pool = getattr(gateway, "user_server_pool", None)
+        if pool is None:
+            raise RuntimeError(
+                "UserServerPool is not initialised (gateway not started)"
+            )
+
+        # 1) Ensure the wrapper exists for this user (lazy start with
+        #    credentials). Parity with the gateway's own auto-start path
+        #    (see mcp_unified.py:3310 and mcp_servers.py:327).
+        try:
+            wrapper = await pool.get_or_start_server(
+                user_id=user_id,
+                server_id=server.id,
+                organization_id=organization_id,
+            )
+        except Exception as e:
+            logger.error(
+                f"Failed to start server {server.server_id} for user {user_id}: {e}"
+            )
+            raise RuntimeError(
+                f"MCP server '{server.server_id}' could not be started: {e}"
+            )
+
+        # 2) Invoke the tool. The wrapper's call_tool() goes through the
+        #    real MCP `tools/call` JSON-RPC method (StdioMCPWrapper:505
+        #    / HttpMCPWrapper:883).
+        try:
+            mcp_result = await wrapper.call_tool(tool_name, parameters)
+        except Exception as e:
+            logger.error(
+                f"wrapper.call_tool failed for {tool_name} on {server.server_id}: {e}"
+            )
+            raise RuntimeError(
+                f"Tool '{tool_name}' invocation failed on server "
+                f"'{server.server_id}': {e}"
+            )
+
+        # 3) Detect MCP-side errors (isError flag per spec).
+        #    These are not transport failures, so we return them in-band
+        #    with success=False instead of raising — the router maps that
+        #    onto a proper 200 response carrying the error payload.
+        if isinstance(mcp_result, dict) and mcp_result.get("isError"):
+            error_content = mcp_result.get("content") or []
+            error_msg = (
+                error_content[0].get("text")
+                if error_content and isinstance(error_content[0], dict)
+                else str(mcp_result)
+            )
+            return {
+                "success": False,
+                "result": mcp_result,
+                "error": error_msg,
+                "tool": tool_name,
+                "server": server.server_id,
+            }
 
         return {
             "success": True,
-            "result": "Tool execution placeholder - implement MCP client",
+            "result": mcp_result,
             "tool": tool_name,
-            "server": server.server_id
+            "server": server.server_id,
         }
 
     def _validate_parameters(
