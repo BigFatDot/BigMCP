@@ -42,6 +42,7 @@ from .composition_execution import (
 )
 from .public_sector import PublicDomainWhitelist, PublicSectorCategory
 from .instance_settings import InstanceSettings
+from .lemonsqueezy_webhook_event import LemonSqueezyWebhookEvent
 
 __all__ = [
     # Organizations
@@ -133,4 +134,7 @@ __all__ = [
 
     # Instance configuration (singleton)
     "InstanceSettings",
+
+    # Billing webhook idempotency
+    "LemonSqueezyWebhookEvent",
 ]

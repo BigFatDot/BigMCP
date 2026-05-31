@@ -13,12 +13,15 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Request, HTTPException, status, Depends, Header
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 from ...db.database import get_async_session
 from ...models.subscription import Subscription, SubscriptionStatus, SubscriptionTier
 from ...models.organization import Organization
+from ...models.lemonsqueezy_webhook_event import LemonSqueezyWebhookEvent
 from ...core.config import settings
 from ...services.license_generator_service import (
     LicenseGeneratorService,
@@ -494,7 +497,69 @@ async def lemonsqueezy_webhook(
 
     logger.info(f"📬 Received LemonSqueezy webhook: {event_name}")
 
-    # Handle event
+    # ---- Anti-replay idempotency check (post-HMAC) -------------------------
+    # Fingerprint the delivery with sha256(raw_body). Two distinct webhook
+    # deliveries will always differ (LemonSqueezy includes timestamps in the
+    # signed payload), so this catches replays cleanly without parsing any
+    # field that an attacker could massage.
+    payload_hash = hashlib.sha256(body).hexdigest()
+    event_id = payload_hash  # see model docstring; kept separate for future
+
+    # Race-safe insert: try to claim the row, fall back to read-then-decide
+    # on conflict. This handles concurrent deliveries (LemonSqueezy retries
+    # in parallel) without requiring an advisory lock.
+    event_row = LemonSqueezyWebhookEvent(
+        event_id=event_id,
+        event_name=event_name,
+        payload_hash=payload_hash,
+        received_at=datetime.utcnow(),
+        processed_at=None,
+    )
+    db.add(event_row)
+    try:
+        await db.commit()
+    except IntegrityError:
+        await db.rollback()
+        # Duplicate fingerprint — either we already processed this, or a
+        # concurrent worker is mid-flight.
+        existing_q = await db.execute(
+            select(LemonSqueezyWebhookEvent).where(
+                LemonSqueezyWebhookEvent.event_id == event_id
+            )
+        )
+        existing = existing_q.scalar_one_or_none()
+        if existing is None:
+            # Lost the race AND lost the row — shouldn't happen, fail loud.
+            logger.exception(
+                f"❌ IntegrityError on webhook insert but no row found "
+                f"for event_id={event_id[:12]}..."
+            )
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Webhook idempotency check failed",
+            )
+
+        if existing.processed_at is not None:
+            logger.info(
+                f"⚠️ Duplicate LemonSqueezy webhook {event_name} "
+                f"({event_id[:12]}...) — already processed, skipping replay"
+            )
+            return {"status": "already_processed", "event_id": event_id}
+
+        # Row exists but processed_at IS NULL → another worker holds it.
+        logger.info(
+            f"⚠️ Concurrent LemonSqueezy webhook {event_name} "
+            f"({event_id[:12]}...) — processing in progress on peer"
+        )
+        return JSONResponse(
+            status_code=status.HTTP_202_ACCEPTED,
+            content={
+                "status": "processing_in_progress",
+                "event_id": event_id,
+            },
+        )
+
+    # We hold the soft lock — run the handler.
     handler = EVENT_HANDLERS.get(event_name)
 
     if handler:
@@ -502,6 +567,17 @@ async def lemonsqueezy_webhook(
             await handler(event_data, db)
         except Exception as e:
             logger.exception(f"❌ Error handling {event_name}: {e}")
+            # Stamp the error on the idempotency row but leave processed_at
+            # NULL so a legitimate retry from LemonSqueezy (different
+            # delivery fingerprint) can still be processed.
+            try:
+                event_row.error = str(e)[:4096]
+                await db.commit()
+            except Exception:  # noqa: BLE001
+                await db.rollback()
+                logger.exception(
+                    "Failed to persist webhook error on idempotency row"
+                )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Error processing event: {str(e)}"
@@ -509,4 +585,8 @@ async def lemonsqueezy_webhook(
     else:
         logger.info(f"ℹ️  Unhandled event type: {event_name}")
 
-    return {"status": "success", "event": event_name}
+    # Mark idempotency row as processed.
+    event_row.processed_at = datetime.utcnow()
+    await db.commit()
+
+    return {"status": "success", "event": event_name, "event_id": event_id}
