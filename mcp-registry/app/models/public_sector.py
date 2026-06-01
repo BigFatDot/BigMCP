@@ -462,12 +462,6 @@ INITIAL_WHITELIST = [
 
     # France - Research & Technical (EPIC - Établissements publics industriels et commerciaux)
     {
-        "domain": "cerema.fr",
-        "organization_name": "CEREMA - Centre d'études et d'expertise sur les risques, l'environnement, la mobilité et l'aménagement",
-        "country": "FR",
-        "category": PublicSectorCategory.RESEARCH,
-    },
-    {
         "domain": "ademe.fr",
         "organization_name": "ADEME - Agence de la transition écologique",
         "country": "FR",

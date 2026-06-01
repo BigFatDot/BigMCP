@@ -1,6 +1,6 @@
 # BigMCP — Roadmap Access Control
 
-> Document interne d'architecture. Plan séquentiel pour amener BigMCP à un niveau de contrôle d'accès déployable par toute organisation (Cerema-type comme exemple générique). État au 2026-05-13.
+> Document interne d'architecture. Plan séquentiel pour amener BigMCP à un niveau de contrôle d'accès déployable par toute organisation (public-sector tenant comme exemple générique). État au 2026-05-13.
 
 ## Cadre stratégique
 
@@ -32,7 +32,7 @@ User self-control                  — révocation de ses propres sessions
 
 ## Audit factuel — état au 2026-05-13 (v2.2.0)
 
-Score global : **2.3 / 5** — non-deployable Cerema sans niveau 0+1.
+Score global : **2.3 / 5** — non-deployable en secteur public sans niveau 0+1.
 
 | Axe | Score | État |
 |---|---|---|
@@ -78,11 +78,11 @@ L'ordre est dicté par **dépendances structurelles**, pas préférences. Le cli
 
 **Critère de sortie** : tests `pytest -k scope` passent ; entrées `auth.login_success`, `oauth.token_grant` apparaissent dans l'audit log.
 
-### Niveau 1 — Fondations Cerema (1-2 mois)
+### Niveau 1 — Fondations public-sector (1-2 mois)
 
 **Tenants** : sans gouvernance instance→org, le DSI n'a aucun levier. Sans audit observable, l'instance est aveugle.
 
-**Aboutissants** : l'instance est gouvernable. Seuil de viabilité Cerema atteint.
+**Aboutissants** : l'instance est gouvernable. Seuil de viabilité secteur public atteint.
 
 **Chantiers** :
 1. **PolicyResolver + InstanceSettings** : nouvelle table singleton JSON `instance_settings` + defaults env vars (`DEFAULT_DCR_POLICY`, `GLOBAL_TRUSTED_CIMD_URLS`, etc.). Composition monotone décroissante (org ⊆ instance).
@@ -96,7 +96,7 @@ L'ordre est dicté par **dépendances structurelles**, pas préférences. Le cli
 
 **Tenants** : SSO = barrière #1 d'adoption Enterprise. Client control = différenciation produit. Granularité ressources = sécurité réelle.
 
-**Aboutissants** : Cerema-ready en production.
+**Aboutissants** : public-sector-ready en production.
 
 **Chantiers** :
 1. **SAML 2.0 + OIDC** via Authlib (à ajouter en dépendance). Refactor `auth.py` pour dispatcher par `AuthProvider`. Endpoints `/auth/saml/sso/{idp}` et `/auth/oidc/{provider}`. JIT user+org provisioning. Estimation : 6-8 semaines.

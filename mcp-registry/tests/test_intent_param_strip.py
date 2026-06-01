@@ -11,11 +11,11 @@ _strip = IntentAnalyzer._strip_unknown_params
 
 
 def test_strips_hallucinated_key_keeps_valid():
-    step = {"step_id": 1, "parameters": {"query": "Cerema", "sort": "-last_modified"}}
+    step = {"step_id": 1, "parameters": {"query": "Paris", "sort": "-last_modified"}}
     schema = {"type": "object", "properties": {"query": {"type": "string"}}}
     dropped = _strip(step, schema)
     assert dropped == ["sort"]
-    assert step["parameters"] == {"query": "Cerema"}
+    assert step["parameters"] == {"query": "Paris"}
 
 
 def test_additional_properties_true_keeps_extras():

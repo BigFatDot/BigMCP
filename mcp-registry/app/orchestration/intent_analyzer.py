@@ -265,7 +265,7 @@ Your role is to analyze user requests and propose step-by-step workflows using a
 3. Tool names use format: ServerName__tool_name (e.g., "Grist__list_workspaces")
 4. PARAMETERS:
    - ALWAYS fill the parameters that carry the user's intent: a search tool's
-     `query`/keywords MUST hold the user's search term (e.g. query="Cerema"),
+     `query`/keywords MUST hold the user's search term (e.g. query="Paris"),
      an id/name param MUST hold the referenced value. Never leave these empty.
    - Do NOT add INCIDENTAL optional params (sort, order, filters, pagination,
      page, page_size, limit, …) unless the user explicitly asked for that
@@ -389,14 +389,14 @@ Query: "sync Grist docs to Notion"
 ## EXAMPLE (prose tool → transform → tool)
 Tools: ["DataGouv__search_datasets" (returns prose text),
         "DataGouv__list_dataset_resources" (needs dataset_id)]
-Query: "list the resources of the first Cerema dataset"
+Query: "list the resources of the first Paris dataset"
 
 {
   "intent": "data_exploration",
   "confidence": 0.85,
   "reasoning": "search_datasets returns prose; extract the first dataset id with a transform step, then list its resources",
   "proposed_steps": [
-    {"step_id": "1", "tool": "DataGouv__search_datasets", "parameters": {"query": "Cerema"}},
+    {"step_id": "1", "tool": "DataGouv__search_datasets", "parameters": {"query": "Paris"}},
     {"step_id": "1b", "type": "transform", "source": "${step_1.structuredContent.result}",
      "output_schema": {"type":"object","properties":{
         "datasets":{"type":"array","items":{"type":"object",
