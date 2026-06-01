@@ -64,7 +64,7 @@ from ...schemas.composition import (
     CompositionExecuteRequest,
     CompositionExecuteResponse
 )
-from ..dependencies import get_current_user_jwt, get_current_organization_jwt
+from ..dependencies import get_current_user_jwt, get_current_organization_jwt, require_scope
 
 
 router = APIRouter(prefix="/compositions", tags=["Compositions"])
@@ -437,7 +437,8 @@ async def execute_composition(
     data: CompositionExecuteRequest,
     user: User = Depends(get_current_user_jwt),
     org_context: tuple = Depends(get_current_organization_jwt),
-    service: CompositionService = Depends(get_composition_service)
+    service: CompositionService = Depends(get_composition_service),
+    _scope: None = Depends(require_scope("tools:execute", log_only=True)),
 ):
     """
     Execute a composition.

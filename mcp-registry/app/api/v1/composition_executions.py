@@ -50,7 +50,7 @@ from ...schemas.composition_execution import (
     ExecutionSummary,
     ResumeRequest,
 )
-from ..dependencies import get_current_organization_jwt, get_current_user_jwt
+from ..dependencies import get_current_organization_jwt, get_current_user_jwt, require_scope
 
 
 logger = logging.getLogger(__name__)
@@ -312,6 +312,7 @@ async def resume_execution(
     body: ResumeRequest,
     user: User = Depends(get_current_user_jwt),
     db: AsyncSession = Depends(get_async_session),
+    _scope: None = Depends(require_scope("tools:execute", log_only=True)),
 ):
     """Resume a suspended execution with the caller-supplied response.
 
@@ -745,6 +746,7 @@ async def approve_execution(
     body: Optional[_ApprovalDecisionRequest] = None,
     user: User = Depends(get_current_user_jwt),
     db: AsyncSession = Depends(get_async_session),
+    _scope: None = Depends(require_scope("tools:execute", log_only=True)),
 ):
     """Approve and resume an execution suspended on ``reason='approval'``.
 
@@ -780,6 +782,7 @@ async def reject_execution(
     body: Optional[_ApprovalDecisionRequest] = None,
     user: User = Depends(get_current_user_jwt),
     db: AsyncSession = Depends(get_async_session),
+    _scope: None = Depends(require_scope("tools:execute", log_only=True)),
 ):
     """Reject and resume an execution suspended on ``reason='approval'``.
 

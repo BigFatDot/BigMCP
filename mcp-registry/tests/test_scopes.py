@@ -269,3 +269,124 @@ async def test_env_garbage_value_falls_back_to_callsite_default(
     )
     result = await dep(request=None, auth=(user, api_key), db=db_session)
     assert result is None  # callsite log_only=True wins
+
+
+# ---------------------------------------------------------------------------
+# MCP Gateway dispatcher — _enforce_tools_execute_scope (mcp_unified.py)
+#
+# The JSON-RPC dispatcher cannot use FastAPI Depends() because it
+# runs inside handle_mcp_message() with auth already resolved. We
+# instead call the require_scope() coroutine programmatically through
+# a thin helper. These tests pin the contract.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_gateway_scope_log_only_allows_underscoped_api_key(
+    monkeypatch,
+):
+    """tools/call dispatched from the MCP gateway must allow an API
+    key that only has ``tools:read`` to pass through under log_only —
+    no 403, even though require_scope("tools:execute") would deny.
+
+    The audit-write side effect cannot be observed here because the
+    helper opens a fresh ``AsyncSessionLocal`` (not the per-test
+    overridden session); the audit DB path is already covered by
+    ``test_log_only_lets_under_scoped_api_key_through`` against a real
+    FastAPI route. The contract this test pins is "log_only ⇒ no
+    raise".
+    """
+    from app.routers.mcp_unified import _enforce_tools_execute_scope
+    from app.models.user import User
+
+    monkeypatch.delenv("SCOPE_ENFORCE_MODE", raising=False)
+
+    user = User(email="gateway-underscoped@example.com")
+    api_key = APIKey(
+        name="read-only-key",
+        scopes=["tools:read"],
+        key_prefix="mcphub_sk_gw_ro_1",
+    )
+
+    # Must NOT raise — log_only allows under-scoped through.
+    result = await _enforce_tools_execute_scope(
+        request=None, user=user, api_key=api_key
+    )
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_gateway_scope_fast_path_for_key_with_tools_execute(
+    monkeypatch,
+):
+    """An API key carrying ``tools:execute`` hits the fast path of
+    ``_enforce_tools_execute_scope`` — return None without opening a
+    DB session or invoking require_scope's audit path.
+    """
+    from app.routers.mcp_unified import _enforce_tools_execute_scope
+    from app.models.user import User
+
+    monkeypatch.delenv("SCOPE_ENFORCE_MODE", raising=False)
+
+    user = User(email="gateway-scoped@example.com")
+    api_key = APIKey(
+        name="exec-key",
+        scopes=["tools:read", "tools:execute"],
+        key_prefix="mcphub_sk_gw_ok_1",
+    )
+
+    result = await _enforce_tools_execute_scope(
+        request=None, user=user, api_key=api_key
+    )
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_gateway_scope_bypasses_jwt_user(
+    monkeypatch,
+):
+    """JWT-authenticated callers (no api_key) currently get all
+    scopes — same rule as require_scope itself. No raise, no
+    db touch (api_key is None ⇒ fast return).
+    """
+    from app.routers.mcp_unified import _enforce_tools_execute_scope
+    from app.models.user import User
+
+    monkeypatch.delenv("SCOPE_ENFORCE_MODE", raising=False)
+
+    user = User(email="gateway-jwt@example.com")
+
+    # auth tuple equivalent: (user, None) — no API key path.
+    result = await _enforce_tools_execute_scope(
+        request=None, user=user, api_key=None
+    )
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_gateway_scope_enforce_mode_raises_for_underscoped_key(
+    monkeypatch,
+):
+    """When ``SCOPE_ENFORCE_MODE=enforce`` is set, the helper must
+    propagate the 403 raised by require_scope so the JSON-RPC
+    dispatcher can surface a proper error envelope to the client.
+    """
+    from fastapi import HTTPException
+    from app.routers.mcp_unified import _enforce_tools_execute_scope
+    from app.models.user import User
+
+    monkeypatch.setenv("SCOPE_ENFORCE_MODE", "enforce")
+
+    user = User(email="gateway-enforce@example.com")
+    api_key = APIKey(
+        name="read-only-key",
+        scopes=["tools:read"],
+        key_prefix="mcphub_sk_gw_ro_2",
+    )
+
+    with pytest.raises(HTTPException) as exc_info:
+        await _enforce_tools_execute_scope(
+            request=None, user=user, api_key=api_key
+        )
+    assert exc_info.value.status_code == 403
+    assert "tools:execute" in exc_info.value.detail

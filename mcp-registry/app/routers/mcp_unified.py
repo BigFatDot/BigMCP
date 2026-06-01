@@ -35,7 +35,7 @@ from starlette.requests import ClientDisconnect
 
 from ..dependencies import get_registry
 from ..api.models import ToolInfo, ServerInfo
-from ..api.dependencies import get_current_user_api_key, get_current_user, get_current_user_optional, _resolve_organization
+from ..api.dependencies import get_current_user_api_key, get_current_user, get_current_user_optional, _resolve_organization, require_scope
 from ..orchestration.tools import OrchestrationTools
 from ..core.user_server_pool import UserServerPool
 from ..services.mcp_session_store import get_session_store
@@ -3667,6 +3667,58 @@ async def mcp_sse_endpoint(
     )
 
 
+# Pre-built scope checker for tools/call dispatch — instantiated once.
+# We invoke the coroutine returned by require_scope() directly with
+# (request, auth, db) instead of going through FastAPI Depends, since
+# the JSON-RPC dispatch happens inside handle_mcp_message() and there
+# is no per-method endpoint to attach a Depends() to. log_only=True
+# matches the 27 other call sites; SCOPE_ENFORCE_MODE=enforce in prod
+# flips this surface to deny without a code change (see dependencies.
+# _resolve_scope_enforce_mode).
+_tools_execute_scope_dep = require_scope("tools:execute", log_only=True)
+
+
+async def _enforce_tools_execute_scope(
+    request: Request,
+    user: Optional["User"],
+    api_key: Optional["APIKey"],
+) -> None:
+    """Audit / enforce the ``tools:execute`` scope for ``tools/call``.
+
+    Mirrors the behaviour of the 27 FastAPI ``Depends(require_scope(...))``
+    call sites but executes inside the JSON-RPC dispatcher because the
+    MCP gateway has no per-method endpoint to attach a dependency to.
+
+    JWT-authenticated callers (no api_key) get all scopes — same rule
+    as require_scope. A short-lived AsyncSession is opened only when the
+    audit log path needs it; ``require_scope`` handles its own exception
+    swallowing for audit failures, but we still defensively swallow any
+    DB-acquisition error so a transient failure here never blocks the
+    actual tools/call dispatch.
+
+    Raises:
+        HTTPException 403 only when ``SCOPE_ENFORCE_MODE=enforce`` and
+        the API key lacks ``tools:execute``. The caller (handle_mcp_message)
+        lets this bubble up so the client receives a 403 envelope.
+    """
+    if user is None or api_key is None:
+        # No api_key → JWT path → all scopes (matches require_scope).
+        return
+    if api_key.has_scope("tools:execute"):
+        return
+    # Slow path: open a session for the audit write only.
+    try:
+        from ..db.session import AsyncSessionLocal
+        async with AsyncSessionLocal() as db:
+            await _tools_execute_scope_dep(request=request, auth=(user, api_key), db=db)
+    except HTTPException:
+        # enforce mode: propagate so the JSON-RPC dispatcher can surface 403.
+        raise
+    except Exception:  # noqa: BLE001
+        # Audit/DB failure must never break tools/call.
+        logger.debug("scope audit for tools/call failed silently", exc_info=True)
+
+
 # Internal handler for MCP messages (shared logic)
 async def handle_mcp_message(request: Request, auth: Optional[tuple]):
     """
@@ -3804,6 +3856,10 @@ async def handle_mcp_message(request: Request, auth: Optional[tuple]):
             # Pass user context from authenticated user
             # Include tool_group_id from API key for access validation
             tool_group_id = str(api_key.tool_group_id) if api_key and api_key.tool_group_id else None
+            # Scope check: tools:execute. log_only=True so missing-scope
+            # API keys are audited but allowed through; SCOPE_ENFORCE_MODE
+            # env flips to deny globally. JWT auth (no api_key) bypasses.
+            await _enforce_tools_execute_scope(request, user, api_key)
             response = await gateway.call_tool(
                 request_id,
                 params,
