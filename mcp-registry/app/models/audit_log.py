@@ -55,6 +55,12 @@ class AuditAction(str, enum.Enum):
     USER_REGISTER = "auth.user_register"
     PASSWORD_RESET_REQUEST = "auth.password_reset_request"
     PASSWORD_RESET_CONFIRM = "auth.password_reset_confirm"
+    # N0 #2 — close the auth-audit gap on user-driven flows
+    TOKEN_REFRESH = "auth.token_refresh"
+    CHANGE_PASSWORD = "auth.change_password"
+    EMAIL_VERIFY = "auth.email_verify"
+    ORGANIZATION_SWITCH = "auth.organization_switch"
+    ACCOUNT_DELETE = "auth.account_delete"
 
     # OAuth 2.0 (authorization server)
     OAUTH_CLIENT_REGISTER = "oauth.client_register"

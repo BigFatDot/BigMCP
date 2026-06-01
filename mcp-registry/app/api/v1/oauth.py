@@ -79,6 +79,53 @@ from ...middleware.feature_gate import require_subscription, get_current_subscri
 
 router = APIRouter(prefix="/oauth", tags=["OAuth 2.0"])
 
+
+async def _audit_token_grant_failure(
+    db: AsyncSession,
+    request: Request,
+    *,
+    client_id: Optional[str],
+    grant_type: Optional[str],
+    reason: str,
+    actor_id=None,
+    organization_id=None,
+    extra: Optional[dict] = None,
+) -> None:
+    """
+    Emit ``OAUTH_TOKEN_GRANT_FAILED`` for every refused ``/oauth/token`` branch.
+
+    The grant endpoint can fail in many places — bad grant_type, missing
+    parameters, invalid client_secret, expired/invalid code, PKCE
+    mismatch, missing user/org. Without a helper, each branch ends up
+    copy-pasting six lines of audit boilerplate and one is bound to be
+    forgotten. This wrapper keeps the call-site to a single line.
+
+    Best-effort: swallows audit errors so a logging glitch never
+    converts a 4xx OAuth response into a 5xx.
+    """
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+
+        details = {
+            "client_id": client_id,
+            "grant_type": grant_type,
+            "reason": reason,
+        }
+        if extra:
+            details.update(extra)
+        await AuditService(db).log_action(
+            action=AuditAction.OAUTH_TOKEN_GRANT_FAILED,
+            actor_id=actor_id,
+            organization_id=organization_id,
+            resource_type="oauth_token",
+            resource_id=client_id,
+            details=details,
+            request=request,
+        )
+    except Exception:
+        pass
+
 # Templates will be initialized in main.py
 templates: Optional[Jinja2Templates] = None
 
@@ -918,6 +965,11 @@ async def token_exchange(
     # Validate grant_type
     if grant_type not in ["authorization_code", "refresh_token"]:
         logger.error(f"❌ Invalid grant_type: {grant_type}")
+        await _audit_token_grant_failure(
+            db, request,
+            client_id=client_id, grant_type=grant_type,
+            reason="unsupported_grant_type",
+        )
         raise HTTPException(
             status_code=400,
             detail="Invalid grant_type. Only 'authorization_code' and 'refresh_token' are supported."
@@ -929,6 +981,11 @@ async def token_exchange(
 
         if not refresh_token:
             logger.error(f"❌ refresh_token parameter is required")
+            await _audit_token_grant_failure(
+                db, request,
+                client_id=client_id, grant_type=grant_type,
+                reason="missing_refresh_token",
+            )
             raise HTTPException(
                 status_code=400,
                 detail="refresh_token parameter is required for refresh_token grant"
@@ -939,6 +996,11 @@ async def token_exchange(
         payload = auth_service.decode_token(refresh_token)
         if not payload:
             logger.error(f"❌ Invalid or expired refresh token")
+            await _audit_token_grant_failure(
+                db, request,
+                client_id=client_id, grant_type=grant_type,
+                reason="invalid_refresh_token",
+            )
             raise HTTPException(
                 status_code=401,
                 detail="Invalid or expired refresh token"
@@ -947,6 +1009,12 @@ async def token_exchange(
         # Verify it's a refresh token
         if payload.get("type") != "refresh":
             logger.error(f"❌ Token is not a refresh token")
+            await _audit_token_grant_failure(
+                db, request,
+                client_id=client_id, grant_type=grant_type,
+                reason="wrong_token_type",
+                extra={"token_type": payload.get("type")},
+            )
             raise HTTPException(
                 status_code=401,
                 detail="Invalid token type"
@@ -956,6 +1024,11 @@ async def token_exchange(
         user_id = payload.get("sub")
         if not user_id:
             logger.error(f"❌ Invalid token payload - missing user ID")
+            await _audit_token_grant_failure(
+                db, request,
+                client_id=client_id, grant_type=grant_type,
+                reason="missing_sub_in_token",
+            )
             raise HTTPException(
                 status_code=401,
                 detail="Invalid token payload"
@@ -971,6 +1044,11 @@ async def token_exchange(
             user_uuid = UUID(user_id)
         except ValueError:
             logger.error(f"❌ Invalid user ID format in refresh token")
+            await _audit_token_grant_failure(
+                db, request,
+                client_id=client_id, grant_type=grant_type,
+                reason="malformed_sub_uuid",
+            )
             raise HTTPException(
                 status_code=401,
                 detail="Invalid token payload"
@@ -985,6 +1063,12 @@ async def token_exchange(
 
         if not user:
             logger.error(f"❌ User not found: {user_id}")
+            await _audit_token_grant_failure(
+                db, request,
+                client_id=client_id, grant_type=grant_type,
+                reason="user_not_found",
+                extra={"sub": user_id},
+            )
             raise HTTPException(
                 status_code=404,
                 detail="User not found"
@@ -997,12 +1081,24 @@ async def token_exchange(
             if len(user.organization_memberships) == 1:
                 org_id_str = str(user.organization_memberships[0].organization_id)
             elif user.organization_memberships:
+                await _audit_token_grant_failure(
+                    db, request,
+                    client_id=client_id, grant_type=grant_type,
+                    reason="organization_context_required",
+                    actor_id=user.id,
+                )
                 raise HTTPException(
                     status_code=400,
                     detail="Organization context required"
                 )
         if not org_id_str:
             logger.error(f"❌ User has no organization")
+            await _audit_token_grant_failure(
+                db, request,
+                client_id=client_id, grant_type=grant_type,
+                reason="user_has_no_organization",
+                actor_id=user.id,
+            )
             raise HTTPException(
                 status_code=400,
                 detail="User has no organization"
@@ -1104,6 +1200,11 @@ async def token_exchange(
     # Handle authorization_code grant type (existing logic)
     if not code or not redirect_uri:
         logger.error(f"❌ code and redirect_uri are required for authorization_code grant")
+        await _audit_token_grant_failure(
+            db, request,
+            client_id=client_id, grant_type=grant_type,
+            reason="missing_code_or_redirect_uri",
+        )
         raise HTTPException(
             status_code=400,
             detail="code and redirect_uri parameters are required for authorization_code grant"
@@ -1119,6 +1220,11 @@ async def token_exchange(
         )
         if not client:
             logger.error(f"❌ Invalid client credentials for: {client_id}")
+            await _audit_token_grant_failure(
+                db, request,
+                client_id=client_id, grant_type=grant_type,
+                reason="invalid_client_credentials",
+            )
             raise HTTPException(
                 status_code=401,
                 detail="Invalid client credentials"
@@ -1130,6 +1236,11 @@ async def token_exchange(
         client = await oauth_service.get_client_by_id(client_id)
         if not client:
             logger.error(f"❌ Invalid client_id: {client_id}")
+            await _audit_token_grant_failure(
+                db, request,
+                client_id=client_id, grant_type=grant_type,
+                reason="unknown_client_id",
+            )
             raise HTTPException(status_code=401, detail="Invalid client_id")
         logger.info(f"✅ Client found")
 
@@ -1144,6 +1255,20 @@ async def token_exchange(
 
     if not auth_code:
         logger.error(f"❌ Invalid or expired authorization code")
+        # We cannot disambiguate expired vs. PKCE-mismatch vs.
+        # redirect_uri-mismatch here without changing
+        # validate_and_consume_code's contract — keep a generic reason but
+        # capture whether a verifier was supplied as a triage hint.
+        await _audit_token_grant_failure(
+            db, request,
+            client_id=client_id, grant_type=grant_type,
+            reason="invalid_or_expired_code",
+            organization_id=getattr(client, "organization_id", None),
+            extra={
+                "code_verifier_provided": bool(code_verifier),
+                "redirect_uri_provided": bool(redirect_uri),
+            },
+        )
         raise HTTPException(
             status_code=400,
             detail="Invalid or expired authorization code"
@@ -1155,6 +1280,13 @@ async def token_exchange(
     user = await db.get(User, auth_code.user_id)
     if not user:
         logger.error(f"❌ User not found: {auth_code.user_id}")
+        await _audit_token_grant_failure(
+            db, request,
+            client_id=client_id, grant_type=grant_type,
+            reason="user_not_found",
+            organization_id=auth_code.organization_id,
+            extra={"auth_code_user_id": str(auth_code.user_id)},
+        )
         raise HTTPException(status_code=404, detail="User not found")
     logger.info(f"✅ User found: {user.email}")
 

@@ -417,6 +417,7 @@ async def login(
 @router.post("/login/mfa", response_model=TokenResponse)
 async def login_mfa(
     data: MFALoginRequest,
+    request: Request,
     auth_service: AuthService = Depends(get_auth_service),
     db: AsyncSession = Depends(get_db)
 ):
@@ -454,6 +455,22 @@ async def login_mfa(
     from ...services.mfa_service import MFAService
     mfa_service = MFAService(db)
     if not await mfa_service.verify_code(user_id, data.mfa_code):
+        # Audit: MFA challenge failed (login still blocked)
+        try:
+            from ...services.audit_service import AuditService
+            from ...models.audit_log import AuditAction
+            await AuditService(db).log_action(
+                action=AuditAction.LOGIN_FAILED,
+                actor_id=user_id,
+                organization_id=org_id,
+                resource_type="user",
+                resource_id=str(user_id),
+                details={"reason": "invalid_mfa_code", "stage": "mfa_challenge"},
+                request=request,
+            )
+        except Exception:
+            pass
+
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail={
@@ -466,6 +483,22 @@ async def login_mfa(
     access_token = auth_service.create_access_token(user_id, org_id)
     refresh_token = auth_service.create_refresh_token(user_id)
 
+    # Audit: successful MFA-completed login
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.LOGIN_SUCCESS,
+            actor_id=user_id,
+            organization_id=org_id,
+            resource_type="user",
+            resource_id=str(user_id),
+            details={"mfa_used": True, "stage": "mfa_challenge"},
+            request=request,
+        )
+    except Exception:
+        pass
+
     return TokenResponse(
         access_token=access_token,
         refresh_token=refresh_token,
@@ -477,6 +510,7 @@ async def login_mfa(
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh_token(
     data: RefreshTokenRequest,
+    request: Request,
     auth_service: AuthService = Depends(get_auth_service),
     db: AsyncSession = Depends(get_db)
 ):
@@ -578,6 +612,23 @@ async def refresh_token(
     # Create new tokens preserving org context
     access_token = auth_service.create_access_token(user.id, org_id)
     new_refresh_token = auth_service.create_refresh_token(user.id, org_id)
+
+    # Audit: token refresh (N0 #2 — track silent re-issuance for kill-switch
+    # forensics and to spot stolen-refresh-token replay).
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.TOKEN_REFRESH,
+            actor_id=user.id,
+            organization_id=org_id,
+            resource_type="user",
+            resource_id=str(user.id),
+            details={"surface": "jwt"},
+            request=request,
+        )
+    except Exception:
+        pass
 
     return TokenResponse(
         access_token=access_token,
@@ -719,6 +770,7 @@ async def get_me(
 @router.post("/switch-organization")
 async def switch_organization(
     organization_id: str,
+    request: Request,
     user: User = Depends(get_current_user_jwt),
     auth_service: AuthService = Depends(get_auth_service),
     db: AsyncSession = Depends(get_db)
@@ -764,6 +816,26 @@ async def switch_organization(
     # Generate new tokens with the selected organization
     access_token = auth_service.create_access_token(user.id, org_uuid)
     refresh_token = auth_service.create_refresh_token(user.id, org_uuid)
+
+    # Audit: org context switch (N0 #2 — tenancy boundary changes must be
+    # traceable per-user for cross-org incident review).
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.ORGANIZATION_SWITCH,
+            actor_id=user.id,
+            organization_id=org_uuid,
+            resource_type="organization",
+            resource_id=str(org_uuid),
+            details={
+                "target_org_slug": membership.organization.slug,
+                "target_org_name": membership.organization.name,
+            },
+            request=request,
+        )
+    except Exception:
+        pass
 
     return {
         "access_token": access_token,
@@ -815,6 +887,7 @@ async def list_user_organizations(
 @router.post("/change-password", status_code=status.HTTP_204_NO_CONTENT)
 async def change_password(
     data: PasswordChange,
+    request: Request,
     user: User = Depends(get_current_user_jwt),
     auth_service: AuthService = Depends(get_auth_service),
     db: AsyncSession = Depends(get_db)
@@ -829,6 +902,21 @@ async def change_password(
     """
     # Verify user uses local auth (not SSO)
     if user.password_hash is None:
+        # Audit: refusal so admins notice SSO users probing the endpoint.
+        try:
+            from ...services.audit_service import AuditService
+            from ...models.audit_log import AuditAction
+            await AuditService(db).log_action(
+                action=AuditAction.CHANGE_PASSWORD,
+                actor_id=user.id,
+                organization_id=None,
+                resource_type="user",
+                resource_id=str(user.id),
+                details={"success": False, "reason": "sso_user"},
+                request=request,
+            )
+        except Exception:
+            pass
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot change password for SSO users"
@@ -836,6 +924,21 @@ async def change_password(
 
     # Verify old password
     if not auth_service.verify_password(data.old_password, user.password_hash):
+        # Audit: wrong-password attempt is a credential-stuffing signal.
+        try:
+            from ...services.audit_service import AuditService
+            from ...models.audit_log import AuditAction
+            await AuditService(db).log_action(
+                action=AuditAction.CHANGE_PASSWORD,
+                actor_id=user.id,
+                organization_id=None,
+                resource_type="user",
+                resource_id=str(user.id),
+                details={"success": False, "reason": "wrong_old_password"},
+                request=request,
+            )
+        except Exception:
+            pass
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Incorrect current password"
@@ -844,6 +947,22 @@ async def change_password(
     # Update password
     user.password_hash = auth_service.hash_password(data.new_password)
     await db.commit()
+
+    # Audit: password successfully rotated.
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.CHANGE_PASSWORD,
+            actor_id=user.id,
+            organization_id=None,
+            resource_type="user",
+            resource_id=str(user.id),
+            details={"success": True},
+            request=request,
+        )
+    except Exception:
+        pass
 
     return None
 
@@ -1172,6 +1291,7 @@ async def reset_password(
 @router.post("/verify-email", status_code=status.HTTP_200_OK)
 async def verify_email(
     token: str,
+    request: Request,
     auth_service: AuthService = Depends(get_auth_service),
     db: AsyncSession = Depends(get_db)
 ):
@@ -1323,6 +1443,23 @@ async def verify_email(
     # Generate tokens for auto-login
     access_token = auth_service.create_access_token(user.id, org_id)
     refresh_token = auth_service.create_refresh_token(user.id)
+
+    # Audit: email verified + auto-login. RGPD article 30: link a verified
+    # identity to the IP/UA that confirmed ownership of the address.
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        await AuditService(db).log_action(
+            action=AuditAction.EMAIL_VERIFY,
+            actor_id=user.id,
+            organization_id=org_id,
+            resource_type="user",
+            resource_id=str(user.id),
+            details={"email": user.email},
+            request=request,
+        )
+    except Exception:
+        pass
 
     return {
         "message": "Email verified successfully. You are now logged in.",
@@ -1668,6 +1805,7 @@ async def revoke_connected_app(
 
 @router.delete("/account", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_account(
+    request: Request,
     user: User = Depends(get_current_user_jwt),
     db: AsyncSession = Depends(get_db)
 ):
@@ -1685,6 +1823,38 @@ async def delete_account(
     Returns:
         204 No Content on success
     """
+    # Audit BEFORE deletion — once the row is gone, we lose the
+    # author/organization linkage that turns the RGPD "right to erasure"
+    # into a defensible trail. Capture identity + memberships first.
+    try:
+        from ...services.audit_service import AuditService
+        from ...models.audit_log import AuditAction
+        # Memberships may not be eager-loaded — capture their org IDs first
+        # for the audit details, before the cascade tears them down.
+        memberships_q = await db.execute(
+            select(OrganizationMember.organization_id).where(
+                OrganizationMember.user_id == user.id
+            )
+        )
+        org_ids = [str(oid) for (oid,) in memberships_q.all()]
+        primary_org = org_ids[0] if org_ids else None
+
+        await AuditService(db).log_action(
+            action=AuditAction.ACCOUNT_DELETE,
+            actor_id=user.id,
+            organization_id=None,
+            resource_type="user",
+            resource_id=str(user.id),
+            details={
+                "email": user.email,
+                "organization_ids": org_ids,
+                "primary_organization_id": primary_org,
+            },
+            request=request,
+        )
+    except Exception:
+        pass
+
     # Delete user (cascades are set up in the model)
     await db.delete(user)
     await db.commit()
