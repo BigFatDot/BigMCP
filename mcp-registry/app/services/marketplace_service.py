@@ -49,6 +49,11 @@ from .marketplace.curation import (
     build_curation_prompt,
     detect_all_credentials,
 )
+from ..orchestration.llm_client import (
+    call_llm_text,
+    LLMCallError,
+    LLMNotConfigured,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -1394,10 +1399,15 @@ class MarketplaceSyncService:
         # Build sources list based on configuration
         self.sources: List[MarketplaceSource] = self._build_sources()
 
-        # Vector store for semantic search
-        embedding_config = EmbeddingConfig()
+        # Vector store for semantic search — propagate provider-agnostic
+        # embedding dimension from app.core.config (Settings.EMBEDDING_DIMENSION).
+        from ..core.config import settings as core_settings
+        embedding_config = EmbeddingConfig(dimension=core_settings.EMBEDDING_DIMENSION)
         self.vector_store = VectorStore(config=embedding_config)
-        logger.info("Initialized vector store for marketplace semantic search")
+        logger.info(
+            "Initialized vector store for marketplace semantic search "
+            f"(embedding dimension={core_settings.EMBEDDING_DIMENSION})"
+        )
 
         # Source priority (lower = higher priority for deduplication)
         self.source_priority = {
@@ -2781,10 +2791,13 @@ class MarketplaceSyncService:
         }
 
     async def close(self):
-        """Close HTTP client."""
+        """Close HTTP client.
+
+        The LLM client is no longer a long-lived attribute (centralised in
+        `app.orchestration.llm_client.call_llm_text`), so nothing to close
+        on that side.
+        """
         await self.http_client.aclose()
-        if hasattr(self, 'llm_client'):
-            await self.llm_client.aclose()
 
     # =========================================================================
     # Marketplace Persistence - Save enriched marketplace to registry file
@@ -3034,23 +3047,21 @@ class MarketplaceSyncService:
     # =========================================================================
 
     def _init_llm_curation(self):
-        """Initialize LLM curation capabilities (lazy init)."""
+        """Initialize LLM curation capabilities (lazy init).
+
+        The LLM chat call itself goes through `call_llm_text` (centralised in
+        `app.orchestration.llm_client`) — we no longer keep a long-lived
+        `httpx.AsyncClient` for that. The `llm_api_key` attribute is still
+        used as a quick gate to decide between LLM curation and basic
+        fallback without paying for the call.
+        """
         if hasattr(self, '_llm_initialized'):
             return
 
-        # LLM Configuration
+        # LLM Configuration (kept for gating + prompt building)
         self.llm_url = os.environ.get("LLM_API_URL", "https://api.mistral.ai/v1")
         self.llm_api_key = os.environ.get("LLM_API_KEY", "")
         self.llm_model = os.environ.get("LLM_MODEL", "mistral-small-latest")
-
-        # HTTP client for LLM
-        self.llm_client = httpx.AsyncClient(
-            timeout=120.0,
-            headers={
-                "Authorization": f"Bearer {self.llm_api_key}",
-                "Content-Type": "application/json"
-            }
-        )
 
         # Curated cache file path
         self.curated_cache_path = Path(__file__).parent.parent.parent / "conf" / "curated_servers_cache.json"
@@ -3364,103 +3375,36 @@ class MarketplaceSyncService:
             logger.info(f"No LLM configured, using static-enhanced curation for {server.name}")
             return self._basic_curation(server, static_data)
 
-        # Step 3: Build prompt with static data for LLM enrichment
+        # Step 3: Build prompt and delegate to the shared LLM client.
+        # `call_llm_text` already implements exponential backoff on 429/5xx and
+        # transport errors, with the same retry semantics this code used to
+        # implement by hand (base_delay * 2^attempt, capped at 60s).
         prompt = self._build_curation_prompt(server, static_data)
-        chat_url = f"{self.llm_url}/chat/completions"
+        system_prompt = self._get_curation_system_prompt()
 
-        last_error = None
-
-        for attempt in range(max_retries + 1):
-            try:
-                response = await self.llm_client.post(
-                    chat_url,
-                    json={
-                        "model": self.llm_model,
-                        "messages": [
-                            {"role": "system", "content": self._get_curation_system_prompt()},
-                            {"role": "user", "content": prompt}
-                        ],
-                        "temperature": 0.2,
-                        "max_tokens": 1000
-                    }
-                )
-
-                if response.status_code == 200:
-                    # Success - parse and return
-                    result = response.json()
-                    content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
-                    return await self._parse_curation_response(content, server)
-
-                elif response.status_code == 429:
-                    # Rate limited - retry with exponential backoff
-                    if attempt < max_retries:
-                        # Parse retry-after header if available
-                        retry_after = response.headers.get("retry-after")
-                        if retry_after:
-                            try:
-                                delay = float(retry_after)
-                            except ValueError:
-                                delay = base_delay * (2 ** attempt)
-                        else:
-                            delay = base_delay * (2 ** attempt)
-
-                        # Cap delay at 60 seconds
-                        delay = min(delay, 60.0)
-
-                        logger.warning(
-                            f"Rate limited (429) for {server.name}, "
-                            f"attempt {attempt + 1}/{max_retries + 1}, "
-                            f"waiting {delay:.1f}s..."
-                        )
-                        await asyncio.sleep(delay)
-                        continue
-                    else:
-                        last_error = f"Rate limit exceeded after {max_retries + 1} attempts"
-                        logger.error(f"Rate limit exhausted for {server.name}: {last_error}")
-
-                elif response.status_code >= 500:
-                    # Server error - retry with backoff
-                    if attempt < max_retries:
-                        delay = base_delay * (2 ** attempt)
-                        logger.warning(
-                            f"Server error ({response.status_code}) for {server.name}, "
-                            f"attempt {attempt + 1}/{max_retries + 1}, "
-                            f"waiting {delay:.1f}s..."
-                        )
-                        await asyncio.sleep(delay)
-                        continue
-                    else:
-                        last_error = f"Server error {response.status_code} after {max_retries + 1} attempts"
-                        logger.error(f"Server errors exhausted for {server.name}: {last_error}")
-
-                else:
-                    # Other client errors (400, 401, 403, etc.) - don't retry
-                    last_error = f"LLM API error: {response.status_code}"
-                    logger.warning(f"{last_error} for {server.name}")
-                    break
-
-            except httpx.TimeoutException:
-                if attempt < max_retries:
-                    delay = base_delay * (2 ** attempt)
-                    logger.warning(
-                        f"Timeout for {server.name}, "
-                        f"attempt {attempt + 1}/{max_retries + 1}, "
-                        f"waiting {delay:.1f}s..."
-                    )
-                    await asyncio.sleep(delay)
-                    continue
-                else:
-                    last_error = f"Timeout after {max_retries + 1} attempts"
-                    logger.error(f"Timeouts exhausted for {server.name}")
-
-            except Exception as e:
-                last_error = str(e)
-                logger.error(f"LLM curation error for {server.id}: {e}")
-                break
-
-        # All retries exhausted - fall back to basic curation as last resort
-        logger.warning(f"Falling back to basic curation for {server.name}: {last_error}")
-        return self._basic_curation(server)
+        try:
+            content = await call_llm_text(
+                prompt,
+                system=system_prompt,
+                temperature=0.2,
+                max_tokens=1000,
+                max_retries=max_retries,
+                base_delay=base_delay,
+                timeout=120.0,
+            )
+            return await self._parse_curation_response(content, server)
+        except LLMNotConfigured:
+            # Should not happen — we checked self.llm_api_key above — but be defensive.
+            return self._basic_curation(server, static_data)
+        except LLMCallError as e:
+            logger.warning(
+                f"LLM curation failed for {server.name} after retries: {e}. "
+                f"Falling back to basic curation."
+            )
+            return self._basic_curation(server)
+        except Exception as e:
+            logger.error(f"LLM curation error for {server.id}: {e}")
+            return self._basic_curation(server)
 
     def _get_curation_system_prompt(self) -> str:
         """System prompt for server curation. Delegated to curation.prompts module."""
@@ -4249,6 +4193,24 @@ def get_marketplace_service() -> MarketplaceSyncService:
     with _singleton_lock:
         # Double-check after acquiring lock
         if _marketplace_service is None:
-            _marketplace_service = MarketplaceSyncService()
-            logger.info("✅ Created singleton MarketplaceSyncService instance")
+            # AIRGAP_MODE: force every outbound source off. The class still
+            # serves locally-cached entries (load_from_cache_file +
+            # load_custom_servers_from_registry), but _build_sources()
+            # returns an empty list so no npm/GitHub/Glama/Smithery fetch
+            # is ever scheduled.
+            from ..core.config import settings as _core_settings
+            if _core_settings.AIRGAP_MODE:
+                _marketplace_service = MarketplaceSyncService(
+                    enable_npm=False,
+                    enable_github=False,
+                    enable_glama=False,
+                    enable_smithery=False,
+                )
+                logger.info(
+                    "✅ Created singleton MarketplaceSyncService instance "
+                    "(AIRGAP_MODE=true — all outbound sources disabled)"
+                )
+            else:
+                _marketplace_service = MarketplaceSyncService()
+                logger.info("✅ Created singleton MarketplaceSyncService instance")
         return _marketplace_service

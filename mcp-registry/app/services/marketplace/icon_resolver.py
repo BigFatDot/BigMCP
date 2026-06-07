@@ -18,10 +18,58 @@ from __future__ import annotations
 import logging
 import re
 from typing import Any, Dict, List, Optional
+from urllib.parse import quote
 
 import httpx
 
 logger = logging.getLogger(__name__)
+
+
+def _airgap_enabled() -> bool:
+    """
+    Lazy lookup of AIRGAP_MODE so settings can be monkeypatched in tests
+    without re-importing this module.
+    """
+    try:
+        from ...core.config import settings as _settings
+        return bool(getattr(_settings, "AIRGAP_MODE", False))
+    except Exception:  # pragma: no cover - settings unavailable
+        return False
+
+
+def _local_avatar_data_uri(name: str) -> str:
+    """
+    Self-contained SVG avatar encoded as a data URI.
+
+    Used as the air-gap fallback so the frontend never has to reach out
+    to ui-avatars.com (or any CDN). Renders an indigo circle with up to
+    two uppercase initials in the centre — same vibe as the UI Avatars
+    placeholder so the UI doesn't visibly degrade.
+    """
+    if not name:
+        name = "MCP"
+    parts = name.split()
+    if len(parts) >= 2:
+        initials = (parts[0][:1] + parts[1][:1]).upper()
+    else:
+        initials = name[:2].upper()
+    # Escape XML special chars in the (very narrow) initials surface.
+    initials = (
+        initials.replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+    )
+    svg = (
+        "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>"
+        "<rect width='64' height='64' rx='12' fill='#4f46e5'/>"
+        "<text x='50%' y='50%' dy='.1em' fill='#ffffff' "
+        "font-family='-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif' "
+        "font-size='28' font-weight='700' text-anchor='middle' "
+        "dominant-baseline='middle'>"
+        f"{initials}"
+        "</text></svg>"
+    )
+    return "data:image/svg+xml;utf8," + quote(svg, safe="")
 
 
 class IconResolver:
@@ -68,6 +116,11 @@ class IconResolver:
         Returns:
             Primary icon URL (frontend handles 404 fallback)
         """
+        # Air-gap: never emit a CDN URL. Return an inline data URI so the
+        # browser does not even attempt an outbound request.
+        if _airgap_enabled():
+            return _local_avatar_data_uri(service_name or icon_hint or "MCP")
+
         if not icon_hint:
             return cls.get_fallback_avatar(service_name or "MCP")
 
@@ -79,6 +132,16 @@ class IconResolver:
         """
         Get multiple icon URL options for frontend fallback chain.
         """
+        # Air-gap: collapse the entire fallback chain to the inline data URI.
+        # No primary/secondary CDN — the frontend never has anything to try.
+        if _airgap_enabled():
+            data_uri = _local_avatar_data_uri(service_name or icon_hint or "MCP")
+            return {
+                "primary": data_uri,
+                "secondary": None,
+                "fallback": data_uri,
+            }
+
         hint = (icon_hint or "").lower().strip().replace(" ", "").replace("-", "").replace("_", "")
 
         return {
@@ -109,6 +172,20 @@ class IconResolver:
         Returns:
             Dict with validated icon URLs
         """
+        # Air-gap: short-circuit before any HEAD request. We return the
+        # inline data URI as both primary and fallback so callers can
+        # persist it without any further validation.
+        if _airgap_enabled():
+            data_uri = _local_avatar_data_uri(service_name or "MCP")
+            return {
+                "primary": data_uri,
+                "secondary": None,
+                "fallback": data_uri,
+                "validated": True,
+                "matched_term": None,
+                "source": "airgap_local",
+            }
+
         fallback = cls.get_fallback_avatar(service_name or "MCP")
 
         if not search_terms:
@@ -228,6 +305,11 @@ class IconResolver:
     @classmethod
     def get_fallback_avatar(cls, name: str, size: int = 64) -> str:
         """Generate fallback avatar URL using UI Avatars service."""
+        # Air-gap: ui-avatars.com is itself an outbound CDN — substitute the
+        # inline SVG so we never hand a remote URL to the browser.
+        if _airgap_enabled():
+            return _local_avatar_data_uri(name or "MCP")
+
         if not name:
             name = "MCP"
         words = name.split()

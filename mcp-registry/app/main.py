@@ -325,6 +325,15 @@ async def _startup_impl():
     else:
         logger.info("🏠 Edition: COMMUNITY (self-hosted, all features)")
 
+    # Air-gap mode advertised loud and clear so operators see it in the
+    # first lines of the boot log. Marketplace sync, icon CDN, avatar CDN
+    # and LemonSqueezy outbound are all neutralised when this is on.
+    if core_settings.AIRGAP_MODE:
+        logger.warning(
+            "⚠️  AIRGAP_MODE=true — marketplace sync, icon CDN, and "
+            "LemonSqueezy disabled. Only LLM provider calls go outbound."
+        )
+
     # Initialize Prometheus metrics
     from .core.metrics import init_app_info
     init_app_info(version=settings.app.version, edition=edition.value)
@@ -823,7 +832,11 @@ async def edition_status():
             "sso": True,
             "unlimited_users": True,
             "organizations": True,
-        }
+        },
+        # Air-gap flag — surfaced so the frontend can show a banner and
+        # external observers can verify the promised posture via a single
+        # unauthenticated probe.
+        "airgap": bool(core_settings.AIRGAP_MODE),
     }
 
     # Add license info for Enterprise

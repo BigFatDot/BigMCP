@@ -18,6 +18,7 @@ import httpx
 
 from ..core.registry import MCPRegistry
 from .composition_store import get_composition_store, CompositionInfo
+from .llm_client import call_llm_text, LLMCallError, LLMNotConfigured
 
 logger = logging.getLogger("orchestration.intent_analyzer")
 
@@ -215,35 +216,26 @@ class IntentAnalyzer:
         user_prompt = self._build_user_prompt(query, available_tools, context)
 
         try:
-            # Call LLM API (OpenAI-compatible endpoint)
-            chat_url = f"{self.llm_url}/chat/completions" if "/v1" in self.llm_url else f"{self.llm_url}/v1/chat/completions"
-            response = await self.http_client.post(
-                chat_url,
-                json={
-                    "model": self.llm_model,
-                    "messages": [
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt}
-                    ],
-                    "temperature": 0.3,  # Low temperature for structured output
-                    "max_tokens": 2000
-                }
+            # Delegate to the shared async client (centralised retries + config).
+            # Temperature 0.3 + 2000 tokens preserve the previous behaviour for
+            # intent-analysis prompts (slightly less deterministic than the
+            # transform step, which uses the default 0.2).
+            assistant_message = await call_llm_text(
+                user_prompt,
+                system=system_prompt,
+                temperature=0.3,
+                max_tokens=2000,
+                timeout=60.0,
             )
-
-            if response.status_code != 200:
-                logger.error(f"LLM API error: {response.status_code} - {response.text}")
-                raise Exception(f"LLM API returned status {response.status_code}")
-
-            result = response.json()
-
-            # Extract response
-            assistant_message = result.get("choices", [{}])[0].get("message", {}).get("content", "")
 
             # Parse the structured response
             analysis = self._parse_llm_response(assistant_message, query)
 
             return analysis
 
+        except (LLMCallError, LLMNotConfigured) as e:
+            logger.error(f"Error calling LLM API: {e}")
+            return self._fallback_analysis(query, available_tools)
         except Exception as e:
             logger.error(f"Error calling LLM API: {e}", exc_info=True)
             # Fallback to basic analysis

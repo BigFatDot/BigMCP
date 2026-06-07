@@ -191,6 +191,20 @@ class Settings:
     # Values: "community", "enterprise", "cloud_saas"
     EDITION: Optional[str] = os.getenv("EDITION")
 
+    # =====================================
+    # Air-gap deployment
+    # =====================================
+    # When AIRGAP_MODE=true, the instance is allowed to make ZERO outbound
+    # non-LLM HTTP calls. This disables:
+    #   - Marketplace sync (npm / GitHub / Glama / Smithery sources)
+    #   - Icon CDN fetches (cdn.simpleicons.org, unpkg.com/@lobehub)
+    #   - Avatar fallback CDN (ui-avatars.com) — replaced by an inline data URI
+    #   - LemonSqueezy billing API (already CLOUD_SAAS-only, but defensive)
+    # Only LLM provider calls are still allowed outbound; pair with a local
+    # LLM (Ollama / vLLM / etc.) for a true air-gapped deployment.
+    # Default: false (full backward compatibility).
+    AIRGAP_MODE: bool = os.getenv("AIRGAP_MODE", "false").lower() == "true"
+
     # Enterprise Edition - License key (JWT signed with ES256)
     # Obtained from bigmcp.cloud after purchase
     LICENSE_KEY: Optional[str] = os.getenv("LICENSE_KEY")
@@ -230,6 +244,17 @@ class Settings:
     # Vector Store
     VECTOR_STORE_PATH: str = os.getenv("VECTOR_STORE_PATH", "./data/vector_store")
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "mistral-embed")
+    # Embedding dimension — defaults to 1536 (OpenAI text-embedding-3-small).
+    # Set EMBEDDING_DIMENSION=1024 for Mistral, 768 for nomic-embed, etc.
+    # Lower dimensions are zero-padded, larger ones are truncated.
+    EMBEDDING_DIMENSION: int = int(os.getenv("EMBEDDING_DIMENSION", "1536"))
+
+    # Reranking (Mistral-only endpoint, optional)
+    # Disable on Ollama / OpenAI / vLLM — they don't expose /rerank.
+    # Default: false (portable). Set to true only with a Mistral-style provider.
+    RERANK_ENABLED: bool = os.getenv("RERANK_ENABLED", "false").lower() == "true"
+    RERANK_API_URL: Optional[str] = os.getenv("RERANK_API_URL")  # fallback to LLM_API_URL
+    RERANK_MODEL: str = os.getenv("RERANK_MODEL", "rerank-small")
 
     # Logging
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")

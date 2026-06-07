@@ -3,13 +3,19 @@ VectorStore module for indexing and searching MCP tools.
 
 This module provides vector search for MCP tools using
 an OpenAI-compatible embeddings API (Mistral, OpenAI, etc.).
+
+The HTTP transport uses `httpx.Client` (sync) — the public API of this
+module is sync (`get_embeddings`, `build_index`, `search`) because it is
+called from sync code paths inside both sync and async callers. Switching
+to `httpx` is a step toward a single HTTP stack (no more `requests` in
+the LLM/embedding path).
 """
 
 import logging
 import os
 from typing import Any, Dict, List, Optional, Tuple
 import json
-import requests
+import httpx
 import numpy as np
 from ..config.settings import EmbeddingConfig
 
@@ -23,7 +29,13 @@ class OpenAICompatibleEmbedder:
     # Lower dimensions will be padded with zeros
     MAX_DIMENSION = 1536
 
-    def __init__(self, api_url: str, api_key: str, model: str = "mistral-embed"):
+    def __init__(
+        self,
+        api_url: str,
+        api_key: str,
+        model: str = "mistral-embed",
+        dimension: int = MAX_DIMENSION,
+    ):
         """
         Initialize the embedding client.
 
@@ -31,10 +43,15 @@ class OpenAICompatibleEmbedder:
             api_url: Base API URL (e.g., https://api.mistral.ai/v1)
             api_key: API key for authentication
             model: Embedding model to use (e.g., mistral-embed, text-embedding-3-small)
+            dimension: Target embedding dimension (lower is zero-padded, larger is
+                truncated). Defaults to ``MAX_DIMENSION`` (1536) for backward
+                compatibility — set explicitly for Mistral (1024), nomic-embed
+                (768), or any provider-specific dimension.
         """
         self.api_url = api_url.rstrip('/')
         self.api_key = api_key
         self.model = model
+        self.dimension = dimension
         self.headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
 
     def _pad_embedding(self, embedding: List[float], target_dim: int = None) -> List[float]:
@@ -43,13 +60,13 @@ class OpenAICompatibleEmbedder:
 
         Args:
             embedding: The embedding to pad
-            target_dim: Target dimension (default: MAX_DIMENSION)
+            target_dim: Target dimension (default: self.dimension)
 
         Returns:
             Embedding padded to target dimension
         """
         if target_dim is None:
-            target_dim = self.MAX_DIMENSION
+            target_dim = self.dimension
 
         current_dim = len(embedding)
         if current_dim >= target_dim:
@@ -62,13 +79,13 @@ class OpenAICompatibleEmbedder:
         """
         Generate embeddings for the provided texts via the API.
         Implements automatic batching to respect API limits.
-        All embeddings are normalized to MAX_DIMENSION (1536) by padding.
+        All embeddings are normalized to the configured dimension by padding.
 
         Args:
             texts: Texts to transform into embeddings
 
         Returns:
-            Numpy array of embeddings (dimension: MAX_DIMENSION)
+            Numpy array of embeddings (dimension: self.dimension)
         """
         if not texts:
             return np.array([])
@@ -92,16 +109,19 @@ class OpenAICompatibleEmbedder:
                 payload = {"model": self.model, "input": batch}
                 logger.debug(f"Calling embeddings API: URL={embeddings_url}, Model={self.model}")
 
-                response = requests.post(
+                # Sync httpx call — keeps the API sync for legacy callers
+                # while standardising on httpx everywhere.
+                response = httpx.post(
                     embeddings_url,
                     headers=self.headers,
-                    json=payload
+                    json=payload,
+                    timeout=60.0,
                 )
 
                 if response.status_code != 200:
                     logger.error(f"Embeddings API error (batch {batch_num}): {response.status_code} - {response.text}")
-                    # Add empty embeddings of standard dimension for this batch
-                    all_embeddings.extend([[0.0] * self.MAX_DIMENSION for _ in range(len(batch))])
+                    # Add empty embeddings of configured dimension for this batch
+                    all_embeddings.extend([[0.0] * self.dimension for _ in range(len(batch))])
                     continue
 
                 result = response.json()
@@ -111,33 +131,33 @@ class OpenAICompatibleEmbedder:
                 for item in result.get("data", []):
                     embedding = item.get("embedding", [])
                     if embedding:
-                        # Padding to MAX_DIMENSION for uniformity (Mistral=1024, OpenAI=1536)
+                        # Padding to self.dimension for uniformity (provider-dependent)
                         padded = self._pad_embedding(embedding)
                         batch_embeddings.append(padded)
 
                 if not batch_embeddings:
                     logger.warning(f"No embeddings received for batch {batch_num}")
                     # Add empty embeddings for this batch
-                    all_embeddings.extend([[0.0] * self.MAX_DIMENSION for _ in range(len(batch))])
+                    all_embeddings.extend([[0.0] * self.dimension for _ in range(len(batch))])
                 else:
                     all_embeddings.extend(batch_embeddings)
                     # Log original dimension if different
                     orig_dim = len(result.get("data", [{}])[0].get("embedding", []))
-                    if orig_dim and orig_dim != self.MAX_DIMENSION:
-                        logger.info(f"Batch {batch_num}/{total_batches} OK: {len(batch_embeddings)} embeddings (dim {orig_dim} → {self.MAX_DIMENSION})")
+                    if orig_dim and orig_dim != self.dimension:
+                        logger.info(f"Batch {batch_num}/{total_batches} OK: {len(batch_embeddings)} embeddings (dim {orig_dim} → {self.dimension})")
                     else:
                         logger.info(f"Batch {batch_num}/{total_batches} OK: {len(batch_embeddings)} embeddings")
 
             if not all_embeddings:
                 logger.warning("No embeddings received from API")
-                return np.zeros((len(texts), self.MAX_DIMENSION))
+                return np.zeros((len(texts), self.dimension))
 
             # Convert to numpy array - all elements have the same dimension thanks to padding
             return np.array(all_embeddings, dtype=np.float32)
 
         except Exception as e:
             logger.error(f"Exception during embedding generation: {str(e)}")
-            return np.zeros((len(texts), self.MAX_DIMENSION))
+            return np.zeros((len(texts), self.dimension))
 
 
 class SimpleVectorStore:
@@ -239,11 +259,13 @@ class VectorStore:
         default_model = "mistral-embed" if "mistral" in self.api_url.lower() else "text-embedding-3-small"
         self.embedding_model_name = os.environ.get("EMBEDDING_MODEL", default_model)
 
-        # Initialize the embedding client
+        # Initialize the embedding client (dimension comes from EmbeddingConfig,
+        # which is itself fed by Settings.EMBEDDING_DIMENSION at the call-site).
         self.embedding_model = OpenAICompatibleEmbedder(
             api_url=self.api_url,
             api_key=self.api_key,
-            model=self.embedding_model_name
+            model=self.embedding_model_name,
+            dimension=config.dimension,
         )
     
     def build_index(self, tools: List[Dict[str, Any]]) -> None:
@@ -312,12 +334,18 @@ class VectorStore:
             texts: List of texts to transform into embeddings
 
         Returns:
-            Numpy array of embeddings (dimension: MAX_DIMENSION=1536)
+            Numpy array of embeddings (dimension: configured via ``EmbeddingConfig``)
         """
         if not self.embedding_model:
             logger.error("Embedding model not initialized")
-            # Return an empty embedding of standard dimension (1536 = MAX_DIMENSION)
-            return np.zeros((len(texts), OpenAICompatibleEmbedder.MAX_DIMENSION))
+            # Embedder is None — fall back to the config dimension if present,
+            # else to the class-level MAX_DIMENSION for backward compatibility.
+            fallback_dim = (
+                self.config.dimension
+                if getattr(self, "config", None) is not None
+                else OpenAICompatibleEmbedder.MAX_DIMENSION
+            )
+            return np.zeros((len(texts), fallback_dim))
 
         return self.embedding_model.get_embeddings(texts)
     

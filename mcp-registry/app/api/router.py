@@ -5,13 +5,17 @@ API routes for MCP Registry.
 import logging
 import os
 import json
-import requests
 from fastapi import APIRouter, Depends, HTTPException, Query, Body
 from typing import List, Dict, Any, Optional
 import time
 
 from ..config import settings
 from ..dependencies import get_registry
+from ..orchestration.llm_client import (
+    call_llm_text,
+    LLMCallError,
+    LLMNotConfigured,
+)
 from .models import (
     ServerInfo,
     ToolInfo,
@@ -30,10 +34,10 @@ router = APIRouter(tags=["MCP Registry"])
 # Get the shared registry instance
 registry = get_registry()
 
-# Configuration LLM API (compatible with Mistral, OpenAI, etc.)
-LLM_API_URL = os.environ.get("LLM_API_URL", "https://api.mistral.ai/v1")
+# Legacy LLM env constants — only the API key is kept as a quick "is LLM
+# configured?" gate; the actual chat call goes through `call_llm_text`,
+# which reads env at call time.
 LLM_API_KEY = os.environ.get("LLM_API_KEY", "")
-LLM_MODEL = os.environ.get("LLM_MODEL", "mistral-small-latest")
 
 @router.get("/api/status", response_model=Dict[str, Any])
 async def get_api_status():
@@ -219,11 +223,6 @@ async def analyze_intent(query: Dict[str, Any] = Body(...)):
 
         if LLM_API_KEY:
             try:
-                headers = {
-                    "Authorization": f"Bearer {LLM_API_KEY}",
-                    "Content-Type": "application/json"
-                }
-
                 tools_context = "\n".join(tools_descriptions) if tools_descriptions else "No tool available"
 
                 # General prompt for all types of MCP tools
@@ -247,37 +246,26 @@ async def analyze_intent(query: Dict[str, Any] = Body(...)):
                 6. "rationale": explanation of your reasoning
                 """
 
-                # Prepare request for LLM API
-                llm_request = {
-                    "model": LLM_MODEL,
-                    "messages": [
-                        {"role": "system", "content": "You are an intent analysis assistant. Respond only in JSON format."},
-                        {"role": "user", "content": prompt}
-                    ],
-                    "temperature": 0.2
-                }
+                logger.debug("Request sent to LLM API (legacy /api/analyze intent)")
 
-                # Log request (with token masking)
-                masked_headers = headers.copy()
-                masked_headers["Authorization"] = "Bearer [MASKED]"
-                chat_url = f"{LLM_API_URL}/chat/completions" if "/v1" in LLM_API_URL else f"{LLM_API_URL}/v1/chat/completions"
-                logger.debug(f"Request sent to LLM API: URL={chat_url}, Headers={masked_headers}, Body={json.dumps(llm_request)}")
+                # Call LLM via the shared async client (no more sync requests.post
+                # blocking the event loop, no more duplicated config reading).
+                try:
+                    answer_text = await call_llm_text(
+                        prompt,
+                        system="You are an intent analysis assistant. Respond only in JSON format.",
+                        temperature=0.2,
+                        max_tokens=2000,
+                        timeout=60.0,
+                    )
+                except LLMNotConfigured:
+                    answer_text = ""
+                except LLMCallError as e:
+                    logger.error(f"Error calling LLM API: {e}")
+                    answer_text = ""
 
-                # Call LLM API to analyze intent
-                response = requests.post(
-                    chat_url,
-                    headers=headers,
-                    json=llm_request
-                )
-
-                if response.status_code == 200:
-                    # Extract LLM API response
-                    llm_response = response.json()
-                    answer_text = llm_response.get("choices", [{}])[0].get("message", {}).get("content", "")
-
-                    # Log response
-                    logger.debug(f"Response received from LLM API: {json.dumps(llm_response)}")
-
+                if answer_text:
+                    logger.debug(f"Response received from LLM API: {answer_text[:300]}")
                     # Try to parse response as JSON
                     try:
                         # Extract only JSON part if response contains additional text
@@ -299,8 +287,6 @@ async def analyze_intent(query: Dict[str, Any] = Body(...)):
                             "error": "JSON parsing error",
                             "raw_response": answer_text
                         }
-                else:
-                    logger.error(f"Error calling LLM API: {response.status_code} - {response.text}")
             except Exception as e:
                 logger.error(f"Exception during intent analysis: {str(e)}")
         

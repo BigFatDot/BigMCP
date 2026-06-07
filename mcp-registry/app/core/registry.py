@@ -54,8 +54,15 @@ class MCPRegistry:
         """
         Initialize the MCP Registry.
         """
+        # Honour Settings.EMBEDDING_DIMENSION from app.core.config — overrides
+        # the YAML-config default so a single env var controls the dimension
+        # across registry, marketplace, and per-user vector stores.
+        from .config import settings as core_settings
+        embedding_config = settings.embedding.model_copy(
+            update={"dimension": core_settings.EMBEDDING_DIMENSION}
+        )
         self.vector_store = VectorStore(
-            config=settings.embedding
+            config=embedding_config
         )
         
         self.mcp_client = MCPClient(
@@ -534,53 +541,73 @@ class MCPRegistry:
                     llm_api_url = os.environ.get("LLM_API_URL", "https://api.mistral.ai/v1")
                     llm_api_key = os.environ.get("LLM_API_KEY", "")
 
-                    if llm_api_key:
+                    # Gate the rerank call behind RERANK_ENABLED (default false).
+                    # Mistral exposes /rerank, but Ollama / OpenAI / vLLM don't —
+                    # silently 404s used to bubble back here and break ranking.
+                    from .config import settings as core_settings
+                    if not core_settings.RERANK_ENABLED or not llm_api_key:
+                        logger.debug(
+                            "Rerank disabled (RERANK_ENABLED=%s, llm_api_key_set=%s) "
+                            "— using vector cosine ranking",
+                            core_settings.RERANK_ENABLED,
+                            bool(llm_api_key),
+                        )
+                    elif llm_api_key:
                         try:
-                            import requests
-
                             # Chunk tools in batches of 64 (standard limit)
                             BATCH_SIZE = 64
                             all_ranked_results = []
 
-                            # Call reranking API by batch
+                            # Call reranking API by batch via httpx async — replaces
+                            # the previous sync requests.post that blocked the event
+                            # loop. Model + URL come from Settings so we stay
+                            # provider-agnostic.
                             headers = {
                                 "Authorization": f"Bearer {llm_api_key}",
                                 "Content-Type": "application/json"
                             }
 
-                            for batch_start in range(0, len(rerank_tools), BATCH_SIZE):
-                                batch_end = min(batch_start + BATCH_SIZE, len(rerank_tools))
-                                batch_tools = rerank_tools[batch_start:batch_end]
+                            # Allow a dedicated rerank endpoint distinct from the LLM
+                            # endpoint (e.g. a Mistral key while the chat backend is
+                            # Ollama). Falls back to LLM_API_URL otherwise.
+                            rerank_base = core_settings.RERANK_API_URL or llm_api_url
+                            rerank_url = (
+                                f"{rerank_base}/rerank"
+                                if "/v1" in rerank_base
+                                else f"{rerank_base}/v1/rerank"
+                            )
 
-                                # Prepare data for reranking API
-                                rerank_data = {
-                                    "model": "rerank-small",
-                                    "prompt": query,
-                                    "input": [item["text"] for item in batch_tools]
-                                }
+                            async with httpx.AsyncClient(
+                                timeout=60.0, headers=headers
+                            ) as rerank_client:
+                                for batch_start in range(0, len(rerank_tools), BATCH_SIZE):
+                                    batch_end = min(batch_start + BATCH_SIZE, len(rerank_tools))
+                                    batch_tools = rerank_tools[batch_start:batch_end]
 
-                                rerank_url = f"{llm_api_url}/rerank" if "/v1" in llm_api_url else f"{llm_api_url}/v1/rerank"
-                                response = requests.post(
-                                    rerank_url,
-                                    headers=headers,
-                                    json=rerank_data
-                                )
+                                    # Prepare data for reranking API
+                                    rerank_data = {
+                                        "model": core_settings.RERANK_MODEL,
+                                        "prompt": query,
+                                        "input": [item["text"] for item in batch_tools]
+                                    }
 
-                                if response.status_code == 200:
-                                    # Process reranking results
-                                    rerank_results = response.json()
+                                    response = await rerank_client.post(rerank_url, json=rerank_data)
 
-                                    # Response format contains list of results with index and score
-                                    for result in rerank_results.get("results", []):
-                                        batch_index = result.get("index")
-                                        relevance_score = result.get("relevance_score", 0)
+                                    if response.status_code == 200:
+                                        # Process reranking results
+                                        rerank_results = response.json()
 
-                                        if batch_index is not None:
-                                            # Convert batch index to global index
-                                            global_index = batch_start + batch_index
-                                            all_ranked_results.append((global_index, relevance_score))
-                                else:
-                                    logger.warning(f"Reranking API call failed for batch {batch_start}-{batch_end}: {response.status_code} - {response.text}")
+                                        # Response format contains list of results with index and score
+                                        for result in rerank_results.get("results", []):
+                                            batch_index = result.get("index")
+                                            relevance_score = result.get("relevance_score", 0)
+
+                                            if batch_index is not None:
+                                                # Convert batch index to global index
+                                                global_index = batch_start + batch_index
+                                                all_ranked_results.append((global_index, relevance_score))
+                                    else:
+                                        logger.warning(f"Reranking API call failed for batch {batch_start}-{batch_end}: {response.status_code} - {response.text}")
 
                             if all_ranked_results:
                                 # Sort all results by relevance score descending

@@ -787,9 +787,14 @@ class UserServerPool:
             tool_copy["id"] = tool_id
             indexed_tools.append(tool_copy)
 
-        # Create or update VectorStore
+        # Create or update VectorStore — honour Settings.EMBEDDING_DIMENSION
+        # so per-user vector stores follow the env var like the global one.
         if user_id not in self._vector_stores:
-            self._vector_stores[user_id] = VectorStore(settings.embedding)
+            from .config import settings as core_settings
+            embedding_config = settings.embedding.model_copy(
+                update={"dimension": core_settings.EMBEDDING_DIMENSION}
+            )
+            self._vector_stores[user_id] = VectorStore(embedding_config)
 
         # Build the index
         self._vector_stores[user_id].build_index(indexed_tools)

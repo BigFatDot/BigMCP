@@ -22,9 +22,8 @@ import re
 from typing import Any, Dict, List, Optional, Set
 from uuid import UUID
 
-import requests
-
 from .marketplace_service import MarketplaceSyncService
+from ..orchestration.llm_client import call_llm_json, LLMCallError, LLMNotConfigured
 
 logger = logging.getLogger(__name__)
 
@@ -46,12 +45,9 @@ class CatalogCompositionPlanner:
         """
         self.marketplace = marketplace
 
-        # LLM API configuration (compatible with Mistral, OpenAI, etc.)
-        self.llm_api_url = os.environ.get("LLM_API_URL", "https://api.mistral.ai/v1")
-        self.llm_api_key = os.environ.get("LLM_API_KEY", "")
-        self.llm_model = os.environ.get("LLM_MODEL", "mistral-small-latest")
-
-        if not self.llm_api_key:
+        # We still surface the gate state, but the actual call is delegated to
+        # `app.orchestration.llm_client.call_llm_json` which reads env at call time.
+        if not os.environ.get("LLM_API_KEY", ""):
             logger.warning("LLM_API_KEY not set, composition planning will fail")
 
     async def plan_composition(
@@ -139,59 +135,32 @@ class CatalogCompositionPlanner:
         """
         # Build the prompt for LLM
         prompt = self._build_composition_prompt(query, context)
+        system_prompt = (
+            "You are an expert workflow automation assistant. Your task is to "
+            "create MCP (Model Context Protocol) compositions - structured "
+            "workflows that use MCP tools to accomplish user goals."
+        )
+
+        logger.debug("Calling LLM API for composition generation")
 
         try:
-            # Call LLM API
-            chat_url = f"{self.llm_api_url}/chat/completions" if "/v1" in self.llm_api_url else f"{self.llm_api_url}/v1/chat/completions"
-
-            headers = {
-                "Authorization": f"Bearer {self.llm_api_key}",
-                "Content-Type": "application/json"
-            }
-
-            payload = {
-                "model": self.llm_model,
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": "You are an expert workflow automation assistant. Your task is to create MCP (Model Context Protocol) compositions - structured workflows that use MCP tools to accomplish user goals."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                "temperature": 0.3,  # Lower temperature for more deterministic output
-                "max_tokens": 2000
-            }
-
-            logger.debug(f"Calling LLM API for composition generation")
-
-            response = requests.post(
-                chat_url,
-                headers=headers,
-                json=payload,
-                timeout=30
+            # `call_llm_json` already enforces json_object mode + retries on
+            # 429/5xx with backoff, replacing the sync `requests.post` that
+            # previously blocked the event loop.
+            composition = await call_llm_json(
+                prompt,
+                system=system_prompt,
+                temperature=0.3,
+                max_tokens=2000,
+                timeout=30.0,
             )
-
-            if response.status_code != 200:
-                logger.error(f"LLM API error: {response.status_code} - {response.text}")
-                return {}
-
-            result = response.json()
-
-            # Extract composition from response
-            composition_text = result.get("choices", [{}])[0].get("message", {}).get("content", "")
-
-            if not composition_text:
-                logger.warning("Empty response from LLM API")
-                return {}
-
-            # Parse composition from JSON in response
-            composition = self._parse_composition_from_text(composition_text)
-
-            return composition
-
+            return composition or {}
+        except LLMNotConfigured as e:
+            logger.error(f"LLM not configured for composition planning: {e}")
+            return {}
+        except LLMCallError as e:
+            logger.error(f"LLM call failed for composition planning: {e}")
+            return {}
         except Exception as e:
             logger.error(f"Error calling LLM API: {e}", exc_info=True)
             return {}
