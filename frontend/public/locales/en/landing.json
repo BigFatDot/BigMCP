@@ -7,13 +7,14 @@
     "getStarted": "Try the Demo"
   },
   "hero": {
-    "badge": "Open Source MCP Gateway",
+    "badge": "Open Source MCP Gateway — AGPLv3",
     "title": "One",
     "titleHighlight": "Big MCP",
     "titleEnd": "for All Your Tools",
-    "subtitle": "Register, govern, and expose your MCP services to your teams. Open source, self-hosted, unlimited users.",
-    "cta": "Try the Demo",
-    "ctaSecondary": "See How It Works"
+    "subtitle": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, keep every byte on your infrastructure. No vendor lock-in, ever.",
+    "cta": "Deploy with Docker (5 min)",
+    "ctaSecondary": "Try the live demo",
+    "ctaTertiary": "Star on GitHub"
   },
   "mobileDemo": {
     "badge": "Durable Compositions",
@@ -56,6 +57,26 @@
     ],
     "conclusion": "Everything is ready to start collaboration with Acme Corp.",
     "replyPlaceholder": "Reply..."
+  },
+  "providers": {
+    "badge": "Bring Your Own LLM",
+    "title": "Works with any OpenAI-compatible LLM",
+    "subtitle": "Any OpenAI-compatible /chat/completions endpoint works. Swap with one env var. Anthropic uses a non-OpenAI-compatible API and isn't supported as a provider.",
+    "items": [
+      { "name": "Mistral", "tag": "Default" },
+      { "name": "OpenAI", "tag": "Tested" },
+      { "name": "Ollama", "tag": "Local" },
+      { "name": "vLLM", "tag": "Self-hosted GPU" }
+    ]
+  },
+  "airgap": {
+    "badge": "Air-gap Ready",
+    "title": "Run fully offline with a local LLM",
+    "description": "Set AIRGAP_MODE=true and point BigMCP at your in-network Ollama or vLLM instance. No outbound HTTP traffic besides your own LLM. Ideal for sensitive data, regulated industries, and sovereign deployments.",
+    "snippetTitle": "docker-compose.override.yml",
+    "verifyText": "Zero outbound HTTP traffic besides your LLM. Verify with",
+    "verifyCode": "GET /edition/status",
+    "verifyTail": "→ airgap: true."
   },
   "challenge": {
     "badge": "The Challenge",
@@ -123,93 +144,69 @@
       }
     ]
   },
-  "pricing": {
-    "badge": "Getting Started",
-    "title": "Open Source. Self-Hosted. Yours.",
-    "subtitle": "Try it online in 30 seconds, or deploy on your infrastructure in 5 minutes",
-    "cloudLabel": "☁️ Try it online — No installation required",
-    "selfHostedLabel": "💻 Self-hosted — Full control, your data",
-    "individual": {
-      "title": "Try the Demo",
-      "subtitle": "bigmcp.cloud",
-      "price": "Free",
-      "period": "no time limit",
-      "features": [
-        "All features — nothing held back",
-        "No installation, no credit card",
-        "180+ MCP servers from the marketplace",
-        "Persistent account — your data stays as long as bigmcp.cloud runs",
-        "Production-ready features but treat as preview environment, not system of record"
-      ],
-      "cta": "Try the Demo"
-    },
-    "team": {
-      "title": "Self-Hosted",
-      "subtitle": "Your infrastructure",
-      "price": "Free",
-      "period": "forever (AGPLv3)",
-      "badge": "Recommended",
-      "features": [
-        "Everything — no limits, no expiration",
-        "Unlimited users & organizations",
-        "Register your own MCP servers",
-        "Expose services selectively per team",
-        "Scoped API keys per Tool Group",
-        "Your data stays on your servers"
-      ],
-      "cta": "Deploy from GitHub"
-    },
-    "enterprise": {
-      "title": "Self-Hosted",
-      "subtitle": "For organizations",
-      "price": "Free",
-      "period": "open source",
-      "features": [
-        "Everything in Self-Hosted",
-        "Tool Groups with scoped API Keys",
-        "Selective service exposure per team",
-        "Audit logging & compliance",
-        "Custom branding (coming soon)",
-        "Full admin control"
-      ],
-      "cta": "Deploy Now"
-    },
-    "community": {
-      "title": "Community",
-      "subtitle": "Self-hosted",
-      "price": "Free",
-      "period": "",
-      "features": [
-        "All features included",
-        "Unlimited users",
-        "Your choice of LLM",
-        "Docker deployment"
-      ],
-      "cta": "Get Started"
-    },
-    "comingSoon": "Coming Soon",
-    "note": "BigMCP is 100% open source (AGPLv3). The online demo lets you try before you deploy. Self-hosted gives you full control with no time limit."
+  "orgs": {
+    "badge": "For Organizations",
+    "title": "Sovereign by design",
+    "subtitle": "Sober, factual assurances for public sector and regulated industries.",
+    "items": [
+      {
+        "icon": "🇫🇷",
+        "title": "RGPD native",
+        "description": "Data stays on your infrastructure. No third-party processor, no cross-border transfer by default."
+      },
+      {
+        "icon": "🔍",
+        "title": "Full audit",
+        "description": "AGPLv3 source code: read everything, fork everything, audit everything. No closed-source modules."
+      },
+      {
+        "icon": "📋",
+        "title": "Open referencing",
+        "description": "SILL submission planned. Compatible with French public sector software referencing requirements."
+      },
+      {
+        "icon": "🛡️",
+        "title": "Zero lock-in",
+        "description": "No SaaS that can cut the service. Your deployment, your data, your kill switch."
+      }
+    ]
+  },
+  "community": {
+    "badge": "Community",
+    "title": "Join the autonomous MCP movement",
+    "subtitle": "BigMCP is built in the open. Issues, PRs, and discussions are welcome.",
+    "links": [
+      { "icon": "⭐", "label": "Star us on GitHub", "url": "https://github.com/BigFatDot/BigMCP" },
+      { "icon": "💬", "label": "Join the discussions", "url": "https://github.com/BigFatDot/BigMCP/discussions" },
+      { "icon": "🐛", "label": "Report an issue", "url": "https://github.com/BigFatDot/BigMCP/issues" },
+      { "icon": "🤝", "label": "Contribute", "url": "https://github.com/BigFatDot/BigMCP/blob/main/CONTRIBUTING.md" },
+      { "icon": "📜", "label": "AGPLv3 License", "url": "https://github.com/BigFatDot/BigMCP/blob/main/LICENSE" }
+    ]
   },
   "finalCta": {
-    "title": "Ready to Take Control of Your MCP Tools?",
-    "subtitle": "Try it online or deploy on your infrastructure — it takes 5 minutes.",
-    "cta": "Get Started"
+    "title": "Deploy in 5 minutes. Own your stack forever.",
+    "subtitle": "One docker compose up — autonomous MCP gateway, your LLM, your data.",
+    "cta": "Deploy from GitHub",
+    "ctaSecondary": "Try the live demo"
   },
   "footer": {
     "tagline": "The governance layer for your Model Context Protocol tools. Centralize, orchestrate, and control your MCP ecosystem.",
     "madeBy": "A product by",
     "product": "Product",
-    "company": "Company",
+    "community": "Community",
     "links": {
       "features": "Features",
       "howItWorks": "How It Works",
-      "pricing": "Pricing",
       "documentation": "Documentation",
+      "github": "GitHub",
+      "discussions": "Discussions",
+      "issues": "Issues",
+      "license": "AGPLv3 License",
       "about": "About BigFatDot",
       "contact": "Contact",
       "privacy": "Privacy",
       "terms": "Terms"
     },
-    "copyright": "© 2026 BigMCP by BigFatDot. All rights reserved."
+    "copyright": "© 2026 BigMCP by BigFatDot. AGPLv3."
   }
 }

@@ -59,9 +59,6 @@ export function LandingPage() {
             <a href="#how-it-works" className="text-gray-600 hover:text-orange transition-colors font-medium">
               {t('nav.howItWorks')}
             </a>
-            <a href="#pricing" className="text-gray-600 hover:text-orange transition-colors font-medium">
-              {t('nav.pricing')}
-            </a>
             <Link to="/login" className="text-gray-600 hover:text-orange transition-colors font-medium">
               {t('nav.login')}
             </Link>
@@ -127,7 +124,7 @@ export function LandingPage() {
 
           {/* CTAs */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/signup">
+            <a href="#airgap">
               <Button
                 variant="primary"
                 size="lg"
@@ -136,13 +133,84 @@ export function LandingPage() {
               >
                 {t('hero.cta')}
               </Button>
-            </Link>
-            <a href="#how-it-works">
+            </a>
+            <Link to="/signup">
               <Button variant="outline" size="lg" className="rounded-full px-8">
                 {t('hero.ctaSecondary')}
               </Button>
+            </Link>
+          </div>
+          <div className="mt-6">
+            <a
+              href="https://github.com/BigFatDot/BigMCP"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-orange transition-colors"
+            >
+              <span>⭐</span>
+              {t('hero.ctaTertiary')}
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* LLM Providers Section */}
+      <section className="py-16 px-6 bg-white border-b border-gray-100">
+        <div className="max-w-5xl mx-auto text-center">
+          <div className="flex items-center justify-center gap-2 text-orange font-semibold text-sm uppercase tracking-wider mb-4">
+            <div className="w-2 h-2 bg-orange rounded-full" />
+            {t('providers.badge')}
+          </div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 mb-4">
+            {t('providers.title')}
+          </h2>
+          <p className="text-base text-gray-600 mb-10 max-w-3xl mx-auto font-serif">
+            {t('providers.subtitle')}
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+            {(t('providers.items', { returnObjects: true }) as Array<{ name: string; tag: string }>).map((p, i) => (
+              <div
+                key={i}
+                className="bg-gray-50 border border-gray-200 rounded-2xl px-4 py-5 flex flex-col items-center justify-center hover:border-orange transition-colors"
+              >
+                <span className="text-lg font-bold text-gray-900">{p.name}</span>
+                <span className="text-xs uppercase tracking-wider text-orange font-semibold mt-1">{p.tag}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Air-gap Section */}
+      <section id="airgap" className="py-24 px-6 bg-gray-900 text-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-2 text-orange font-semibold text-sm uppercase tracking-wider mb-4">
+              <div className="w-2 h-2 bg-orange rounded-full" />
+              {t('airgap.badge')}
+            </div>
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-4">
+              {t('airgap.title')}
+            </h2>
+            <p className="text-lg text-gray-300 max-w-3xl mx-auto font-serif">
+              {t('airgap.description')}
+            </p>
+          </div>
+          <div className="bg-gray-950 border border-gray-700 rounded-2xl overflow-hidden max-w-3xl mx-auto shadow-xl">
+            <div className="px-4 py-2 bg-gray-800 border-b border-gray-700 text-xs font-mono text-gray-400">
+              {t('airgap.snippetTitle')}
+            </div>
+            <pre className="p-6 text-sm font-mono text-gray-100 overflow-x-auto leading-relaxed"><code>{`LLM_API_URL=http://ollama:11434/v1
+LLM_MODEL=llama3.1
+EMBEDDING_MODEL=nomic-embed-text
+EMBEDDING_DIMENSION=768
+AIRGAP_MODE=true`}</code></pre>
+          </div>
+          <p className="text-center text-sm text-gray-400 mt-6 max-w-2xl mx-auto font-serif">
+            {t('airgap.verifyText')}{' '}
+            <code className="px-2 py-0.5 bg-gray-800 rounded text-orange text-xs">{t('airgap.verifyCode')}</code>{' '}
+            {t('airgap.verifyTail')}
+          </p>
         </div>
       </section>
 
@@ -422,95 +490,64 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-24 px-6 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
+      {/* For Organizations Section */}
+      <section id="orgs" className="py-24 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <div className="flex items-center justify-center gap-2 text-orange font-semibold text-sm uppercase tracking-wider mb-4">
               <div className="w-2 h-2 bg-orange rounded-full" />
-              {t('pricing.badge')}
+              {t('orgs.badge')}
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
-              {t('pricing.title')}
+              {t('orgs.title')}
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto font-serif">
-              {t('pricing.subtitle')}
+              {t('orgs.subtitle')}
             </p>
           </div>
 
-          {/* Cloud vs Self-hosted toggle info */}
-          <div className="flex justify-center gap-4 mb-12">
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-              {t('pricing.cloudLabel')}
-            </span>
-            <span className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-              {t('pricing.selfHostedLabel')}
-            </span>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {/* Demo Platform */}
-            <PricingCard
-              title={t('pricing.individual.title')}
-              subtitle={t('pricing.individual.subtitle')}
-              price={t('pricing.individual.price')}
-              period={t('pricing.individual.period')}
-              features={t('pricing.individual.features', { returnObjects: true }) as string[]}
-              ctaText={t('pricing.individual.cta')}
-              ctaLink="/signup"
-            />
-
-            {/* Self-Hosted - Featured */}
-            <PricingCard
-              title={t('pricing.team.title')}
-              subtitle={t('pricing.team.subtitle')}
-              price={t('pricing.team.price')}
-              period={t('pricing.team.period')}
-              featured
-              badge={t('pricing.team.badge')}
-              features={t('pricing.team.features', { returnObjects: true }) as string[]}
-              ctaText={t('pricing.team.cta')}
-              ctaLink="https://github.com/bigfatdot/BigMCP"
-            />
-          </div>
-
-          {/* Edition explanation */}
-          <div className="mt-12 text-center">
-            <p className="text-sm text-gray-500 max-w-2xl mx-auto">
-              {t('pricing.note')}
-            </p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {(t('orgs.items', { returnObjects: true }) as Array<{ icon: string; title: string; description: string }>).map((item, i) => (
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded-2xl p-6 hover:border-orange transition-colors"
+              >
+                <div className="text-3xl mb-3">{item.icon}</div>
+                <h3 className="text-base font-bold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-600 font-serif leading-relaxed">{item.description}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Early Adopter Program */}
-      <section className="py-20 px-6 bg-gray-900 text-white">
-        <div className="max-w-4xl mx-auto text-center">
+      {/* Community Section */}
+      <section id="community" className="py-20 px-6 bg-gray-900 text-white">
+        <div className="max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange/20 text-orange text-xs font-semibold uppercase tracking-wider mb-4">
             <span className="w-1.5 h-1.5 bg-orange rounded-full animate-pulse" />
-            Early Adopter Program
+            {t('community.badge')}
           </div>
           <h2 className="text-3xl md:text-4xl font-extrabold mb-4">
-            Deploy BigMCP at your org with personal support from the maintainer
+            {t('community.title')}
           </h2>
-          <p className="text-lg text-gray-300 mb-3 font-serif max-w-2xl mx-auto">
-            We're not chasing logos for the homepage — we're looking for the first 5 orgs
-            who'll deploy BigMCP internally and tell us what's missing.
+          <p className="text-lg text-gray-300 mb-10 font-serif max-w-2xl mx-auto">
+            {t('community.subtitle')}
           </p>
-          <p className="text-base text-gray-400 mb-8 font-serif max-w-2xl mx-auto">
-            If you join: direct line to the maintainer, prioritised bug fixes, feature requests
-            heard before the roadmap closes. No fee, no commitment, no NDA.
-          </p>
-          <a
-            href="mailto:contact@bigmcp.cloud?subject=Early%20Adopter%20Program&body=Hi%2C%0A%0AOur%20org%20%3CXXX%3E%20is%20interested%20in%20deploying%20BigMCP%20internally.%20A%20few%20words%20on%20our%20context%3A%0A%0A-%20Team%20size%3A%20%0A-%20MCP%20servers%20we%27d%20connect%3A%20%0A-%20Deployment%20constraints%20(on-prem%20%2F%20cloud%20%2F%20hybrid)%3A%20%0A%0AThanks%2C%0A"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-orange hover:bg-orange/90 text-white font-semibold rounded-lg transition-colors"
-          >
-            Request early adopter access
-            <ArrowRightIcon className="w-4 h-4" />
-          </a>
-          <p className="text-xs text-gray-500 mt-4">
-            Reply within 24h. No automated funnel.
-          </p>
+          <div className="flex flex-wrap justify-center gap-3">
+            {(t('community.links', { returnObjects: true }) as Array<{ icon: string; label: string; url: string }>).map((link, i) => (
+              <a
+                key={i}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-orange rounded-full text-sm font-medium transition-colors"
+              >
+                <span>{link.icon}</span>
+                <span>{link.label}</span>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -523,16 +560,27 @@ export function LandingPage() {
           <p className="text-lg text-white/90 mb-10 font-serif">
             {t('finalCta.subtitle')}
           </p>
-          <Link to="/signup">
-            <Button
-              variant="secondary"
-              size="lg"
-              className="rounded-full px-8 bg-white text-orange-700 hover:bg-gray-100"
-              rightIcon={<ArrowRightIcon className="w-5 h-5" />}
-            >
-              {t('finalCta.cta')}
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="https://github.com/BigFatDot/BigMCP" target="_blank" rel="noopener noreferrer">
+              <Button
+                variant="secondary"
+                size="lg"
+                className="rounded-full px-8 bg-white text-orange-700 hover:bg-gray-100"
+                rightIcon={<ArrowRightIcon className="w-5 h-5" />}
+              >
+                {t('finalCta.cta')}
+              </Button>
+            </a>
+            <Link to="/signup">
+              <Button
+                variant="outline"
+                size="lg"
+                className="rounded-full px-8 border-white text-white hover:bg-white/10"
+              >
+                {t('finalCta.ctaSecondary')}
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -557,17 +605,19 @@ export function LandingPage() {
               <ul className="space-y-2">
                 <li><a href="#features" className="hover:text-orange transition-colors">{t('footer.links.features')}</a></li>
                 <li><a href="#how-it-works" className="hover:text-orange transition-colors">{t('footer.links.howItWorks')}</a></li>
-                <li><a href="#pricing" className="hover:text-orange transition-colors">{t('footer.links.pricing')}</a></li>
                 <li><Link to="/docs" className="hover:text-orange transition-colors">{t('footer.links.documentation')}</Link></li>
               </ul>
             </div>
 
-            {/* Company */}
+            {/* Community */}
             <div>
-              <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-4">{t('footer.company')}</h4>
+              <h4 className="text-white font-bold text-sm uppercase tracking-wider mb-4">{t('footer.community')}</h4>
               <ul className="space-y-2">
+                <li><a href="https://github.com/BigFatDot/BigMCP" target="_blank" rel="noopener noreferrer" className="hover:text-orange transition-colors">{t('footer.links.github')}</a></li>
+                <li><a href="https://github.com/BigFatDot/BigMCP/discussions" target="_blank" rel="noopener noreferrer" className="hover:text-orange transition-colors">{t('footer.links.discussions')}</a></li>
+                <li><a href="https://github.com/BigFatDot/BigMCP/issues" target="_blank" rel="noopener noreferrer" className="hover:text-orange transition-colors">{t('footer.links.issues')}</a></li>
+                <li><a href="https://github.com/BigFatDot/BigMCP/blob/main/LICENSE" target="_blank" rel="noopener noreferrer" className="hover:text-orange transition-colors">{t('footer.links.license')}</a></li>
                 <li><a href="https://bigfatdot.org" className="hover:text-orange transition-colors">{t('footer.links.about')}</a></li>
-                <li><a href="mailto:contact@bigmcp.cloud" className="hover:text-orange transition-colors">{t('footer.links.contact')}</a></li>
               </ul>
             </div>
           </div>
@@ -581,94 +631,3 @@ export function LandingPage() {
   )
 }
 
-function PricingCard({
-  title,
-  subtitle,
-  price,
-  period,
-  features,
-  ctaText,
-  ctaLink,
-  featured = false,
-  badge,
-  comingSoon = false,
-  comingSoonLabel = 'Coming Soon',
-}: {
-  title: string
-  subtitle?: string
-  price: string
-  period: string
-  features: string[]
-  ctaText: string
-  ctaLink: string
-  featured?: boolean
-  badge?: string
-  comingSoon?: boolean
-  comingSoonLabel?: string
-}) {
-  const isMailtoLink = ctaLink.startsWith('mailto:')
-
-  return (
-    <div
-      className={`
-        bg-white rounded-3xl p-6 text-center transition-all hover:-translate-y-2 relative
-        ${featured
-          ? 'border-3 border-orange shadow-orange-lg scale-105'
-          : comingSoon
-          ? 'border-2 border-gray-200 opacity-90'
-          : 'border-2 border-gray-200 hover:border-orange hover:shadow-xl'
-        }
-      `}
-    >
-      {comingSoon && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gray-600 text-white text-xs font-bold uppercase rounded-full">
-          {comingSoonLabel}
-        </div>
-      )}
-      {badge && !comingSoon && (
-        <span className="inline-block bg-orange text-white text-xs font-bold uppercase px-3 py-1 rounded-full mb-4">
-          {badge}
-        </span>
-      )}
-      {subtitle && (
-        <span className={`inline-block text-xs font-medium uppercase px-2 py-1 rounded mb-2 ${
-          featured ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'
-        }`}>
-          {subtitle}
-        </span>
-      )}
-      <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
-      <div className={`text-3xl font-extrabold my-4 ${comingSoon ? 'text-gray-400' : 'text-orange'}`}>
-        {price}
-        <span className="text-sm font-normal text-gray-600"> {period}</span>
-      </div>
-      <ul className="text-left space-y-3 mb-8">
-        {features.map((feature, i) => (
-          <li key={i} className={`flex items-center gap-3 ${comingSoon ? 'text-gray-500' : 'text-gray-700'}`}>
-            <div className={`w-4 h-4 rounded-full flex-shrink-0 ${comingSoon ? 'bg-gray-300' : 'bg-orange'}`} />
-            <span>{feature}</span>
-          </li>
-        ))}
-      </ul>
-      {isMailtoLink ? (
-        <a href={ctaLink} className="block">
-          <Button
-            variant={comingSoon ? 'secondary' : featured ? 'primary' : 'outline'}
-            className="w-full rounded-full"
-          >
-            {ctaText}
-          </Button>
-        </a>
-      ) : (
-        <Link to={ctaLink} className="block">
-          <Button
-            variant={featured ? 'primary' : 'outline'}
-            className="w-full rounded-full"
-          >
-            {ctaText}
-          </Button>
-        </Link>
-      )}
-    </div>
-  )
-}
