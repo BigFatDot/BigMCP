@@ -150,22 +150,18 @@
     "subtitle": "Sober, factual assurances for public sector and regulated industries.",
     "items": [
       {
-        "icon": "🇫🇷",
         "title": "RGPD native",
         "description": "Data stays on your infrastructure. No third-party processor, no cross-border transfer by default."
       },
       {
-        "icon": "🔍",
         "title": "Full audit",
         "description": "AGPLv3 source code: read everything, fork everything, audit everything. No closed-source modules."
       },
       {
-        "icon": "📋",
         "title": "Open referencing",
         "description": "SILL submission planned. Compatible with French public sector software referencing requirements."
       },
       {
-        "icon": "🛡️",
         "title": "Zero lock-in",
         "description": "No SaaS that can cut the service. Your deployment, your data, your kill switch."
       }
@@ -176,11 +172,11 @@
     "title": "Join the autonomous MCP movement",
     "subtitle": "BigMCP is built in the open. Issues, PRs, and discussions are welcome.",
     "links": [
-      { "icon": "⭐", "label": "Star us on GitHub", "url": "https://github.com/BigFatDot/BigMCP" },
-      { "icon": "💬", "label": "Join the discussions", "url": "https://github.com/BigFatDot/BigMCP/discussions" },
-      { "icon": "🐛", "label": "Report an issue", "url": "https://github.com/BigFatDot/BigMCP/issues" },
-      { "icon": "🤝", "label": "Contribute", "url": "https://github.com/BigFatDot/BigMCP/blob/main/CONTRIBUTING.md" },
-      { "icon": "📜", "label": "AGPLv3 License", "url": "https://github.com/BigFatDot/BigMCP/blob/main/LICENSE" }
+      { "label": "Star us on GitHub", "url": "https://github.com/BigFatDot/BigMCP" },
+      { "label": "Join the discussions", "url": "https://github.com/BigFatDot/BigMCP/discussions" },
+      { "label": "Report an issue", "url": "https://github.com/BigFatDot/BigMCP/issues" },
+      { "label": "Contribute", "url": "https://github.com/BigFatDot/BigMCP/blob/main/CONTRIBUTING.md" },
+      { "label": "AGPLv3 License", "url": "https://github.com/BigFatDot/BigMCP/blob/main/LICENSE" }
     ]
   },
   "finalCta": {

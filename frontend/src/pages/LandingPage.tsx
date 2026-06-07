@@ -147,7 +147,7 @@ export function LandingPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-orange transition-colors"
             >
-              <span>⭐</span>
+              <span className="inline-block w-1.5 h-1.5 bg-orange rounded-full" aria-hidden="true" />
               {t('hero.ctaTertiary')}
             </a>
           </div>
