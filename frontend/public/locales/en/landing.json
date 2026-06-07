@@ -12,7 +12,7 @@
     "titleHighlight": "Big MCP",
     "titleEnd": "for All Your Tools",
     "subtitle": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, keep every byte on your infrastructure. No vendor lock-in, ever.",
-    "cta": "Deploy with Docker (5 min)",
+    "cta": "Try BigMCP",
     "ctaSecondary": "Try the live demo",
     "ctaTertiary": "Star on GitHub"
   },
@@ -71,12 +71,8 @@
   },
   "airgap": {
     "badge": "Air-gap Ready",
-    "title": "Run fully offline with a local LLM",
-    "description": "Set AIRGAP_MODE=true and point BigMCP at your in-network Ollama or vLLM instance. No outbound HTTP traffic besides your own LLM. Ideal for sensitive data, regulated industries, and sovereign deployments.",
-    "snippetTitle": "docker-compose.override.yml",
-    "verifyText": "Zero outbound HTTP traffic besides your LLM. Verify with",
-    "verifyCode": "GET /edition/status",
-    "verifyTail": "→ airgap: true."
+    "title": "Nothing leaves your network",
+    "description": "Self-host BigMCP with your own LLM. Everything else stays inside your network. Built for sensitive data, regulated industries, and sovereign deployments."
   },
   "challenge": {
     "badge": "The Challenge",
@@ -181,8 +177,8 @@
   },
   "finalCta": {
     "title": "Deploy in 5 minutes. Own your stack forever.",
-    "subtitle": "One docker compose up — autonomous MCP gateway, your LLM, your data.",
-    "cta": "Deploy from GitHub",
+    "subtitle": "Self-hosted in minutes — autonomous MCP gateway, your LLM, your data.",
+    "cta": "Get the code",
     "ctaSecondary": "Try the live demo"
   },
   "footer": {
