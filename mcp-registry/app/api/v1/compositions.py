@@ -94,13 +94,13 @@ async def get_composition_service(
         "Returns the bundled set of starter composition templates "
         "(one per major B-1 step type). The UI offers these on the "
         "empty state of /app/compositions so new users have a working "
-        "starting point instead of a blank JSON."
+        "starting point instead of a blank JSON. No auth required — "
+        "these are static JSON definitions surfaced publicly so a "
+        "visitor can see what a composition looks like before signing up."
     ),
 )
-async def list_composition_templates(
-    user: User = Depends(get_current_user_jwt),
-) -> Dict[str, Any]:
-    """Static, read-only starter compositions."""
+async def list_composition_templates() -> Dict[str, Any]:
+    """Static, read-only starter compositions. Public — no auth."""
     return _load_templates()
 
 
