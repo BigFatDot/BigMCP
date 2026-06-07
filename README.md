@@ -227,16 +227,35 @@ SECRET_KEY=your-secret-key-min-32-chars
 ENCRYPTION_KEY=your-fernet-key
 DATABASE_URL=postgresql+asyncpg://mcphub:mcphub@postgres:5432/mcphub
 
-# Optional — LLM for AI orchestration
+# Optional — LLM provider (Bring Your Own LLM)
+# Any OpenAI-compatible /chat/completions endpoint. Tested: Mistral, OpenAI,
+# Ollama, vLLM. Anthropic NOT supported here (non-OpenAI-compatible API).
 LLM_API_URL=https://api.mistral.ai/v1
 LLM_API_KEY=your-api-key
 LLM_MODEL=mistral-small-latest
+EMBEDDING_MODEL=mistral-embed
+EMBEDDING_DIMENSION=1536       # 1024 for mistral-embed, 768 for nomic-embed
+RERANK_ENABLED=false           # Mistral-only feature; leave off for portability
+
+# Optional — Air-gap mode (no outbound HTTP except your LLM)
+AIRGAP_MODE=false              # true disables marketplace sync + icon CDN + LemonSqueezy
 
 # Optional — SMTP for email invitations
 SMTP_HOST=smtp.example.com
 SMTP_PORT=587
 SMTP_USER=your-email
 SMTP_PASSWORD=your-password
+```
+
+#### Run fully offline with a local LLM
+
+```bash
+# Example: BigMCP + Ollama, zero outbound traffic
+LLM_API_URL=http://ollama:11434/v1
+LLM_MODEL=llama3.1
+EMBEDDING_MODEL=nomic-embed-text
+EMBEDDING_DIMENSION=768
+AIRGAP_MODE=true
 ```
 
 ### Monitoring
