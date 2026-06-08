@@ -1,20 +1,289 @@
 {
   "nav": {
+    "why": "Why",
+    "how": "How",
     "features": "Features",
+    "compare": "Compare",
+    "docs": "Docs",
+    "cta": "Get started",
     "howItWorks": "How It Works",
     "pricing": "Get Started",
     "login": "Log In",
     "getStarted": "Try the Demo"
   },
   "hero": {
-    "badge": "Open Source MCP Gateway — AGPLv3",
+    "badge": "Open-source · Self-hosted · Sovereign",
+    "displayPart1": "All your MCP servers.",
+    "displayHighlight": "One",
+    "displayPart2": "endpoint.",
+    "lead": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, and keep every byte on your infrastructure. AGPLv3.",
+    "ctaPrimary": "Try BigMCP",
+    "ctaSecondary": "Star on GitHub",
+    "meta": "AGPLv3  ·  Bring your own LLM  ·  Run fully offline",
     "title": "One",
     "titleHighlight": "Big MCP",
     "titleEnd": "for All Your Tools",
     "subtitle": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, keep every byte on your infrastructure. No vendor lock-in, ever.",
     "cta": "Try BigMCP",
-    "ctaSecondary": "Try the live demo",
     "ctaTertiary": "Star on GitHub"
+  },
+  "stats": {
+    "items": [
+      { "v": "Own", "l": "Your registry, your servers" },
+      { "v": "180+", "l": "Curated starter pack", "countup": 180, "suffix": "+" },
+      { "v": "Air-gap", "l": "Run fully offline" },
+      { "v": "AGPLv3", "l": "Free, self-host, no limits" }
+    ]
+  },
+  "problem": {
+    "eyebrow": "The MCP sprawl problem",
+    "title": "Every server, every device, every credential",
+    "lead": "As soon as a team adopts more than a couple of MCP servers, configuration sprawl and access risk explode. BigMCP collapses it into one governed gateway you run yourself.",
+    "withoutTitle": "Without BigMCP",
+    "withTitle": "With BigMCP",
+    "withoutItems": [
+      "Install & update MCP servers on every device",
+      "Configure credentials separately, everywhere",
+      "No access control over who runs which tool",
+      "Zero visibility into who used what, when",
+      "Re-do the whole setup for each new teammate"
+    ],
+    "withItems": [
+      "One governed endpoint for every connected tool",
+      "Credentials encrypted at rest (Fernet) — User › Org › Server",
+      "RBAC across 4 roles, scoped per Tool Group",
+      "Immutable, HMAC-signed audit logs",
+      "Self-hosted: your infrastructure, your rules"
+    ]
+  },
+  "howItWorks": {
+    "eyebrow": "How it works",
+    "title": "From scattered servers to one governed URL",
+    "toggleLabel": "View as",
+    "viewUser": "User",
+    "viewAdmin": "Admin",
+    "stepsUser": [
+      {
+        "t": "Sign in",
+        "d": "Use your own account, or your team's SSO. No new identity to manage.",
+        "panel": "signin",
+        "panelText": { "signinTitle": "Sign in to AcmeMCP", "signinSso": "Continue with your SSO", "signinOr": "or", "signinEmail": "Work email", "signinBtn": "Sign in" }
+      },
+      {
+        "t": "Pick the tools you need",
+        "d": "Browse your team's curated catalogue and add only the tools you're cleared for.",
+        "panel": "pick",
+        "panelText": { "pickTitle": "Your catalogue", "pickNote": "You only see tools your admin assigned to your team." }
+      },
+      {
+        "t": "Connect your AI client",
+        "d": "Paste one URL into Claude, Cursor or Cline — your tools just work.",
+        "panel": "connect",
+        "panelText": {}
+      }
+    ],
+    "stepsAdmin": [
+      {
+        "t": "Declare MCP servers",
+        "d": "Add to your private registry, or pick from the 180+ curated starter pack.",
+        "panel": "register",
+        "panelText": { "registerTitle": "Add server to your registry", "registerRepo": "Repository", "registerBtn": "Register & discover" }
+      },
+      {
+        "t": "Auto-discover tools",
+        "d": "BigMCP calls tools/list and indexes everything, with semantic search over the catalogue.",
+        "panel": "discover",
+        "panelText": {}
+      },
+      {
+        "t": "Create Tool Groups",
+        "d": "Curate tools per team with PRIVATE / ORGANIZATION / PUBLIC visibility.",
+        "panel": "groups",
+        "panelText": { "groupsTitle": "Tool Groups" }
+      },
+      {
+        "t": "Issue scoped API keys",
+        "d": "Per-group keys with 7 granular scopes. bcrypt-hashed, bigmcp_sk_* format.",
+        "panel": "keys",
+        "panelText": { "keysTitle": "API Keys" }
+      },
+      {
+        "t": "Hand over the URL",
+        "d": "Every teammate connects Claude, Cursor or Cline with a single URL — and sees only their tools.",
+        "panel": "connect",
+        "panelText": {}
+      }
+    ],
+    "badge": "Simple Setup",
+    "subtitle": "Three steps to unified MCP governance",
+    "steps": [
+      { "title": "Create Your Account", "description": "Sign up with your email. Your credentials are encrypted and synced across all devices." },
+      { "title": "Connect MCP Servers", "description": "Add your existing MCP servers to BigMCP. Configure credentials and access policies for each server." },
+      { "title": "Use & Compose Tools", "description": "Simply use tools or combine them into powerful workflows. No complexity, just results delivered instantly." }
+    ]
+  },
+  "marketplace": {
+    "eyebrow": "Your registry",
+    "title": "Your registry + a curated marketplace",
+    "lead": "Declare your private MCP servers. Or pick from a curated 180+ starter pack — npm, GitHub, Glama, Smithery. All in one search, behind one URL.",
+    "useCases": [
+      {
+        "tag": "Starter pack",
+        "t": "Connect public servers in one click",
+        "d": "Add Gmail, Linear, Notion or Slack straight from the curated starter pack — credentials auto-detected."
+      },
+      {
+        "tag": "Custom",
+        "t": "Build custom tools on your stack",
+        "d": "Wire BigMCP to Grist, Airtable, a Notion database or your internal API. Ship custom MCP tools for your team's widgets — tasks, projects, dashboards."
+      },
+      {
+        "tag": "Sovereign",
+        "t": "Run fully sovereign",
+        "d": "Your private registry only, a local LLM (Ollama, vLLM), and air-gap mode on. Nothing leaves your network."
+      }
+    ]
+  },
+  "features": {
+    "eyebrow": "Platform",
+    "title": "Everything a team needs to run MCP in production",
+    "items": [
+      { "t": "Custom server management", "d": "Register from any source — npm, pip, GitHub, Docker, HTTP, local binary. Auto-discovery via tools/list. Team vs personal visibility.", "i": "server" },
+      { "t": "Selective exposure", "d": "Tool Groups with PRIVATE / ORG / PUBLIC visibility, plus scoped API keys exposing only the tools you choose.", "i": "shield" },
+      { "t": "Auth & security", "d": "OAuth 2.0 + PKCE, JWT, MFA/TOTP, API keys (bcrypt), credentials encrypted at rest with Fernet.", "i": "lock" },
+      { "t": "Multi-tenant by design", "d": "Organization isolation with 4-tier RBAC and hierarchical credentials. Unlimited users and orgs.", "i": "building" },
+      { "t": "Custom MCP registry", "d": "Declare your private MCP servers and keep them entirely inside your network. Air-gap compatible, full sovereignty.", "i": "grid" },
+      { "t": "AI orchestration", "d": "Natural language to workflow, a composition lifecycle, and durable steps that survive crashes and restarts.", "i": "flow" }
+    ],
+    "badge": "Features",
+    "titleEnd": "Govern MCP at Scale",
+    "subtitle": "Built for teams that take MCP governance seriously"
+  },
+  "workflows": {
+    "eyebrow": "Durable workflows · Phase B-1",
+    "title": "Compositions that survive crashes & restarts",
+    "body": "A resumable executor persists every step in Postgres. Promote a validated composition and it becomes a first-class MCP tool. Five suspending step types pause and resume cleanly:",
+    "noteHtml": "Plus non-suspending steps <code>transform</code> (LLM JSON extraction) and <code>foreach</code> (fan-out over a list) — shipped in 2.5.",
+    "items": [
+      { "n": "elicit", "d": "Pause mid-flight for human input" },
+      { "n": "wait_until", "d": "Clock-driven resume at a future time" },
+      { "n": "wait_callback", "d": "HMAC-protected webhook resume" },
+      { "n": "subcomposition", "d": "Call another composition, suspend until it ends" },
+      { "n": "approval", "d": "Cross-user gate, four-eyes by default" }
+    ]
+  },
+  "governance": {
+    "eyebrow": "Governance",
+    "title": "Full control over who sees what",
+    "lead": "Four roles, hierarchical credentials, and immutable audit logs with HMAC-SHA256 integrity. Run a hardened, closed deployment with the marketplace disabled and custom servers only.",
+    "chips": [
+      "User › Org › Server credentials",
+      "HMAC-signed audit trail",
+      "Closed registry mode",
+      "Air-gap mode",
+      "OAuth 2.0 + PKCE"
+    ],
+    "roles": [
+      { "r": "Owner", "d": "Full control of the org, billing & members", "lv": 4 },
+      { "r": "Admin", "d": "Manage servers, groups, keys & policies", "lv": 3 },
+      { "r": "Member", "d": "Use assigned Tool Groups, run tools", "lv": 2 },
+      { "r": "Viewer", "d": "Read-only visibility into the catalogue", "lv": 1 }
+    ]
+  },
+  "comparison": {
+    "eyebrow": "How we compare",
+    "title": "Compared, on the axes that matter to a sovereign deployment",
+    "lead": "We don't claim to be the only answer. Where BigMCP is built to win is autonomy — you choose the LLM, you hold the data, and you run the infrastructure. No proprietary lock-in, no per-seat gate.",
+    "capability": "Capability",
+    "cols": ["BigMCP", "Anthropic Cloud", "Closed SaaS", "DIY"],
+    "rows": [
+      { "cap": "Self-host (AGPLv3)",         "values": ["✓", "—", "SaaS only", "✓"] },
+      { "cap": "Choose your own LLM (BYOL)", "values": ["✓", "Claude only", "vendor lock-in", "✓"] },
+      { "cap": "Air-gap support",            "values": ["✓", "—", "—", "depends"] },
+      { "cap": "Data residency control",     "values": ["full", "vendor", "vendor", "full"] },
+      { "cap": "Custom MCP servers",         "values": ["unlimited", "vendor catalogue", "vendor", "unlimited"] },
+      { "cap": "Built-in RBAC + audit",      "values": ["✓", "partial", "paid tier", "build"] },
+      { "cap": "Durable workflows",          "values": ["✓ B-1", "—", "paid tier", "build"] },
+      { "cap": "No vendor lock-in",          "values": ["✓ AGPLv3", "proprietary", "proprietary", "your code"] }
+    ]
+  },
+  "selfHost": {
+    "eyebrow": "Sovereign by default",
+    "title": "Nothing leaves your network",
+    "lead": "Self-host BigMCP with your own LLM. Everything else stays inside your network. Built for sensitive data, regulated industries, and sovereign deployments.",
+    "cta": "Configuration guide",
+    "ctaUrl": "https://github.com/BigFatDot/BigMCP#self-hosted-deployment",
+    "network": {
+      "outside": "Public internet",
+      "barred": "no outbound traffic",
+      "vpc": "Your network · VPC",
+      "nodes": [
+        { "name": "BigMCP gateway",    "sub": "one governed URL" },
+        { "name": "Local LLM",         "sub": "Ollama · vLLM" },
+        { "name": "Private registry",  "sub": "your MCP servers" },
+        { "name": "Data plane",        "sub": "Postgres · Redis · Qdrant" }
+      ]
+    }
+  },
+  "branding": {
+    "eyebrow": "White-label · Make it yours",
+    "titlePart1": "Your BigMCP.",
+    "titleHighlight": "Your brand.",
+    "lead": "Ship a gateway your teams recognize as yours. Set a custom instance name, drop in your logo, and pick a primary color — on your own domain, in your own palette. No \"powered by\", no compromise.",
+    "swatchLabel": "Primary color",
+    "customLabel": "Custom color",
+    "hint": "recolors the entire page live. Scroll up and watch.",
+    "swatches": [
+      { "c": "#D97757", "n": "Terracotta" },
+      { "c": "#2A6FDB", "n": "Cobalt" },
+      { "c": "#1F8A5B", "n": "Emerald" },
+      { "c": "#7A5AE0", "n": "Violet" },
+      { "c": "#0E7490", "n": "Teal" },
+      { "c": "#B0413E", "n": "Crimson" },
+      { "c": "#C2410C", "n": "Ember" },
+      { "c": "#475569", "n": "Slate" }
+    ],
+    "previewInstanceName": "AcmeMCP",
+    "previewKicker": "● Internal MCP gateway",
+    "previewHeadPart1": "All your tools.",
+    "previewHeadHighlight": "One endpoint.",
+    "previewCta": "Get started",
+    "instanceLabel": "instance_name"
+  },
+  "finalCta": {
+    "title": "One URL for every tool your agents need",
+    "sub": "Free and open source under AGPLv3. No user limits, no license keys. Self-host in minutes or try the live demo.",
+    "ctaPrimary": "Star on GitHub",
+    "ctaSecondary": "Try the demo",
+    "meta": "AGPLv3  ·  Self-host  ·  BYOL",
+    "subtitle": "Self-hosted in minutes — autonomous MCP gateway, your LLM, your data.",
+    "cta": "Get the code"
+  },
+  "footer": {
+    "tagline": "Open-source MCP gateway for organizations. Register, govern, and expose your MCP services to your teams — with full control over who sees what.",
+    "madeBy": "Made with care by",
+    "product": "Product",
+    "platform": "Platform",
+    "community": "Community",
+    "productLinks": ["Features", "How it works", "Marketplace", "Documentation"],
+    "platformLinks": ["Self-hosting", "Security", "Compositions", "API reference"],
+    "communityLinks": ["GitHub", "Discussions", "Issues", "License (AGPLv3)"],
+    "copyright": "© 2026 BigMCP · AGPLv3",
+    "mcpVersion": "MCP 2025-06-18 · Streamable HTTP + SSE",
+    "links": {
+      "features": "Features",
+      "howItWorks": "How It Works",
+      "documentation": "Documentation",
+      "github": "GitHub",
+      "discussions": "Discussions",
+      "issues": "Issues",
+      "license": "AGPLv3 License",
+      "about": "About BigFatDot",
+      "contact": "Contact",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "company": "Company"
   },
   "mobileDemo": {
     "badge": "Durable Compositions",
@@ -97,70 +366,15 @@
       "Single governance layer for all MCPs"
     ]
   },
-  "howItWorks": {
-    "badge": "Simple Setup",
-    "title": "How BigMCP Works",
-    "subtitle": "Three steps to unified MCP governance",
-    "steps": [
-      {
-        "title": "Create Your Account",
-        "description": "Sign up with your email. Your credentials are encrypted and synced across all devices."
-      },
-      {
-        "title": "Connect MCP Servers",
-        "description": "Add your existing MCP servers to BigMCP. Configure credentials and access policies for each server."
-      },
-      {
-        "title": "Use & Compose Tools",
-        "description": "Simply use tools or combine them into powerful workflows. No complexity, just results delivered instantly."
-      }
-    ]
-  },
-  "features": {
-    "badge": "Features",
-    "title": "Everything You Need to",
-    "titleEnd": "Govern MCP at Scale",
-    "subtitle": "Built for teams that take MCP governance seriously",
-    "items": [
-      {
-        "title": "Unified Authentication",
-        "description": "Single OAuth 2.0 + PKCE flow for AI clients. Encrypted credential storage with organizational and user-level isolation."
-      },
-      {
-        "title": "Tool Orchestration",
-        "description": "Compose multi-tool workflows with automatic credential injection and hierarchical bindings for complex operations."
-      },
-      {
-        "title": "Mobile Access",
-        "description": "Your MCP tools available on mobile, tablet, anywhere. Same authentication, same experience, zero configuration."
-      },
-      {
-        "title": "Usage Analytics",
-        "description": "Track tool execution, success rates, and usage patterns across your organization with comprehensive usage tracking."
-      }
-    ]
-  },
   "orgs": {
     "badge": "For Organizations",
     "title": "Sovereign by design",
     "subtitle": "Sober, factual assurances for public sector and regulated industries.",
     "items": [
-      {
-        "title": "RGPD native",
-        "description": "Data stays on your infrastructure. No third-party processor, no cross-border transfer by default."
-      },
-      {
-        "title": "Full audit",
-        "description": "AGPLv3 source code: read everything, fork everything, audit everything. No closed-source modules."
-      },
-      {
-        "title": "Open referencing",
-        "description": "SILL submission planned. Compatible with French public sector software referencing requirements."
-      },
-      {
-        "title": "Zero lock-in",
-        "description": "No SaaS that can cut the service. Your deployment, your data, your kill switch."
-      }
+      { "title": "RGPD native", "description": "Data stays on your infrastructure. No third-party processor, no cross-border transfer by default." },
+      { "title": "Full audit", "description": "AGPLv3 source code: read everything, fork everything, audit everything. No closed-source modules." },
+      { "title": "Open referencing", "description": "SILL submission planned. Compatible with French public sector software referencing requirements." },
+      { "title": "Zero lock-in", "description": "No SaaS that can cut the service. Your deployment, your data, your kill switch." }
     ]
   },
   "community": {
@@ -174,31 +388,5 @@
       { "label": "Contribute", "url": "https://github.com/BigFatDot/BigMCP/blob/main/CONTRIBUTING.md" },
       { "label": "AGPLv3 License", "url": "https://github.com/BigFatDot/BigMCP/blob/main/LICENSE" }
     ]
-  },
-  "finalCta": {
-    "title": "Deploy in 5 minutes. Own your stack forever.",
-    "subtitle": "Self-hosted in minutes — autonomous MCP gateway, your LLM, your data.",
-    "cta": "Get the code",
-    "ctaSecondary": "Try the live demo"
-  },
-  "footer": {
-    "tagline": "The governance layer for your Model Context Protocol tools. Centralize, orchestrate, and control your MCP ecosystem.",
-    "madeBy": "A product by",
-    "product": "Product",
-    "community": "Community",
-    "links": {
-      "features": "Features",
-      "howItWorks": "How It Works",
-      "documentation": "Documentation",
-      "github": "GitHub",
-      "discussions": "Discussions",
-      "issues": "Issues",
-      "license": "AGPLv3 License",
-      "about": "About BigFatDot",
-      "contact": "Contact",
-      "privacy": "Privacy",
-      "terms": "Terms"
-    },
-    "copyright": "© 2026 BigMCP by BigFatDot. AGPLv3."
   }
 }
