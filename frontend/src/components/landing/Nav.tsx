@@ -51,7 +51,7 @@ export function Nav() {
           aria-label="BigMCP home"
           style={{ textDecoration: 'none', display: 'inline-flex' }}
         >
-          <BigMCPLogoWithText size="sm" />
+          <BigMCPLogoWithText size="sm" accentVar />
         </a>
 
         <div className="flex items-center gap-1 sm:gap-2">

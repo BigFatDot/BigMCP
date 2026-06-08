@@ -60,7 +60,7 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Brand column */}
           <div className="lg:col-span-1">
-            <BigMCPLogoWithText variant="dark" />
+            <BigMCPLogoWithText variant="dark" accentVar />
             <p
               className="font-serif"
               style={{

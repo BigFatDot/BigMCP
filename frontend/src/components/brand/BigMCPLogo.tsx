@@ -14,9 +14,20 @@ interface BigMCPLogoProps {
   /** True when the logo sits on a dark surface — flips orbit dots to white.
    *  Default false: dots are dark (gray-900) so they read on light/paper bgs. */
   onDark?: boolean
+  /** When true, the orange core reads from the `--accent` CSS variable instead
+   *  of the fixed Tailwind `bg-orange`. Use it on the landing where the
+   *  "Make it yours" picker live-recolors the page. Default false keeps the
+   *  brand-locked Tailwind orange everywhere else (login, sidebar, auth pages). */
+  accentVar?: boolean
 }
 
-export function BigMCPLogo({ size = 'md', className, animate = false, onDark = false }: BigMCPLogoProps) {
+export function BigMCPLogo({
+  size = 'md',
+  className,
+  animate = false,
+  onDark = false,
+  accentVar = false,
+}: BigMCPLogoProps) {
   const sizes = {
     xs: { container: 'w-6 h-6', ball: 'w-0.5 h-0.5' },
     sm: { container: 'w-8 h-8', ball: 'w-1 h-1' },
@@ -44,8 +55,11 @@ export function BigMCPLogo({ size = 'md', className, animate = false, onDark = f
 
   return (
     <div className={cn('relative', sizes[size].container, className)}>
-      {/* Core (orange ball) - flat design, no shadow */}
-      <div className="w-full h-full bg-orange rounded-full" />
+      {/* Core — fixed Tailwind orange by default, follows --accent on the landing */}
+      <div
+        className={cn('w-full h-full rounded-full', !accentVar && 'bg-orange')}
+        style={accentVar ? { background: 'var(--accent)' } : undefined}
+      />
 
       {/* Orbiting balls */}
       <div
@@ -86,7 +100,8 @@ export function BigMCPLogoWithText({
   textSize = 'md',
   className,
   animate = false,
-  variant = 'light'
+  variant = 'light',
+  accentVar = false,
 }: BigMCPLogoWithTextProps) {
   const textSizes = {
     sm: 'text-lg',
@@ -98,9 +113,20 @@ export function BigMCPLogoWithText({
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <BigMCPLogo size={size} animate={animate} onDark={variant === 'dark'} />
+      <BigMCPLogo
+        size={size}
+        animate={animate}
+        onDark={variant === 'dark'}
+        accentVar={accentVar}
+      />
       <span className={cn('font-bold tracking-tight', textSizes[textSize])}>
-        <span className={bigTextColor}>Big</span><span className="text-orange">MCP</span>
+        <span className={bigTextColor}>Big</span>
+        <span
+          className={accentVar ? undefined : 'text-orange'}
+          style={accentVar ? { color: 'var(--accent)' } : undefined}
+        >
+          MCP
+        </span>
       </span>
     </div>
   )
