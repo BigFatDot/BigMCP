@@ -73,6 +73,14 @@ services:
       - MAX_WORKERS=${MAX_WORKERS:-2}
       - CACHE_TTL=${CACHE_TTL:-1800}
 
+      # Sovereignty / SSRF guard
+      # AIRGAP_MODE=true disables every outbound HTTP call except the LLM.
+      # MCP_ALLOWED_INTERNAL_HOSTS lets the admin opt-in specific internal
+      # hostnames (e.g. an in-network chrome-devtools / playwright bridge
+      # reachable via host.docker.internal). See .env.example for details.
+      - AIRGAP_MODE=${AIRGAP_MODE:-false}
+      - MCP_ALLOWED_INTERNAL_HOSTS=${MCP_ALLOWED_INTERNAL_HOSTS:-}
+
       # Domain for redirects (your domain)
       - DOMAIN=${DOMAIN:-localhost}
 
