@@ -230,3 +230,50 @@ class TestEnvBypass:
         with caplog.at_level(logging.WARNING, logger="app.core.url_validation"):
             validate_external_url("http://127.0.0.1:6379")
         assert any("SSRF check bypassed" in rec.message for rec in caplog.records)
+
+
+# =============================================================================
+# Targeted internal-hosts allow-list (MCP_ALLOWED_INTERNAL_HOSTS)
+# =============================================================================
+
+class TestAllowedInternalHostsList:
+    """A CSV env var lets an admin deliberately expose specific internal MCP
+    servers (chrome-devtools bridge, RPC tunnels, …) without flipping the
+    global escape hatch."""
+
+    def test_allows_host_docker_internal_when_listed(self, monkeypatch):
+        monkeypatch.setenv("MCP_ALLOWED_INTERNAL_HOSTS", "host.docker.internal")
+        # Would normally raise — host.docker.internal is in the hard blocklist.
+        validate_external_url("http://host.docker.internal:9222/devtools")
+
+    def test_allows_docker_service_name_when_listed(self, monkeypatch):
+        monkeypatch.setenv("MCP_ALLOWED_INTERNAL_HOSTS", "chrome-devtools,host.docker.internal")
+        validate_external_url("http://chrome-devtools:9222/json/version")
+
+    def test_still_refuses_unlisted_internal_host(self, monkeypatch):
+        monkeypatch.setenv("MCP_ALLOWED_INTERNAL_HOSTS", "chrome-devtools")
+        # postgres is NOT in the allow-list → still blocked.
+        with pytest.raises(ValueError, match="internal service"):
+            validate_external_url("http://postgres:5432/foo")
+
+    def test_unset_env_keeps_blocklist_active(self, monkeypatch):
+        monkeypatch.delenv("MCP_ALLOWED_INTERNAL_HOSTS", raising=False)
+        with pytest.raises(ValueError, match="internal service"):
+            validate_external_url("http://host.docker.internal:9222/foo")
+
+    def test_empty_env_keeps_blocklist_active(self, monkeypatch):
+        monkeypatch.setenv("MCP_ALLOWED_INTERNAL_HOSTS", "")
+        with pytest.raises(ValueError, match="internal service"):
+            validate_external_url("http://host.docker.internal:9222/foo")
+
+    def test_csv_is_trimmed_and_lowercased(self, monkeypatch):
+        # Spaces, mixed case, trailing dot — all normalised on parse.
+        monkeypatch.setenv("MCP_ALLOWED_INTERNAL_HOSTS", "  Host.Docker.Internal. ,  ,chrome-devtools  ")
+        validate_external_url("http://HOST.docker.internal/x")
+        validate_external_url("http://chrome-devtools:9222/x")
+
+    def test_allow_list_still_refuses_non_http_scheme(self, monkeypatch):
+        # Even on a whitelisted hostname, scheme must be HTTP(S).
+        monkeypatch.setenv("MCP_ALLOWED_INTERNAL_HOSTS", "host.docker.internal")
+        with pytest.raises(ValueError, match="scheme"):
+            validate_external_url("file:///etc/passwd")

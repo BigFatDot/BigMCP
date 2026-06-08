@@ -25,12 +25,22 @@ intercepting the underlying socket layer in aiohttp, which is invasive and out
 of scope for this P0. The current guard blocks the trivial attack (URL points
 literally at a private address or known internal hostname).
 
-Escape hatch
-------------
-Setting env var MCP_ALLOW_INTERNAL_HOSTS=1 disables validation. Intended for
-local dev and E2E tests that hit a localhost mock server. A warning is logged
-each time this bypass is exercised so it shows up in production logs if
-accidentally enabled.
+Escape hatches
+--------------
+Two opt-in mechanisms, used for very different reasons:
+
+  1. **MCP_ALLOW_INTERNAL_HOSTS=1** — disables validation entirely. Intended
+     for local dev and E2E tests that hit a localhost mock server. A warning
+     is logged each time this bypass is exercised so it shows up in
+     production logs if accidentally enabled. DO NOT use in prod.
+
+  2. **MCP_ALLOWED_INTERNAL_HOSTS=hostA,hostB** — a targeted allow-list of
+     hostnames the admin has deliberately exposed to BigMCP. Use case: an
+     internal Chrome DevTools / Playwright / RPC MCP server reachable via
+     `host.docker.internal` or a docker-compose service name. Only the
+     listed hostnames bypass the guard; everything else still goes through
+     full validation (scheme, blocklist, IP-range). This is the right knob
+     for prod when you know what you're exposing.
 """
 
 from __future__ import annotations
@@ -71,6 +81,25 @@ _BLOCKED_HOSTNAMES = {
 _ALLOWED_SCHEMES = {"http", "https"}
 
 _ALLOW_INTERNAL_ENV_VAR = "MCP_ALLOW_INTERNAL_HOSTS"
+_ALLOWED_INTERNAL_HOSTS_ENV_VAR = "MCP_ALLOWED_INTERNAL_HOSTS"
+
+
+def _load_allowed_internal_hosts() -> frozenset[str]:
+    """
+    Parse `MCP_ALLOWED_INTERNAL_HOSTS` into a frozenset of lowercase hostnames.
+
+    Format: comma-separated. Whitespace and trailing dots are trimmed.
+    Empty entries are skipped. Returns an empty set when the env var is
+    unset or empty.
+    """
+    raw = os.environ.get(_ALLOWED_INTERNAL_HOSTS_ENV_VAR, "")
+    if not raw:
+        return frozenset()
+    items = (
+        item.strip().rstrip(".").lower()
+        for item in raw.split(",")
+    )
+    return frozenset(item for item in items if item)
 
 
 def _is_private_ip(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
@@ -146,11 +175,17 @@ def validate_external_url(url: str) -> None:
             internal infrastructure (loopback, RFC1918, link-local/IMDS, Docker
             service names, etc.).
 
-    Bypass:
-        If env var MCP_ALLOW_INTERNAL_HOSTS=1 is set, validation is skipped
-        and a warning is logged.
+    Bypasses (both opt-in):
+        - `MCP_ALLOW_INTERNAL_HOSTS=1` — global bypass, dev only, warning-logged
+          per call.
+        - `MCP_ALLOWED_INTERNAL_HOSTS=hostA,hostB` — targeted allow-list. If the
+          URL's hostname matches an entry (after lowercasing and stripping a
+          trailing dot), only the scheme is validated and the URL is accepted
+          regardless of the blocklist or the resolved IP. Use this when you
+          deliberately expose an internal MCP server (e.g. a chrome-devtools
+          / playwright bridge reachable via `host.docker.internal`).
     """
-    # Operational escape hatch (dev / E2E)
+    # Operational escape hatch (dev / E2E) — global bypass.
     if os.environ.get(_ALLOW_INTERNAL_ENV_VAR) == "1":
         logger.warning(
             f"⚠️  SSRF check bypassed via {_ALLOW_INTERNAL_ENV_VAR}=1 for URL "
@@ -178,6 +213,16 @@ def validate_external_url(url: str) -> None:
 
     # Strip trailing dot (FQDN form) for hostname comparisons
     hostname_norm = hostname.rstrip(".")
+
+    # Targeted allow-list: the admin has explicitly opted in for this hostname.
+    # Bypass blocklist + IP-range check; the scheme has already been validated.
+    allowed_internal = _load_allowed_internal_hosts()
+    if hostname_norm in allowed_internal:
+        logger.info(
+            f"SSRF guard: hostname '{hostname_norm}' is in "
+            f"{_ALLOWED_INTERNAL_HOSTS_ENV_VAR}, accepting"
+        )
+        return
 
     if hostname_norm in _BLOCKED_HOSTNAMES:
         raise ValueError(
