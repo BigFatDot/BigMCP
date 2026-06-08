@@ -89,7 +89,7 @@ export function Hero() {
             <h1 className="landing-display reveal in d1" style={{ marginTop: 28 }}>
               All your MCP servers.
               <br />
-              <span className="text-orange">One</span> endpoint.
+              <span style={{ color: 'var(--accent)' }}>One</span> endpoint.
             </h1>
 
             <p className="landing-lead reveal in d2" style={{ maxWidth: 528, marginTop: 22 }}>
