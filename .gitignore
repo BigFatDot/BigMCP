@@ -232,3 +232,8 @@ twa/build/
 twa/.env
 twa/keystore/
 .ui-tour/
+
+# Claude Design bundles (received from claude.ai/design — local only)
+/BigMCP Landing*.html
+/BigMCP Landing*.htm
+
