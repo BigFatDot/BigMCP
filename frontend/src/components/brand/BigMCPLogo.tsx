@@ -11,9 +11,12 @@ interface BigMCPLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   className?: string
   animate?: boolean
+  /** True when the logo sits on a dark surface — flips orbit dots to white.
+   *  Default false: dots are dark (gray-900) so they read on light/paper bgs. */
+  onDark?: boolean
 }
 
-export function BigMCPLogo({ size = 'md', className, animate = false }: BigMCPLogoProps) {
+export function BigMCPLogo({ size = 'md', className, animate = false, onDark = false }: BigMCPLogoProps) {
   const sizes = {
     xs: { container: 'w-6 h-6', ball: 'w-0.5 h-0.5' },
     sm: { container: 'w-8 h-8', ball: 'w-1 h-1' },
@@ -21,6 +24,7 @@ export function BigMCPLogo({ size = 'md', className, animate = false }: BigMCPLo
     lg: { container: 'w-20 h-20', ball: 'w-2.5 h-2.5' },
     xl: { container: 'w-32 h-32', ball: 'w-4 h-4' },
   }
+  const dotColor = onDark ? 'bg-white' : 'bg-gray-900'
 
   // 12 positions around the circle (clock positions)
   const positions = [
@@ -54,7 +58,8 @@ export function BigMCPLogo({ size = 'md', className, animate = false }: BigMCPLo
           <div
             key={i}
             className={cn(
-              'absolute bg-white rounded-full -translate-x-1/2 -translate-y-1/2',
+              'absolute rounded-full -translate-x-1/2 -translate-y-1/2',
+              dotColor,
               sizes[size].ball
             )}
             style={{ top: pos.top, left: pos.left }}
@@ -93,7 +98,7 @@ export function BigMCPLogoWithText({
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      <BigMCPLogo size={size} animate={animate} />
+      <BigMCPLogo size={size} animate={animate} onDark={variant === 'dark'} />
       <span className={cn('font-bold tracking-tight', textSizes[textSize])}>
         <span className={bigTextColor}>Big</span><span className="text-orange">MCP</span>
       </span>

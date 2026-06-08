@@ -1,1 +1,5 @@
 export { PhoneMockup } from './PhoneMockup'
+export { Eyebrow } from './Eyebrow'
+export { Tile } from './Tile'
+export type { Integration } from './integrations'
+export { INTEGRATIONS } from './integrations'
