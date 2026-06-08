@@ -781,46 +781,63 @@ class HttpMCPWrapper(MCPServerWrapper):
             # Log response headers for debugging session management
             logger.debug(f"🔍 Response headers for {self.server_id}: {dict(response.headers)}")
 
-            # Handle SSE response
+            # Handle SSE response. Streamed line-by-line so that server-initiated
+            # requests (e.g. roots/list, ping) arriving before our own response
+            # can be answered immediately — some MCP servers (chrome-devtools-mcp)
+            # block their tools/call result on the client's roots/list reply.
             if "text/event-stream" in content_type:
-                text_content = await response.text()
-                logger.debug(f"🔍 SSE Response for {self.server_id}/{method}: {text_content[:500]}")
-
-                for line in text_content.split('\n'):
-                    line_str = line.strip()
-                    if line_str.startswith('data: '):
+                buffer = ""
+                async for chunk in response.content.iter_chunked(4096):
+                    buffer += chunk.decode("utf-8", errors="replace")
+                    while "\n" in buffer:
+                        line, buffer = buffer.split("\n", 1)
+                        line_str = line.strip()
+                        if not line_str.startswith("data: "):
+                            continue
                         data_json = line_str[6:]
                         try:
                             data = json.loads(data_json)
-                            if "result" in data:
-                                result = data["result"]
-
-                                # Try to extract session ID from multiple possible locations
-                                session_id = None
-
-                                # Check in result.sessionId
-                                if "sessionId" in result:
-                                    session_id = result["sessionId"]
-                                # Check in result._meta.sessionId
-                                elif "_meta" in result and "sessionId" in result["_meta"]:
-                                    session_id = result["_meta"]["sessionId"]
-                                # Check in top-level data
-                                elif "sessionId" in data:
-                                    session_id = data["sessionId"]
-
-                                if session_id:
-                                    self._session_id = session_id
-                                    logger.info(f"📝 Session ID captured for {self.server_id}: {self._session_id}")
-                                elif method == "initialize":
-                                    # For initialize, log the full response to understand the structure
-                                    logger.warning(f"⚠️  No session ID in {method} response for {self.server_id}")
-                                    logger.info(f"🔍 Full response: {json.dumps(result, indent=2)}")
-
-                                return result
-                            elif "error" in data:
-                                raise RuntimeError(f"MCP Error: {data['error']}")
                         except json.JSONDecodeError:
                             continue
+
+                        # Server-initiated request (has method + id, no result/error).
+                        # Answer fire-and-forget on the same session so the server
+                        # can keep going. Notifications (no id) are ignored.
+                        if (
+                            "method" in data
+                            and "id" in data
+                            and "result" not in data
+                            and "error" not in data
+                        ):
+                            logger.info(
+                                f"🔁 SSE: server-initiated {data.get('method')} (id={data.get('id')}) for {self.server_id}"
+                            )
+                            asyncio.create_task(
+                                self._handle_server_request(session, headers, data)
+                            )
+                            continue
+
+                        if "result" in data:
+                            result = data["result"]
+
+                            session_id = None
+                            if "sessionId" in result:
+                                session_id = result["sessionId"]
+                            elif "_meta" in result and "sessionId" in result["_meta"]:
+                                session_id = result["_meta"]["sessionId"]
+                            elif "sessionId" in data:
+                                session_id = data["sessionId"]
+
+                            if session_id:
+                                self._session_id = session_id
+                                logger.info(f"📝 Session ID captured for {self.server_id}: {self._session_id}")
+                            elif method == "initialize":
+                                logger.warning(f"⚠️  No session ID in {method} response for {self.server_id}")
+                                logger.info(f"🔍 Full response: {json.dumps(result, indent=2)}")
+
+                            return result
+                        elif "error" in data:
+                            raise RuntimeError(f"MCP Error: {data['error']}")
 
                 raise RuntimeError("No valid response in SSE stream")
 
@@ -859,6 +876,49 @@ class HttpMCPWrapper(MCPServerWrapper):
                 else:
                     raise RuntimeError(f"Invalid JSON-RPC response: {data}")
 
+    async def _handle_server_request(
+        self,
+        session: aiohttp.ClientSession,
+        headers: Dict[str, str],
+        request_msg: Dict[str, Any],
+    ) -> None:
+        """
+        Answer a server-initiated JSON-RPC request received over the SSE stream.
+
+        Posts the reply back on the same streamable-http endpoint, carrying the
+        Mcp-Session-Id captured during initialize. Currently supports:
+          - roots/list  → {roots: []} (we don't expose filesystem roots to
+            downstream MCP servers; declaring the capability lets them know we
+            answer, returning an empty list keeps them unblocked.)
+          - ping        → {}
+          - everything else → -32601 Method not found.
+        """
+        method = request_msg.get("method", "")
+        req_id = request_msg.get("id")
+
+        if method == "roots/list":
+            payload: Dict[str, Any] = {"jsonrpc": "2.0", "id": req_id, "result": {"roots": []}}
+        elif method == "ping":
+            payload = {"jsonrpc": "2.0", "id": req_id, "result": {}}
+        else:
+            payload = {
+                "jsonrpc": "2.0",
+                "id": req_id,
+                "error": {"code": -32601, "message": f"Method not found: {method}"},
+            }
+
+        url = self.url.rstrip("/")
+        try:
+            async with session.post(url, headers=headers, json=payload) as r:
+                await r.read()
+            logger.info(
+                f"📤 Replied to server-initiated {method} (id={req_id}) → status {r.status} for {self.server_id}"
+            )
+        except Exception as e:
+            logger.warning(
+                f"Failed to reply to server-initiated {method} for {self.server_id}: {e}"
+            )
+
     async def initialize(self) -> Dict[str, Any]:
         """Initialize HTTP MCP server."""
         if self._initialized:
@@ -874,11 +934,16 @@ class HttpMCPWrapper(MCPServerWrapper):
         # client-side UUID would inject an unsolicited header that strict
         # servers reject (and is non-conformant either way).
 
+        # Capabilities: declare `roots` so server-initiated `roots/list`
+        # requests (chrome-devtools-mcp, filesystem servers, ...) get an
+        # empty-list reply from `_handle_server_request` instead of timing
+        # out 60 s and blocking the downstream tools/call. We expose no
+        # actual roots — the answer is always `{roots: []}`.
         result = await self._send_jsonrpc_request(
             "initialize",
             {
                 "protocolVersion": "2024-11-05",
-                "capabilities": {},
+                "capabilities": {"roots": {"listChanged": False}},
                 "clientInfo": {
                     "name": "MCPHub",
                     "version": "1.0.0"
