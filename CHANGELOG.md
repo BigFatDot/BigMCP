@@ -5,6 +5,101 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-06-13
+
+Sovereign-deployment release. BigMCP now runs end-to-end without leaving the
+operator's infrastructure: bring-your-own LLM provider, AIRGAP_MODE, RGPD/ISO27001-
+ready audit on auth+OAuth, full PKCE enforcement, anti-replay billing webhooks,
+SSRF-hardened remote MCP servers, and a redesigned landing aligned with the
+community/sovereign positioning.
+
+### Security & compliance
+
+- **PKCE S256 + `state` required on `/authorize`**. `code_challenge_method=plain`
+  rejected. Closes CSRF (RFC 6749 §10.12) and PKCE-bypass on the consent flow.
+- **LemonSqueezy webhook idempotence** via a dedicated
+  `lemonsqueezy_webhook_events` table (sha256 fingerprint, race-safe insert-first
+  with `IntegrityError` arbitration). Blocks billing-fraud by replay.
+- **SSRF guard in `HttpMCPWrapper`** — refuses RFC1918, loopback, link-local
+  (incl. cloud IMDS 169.254.169.254), ULA, multicast, IPv4-mapped IPv6, and an
+  explicit Docker-internal hostname blocklist. Round-robin DNS attack covered.
+  Bypass via `MCP_ALLOW_INTERNAL_HOSTS=1` for dev/E2E. A follow-up replaced the
+  blanket bypass with a targeted internal allow-list for legitimate
+  intra-deployment MCP servers.
+- **`require_scope` extended to the MCP gateway and composition execute routes**.
+  Closes the "API key scope never enforced on `tools/call`" gap. Default mode
+  remains `log_only`; enforcement controlled by `SCOPE_ENFORCE_MODE` env.
+- **Audit log coverage completed for OAuth + auth** (RGPD/ISO27001):
+  `OAUTH_TOKEN_GRANT_FAILED` now emitted on every error branch of `/token`;
+  added audit on `refresh`, `change-password`, `verify-email`,
+  `switch-organization`, `DELETE /account` (logged before delete to preserve
+  authorship), MFA login success, and OAuth client `APPROVE`/`REJECT`/`REVOKE`.
+- **`POST /tool-bindings/{id}/execute` now reaches the real MCP pool** via
+  `user_server_pool.get_or_start_server()` + `wrapper.call_tool()`. The
+  previously documented placeholder response is gone — integrations (curl /
+  Python / Node examples in the docs) now do what they advertise.
+
+### Sovereign deployments
+
+- **LLM provider abstraction + `AIRGAP_MODE`**. BYOL support across Mistral,
+  OpenAI-compatible endpoints, local llama.cpp/ollama. `AIRGAP_MODE=1` disables
+  all outbound LLM calls, embeddings degrade gracefully to lexical scoring,
+  and the operator gets a clear health-page signal. Aligned with the no-
+  commercial-offer positioning: the project ships everything an org needs to
+  run BigMCP without depending on Anthropic/OpenAI/anyone.
+- **`compose.example.yml`** propagates `AIRGAP_MODE` and the
+  `MCP_ALLOWED_INTERNAL_HOSTS` SSRF allow-list so self-hosters get the right
+  defaults out of the box.
+- **BYOL + air-gap docs** added under the LLM guides.
+
+### MCP protocol
+
+- **`HttpMCPWrapper` answers server-initiated JSON-RPC** (`roots/list`, `ping`)
+  over the SSE stream. Required for downstream servers that interrogate the
+  client mid-call (chrome-devtools-mcp 1.x). The SSE body is now consumed
+  incrementally via `iter_chunked`; replies are posted back on the same
+  streamable-HTTP endpoint with the captured `Mcp-Session-Id`. Stateful bridge
+  mode (e.g. `supergateway --stateful`) is required for server-initiated
+  traffic; stateless mode discards it.
+
+### Landing v2 + positioning
+
+- **Design tokens, brand atoms, OrbitalGateway hero, StatStrip, Problem,
+  HowItWorks 2-view stepper, Marketplace, UseCases, Features → Footer**
+  rebuilt for the v2 landing. Live accent follows the logo + "One" headline
+  consistently.
+- **Copy aligned with community/sovereign positioning** — less DevOps lingo,
+  business-first hero CTA, air-gap section softened, emojis removed,
+  no commercial pitch. EN locale restructured to mirror the new sections.
+
+### UI
+
+- **`ConfirmDialog` provider + `useConfirm()` hook** added to the design
+  system. Adopted in 5 destructive flows (delete tool from toolbox, remove
+  server, revoke composition execution, revoke connected app) — replaces
+  `window.confirm()` with a themable async modal.
+- **22 non-EN locales brought to 100% parity with EN** (Slovak files
+  repaired after invalid JSON corruption).
+
+### Polish
+
+- Services workspace surfaces loading + error states; 0-tool servers visible.
+- Marketplace shows already-connected servers, refreshes Services
+  immediately after a connect; the real connect error replaces the generic
+  message on failure.
+- Compositions UI renders `transform`/`foreach` step types.
+- Workspace server-chip icon buttons get aria-labels.
+- Orphaned legacy `ToolsDashboard` and dead `APIKeyForm` + stale
+  `src/i18n/locales` removed.
+
+### Internal
+
+- Internal outreach materials (mail templates, prospect worksheet, sales
+  deck) dropped from the public repo; remaining org-specific examples in
+  the intent analyzer and roadmap replaced with neutral placeholders.
+- `compose.example.yml` aligned with the new SSRF allow-list and AIRGAP
+  envs.
+
 ## [2.5.0] - 2026-05-25
 
 Reliable multi-step composition chaining, especially for tools that return

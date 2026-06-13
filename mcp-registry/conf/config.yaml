@@ -1,7 +1,7 @@
 # MCP Registry Configuration
 app:
   name: "MCP Registry Service"
-  version: "1.0.0"
+  version: "2.6.0"
   description: "MCP server management service"
   host: "0.0.0.0"
   port: 8001
