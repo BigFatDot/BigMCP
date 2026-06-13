@@ -50,13 +50,40 @@ function validateStep(step: StepDraft): string[] {
       }
       break
     }
-    case 'elicit':
-    case 'wait_callback':
-    case 'subcomposition':
-    case 'approval':
-      // Fan-out 2.1 will populate these. Empty draft is acceptable for
-      // the pilot — backend will 422 on save and we surface the detail.
+    case 'elicit': {
+      const { message, schema } = step.elicit
+      if (!message || message.trim() === '') {
+        errors.push('elicit.messageRequired')
+      }
+      if (!schema || typeof schema !== 'object' || Array.isArray(schema)) {
+        errors.push('elicit.schemaInvalid')
+      }
       break
+    }
+    case 'wait_callback':
+      // Both fields are optional — backend accepts a bare {} (defaults
+      // ttl to 86400 and expected_schema to free-form). Nothing to
+      // gate client-side.
+      break
+    case 'subcomposition': {
+      const { composition_id } = step.subcomposition
+      if (!composition_id || composition_id.trim() === '') {
+        errors.push('subcomposition.compositionIdRequired')
+      }
+      break
+    }
+    case 'approval': {
+      const { message, approver_user_ids, allowed_roles } = step.approval
+      if (!message || message.trim() === '') {
+        errors.push('approval.messageRequired')
+      }
+      const hasUsers = (approver_user_ids?.length ?? 0) > 0
+      const hasRoles = (allowed_roles?.length ?? 0) > 0
+      if (!hasUsers && !hasRoles) {
+        errors.push('approval.noApprover')
+      }
+      break
+    }
     case 'tool':
     case 'transform':
     case 'foreach':

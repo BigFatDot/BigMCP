@@ -49,6 +49,16 @@
         "description": "Met en pause jusqu'à ce qu'un approbateur (utilisateur ou rôle) approuve ou rejette cette étape."
       }
     },
+    "elicit": {
+      "messageLabel": "Message à afficher",
+      "messagePlaceholder": "Quelle question poser à l'utilisateur ? Tu peux référencer ${input.X} ou ${step_id.path}.",
+      "messageHint": "Question affichée à l'utilisateur lorsque le workflow se met en pause.",
+      "schemaLabel": "JSON Schema de la réponse",
+      "schemaHint": "JSON Schema (objet) décrivant les champs que l'utilisateur doit remplir. À l'exécution, BigMCP génère un formulaire depuis ce schéma.",
+      "schemaJsonError": "JSON Schema invalide — doit être un objet JSON valide (ex. {\"type\":\"object\",\"properties\":{}}).",
+      "ttlLabel": "TTL (secondes, optionnel)",
+      "ttlHint": "Durée max avant expiration. Entre 1 et 86400 (24h). 300s par défaut si vide."
+    },
     "waitUntil": {
       "modeLegend": "Choisir le mode d'attente",
       "relativeLabel": "Durée relative (wait_seconds)",
@@ -59,6 +69,45 @@
       "waitSecondsHelper": "Doit être un entier positif.",
       "resumeAtLabel": "Reprise le",
       "resumeAtHelper": "Heure locale ; le backend interprète la même heure d'horloge et la convertit en UTC."
+    },
+    "waitCallback": {
+      "runtimeNote": "Une URL de callback HMAC-protected est générée par le runtime lorsque cette étape se met en pause. Tu la retrouveras dans la timeline d'exécution — transmets-la au système externe pour qu'il POST dessus et reprenne le workflow.",
+      "expectedSchemaSummary": "Schéma du payload attendu (optionnel)",
+      "expectedSchemaHint": "JSON Schema (objet) optionnel pour valider le payload du callback. Laisse vide pour accepter n'importe quel payload.",
+      "expectedSchemaJsonError": "Doit être un objet JSON valide (JSON Schema). Les tableaux et les scalaires ne sont pas autorisés.",
+      "ttlLabel": "TTL (secondes)",
+      "ttlHint": "Durée max avant expiration du callback. 86400 par défaut (24h, plafond strict)."
+    },
+    "subcomposition": {
+      "compositionLabel": "Composition cible",
+      "compositionHint": "Seules les compositions en production de ton organisation sont listées. L'enfant tourne avec le même utilisateur et la même org que la composition appelante.",
+      "compositionPlaceholder": "Choisis une composition en production…",
+      "loading": "Chargement des compositions en production…",
+      "fetchError": "Impossible de charger les compositions en production.",
+      "emptyTitle": "Aucune composition en production",
+      "emptyMessage": "Promeus une composition en production avant de la référencer ici. Un brouillon ou une composition validée ne peut pas être appelé comme sous-composition.",
+      "emptyAction": "Lire le guide compositions",
+      "inputsSummary": "Map d'entrées (avancé)",
+      "inputsHint": "Objet JSON optionnel passé comme entrées à la composition enfant. Les chaînes feuilles supportent les substitutions ${input.X} et ${step_id.path}, résolues au moment de la suspension.",
+      "inputsJsonError": "JSON invalide — inputs doit être un objet JSON valide (ex. {\"customer_id\":\"${input.customer_id}\"})."
+    },
+    "approval": {
+      "messageLabel": "Message d'approbation",
+      "messagePlaceholder": "Que demander à l'approbateur ? Tu peux référencer ${input.X} ou ${step_id.path}.",
+      "messageHint": "Texte affiché au validateur dans /app/compositions/approvals.",
+      "approverUserIdsLabel": "Approbateurs spécifiques (UUIDs)",
+      "approverUserIdsHint": "Un UUID utilisateur par ligne. Laisse vide pour autoriser par rôle.",
+      "approverUserIdsInvalid": "UUID invalide ligne(s) : {{lines}}. Chaque ligne doit être un UUID valide.",
+      "allowedRolesLabel": "Rôles autorisés",
+      "allowedRolesHint": "Clique sur un rôle pour l'activer. Toute personne portant ce rôle dans cette org pourra approuver.",
+      "responseSchemaSummary": "Schéma de réponse (optionnel, avancé)",
+      "responseSchemaHint": "JSON Schema (objet) décrivant des champs supplémentaires à remplir avec la décision (ex. justification, numéro de ticket). Laisse vide si la décision seule suffit.",
+      "responseSchemaJsonError": "JSON Schema invalide — doit être un objet JSON valide (ex. {\"type\":\"object\",\"properties\":{}}).",
+      "ttlLabel": "TTL (secondes, optionnel)",
+      "ttlHint": "Durée max avant expiration. Entre 1 et 86400 (24h). 86400s par défaut si vide.",
+      "allowSelfApprovalLabel": "Autoriser l'auto-approbation",
+      "allowSelfApprovalHint": "Dangereux. Permet à l'utilisateur qui a lancé la composition d'approuver lui-même cette étape (la règle des quatre yeux est désactivée).",
+      "noApproverSelected": "Choisis au moins un approbateur utilisateur OU un rôle approbateur — sinon personne ne pourra reprendre cette étape."
     },
     "legacy": {
       "tooltip": "Type d'étape hérité — lecture seule ici.",
@@ -78,7 +127,12 @@
       "wait_until.mustPickMode": "Choisis soit une durée relative, soit un horodatage absolu.",
       "wait_until.mutuallyExclusive": "Seul l'un de wait_seconds ou resume_at peut être défini.",
       "wait_until.waitSecondsPositive": "wait_seconds doit être un entier positif.",
-      "wait_until.resumeAtFormat": "resume_at doit être un horodatage ISO-8601 valide."
+      "wait_until.resumeAtFormat": "resume_at doit être un horodatage ISO-8601 valide.",
+      "elicit.messageRequired": "Le message de la question est requis.",
+      "elicit.schemaInvalid": "Le JSON Schema de la réponse doit être un objet valide.",
+      "subcomposition.compositionIdRequired": "Choisis une composition de production à appeler.",
+      "approval.messageRequired": "Le message d'approbation est requis.",
+      "approval.noApprover": "Ajoute au moins un utilisateur approbateur ou un rôle."
     },
     "toast": {
       "created": "Brouillon enregistré.",
