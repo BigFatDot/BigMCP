@@ -351,7 +351,8 @@
     "trigger": "Trigger",
     "actions": "Actions",
     "search": "Search compositions...",
-    "steps": "{{count}} steps",
+    "steps_one": "{{count}} step",
+    "steps_other": "{{count}} steps",
     "executedTimes": "Executed {{count}} times",
     "created": "Created {{date}}",
     "canExecute": "Can execute",
@@ -362,7 +363,8 @@
     "makePrivate": "Make private",
     "cancel": "Cancel",
     "noSteps": "No steps",
-    "parameters": "{{count}} parameters",
+    "parameters_one": "{{count}} parameter",
+    "parameters_other": "{{count}} parameters",
     "runtimeParamsNote": "Runtime parameter input coming soon. For now, compositions use default parameters.",
     "promoteConfirm": "Promote \"{{name}}\" to {{status}}?",
     "deleteConfirm": "Delete \"{{name}}\"? This action cannot be undone.",
@@ -389,11 +391,14 @@
       "allStatus": "All Status",
       "allCompositions": "All Compositions",
       "myCompositions": "My Compositions",
-      "teamShared": "Team Shared"
+      "teamShared": "Team Shared",
+      "kindLabel": "Composition kind",
+      "statusLabel": "Status filter",
+      "visibilityLabel": "Visibility filter"
     },
     "empty": {
       "title": "No Compositions",
-      "description": "Compositions are created when you orchestrate multiple tools together. Use the AI assistant to create your first workflow.",
+      "description": "Compositions are created when you orchestrate multiple tools together. Use the AI assistant, or click *Add a step* to build one visually.",
       "noMatch": "No compositions match your filters. Try adjusting your search."
     },
     "executeModal": {
@@ -401,7 +406,8 @@
       "resultsTitle": "Execution Results",
       "inputsTitle": "Input Parameters",
       "stepsPreview": "Steps to Execute",
-      "executingSteps": "Executing {{count}} steps..."
+      "executingSteps_one": "Executing {{count}} step...",
+      "executingSteps_other": "Executing {{count}} steps..."
     },
     "inputForm": {
       "selectOption": "Select...",

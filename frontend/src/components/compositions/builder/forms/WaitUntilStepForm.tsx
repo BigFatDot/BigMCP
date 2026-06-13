@@ -125,6 +125,7 @@ export function WaitUntilStepForm({
         <Input
           type="number"
           min={1}
+          max={86400}
           step={1}
           inputMode="numeric"
           label={t('builder.waitUntil.waitSecondsLabel')}

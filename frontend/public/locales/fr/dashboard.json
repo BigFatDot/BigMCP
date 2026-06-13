@@ -351,7 +351,8 @@
     "trigger": "Déclencheur",
     "actions": "Actions",
     "search": "Rechercher des compositions...",
-    "steps": "{{count}} étapes",
+    "steps_one": "{{count}} étape",
+    "steps_other": "{{count}} étapes",
     "executedTimes": "Exécuté {{count}} fois",
     "created": "Créé le {{date}}",
     "canExecute": "Peut exécuter",
@@ -362,7 +363,8 @@
     "makePrivate": "Rendre privé",
     "cancel": "Annuler",
     "noSteps": "Aucune étape",
-    "parameters": "{{count}} paramètres",
+    "parameters_one": "{{count}} paramètre",
+    "parameters_other": "{{count}} paramètres",
     "runtimeParamsNote": "La saisie des paramètres d'exécution arrive bientôt. Pour l'instant, les compositions utilisent les paramètres par défaut.",
     "promoteConfirm": "Promouvoir \"{{name}}\" vers {{status}} ?",
     "deleteConfirm": "Supprimer \"{{name}}\" ? Cette action est irréversible.",
@@ -389,11 +391,14 @@
       "allStatus": "Tous les statuts",
       "allCompositions": "Toutes les compositions",
       "myCompositions": "Mes compositions",
-      "teamShared": "Partagées avec l'équipe"
+      "teamShared": "Partagées avec l'équipe",
+      "kindLabel": "Type de composition",
+      "statusLabel": "Filtre de statut",
+      "visibilityLabel": "Filtre de visibilité"
     },
     "empty": {
       "title": "Aucune composition",
-      "description": "Les compositions sont créées lorsque vous orchestrez plusieurs outils ensemble. Utilisez l'assistant IA pour créer votre premier workflow.",
+      "description": "Les compositions sont créées lorsque vous orchestrez plusieurs outils ensemble. Utilisez l'assistant IA, ou cliquez sur *Ajouter une étape* pour en construire une visuellement.",
       "noMatch": "Aucune composition ne correspond à vos filtres. Essayez d'ajuster votre recherche."
     },
     "executeModal": {
@@ -401,7 +406,8 @@
       "resultsTitle": "Résultats de l'exécution",
       "inputsTitle": "Paramètres d'entrée",
       "stepsPreview": "Étapes à exécuter",
-      "executingSteps": "Exécution de {{count}} étapes..."
+      "executingSteps_one": "Exécution de {{count}} étape...",
+      "executingSteps_other": "Exécution de {{count}} étapes..."
     },
     "inputForm": {
       "selectOption": "Sélectionner...",

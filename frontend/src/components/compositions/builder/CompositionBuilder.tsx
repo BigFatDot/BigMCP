@@ -394,7 +394,10 @@ export function CompositionBuilder({
       <StepTypePicker
         isOpen={pickerOpen}
         onClose={() => setPickerOpen(false)}
-        onPick={(stepType) => dispatch({ type: 'ADD_STEP', stepType })}
+        onPick={(stepType) => {
+          dispatch({ type: 'ADD_STEP', stepType })
+          setPickerOpen(false)
+        }}
         enabledTypes={enabledTypes}
       />
     </div>

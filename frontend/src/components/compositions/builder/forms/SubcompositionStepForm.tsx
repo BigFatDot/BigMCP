@@ -24,11 +24,12 @@
  *   - `onChange` is silent — no toast/nav. Errors surface inline.
  *   - External hydration via fingerprint compare (no feedback loops).
  *
- * The list of production compositions is fetched once at mount with
- * `useQuery` (cached at the react-query layer, same pattern as
- * `ToolsWorkspace`/`DefaultPoolPage`). If the user creates a new
- * production composition AFTER this form mounted, they need to close +
- * reopen the picker — auto-refresh is out of scope here.
+ * The list of production compositions is fetched with `useQuery`
+ * (cached at the react-query layer, same pattern as
+ * `ToolsWorkspace`/`DefaultPoolPage`). Auto-refresh is wired via
+ * `refetchOnWindowFocus + staleTime` so promoting a composition in
+ * another tab is picked up when this one regains focus — without
+ * the cost of a background polling interval.
  */
 
 import { useEffect, useState } from 'react'
@@ -78,6 +79,8 @@ export function SubcompositionStepForm({
   const prodQuery = useQuery({
     queryKey: ['builder', 'subcomposition', 'productions'],
     queryFn: () => compositionsApi.list({ status: 'production' }),
+    refetchOnWindowFocus: true,
+    staleTime: 30_000,
   })
 
   // Local raw-string state for the inputs JSON textarea — same pattern

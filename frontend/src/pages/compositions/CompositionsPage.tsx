@@ -1192,7 +1192,11 @@ export function CompositionsPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <FunnelIcon className="w-5 h-5 text-gray-400 hidden sm:block" />
+          <label htmlFor="filter-kind" className="sr-only">
+            {t('compositions.filters.kindLabel')}
+          </label>
           <select
+            id="filter-kind"
             value={kindFilter}
             onChange={(e) => setKindFilter(e.target.value as 'all' | 'custom_tool' | 'workflow')}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange text-sm"
@@ -1202,7 +1206,11 @@ export function CompositionsPage() {
             <option value="custom_tool">Custom tools</option>
             <option value="workflow">Workflows</option>
           </select>
+          <label htmlFor="filter-status" className="sr-only">
+            {t('compositions.filters.statusLabel')}
+          </label>
           <select
+            id="filter-status"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as CompositionStatus | 'all')}
             className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange text-sm"
@@ -1213,15 +1221,21 @@ export function CompositionsPage() {
             <option value="production">{t('compositions.status.production')}</option>
           </select>
           {isTeamOrg && (
-            <select
-              value={visibilityFilter}
-              onChange={(e) => setVisibilityFilter(e.target.value as 'all' | 'mine' | 'team')}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange text-sm"
-            >
-              <option value="all">{t('compositions.filters.allCompositions')}</option>
-              <option value="mine">{t('compositions.filters.myCompositions')}</option>
-              <option value="team">{t('compositions.filters.teamShared')}</option>
-            </select>
+            <>
+              <label htmlFor="filter-visibility" className="sr-only">
+                {t('compositions.filters.visibilityLabel')}
+              </label>
+              <select
+                id="filter-visibility"
+                value={visibilityFilter}
+                onChange={(e) => setVisibilityFilter(e.target.value as 'all' | 'mine' | 'team')}
+                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange focus:border-orange text-sm"
+              >
+                <option value="all">{t('compositions.filters.allCompositions')}</option>
+                <option value="mine">{t('compositions.filters.myCompositions')}</option>
+                <option value="team">{t('compositions.filters.teamShared')}</option>
+              </select>
+            </>
           )}
         </div>
       </div>
