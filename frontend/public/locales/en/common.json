@@ -10,9 +10,10 @@
   },
   "menu": {
     "account": "Account Settings",
-    "subscription": "Edition",
+    "services": "Services",
     "apiKeys": "API Keys",
-    "team": "Team",
+    "organization": "Organization",
+    "team": "Organization",
     "preferences": "Preferences",
     "signout": "Sign Out"
   },
@@ -44,12 +45,6 @@
     "unauthorized": "Unauthorized",
     "forbidden": "Access denied",
     "networkError": "Network error. Please check your connection."
-  },
-  "trial": {
-    "badge": "Demo",
-    "daysLeft": "{{count}} day left",
-    "daysLeft_plural": "{{count}} days left",
-    "expired": "Demo ended — Deploy self-hosted"
   },
   "empty": {
     "noData": "No data available",

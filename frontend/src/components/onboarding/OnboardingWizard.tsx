@@ -4,6 +4,7 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { CheckIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { Button, Card } from '@/components/ui'
 import { cn } from '@/utils/cn'
@@ -60,6 +61,7 @@ const CATEGORY_EMOJI: Record<string, string> = {
 
 export function OnboardingWizard() {
   const navigate = useNavigate()
+  const { t } = useTranslation('common')
   const { organizationId } = useOrganization()
   const [step, setStep] = useState<OnboardingStep>('welcome')
   const [selectedServers, setSelectedServers] = useState<string[]>([])
@@ -456,7 +458,7 @@ export function OnboardingWizard() {
                   <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                     <p className="text-sm text-amber-800">
                       <strong>Note:</strong> Some servers require credentials to be configured.
-                      You can set them up from the <strong>My Services</strong> page after completing onboarding.
+                      You can set them up from the <strong>{t('menu.services')}</strong> page after completing onboarding.
                     </p>
                   </div>
                 )}
@@ -504,7 +506,7 @@ export function OnboardingWizard() {
                 </h2>
                 <p className="text-xl text-gray-600 font-serif max-w-2xl mx-auto">
                   {serversNeedCredentials
-                    ? 'Some services need credentials to work. Head to My Services to configure them, then start creating AI-powered workflows.'
+                    ? `Some services need credentials to work. Head to ${t('menu.services')} to configure them, then start creating AI-powered workflows.`
                     : someServersConnected
                     ? 'Your services are connected! Start exploring the marketplace to discover more services and create your first AI-powered workflow.'
                     : 'Welcome to BigMCP. Start exploring the marketplace to discover services and create your first AI-powered workflow.'}
@@ -512,7 +514,7 @@ export function OnboardingWizard() {
               </div>
 
               <Button variant="primary" size="lg" onClick={handleContinue}>
-                {serversNeedCredentials ? 'Go to My Services' : 'Go to Marketplace'}
+                {serversNeedCredentials ? `Go to ${t('menu.services')}` : 'Go to Marketplace'}
               </Button>
             </div>
           )}

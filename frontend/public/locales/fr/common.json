@@ -10,9 +10,10 @@
   },
   "menu": {
     "account": "Paramètres du compte",
-    "subscription": "Édition",
+    "services": "Services",
     "apiKeys": "Clés API",
-    "team": "Équipe",
+    "organization": "Organisation",
+    "team": "Organisation",
     "preferences": "Préférences",
     "signout": "Déconnexion"
   },
@@ -44,12 +45,6 @@
     "unauthorized": "Non autorisé",
     "forbidden": "Accès refusé",
     "networkError": "Erreur réseau. Veuillez vérifier votre connexion."
-  },
-  "trial": {
-    "badge": "Essai",
-    "daysLeft": "{{count}} jour restant",
-    "daysLeft_plural": "{{count}} jours restants",
-    "expired": "Démo terminée — Déployez en auto-hébergé"
   },
   "empty": {
     "noData": "Aucune donnée disponible",
