@@ -33,7 +33,7 @@ function setMetaTag(property: string, content: string) {
 
 const DEFAULT_TITLE = 'BigMCP — One endpoint for all your MCP servers'
 const DEFAULT_DESCRIPTION =
-  'Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, keep every byte on your infrastructure. AGPLv3, no vendor lock-in.'
+  'Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline with a local LLM, keep every byte on your infrastructure. AGPLv3, no vendor lock-in.'
 
 /**
  * Returns the final title string. If the title already contains "BigMCP",

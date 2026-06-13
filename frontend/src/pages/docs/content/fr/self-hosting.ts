@@ -453,6 +453,53 @@ curl http://localhost:8001/edition/status | jq .airgap
 # → true
 \`\`\`
 
+### Garde-fou de boot : la promesse air-gap est vérifiée
+
+\`AIRGAP_MODE=true\` n'est pas qu'un drapeau cosmétique. Au démarrage
+le backend inspecte \`LLM_API_URL\` et **refuse de booter** s'il
+pointe sur un hôte public — sinon chaque prompt fuirait
+silencieusement vers \`api.mistral.ai\` / \`api.openai.com\` et la
+promesse air-gap serait un mensonge.
+
+Ce qui est accepté comme « local » (boot OK) :
+
+- Adresses IP littérales loopback / RFC1918 / ULA / link-local
+  (\`127.0.0.1\`, \`10.x.x.x\`, \`192.168.x.x\`, \`172.16-31.x.x\`, …).
+- Noms de service docker-compose des runtimes LLM supportés :
+  \`ollama\`, \`vllm\`, \`llama-cpp\`, \`text-generation-inference\`,
+  \`localai\`, plus \`localhost\` et \`host.docker.internal\`.
+- Hostnames custom dont la résolution DNS atterrit **entièrement**
+  sur des IP privées (une seule IP publique dans une réponse
+  round-robin suffit à refuser le boot).
+
+Ce qui est refusé :
+
+\`\`\`text
+  AIRGAP_MODE=1 but LLM_API_URL is public: https://api.mistral.ai/v1
+  Air-gap is a hard promise — refusing to boot rather than
+  silently routing every prompt to a public LLM endpoint.
+  Fix one of:
+    - set LLM_API_URL to a local endpoint (e.g. http://ollama:11434/v1)
+    - unset AIRGAP_MODE
+\`\`\`
+
+Si tu mets \`AIRGAP_MODE=true\` sans \`LLM_API_URL\` explicite, le
+backend défaut sur \`http://localhost:11434/v1\` (Ollama) et logge
+ce choix — pratique pour le layout self-hosted standard où Ollama
+tourne à côté du stack BigMCP.
+
+### Caveat : le DNS rebinding n'est pas couvert
+
+Le garde-fou vérifie l'URL une fois au démarrage. Un opérateur
+déterminé pourrait pointer un hostname sur une IP privée au boot
+puis flipper le DNS sur une IP publique au runtime. C'est la même
+limite que la garde SSRF sur les serveurs MCP distants — pour la
+fermer il faudrait pinner l'IP résolue au niveau socket, ce qui est
+invasif et hors scope. Le garde-fou attrape la mauvaise config
+triviale (quelqu'un a oublié de remplacer
+\`https://api.mistral.ai/v1\`), pas un attaquant motivé qui contrôle
+à la fois ton DNS et ton \`.env\`.
+
 ## Ce qui n'est **pas** supporté
 
 - **API Anthropic Claude directe** — Anthropic n'expose pas

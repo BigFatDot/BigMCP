@@ -16,14 +16,14 @@
     "displayPart1": "All your MCP servers.",
     "displayHighlight": "One",
     "displayPart2": "endpoint.",
-    "lead": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, and keep every byte on your infrastructure. AGPLv3.",
+    "lead": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline (with a local LLM), and keep every byte on your infrastructure. AGPLv3.",
     "ctaPrimary": "Try BigMCP",
     "ctaSecondary": "Star on GitHub",
-    "meta": "AGPLv3  ·  Bring your own LLM  ·  Run fully offline",
+    "meta": "AGPLv3  ·  Bring your own LLM  ·  Run fully offline (with a local LLM)",
     "title": "One",
     "titleHighlight": "Big MCP",
     "titleEnd": "for All Your Tools",
-    "subtitle": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, keep every byte on your infrastructure. No vendor lock-in, ever.",
+    "subtitle": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline with a local LLM, keep every byte on your infrastructure. No vendor lock-in, ever.",
     "cta": "Try BigMCP",
     "ctaTertiary": "Star on GitHub"
   },
@@ -31,7 +31,7 @@
     "items": [
       { "v": "Own", "l": "Your registry, your servers" },
       { "v": "180+", "l": "Curated starter pack", "countup": 180, "suffix": "+" },
-      { "v": "Air-gap", "l": "Run fully offline" },
+      { "v": "Air-gap", "l": "Run fully offline (with a local LLM)" },
       { "v": "AGPLv3", "l": "Free, self-host, no limits" }
     ]
   },

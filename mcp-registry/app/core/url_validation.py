@@ -84,6 +84,27 @@ _ALLOW_INTERNAL_ENV_VAR = "MCP_ALLOW_INTERNAL_HOSTS"
 _ALLOWED_INTERNAL_HOSTS_ENV_VAR = "MCP_ALLOWED_INTERNAL_HOSTS"
 
 
+# Hostnames that the AIRGAP_MODE boot guard accepts as "local LLM endpoints".
+# These cover docker-compose service names for the LLM runtimes BigMCP
+# integrates with (Ollama / vLLM / llama.cpp / TGI / LocalAI), plus the
+# standard host-machine pointers. Used by `is_local_endpoint`; intentionally
+# narrow (we only want to ack endpoints we expect to see in an air-gapped
+# deployment).
+_LOCAL_LLM_HOSTNAMES = {
+    "localhost",
+    "host.docker.internal",
+    "ollama",
+    "vllm",
+    "llama-cpp",
+    "llama.cpp",
+    "llamacpp",
+    "text-generation-inference",
+    "tgi",
+    "localai",
+    "ollama.internal",
+}
+
+
 def _load_allowed_internal_hosts() -> frozenset[str]:
     """
     Parse `MCP_ALLOWED_INTERNAL_HOSTS` into a frozenset of lowercase hostnames.
@@ -263,3 +284,132 @@ def validate_external_url(url: str) -> None:
             raise ValueError(
                 f"URL must resolve to a public address (received: {ip})"
             )
+
+
+def is_local_endpoint(url: str) -> bool:
+    """
+    Return True if ``url`` points at a loopback / RFC1918 / ULA / link-local
+    / Docker-internal host. Mirror of ``validate_external_url`` but with the
+    sign flipped: external = bad over there, **local = required** here.
+
+    Used by the AIRGAP_MODE boot guard (``app/main.py``) to refuse a public
+    LLM_API_URL that would silently break the air-gap promise — every prompt
+    would leak to e.g. ``api.mistral.ai`` or ``api.openai.com``.
+
+    We reuse the same primitives as ``validate_external_url`` (URL parsing,
+    DNS resolution via ``_resolve_all``, private-range introspection via
+    ``_is_private_ip``) so that "what counts as private" stays a single
+    source of truth across SSRF guard and air-gap guard.
+
+    Accepts as "local":
+      - Hostnames in the curated _LOCAL_LLM_HOSTNAMES list (``ollama``,
+        ``vllm``, ``host.docker.internal``, ``localhost``, …) — these are
+        the docker-compose service names we expect to see in an air-gapped
+        deployment, regardless of how DNS resolves them inside the cluster.
+      - Hostnames in _BLOCKED_HOSTNAMES (the SSRF blocklist — postgres,
+        redis, etc.) → if you point LLM_API_URL at a docker service name,
+        you're necessarily on a private network.
+      - IP literals whose address belongs to a private range (covered by
+        ``_is_private_ip`` — loopback, RFC1918, link-local, ULA, …).
+      - Hostnames whose DNS resolution lands entirely on private IPs.
+
+    Returns False on parse / resolution failure: when in doubt, err on the
+    side of refusing the boot. A misconfigured DNS that flips an "internal"
+    hostname to a public IP should not silently let us boot.
+    """
+    if not isinstance(url, str) or not url.strip():
+        return False
+
+    try:
+        parsed = urlparse(url)
+    except Exception:
+        return False
+
+    scheme = (parsed.scheme or "").lower()
+    if scheme not in _ALLOWED_SCHEMES:
+        # Anything that isn't http(s) — file:, gopher:, etc. — is not a
+        # valid LLM endpoint and definitely not a sign that the operator
+        # has set up a local LLM. Fail closed.
+        return False
+
+    hostname = (parsed.hostname or "").lower().rstrip(".")
+    if not hostname:
+        return False
+
+    # Curated allow-list: docker-compose service names for the LLM runtimes
+    # we support. Independent of how DNS resolves them — even if your local
+    # split-horizon DNS maps `ollama` to a public IP for whatever reason,
+    # the *intent* is unambiguous.
+    if hostname in _LOCAL_LLM_HOSTNAMES:
+        return True
+
+    # SSRF blocklist also counts as "local" here: if the operator points
+    # LLM_API_URL at e.g. `postgres` or `bigmcp-backend`, they're on a
+    # private network (and arguably misconfigured, but not breaching the
+    # air-gap promise — that's a different problem).
+    if hostname in _BLOCKED_HOSTNAMES:
+        return True
+
+    # IP literal — check directly without DNS round-trip.
+    try:
+        literal_ip = ipaddress.ip_address(hostname)
+    except ValueError:
+        literal_ip = None
+
+    if literal_ip is not None:
+        return _is_private_ip(literal_ip)
+
+    # Hostname → resolve and require **every** address to be private.
+    # If a single public IP shows up in the round-robin response, the
+    # endpoint can leak outbound and we refuse it.
+    try:
+        resolved = _resolve_all(hostname)
+    except (socket.gaierror, ValueError):
+        return False
+
+    if not resolved:
+        return False
+
+    return all(_is_private_ip(ip) for ip in resolved)
+
+
+def enforce_airgap_llm_constraint(
+    airgap_mode: bool,
+    llm_api_url: str | None,
+    *,
+    default_local_url: str = "http://localhost:11434/v1",
+) -> str | None:
+    """
+    Boot-time guard: refuse to start when AIRGAP_MODE=1 + a public LLM_API_URL.
+
+    Returns the effective LLM URL (the input value when set, or
+    ``default_local_url`` when AIRGAP_MODE=1 and LLM_API_URL is unset).
+    Returns None when AIRGAP_MODE=0 (the guard is inert).
+
+    Raises:
+        RuntimeError: When AIRGAP_MODE=1 but the configured LLM_API_URL
+            resolves to a public host. Message includes both possible
+            fixes (point at a local endpoint, or drop AIRGAP_MODE).
+
+    Kept as a pure function — no settings or logger imports — so it can be
+    unit-tested without booting FastAPI, and reused from CLI / smoke tools.
+    """
+    if not airgap_mode:
+        return None
+
+    url = (llm_api_url or "").strip() or default_local_url
+
+    if is_local_endpoint(url):
+        return url
+
+    raise RuntimeError(
+        "\n\n"
+        f"  AIRGAP_MODE=1 but LLM_API_URL is public: {url}\n"
+        "  Air-gap is a hard promise — refusing to boot rather than\n"
+        "  silently routing every prompt to a public LLM endpoint.\n"
+        "  Fix one of:\n"
+        "    - set LLM_API_URL to a local endpoint "
+        "(e.g. http://ollama:11434/v1)\n"
+        "    - unset AIRGAP_MODE\n"
+        "  See https://bigmcp.cloud/docs/self-hosting/llm-providers#air-gap-mode\n"
+    )

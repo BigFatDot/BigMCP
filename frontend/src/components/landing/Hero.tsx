@@ -93,8 +93,8 @@ export function Hero() {
             </h1>
 
             <p className="landing-lead reveal in d2" style={{ maxWidth: 528, marginTop: 22 }}>
-              Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, and keep
-              every byte on your infrastructure. AGPLv3.
+              Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline (with a
+              local LLM), and keep every byte on your infrastructure. AGPLv3.
             </p>
 
             <div
@@ -154,7 +154,7 @@ export function Hero() {
                   display: 'inline-block',
                 }}
               />
-              AGPLv3 &nbsp;·&nbsp; Bring your own LLM &nbsp;·&nbsp; Run fully offline
+              AGPLv3 &nbsp;·&nbsp; Bring your own LLM &nbsp;·&nbsp; Run fully offline (with a local LLM)
             </div>
           </div>
 

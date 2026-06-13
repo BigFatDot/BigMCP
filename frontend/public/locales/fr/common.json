@@ -112,7 +112,7 @@
   "meta": {
     "landing": {
       "title": "BigMCP — Un seul endpoint pour tous vos serveurs MCP",
-      "description": "Auto-hébergez une gateway MCP autonome. Apportez votre LLM, fonctionnez hors-ligne, gardez chaque octet sur votre infrastructure. AGPLv3, sans verrouillage fournisseur."
+      "description": "Auto-hébergez une gateway MCP autonome. Apportez votre LLM, fonctionnez hors-ligne avec un LLM local, gardez chaque octet sur votre infrastructure. AGPLv3, sans verrouillage fournisseur."
     },
     "signup": {
       "title": "Essayer BigMCP — Inscription",

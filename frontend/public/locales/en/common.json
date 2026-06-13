@@ -112,7 +112,7 @@
   "meta": {
     "landing": {
       "title": "BigMCP — One endpoint for all your MCP servers",
-      "description": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, keep every byte on your infrastructure. AGPLv3, no vendor lock-in."
+      "description": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline with a local LLM, keep every byte on your infrastructure. AGPLv3, no vendor lock-in."
     },
     "signup": {
       "title": "Try BigMCP — Sign up",

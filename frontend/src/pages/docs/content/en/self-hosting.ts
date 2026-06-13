@@ -444,6 +444,52 @@ curl http://localhost:8001/edition/status | jq .airgap
 # → true
 \`\`\`
 
+### Boot guard: the air-gap promise is enforced
+
+\`AIRGAP_MODE=true\` is not just cosmetic. At startup the backend
+inspects \`LLM_API_URL\` and **refuses to boot** if it points at a
+public host — otherwise every prompt would silently leak to
+\`api.mistral.ai\` / \`api.openai.com\` and the air-gap promise
+would be a lie.
+
+What counts as "local" (boot accepted):
+
+- Loopback / RFC1918 / ULA / link-local IP literals
+  (\`127.0.0.1\`, \`10.x.x.x\`, \`192.168.x.x\`, \`172.16-31.x.x\`, …).
+- Docker-compose service names for the supported LLM runtimes:
+  \`ollama\`, \`vllm\`, \`llama-cpp\`, \`text-generation-inference\`,
+  \`localai\`, plus \`localhost\` and \`host.docker.internal\`.
+- Custom hostnames whose DNS resolution lands **entirely** on
+  private IPs (a single public IP in a round-robin response is
+  enough to refuse the boot).
+
+What gets refused:
+
+\`\`\`text
+  AIRGAP_MODE=1 but LLM_API_URL is public: https://api.mistral.ai/v1
+  Air-gap is a hard promise — refusing to boot rather than
+  silently routing every prompt to a public LLM endpoint.
+  Fix one of:
+    - set LLM_API_URL to a local endpoint (e.g. http://ollama:11434/v1)
+    - unset AIRGAP_MODE
+\`\`\`
+
+If you set \`AIRGAP_MODE=true\` without an explicit \`LLM_API_URL\`,
+the backend defaults to \`http://localhost:11434/v1\` (Ollama) and
+logs the choice — convenient for the standard self-hosted layout
+where Ollama runs alongside the BigMCP stack.
+
+### Caveat: DNS rebinding is not blocked
+
+The boot guard checks the URL once at startup. A determined operator
+could pin a hostname to a private IP at boot, then flip DNS to a
+public IP at runtime. This is the same limitation as the SSRF guard
+on remote MCP servers — closing it would require pinning the
+resolved IP at the socket layer, which is invasive and out of scope.
+The guard catches the trivial misconfiguration (someone forgot to
+swap out \`https://api.mistral.ai/v1\`), not a motivated attacker
+who controls both your DNS and your \`.env\`.
+
 ## What is **not** supported
 
 - **Anthropic Claude direct API** — Anthropic does not expose an

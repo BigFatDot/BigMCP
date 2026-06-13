@@ -334,6 +334,29 @@ async def _startup_impl():
             "LemonSqueezy disabled. Only LLM provider calls go outbound."
         )
 
+    # Air-gap boot guard — refuse to start if AIRGAP_MODE=1 but LLM_API_URL
+    # points at a public endpoint. The landing page advertises "Run fully
+    # offline" and ``/edition/status`` exposes ``airgap: true``; both promises
+    # would be silently false if every prompt actually leaked to e.g.
+    # api.mistral.ai. We'd rather refuse to boot than ship a lie.
+    from .core.url_validation import enforce_airgap_llm_constraint
+    _llm_url_env = os.environ.get("LLM_API_URL")
+    effective_llm_url = enforce_airgap_llm_constraint(
+        airgap_mode=core_settings.AIRGAP_MODE,
+        llm_api_url=_llm_url_env,
+    )
+    if core_settings.AIRGAP_MODE and not _llm_url_env and effective_llm_url:
+        # Materialise the default so downstream consumers (vector_store,
+        # registry rerank, etc.) see the same value via os.environ — they
+        # already read LLM_API_URL directly with a Mistral default that
+        # would otherwise win.
+        os.environ["LLM_API_URL"] = effective_llm_url
+        logger.info(
+            "AIRGAP_MODE=1 without explicit LLM_API_URL — defaulting to %s "
+            "(assumes a local Ollama is running)",
+            effective_llm_url,
+        )
+
     # Initialize Prometheus metrics
     from .core.metrics import init_app_info
     init_app_info(version=settings.app.version, edition=edition.value)

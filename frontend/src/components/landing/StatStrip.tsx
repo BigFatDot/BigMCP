@@ -60,7 +60,7 @@ interface Stat {
 const STATS: Stat[] = [
   { v: 'Own', l: 'Your registry, your servers' },
   { v: <CountUp to={180} suffix="+" />, l: 'Curated starter pack' },
-  { v: 'Air-gap', l: 'Run fully offline' },
+  { v: 'Air-gap', l: 'Run fully offline (with a local LLM)' },
   { v: 'AGPLv3', l: 'Free, self-host, no limits' },
 ]
 
