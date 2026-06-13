@@ -257,6 +257,16 @@
 .reveal.d3 { transition-delay: .24s; }
 .reveal.d4 { transition-delay: .32s; }
 
+/*
+ * Mobile (≤768px) : on désactive l'animation scroll-reveal. L'IntersectionObserver
+ * peut ne jamais déclencher pour les sections hors viewport initial (notamment en
+ * fullpage screenshot ou sur certains navigateurs mobiles), ce qui laisse des
+ * bandes sombres vides au milieu de la page. Affichage immédiat = pas d'ambiguïté.
+ */
+@media (max-width: 768px) {
+  .reveal { opacity: 1 !important; transform: none !important; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal { opacity: 1; transform: none; transition: none; }
   .animate-spin-slow,
