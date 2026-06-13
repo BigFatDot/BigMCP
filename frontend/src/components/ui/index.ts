@@ -39,3 +39,6 @@ export type { EmptyStateProps } from './EmptyState'
 
 export { ErrorState } from './ErrorState'
 export type { ErrorStateProps } from './ErrorState'
+
+export { ConfirmProvider, useConfirm } from './ConfirmDialog'
+export type { ConfirmOptions } from './ConfirmDialog'

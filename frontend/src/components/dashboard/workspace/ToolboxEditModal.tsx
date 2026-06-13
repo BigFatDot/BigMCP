@@ -18,7 +18,7 @@ import {
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
-import { Button, Badge } from '@/components/ui'
+import { Button, Badge, useConfirm } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import { toolGroupsApi, poolApi } from '@/services/marketplace'
 
@@ -33,6 +33,7 @@ const COLOR_OPTIONS = ['orange', 'blue', 'green', 'purple', 'red', 'gray']
 export function ToolboxEditModal({ toolboxId, isOpen, onClose }: ToolboxEditModalProps) {
   const { t } = useTranslation('dashboard')
   const queryClient = useQueryClient()
+  const confirm = useConfirm()
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -290,14 +291,17 @@ export function ToolboxEditModal({ toolboxId, isOpen, onClose }: ToolboxEditModa
         <div className="p-6 border-t border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 flex-shrink-0">
           <Button
             variant="ghost"
-            onClick={() => {
+            onClick={async () => {
               if (
-                window.confirm(
-                  t('workspace.toolboxEdit.deleteConfirm', {
-                    defaultValue:
-                      'Delete this toolbox? Tools themselves are kept.',
+                await confirm({
+                  title: t('buttons.delete', { ns: 'common', defaultValue: 'Delete' }) as string,
+                  message: t('workspace.toolboxEdit.deleteConfirm', {
+                    defaultValue: 'Delete this toolbox? Tools themselves are kept.',
                   }) as string,
-                )
+                  confirmLabel: t('buttons.delete', { ns: 'common', defaultValue: 'Delete' }) as string,
+                  cancelLabel: t('buttons.cancel', { ns: 'common', defaultValue: 'Cancel' }) as string,
+                  danger: true,
+                })
               ) {
                 deleteMutation.mutate()
               }

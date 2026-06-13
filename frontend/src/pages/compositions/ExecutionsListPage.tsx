@@ -23,7 +23,7 @@ import {
   XCircleIcon,
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
-import { Button, Card } from '@/components/ui'
+import { Button, Card, useConfirm } from '@/components/ui'
 import {
   executionsApi,
   type ExecutionStatus,
@@ -107,6 +107,7 @@ function formatRelativeFuture(iso: string): string {
 }
 
 export function ExecutionsListPage() {
+  const confirm = useConfirm()
   const [searchParams, setSearchParams] = useSearchParams()
   const initialIncludeTerminal = searchParams.get('include_terminal') === 'true'
   const initialStatusFilter = searchParams.get('status')
@@ -180,9 +181,14 @@ export function ExecutionsListPage() {
   }
 
   const handleCancel = async (executionId: string) => {
-    const ok = window.confirm(
-      'Cancel this execution? The current step will finish first; the execution will land in cancelled at the next boundary.',
-    )
+    const ok = await confirm({
+      title: 'Cancel execution',
+      message:
+        'Cancel this execution? The current step will finish first; the execution will land in cancelled at the next boundary.',
+      confirmLabel: 'Cancel execution',
+      cancelLabel: 'Keep running',
+      danger: true,
+    })
     if (!ok) return
     setCancellingIds((s) => new Set(s).add(executionId))
     try {

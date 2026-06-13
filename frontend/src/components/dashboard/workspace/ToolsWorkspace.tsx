@@ -41,7 +41,7 @@ import {
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
-import { Button } from '@/components/ui'
+import { Button, useConfirm } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import {
   poolApi,
@@ -86,6 +86,7 @@ export function ToolsWorkspace() {
   const { t } = useTranslation('dashboard')
   const { organizationId: currentOrgId } = useOrganization()
   const queryClient = useQueryClient()
+  const confirm = useConfirm()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [serverFilter, setServerFilter] = useState<Set<string>>(new Set())
@@ -563,14 +564,18 @@ export function ToolsWorkspace() {
             </div>
             <Button
               variant="secondary"
-              onClick={() => {
+              onClick={async () => {
                 if (
-                  window.confirm(
-                    t('tools.pool.clearConfirm', {
+                  await confirm({
+                    title: t('tools.pool.clear', { defaultValue: 'Clear pool' }),
+                    message: t('tools.pool.clearConfirm', {
                       defaultValue:
                         'Clear the active pool? Your MCP client will need to call `search` again to reload tools.',
                     }),
-                  )
+                    confirmLabel: t('tools.pool.clear', { defaultValue: 'Clear pool' }),
+                    cancelLabel: t('buttons.cancel', { ns: 'common', defaultValue: 'Cancel' }),
+                    danger: true,
+                  })
                 ) {
                   clearMutation.mutate()
                 }
@@ -604,18 +609,21 @@ export function ToolsWorkspace() {
           </div>
           <Button
             variant="secondary"
-            onClick={() => {
+            onClick={async () => {
               const ids = filteredCatalog.filter((t) => !t.inPool).map((t) => t.id)
               if (ids.length === 0) return
               if (
                 ids.length > 20 &&
-                !window.confirm(
-                  t('workspace.bulkLoadConfirm', {
+                !(await confirm({
+                  title: t('workspace.loadFiltered', { defaultValue: 'Load all matches', count: ids.length }),
+                  message: t('workspace.bulkLoadConfirm', {
                     defaultValue:
                       'Load {{count}} tools into the pool? Large pools can clutter your MCP client.',
                     count: ids.length,
                   }),
-                )
+                  confirmLabel: t('buttons.confirm', { ns: 'common', defaultValue: 'Confirm' }),
+                  cancelLabel: t('buttons.cancel', { ns: 'common', defaultValue: 'Cancel' }),
+                }))
               ) {
                 return
               }
@@ -698,15 +706,21 @@ export function ToolsWorkspace() {
                   {s.credentialId && (
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         if (
-                          window.confirm(
-                            t('workspace.servers.revokeConfirm', {
+                          await confirm({
+                            title: t('workspace.servers.revokeHint', {
+                              defaultValue: 'Revoke this service (delete its credentials)',
+                            }) as string,
+                            message: t('workspace.servers.revokeConfirm', {
                               name: s.name,
                               defaultValue:
                                 'Revoke "{{name}}"? Stored credentials are deleted; tools will no longer reach this service.',
                             }) as string,
-                          )
+                            confirmLabel: t('buttons.delete', { ns: 'common', defaultValue: 'Delete' }),
+                            cancelLabel: t('buttons.cancel', { ns: 'common', defaultValue: 'Cancel' }),
+                            danger: true,
+                          })
                         ) {
                           revokeServerMutation.mutate(s.credentialId as string)
                         }

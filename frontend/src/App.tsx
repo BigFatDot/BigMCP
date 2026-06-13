@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { ToastProvider } from './components/ui'
+import { ToastProvider, ConfirmProvider } from './components/ui'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { BrandingProvider } from './contexts/BrandingContext'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
@@ -50,6 +50,7 @@ function App() {
   return (
     <BrandingProvider>
     <AuthProvider>
+      <ConfirmProvider>
       {/* Toast Notifications */}
       <ToastProvider />
 
@@ -298,6 +299,7 @@ function App() {
 
       {/* PWA Update Prompt */}
       <ReloadPrompt />
+      </ConfirmProvider>
     </AuthProvider>
     </BrandingProvider>
   )

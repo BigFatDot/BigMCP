@@ -21,7 +21,7 @@ import {
   ArrowPathIcon,
   ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline'
-import { Card, Button, Badge } from '@/components/ui'
+import { Card, Button, Badge, useConfirm } from '@/components/ui'
 import {
   listConnectedApps,
   revokeConnectedApp,
@@ -55,6 +55,7 @@ function formatTimestamp(iso: string | null): string {
 }
 
 export function ConnectedAppsPage() {
+  const confirm = useConfirm()
   const [apps, setApps] = useState<ConnectedApp[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -78,11 +79,16 @@ export function ConnectedAppsPage() {
   }, [])
 
   const handleRevoke = async (app: ConnectedApp) => {
-    const ok = window.confirm(
-      `Revoke access for "${app.name}"?\n\n` +
+    const ok = await confirm({
+      title: 'Revoke access',
+      message:
+        `Revoke access for "${app.name}"? ` +
         `All ${app.session_count} active session${app.session_count > 1 ? 's' : ''} ` +
         `will be invalidated immediately.`,
-    )
+      confirmLabel: 'Revoke',
+      cancelLabel: 'Cancel',
+      danger: true,
+    })
     if (!ok) return
     setRevokingId(app.client_uuid)
     try {

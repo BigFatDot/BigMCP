@@ -25,7 +25,7 @@ import {
   XCircleIcon,
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
-import { Button, Card } from '@/components/ui'
+import { Button, Card, useConfirm } from '@/components/ui'
 import { ElicitForm, type ElicitSchema } from '@/components/compositions'
 import {
   executionsApi,
@@ -112,6 +112,7 @@ function formatRelativeFuture(iso: string | null): string {
 }
 
 export function ExecutionDetailPage() {
+  const confirm = useConfirm()
   const { executionId } = useParams<{ executionId: string }>()
   const navigate = useNavigate()
   const [detail, setDetail] = useState<ExecutionDetail | null>(null)
@@ -184,9 +185,13 @@ export function ExecutionDetailPage() {
 
   const handleCancel = async () => {
     if (!executionId) return
-    const ok = window.confirm(
-      'Cancel this execution? The current step will finish first.',
-    )
+    const ok = await confirm({
+      title: 'Cancel execution',
+      message: 'Cancel this execution? The current step will finish first.',
+      confirmLabel: 'Cancel execution',
+      cancelLabel: 'Keep running',
+      danger: true,
+    })
     if (!ok) return
     setCancelling(true)
     try {
