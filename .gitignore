@@ -237,3 +237,7 @@ twa/keystore/
 /BigMCP Landing*.html
 /BigMCP Landing*.htm
 
+
+# Claude Design briefs (local — not committed)
+/design-brief/
+
