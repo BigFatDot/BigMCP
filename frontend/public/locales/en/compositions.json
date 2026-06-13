@@ -1,0 +1,89 @@
+{
+  "builder": {
+    "addStep": "Add a step",
+    "cancel": "Cancel",
+    "saveDraft": "Save as draft",
+    "saveChanges": "Save changes",
+    "saving": "Saving…",
+    "formNotShipped": "The visual form for \"{{type}}\" is not shipped yet — use Advanced (paste JSON) for now.",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "e.g. nightly-dns-audit",
+      "description": "Description",
+      "descriptionPlaceholder": "What does this composition do?",
+      "inputSchemaSummary": "Input schema (advanced)",
+      "inputSchemaHint": "JSON Schema describing the inputs callers can pass to this composition. The visual editor for input_schema is coming later — paste raw JSON here for now."
+    },
+    "steps": {
+      "heading": "Steps",
+      "count": "{{count}} step",
+      "count_other": "{{count}} steps",
+      "empty": "No steps yet. Click \"Add a step\" to pick one of the 5 durable step types."
+    },
+    "picker": {
+      "title": "Add a step",
+      "description": "Pick one of the durable step types. Legacy step types (tool, transform, foreach) can only be edited via the Advanced JSON tab.",
+      "comingSoon": "Coming soon"
+    },
+    "stepTypes": {
+      "elicit": {
+        "title": "Elicit — ask the user",
+        "description": "Pause and ask the user for structured input via a schema."
+      },
+      "wait_until": {
+        "title": "Wait until — pause on the clock",
+        "description": "Pause the workflow for a given duration or until a specific moment."
+      },
+      "wait_callback": {
+        "title": "Wait callback — pause for a webhook",
+        "description": "Pause until an external system posts back to a generated callback URL."
+      },
+      "subcomposition": {
+        "title": "Subcomposition — run another composition",
+        "description": "Run another production composition with mapped inputs and wait for its result."
+      },
+      "approval": {
+        "title": "Approval — gate on a human decision",
+        "description": "Pause until an approver (user or role) approves or rejects this step."
+      }
+    },
+    "waitUntil": {
+      "modeLegend": "Choose how to wait",
+      "relativeLabel": "Relative duration (wait_seconds)",
+      "relativeHint": "Resume this many seconds after suspension. Useful for \"retry in 5 minutes\" patterns.",
+      "absoluteLabel": "Absolute timestamp (resume_at)",
+      "absoluteHint": "Resume at this exact moment in time. Stored as ISO-8601.",
+      "waitSecondsLabel": "Wait (seconds)",
+      "waitSecondsHelper": "Must be a positive integer.",
+      "resumeAtLabel": "Resume at",
+      "resumeAtHelper": "Local time; the backend interprets it as the same wall clock and converts to UTC."
+    },
+    "legacy": {
+      "tooltip": "Legacy step type — read-only here.",
+      "notice": "This step uses a legacy step type (tool / transform / foreach). It is preserved as-is when you save. Use \"Edit raw JSON\" to modify it.",
+      "editRawJson": "Edit raw JSON"
+    },
+    "deleteStep": {
+      "title": "Delete this step?",
+      "message": "Step \"{{stepId}}\" will be removed from the draft. This action can be undone by re-adding the step.",
+      "confirm": "Delete",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "fixBeforeSave": "Fix these before saving",
+      "root.nameRequired": "A name is required.",
+      "root.atLeastOneStep": "Add at least one step.",
+      "wait_until.mustPickMode": "Pick either a relative duration or an absolute timestamp.",
+      "wait_until.mutuallyExclusive": "Only one of wait_seconds or resume_at can be set.",
+      "wait_until.waitSecondsPositive": "wait_seconds must be a positive integer.",
+      "wait_until.resumeAtFormat": "resume_at must be a valid ISO-8601 timestamp."
+    },
+    "toast": {
+      "created": "Draft saved.",
+      "updated": "Composition updated.",
+      "saveFailed": "Could not save the composition."
+    }
+  }
+}

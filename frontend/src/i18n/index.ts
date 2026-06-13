@@ -12,7 +12,7 @@ import { SUPPORTED_LANGUAGES } from './languages'
  * Adding a new language: add entry in languages.ts + files in public/locales/<code>/
  */
 
-const namespaces = ['common', 'auth', 'settings', 'marketplace', 'dashboard', 'landing', 'docs']
+const namespaces = ['common', 'auth', 'settings', 'marketplace', 'dashboard', 'landing', 'docs', 'compositions']
 const supportedLngs = SUPPORTED_LANGUAGES.map((l) => l.code)
 
 i18n

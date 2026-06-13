@@ -24,9 +24,14 @@ import {
   EyeSlashIcon,
   PlusIcon,
   SparklesIcon,
+  PencilSquareIcon,
 } from '@heroicons/react/24/outline'
 import { Button, Card, Badge } from '@/components/ui'
-import { DynamicInputForm, ExecutionResultDisplay } from '@/components/compositions'
+import {
+  CompositionBuilder,
+  DynamicInputForm,
+  ExecutionResultDisplay,
+} from '@/components/compositions'
 import { cn } from '@/utils/cn'
 import {
   compositionsApi,
@@ -66,6 +71,7 @@ function CompositionCard({
   onPromote,
   onDelete,
   onToggleVisibility,
+  onEdit,
   canEdit,
   isTeamOrg,
 }: {
@@ -74,6 +80,7 @@ function CompositionCard({
   onPromote: () => void
   onDelete: () => void
   onToggleVisibility: () => void
+  onEdit: () => void
   canEdit: boolean
   isTeamOrg: boolean
 }) {
@@ -222,6 +229,16 @@ function CompositionCard({
             <Button variant="secondary" size="sm" onClick={onPromote}>
               <ArrowUpCircleIcon className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">{composition.status === 'temporary' ? t('compositions.validate') : t('compositions.promote')}</span>
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onEdit}
+              title={t('compositions.editInBuilder', { defaultValue: 'Edit in visual builder' }) as string}
+            >
+              <PencilSquareIcon className="w-4 h-4" />
             </Button>
           )}
           {/* Visibility Toggle for Team orgs */}
@@ -532,6 +549,10 @@ interface ProposeModalProps {
   initialQuery?: string
   /** Pre-load the modal in Advanced mode with this template's JSON. */
   initialTemplate?: CompositionTemplate | null
+  /** Pre-load the modal in Build mode editing this composition.
+   *  When set, the modal opens directly on the visual builder hydrated
+   *  with the compo's current shape. */
+  initialBuild?: Composition | null
 }
 
 const ADVANCED_JSON_TEMPLATE = `{
@@ -564,9 +585,10 @@ function ProposeCompositionModal({
   onSaved,
   initialQuery,
   initialTemplate,
+  initialBuild,
 }: ProposeModalProps) {
   const { t } = useTranslation('dashboard')
-  const [mode, setMode] = useState<'llm' | 'advanced'>('llm')
+  const [mode, setMode] = useState<'llm' | 'advanced' | 'build'>('llm')
   const [query, setQuery] = useState(initialQuery ?? '')
   const [feedback, setFeedback] = useState('')
   const [draft, setDraft] = useState<ProposalDraft | null>(null)
@@ -580,8 +602,13 @@ function ProposeCompositionModal({
     if (isOpen) {
       // If we landed here from a "Use template" click, open the modal
       // straight into Advanced mode with the chosen template's JSON
-      // pre-filled. Otherwise default to the LLM proposer.
-      if (initialTemplate) {
+      // pre-filled. If we landed here from an "Edit" click, open the
+      // visual builder hydrated with the compo. Otherwise default to
+      // the LLM proposer.
+      if (initialBuild) {
+        setMode('build')
+        setAdvancedJson(ADVANCED_JSON_TEMPLATE)
+      } else if (initialTemplate) {
         setMode('advanced')
         setAdvancedJson(JSON.stringify(initialTemplate.composition, null, 2))
       } else {
@@ -595,7 +622,7 @@ function ProposeCompositionModal({
       setIsLoading(false)
       setAdvancedError(null)
     }
-  }, [isOpen, initialQuery, initialTemplate])
+  }, [isOpen, initialQuery, initialTemplate, initialBuild])
 
   if (!isOpen) return null
 
@@ -723,6 +750,17 @@ function ProposeCompositionModal({
             <button
               type="button"
               className={`flex-1 px-3 py-1.5 rounded text-sm font-medium ${
+                mode === 'build'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+              onClick={() => setMode('build')}
+            >
+              Build (visual)
+            </button>
+            <button
+              type="button"
+              className={`flex-1 px-3 py-1.5 rounded text-sm font-medium ${
                 mode === 'advanced'
                   ? 'bg-white text-gray-900 shadow-sm'
                   : 'text-gray-600 hover:text-gray-900'
@@ -733,7 +771,32 @@ function ProposeCompositionModal({
             </button>
           </div>
 
-          {mode === 'llm' ? (
+          {mode === 'build' ? (
+            <CompositionBuilder
+              initial={initialBuild ?? null}
+              onSaved={(saved) => {
+                toast.success(
+                  initialBuild
+                    ? (t('compositions.proposeBuildUpdated', {
+                        defaultValue: 'Composition updated.',
+                      }) as string)
+                    : (t('compositions.proposeSavedSuccess', {
+                        defaultValue: 'Draft saved.',
+                      }) as string),
+                )
+                onSaved(saved)
+                onClose()
+              }}
+              onCancel={onClose}
+              onEditRawJson={(prefilled) => {
+                // Drop the user into the Advanced (paste JSON) tab with
+                // the legacy step pre-filled, so they can edit the raw
+                // payload without rebuilding everything.
+                setAdvancedJson(prefilled)
+                setMode('advanced')
+              }}
+            />
+          ) : mode === 'llm' ? (
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               {t('compositions.proposeQueryLabel', { defaultValue: 'What should this composed tool do?' })}
@@ -845,6 +908,10 @@ function ProposeCompositionModal({
           )}
         </div>
 
+        {/* The Build mode renders its own footer inside CompositionBuilder,
+            so we hide the global modal footer entirely there. Otherwise
+            keep the LLM/Advanced submit row. */}
+        {mode !== 'build' && (
         <div className="p-6 border-t border-gray-200 flex justify-end gap-2 flex-shrink-0">
           <Button variant="secondary" onClick={onClose} disabled={isLoading}>
             {t('compositions.cancel')}
@@ -878,6 +945,7 @@ function ProposeCompositionModal({
             </Button>
           )}
         </div>
+        )}
       </div>
     </div>
   )
@@ -903,6 +971,7 @@ export function CompositionsPage() {
   const [showProposeModal, setShowProposeModal] = useState(!!composeSeed)
   const [proposeSeed, setProposeSeed] = useState<string | undefined>(composeSeed || undefined)
   const [proposeTemplate, setProposeTemplate] = useState<CompositionTemplate | null>(null)
+  const [proposeBuild, setProposeBuild] = useState<Composition | null>(null)
   const [templates, setTemplates] = useState<CompositionTemplate[]>([])
   useEffect(() => {
     if (composeSeed) {
@@ -934,6 +1003,14 @@ export function CompositionsPage() {
 
   const openTemplate = (tpl: CompositionTemplate) => {
     setProposeTemplate(tpl)
+    setProposeBuild(null)
+    setProposeSeed(undefined)
+    setShowProposeModal(true)
+  }
+
+  const openBuilderForEdit = (composition: Composition) => {
+    setProposeBuild(composition)
+    setProposeTemplate(null)
     setProposeSeed(undefined)
     setShowProposeModal(true)
   }
@@ -1221,6 +1298,7 @@ export function CompositionsPage() {
               onPromote={() => handlePromote(composition)}
               onDelete={() => handleDelete(composition)}
               onToggleVisibility={() => handleToggleVisibility(composition)}
+              onEdit={() => openBuilderForEdit(composition)}
               canEdit={composition.can_edit ?? false}
               isTeamOrg={isTeamOrg}
             />
@@ -1239,17 +1317,31 @@ export function CompositionsPage() {
         onExecute={handleExecuteConfirm}
       />
 
-      {/* Propose Composition Modal (LLM-first) */}
+      {/* Propose Composition Modal (LLM / Build / Advanced) */}
       <ProposeCompositionModal
         isOpen={showProposeModal}
         onClose={() => {
           setShowProposeModal(false)
           setProposeSeed(undefined)
           setProposeTemplate(null)
+          setProposeBuild(null)
         }}
-        onSaved={(saved) => setCompositions((prev) => [saved, ...prev])}
+        onSaved={(saved) =>
+          setCompositions((prev) => {
+            // Replace-in-place when we just edited an existing compo,
+            // else prepend the new draft.
+            const existingIdx = prev.findIndex((c) => c.id === saved.id)
+            if (existingIdx >= 0) {
+              const next = prev.slice()
+              next[existingIdx] = saved
+              return next
+            }
+            return [saved, ...prev]
+          })
+        }
         initialQuery={proposeSeed}
         initialTemplate={proposeTemplate}
+        initialBuild={proposeBuild}
       />
     </div>
   )

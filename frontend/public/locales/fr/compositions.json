@@ -1,0 +1,89 @@
+{
+  "builder": {
+    "addStep": "Ajouter une étape",
+    "cancel": "Annuler",
+    "saveDraft": "Enregistrer le brouillon",
+    "saveChanges": "Enregistrer les modifications",
+    "saving": "Enregistrement…",
+    "formNotShipped": "Le formulaire visuel pour « {{type}} » n'est pas encore livré — utilise « Advanced (paste JSON) » pour l'instant.",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "fields": {
+      "name": "Nom",
+      "namePlaceholder": "ex. audit-dns-nuit",
+      "description": "Description",
+      "descriptionPlaceholder": "Que fait cette composition ?",
+      "inputSchemaSummary": "Schéma d'entrée (avancé)",
+      "inputSchemaHint": "JSON Schema décrivant les entrées que l'appelant peut passer à cette composition. L'éditeur visuel arrivera plus tard — colle ici le JSON brut pour l'instant."
+    },
+    "steps": {
+      "heading": "Étapes",
+      "count": "{{count}} étape",
+      "count_other": "{{count}} étapes",
+      "empty": "Aucune étape. Clique « Ajouter une étape » pour choisir un des 5 types d'étape durables."
+    },
+    "picker": {
+      "title": "Ajouter une étape",
+      "description": "Choisis un des types d'étape durables. Les types hérités (tool, transform, foreach) ne sont éditables que via l'onglet Advanced JSON.",
+      "comingSoon": "À venir"
+    },
+    "stepTypes": {
+      "elicit": {
+        "title": "Elicit — demander à l'utilisateur",
+        "description": "Met en pause et demande une réponse structurée à l'utilisateur via un schéma."
+      },
+      "wait_until": {
+        "title": "Wait until — pause horloge",
+        "description": "Met en pause le workflow pendant une durée ou jusqu'à un instant précis."
+      },
+      "wait_callback": {
+        "title": "Wait callback — pause webhook",
+        "description": "Met en pause jusqu'à ce qu'un système externe poste sur une URL de callback générée."
+      },
+      "subcomposition": {
+        "title": "Subcomposition — appeler une autre composition",
+        "description": "Exécute une autre composition en production avec des entrées mappées et attend son résultat."
+      },
+      "approval": {
+        "title": "Approval — valider par un humain",
+        "description": "Met en pause jusqu'à ce qu'un approbateur (utilisateur ou rôle) approuve ou rejette cette étape."
+      }
+    },
+    "waitUntil": {
+      "modeLegend": "Choisir le mode d'attente",
+      "relativeLabel": "Durée relative (wait_seconds)",
+      "relativeHint": "Reprend après ce nombre de secondes. Utile pour les patterns « réessayer dans 5 minutes ».",
+      "absoluteLabel": "Horodatage absolu (resume_at)",
+      "absoluteHint": "Reprend exactement à ce moment. Stocké en ISO-8601.",
+      "waitSecondsLabel": "Attente (secondes)",
+      "waitSecondsHelper": "Doit être un entier positif.",
+      "resumeAtLabel": "Reprise le",
+      "resumeAtHelper": "Heure locale ; le backend interprète la même heure d'horloge et la convertit en UTC."
+    },
+    "legacy": {
+      "tooltip": "Type d'étape hérité — lecture seule ici.",
+      "notice": "Cette étape utilise un type hérité (tool / transform / foreach). Elle est conservée telle quelle à la sauvegarde. Utilise « Éditer le JSON brut » pour la modifier.",
+      "editRawJson": "Éditer le JSON brut"
+    },
+    "deleteStep": {
+      "title": "Supprimer cette étape ?",
+      "message": "L'étape « {{stepId}} » sera retirée du brouillon. Tu pourras la recréer en ajoutant une nouvelle étape.",
+      "confirm": "Supprimer",
+      "cancel": "Annuler"
+    },
+    "errors": {
+      "fixBeforeSave": "Corrige ces points avant de sauvegarder",
+      "root.nameRequired": "Un nom est requis.",
+      "root.atLeastOneStep": "Ajoute au moins une étape.",
+      "wait_until.mustPickMode": "Choisis soit une durée relative, soit un horodatage absolu.",
+      "wait_until.mutuallyExclusive": "Seul l'un de wait_seconds ou resume_at peut être défini.",
+      "wait_until.waitSecondsPositive": "wait_seconds doit être un entier positif.",
+      "wait_until.resumeAtFormat": "resume_at doit être un horodatage ISO-8601 valide."
+    },
+    "toast": {
+      "created": "Brouillon enregistré.",
+      "updated": "Composition mise à jour.",
+      "saveFailed": "Impossible de sauvegarder la composition."
+    }
+  }
+}
