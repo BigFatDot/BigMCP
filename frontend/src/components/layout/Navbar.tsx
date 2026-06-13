@@ -26,6 +26,7 @@ import {
 import { useAuth } from '../../hooks/useAuth'
 import { useTeamAdmin } from '../../hooks/useTeamAdmin'
 import { InstanceLogoWithText } from '../brand/InstanceLogo'
+import { OrgSwitcher } from './OrgSwitcher'
 
 export function Navbar() {
   const { t } = useTranslation('common')
@@ -93,6 +94,11 @@ export function Navbar() {
 
             {isAuthenticated ? (
               <>
+                {/* Org switcher — visible between nav-links and user-menu.
+                    Renders nothing if user has 0 memberships, a non-interactive
+                    badge if exactly 1, or a clickable pill+dropdown if 2+. */}
+                <OrgSwitcher />
+
                 {/* User Menu */}
                 <div className="relative">
                   <button

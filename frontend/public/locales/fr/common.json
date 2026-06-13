@@ -50,6 +50,12 @@
     "noData": "Aucune donnée disponible",
     "noResults": "Aucun résultat trouvé"
   },
+  "orgSwitcher": {
+    "current": "Organisation courante",
+    "switchTo": "Basculer vers",
+    "switching": "Bascule en cours…",
+    "errorFallback": "Impossible de basculer d'organisation."
+  },
   "onboarding": {
     "welcome": {
       "title": "Bienvenue sur BigMCP",

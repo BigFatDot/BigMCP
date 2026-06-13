@@ -5,7 +5,7 @@
  */
 
 import { useAuth as useAuthContext } from '../contexts/AuthContext'
-import type { SubscriptionTier, FeatureLimits } from '../types/auth'
+import type { SubscriptionTier, FeatureLimits, OrganizationMembership } from '../types/auth'
 
 // Re-export main useAuth hook
 export { useAuth } from '../contexts/AuthContext'
@@ -98,6 +98,58 @@ export function useOrganization() {
   const isAdmin = currentMembership?.role === 'admin' ||
                   currentMembership?.role === 'owner'
 
+  // Memberships exposed for OrgSwitcher and other multi-tenant UIs.
+  // Sourced from /auth/me payload (already loaded into AuthContext on mount).
+  const memberships: OrganizationMembership[] = user?.organization_memberships ?? []
+
+  /**
+   * Switch the current active organization by calling /auth/switch-organization,
+   * persisting the new tokens, and triggering a full reload so every context
+   * picks up the new identity. Factorised from TeamPage:187-222 so the navbar
+   * OrgSwitcher and the settings page share a single code path.
+   *
+   * Throws on failure — callers are expected to surface the error message
+   * (e.g. via toast.error) and manage their own `isSwitching` UI state.
+   */
+  const switchOrganization = async (organizationId: string): Promise<void> => {
+    const token = localStorage.getItem('bigmcp_access_token')
+    const response = await fetch(
+      `/api/v1/auth/switch-organization?organization_id=${encodeURIComponent(organizationId)}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      },
+    )
+
+    if (!response.ok) {
+      let detail = `HTTP ${response.status}`
+      try {
+        const data = await response.json()
+        if (data?.detail && typeof data.detail === 'string') {
+          detail = data.detail
+        }
+      } catch {
+        // ignore JSON parse error, keep status fallback
+      }
+      throw new Error(detail)
+    }
+
+    const data = await response.json()
+    if (data?.access_token) {
+      localStorage.setItem('bigmcp_access_token', data.access_token)
+    }
+    if (data?.refresh_token) {
+      localStorage.setItem('bigmcp_refresh_token', data.refresh_token)
+    }
+
+    // Pattern hérité de TeamPage : un reload garantit que AuthContext et
+    // tout le reste de l'app rechargent l'identité avec le nouveau JWT.
+    window.location.reload()
+  }
+
   return {
     organization,
     hasOrganization: organization !== null,
@@ -107,6 +159,8 @@ export function useOrganization() {
     supportsOrganizations: deploymentConfig.supports_organizations,
     isTeamOrg,
     isAdmin,
+    memberships,
+    switchOrganization,
   }
 }
 

@@ -51,7 +51,7 @@ const ROLE_COLORS: Record<MemberRole, string> = {
 
 export function TeamPage() {
   const { t } = useTranslation('settings')
-  const { organization, organizationName, organizationId } = useOrganization()
+  const { organization, organizationName, organizationId, switchOrganization } = useOrganization()
   const { user, isCloudSaaS, editionLoading } = useAuth()
   const { tier } = useSubscription()
   const [members, setMembers] = useState<OrganizationMember[]>([])
@@ -193,30 +193,14 @@ export function TeamPage() {
     setSwitchError(null)
 
     try {
-      const token = localStorage.getItem('bigmcp_access_token')
-      const response = await fetch(`/api/v1/auth/switch-organization?organization_id=${newOrgId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.detail || 'Failed to switch organization')
-      }
-
-      const data = await response.json()
-
-      // Save new tokens (use same keys as AuthContext)
-      localStorage.setItem('bigmcp_access_token', data.access_token)
-      localStorage.setItem('bigmcp_refresh_token', data.refresh_token)
-
-      // Reload the page to refresh all context
-      window.location.reload()
+      // Sprint 3.B : la logique de switch (POST + persist tokens + reload)
+      // est factorisée dans useOrganization().switchOrganization. Throws on
+      // error — on capture le message pour l'inline banner ci-dessous.
+      await switchOrganization(newOrgId)
+      // window.location.reload() est déclenché par le hook : on n'arrive ici
+      // que si le navigateur l'ignore (cas exotique), on remet l'UI à plat.
     } catch (error: any) {
-      setSwitchError(error.message || 'Failed to switch organization')
+      setSwitchError(error?.message || 'Failed to switch organization')
       setSwitching(false)
     }
   }
