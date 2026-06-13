@@ -18,6 +18,7 @@ import type {
 } from '../types/auth'
 import type { DeploymentType } from '../types/marketplace'
 import { editionApi } from '../services/marketplace'
+import { extractApiError } from '../services/api'
 import { queryClient } from '../lib/queryClient'
 
 // ============================================================================
@@ -227,7 +228,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const errorData = await response.json().catch(() => ({ detail: response.statusText }))
-        throw new Error(errorData.detail || `HTTP ${response.status}`)
+        throw new Error(
+          extractApiError(
+            { response: { data: errorData } },
+            `HTTP ${response.status}`,
+          ),
+        )
       }
 
       return response
@@ -262,7 +268,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Handle other errors
       if (!response.ok) {
-        throw new Error(data.detail || `HTTP ${response.status}`)
+        throw new Error(
+          extractApiError(
+            { response: { data } },
+            `HTTP ${response.status}`,
+          ),
+        )
       }
 
       // Handle MFA required response
@@ -329,7 +340,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Handle other errors
       if (!response.ok) {
-        throw new Error(data.detail || `HTTP ${response.status}`)
+        throw new Error(
+          extractApiError(
+            { response: { data } },
+            `HTTP ${response.status}`,
+          ),
+        )
       }
 
       // Non-SaaS mode: Auto-login with tokens

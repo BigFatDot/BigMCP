@@ -12,6 +12,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { InstanceLogoWithText } from '../../components/brand/InstanceLogo'
 import { useBranding } from '../../contexts/BrandingContext'
 import { usePageMeta } from '../../hooks/usePageMeta'
+import { PasswordStrengthMeter } from '../../components/auth'
 
 export function SignupPage() {
   const { t } = useTranslation('auth')
@@ -180,6 +181,7 @@ export function SignupPage() {
                   disabled={isLoading}
                 />
                 <p className="mt-1 text-xs text-gray-500">{t('signup.passwordHint')}</p>
+                <PasswordStrengthMeter password={password} />
               </div>
 
               {/* Confirm Password */}

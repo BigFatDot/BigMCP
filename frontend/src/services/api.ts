@@ -49,3 +49,15 @@ export async function apiGet<T>(url: string, config?: AxiosRequestConfig): Promi
   const { data } = await apiClient.get<T>(url, config)
   return data
 }
+
+/**
+ * Re-export the canonical error parser.
+ *
+ * `extractApiError` lives in services/marketplace.ts (which is older
+ * and has the most callers). We re-export it from the shared HTTP
+ * module so that future services / contexts can import it from one
+ * stable place without dragging in the whole marketplace barrel.
+ *
+ * Canonical implementation: services/marketplace.ts
+ */
+export { extractApiError } from './marketplace'

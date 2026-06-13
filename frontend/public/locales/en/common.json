@@ -50,6 +50,59 @@
     "noData": "No data available",
     "noResults": "No results found"
   },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to BigMCP",
+      "subtitle": "Your unified gateway to connect, manage, and orchestrate all your MCP servers in one place. Let's get you set up!",
+      "feature1": {
+        "title": "Connect Services",
+        "body": "Connect to hundreds of MCP servers with a few clicks"
+      },
+      "feature2": {
+        "title": "AI Workflows",
+        "body": "Create powerful workflows using natural language"
+      },
+      "feature3": {
+        "title": "Secure & Private",
+        "body": "Your credentials are encrypted and never shared"
+      }
+    },
+    "chooseServers": {
+      "title": "Choose Your Services",
+      "subtitle": "Select the services you use. You can always add more later from the marketplace."
+    },
+    "connect": {
+      "titleConnecting": "Connecting Your Services...",
+      "titleResults": "Connection Results",
+      "subtitleConnecting": "We are connecting to your selected services. This may take a moment.",
+      "subtitleResults": "Here is the status of your service connections.",
+      "statusConnecting": "Connecting...",
+      "statusSuccess": "Connected successfully",
+      "statusNeedsCreds": "Requires credentials setup",
+      "statusWaiting": "Waiting...",
+      "noteLabel": "Note",
+      "noteCredentials": "Some servers require credentials to be configured. You can set them up from the {{services}} page after completing onboarding."
+    },
+    "complete": {
+      "titleAlmost": "Almost There!",
+      "titleDone": "You're All Set!",
+      "bodyNeedsCreds": "Some services need credentials to work. Head to {{services}} to configure them, then start creating AI-powered workflows.",
+      "bodyConnected": "Your services are connected! Start exploring the marketplace to discover more services and create your first AI-powered workflow.",
+      "bodyWelcome": "Welcome to BigMCP. Start exploring the marketplace to discover services and create your first AI-powered workflow."
+    },
+    "actions": {
+      "skip": "Skip for now",
+      "skipStep": "Skip this step",
+      "back": "Back",
+      "getStarted": "Get Started",
+      "continueWith_one": "Continue with {{count}} service",
+      "continueWith_other": "Continue with {{count}} services",
+      "continueDashboard": "Continue to Dashboard",
+      "continueAnyway": "Continue Anyway",
+      "goToServices": "Go to {{services}}",
+      "goToMarketplace": "Go to Marketplace"
+    }
+  },
   "meta": {
     "landing": {
       "title": "BigMCP — One endpoint for all your MCP servers",

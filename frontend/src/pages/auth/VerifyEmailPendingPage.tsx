@@ -93,8 +93,11 @@ export function VerifyEmailPendingPage() {
               </p>
             )}
 
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-600 mb-3">
               {t('verify.clickToVerify', { brand: branding.instance_name })}
+            </p>
+            <p className="text-sm text-gray-500 mb-8">
+              {t('verify.freeDemoNote')}
             </p>
 
             {/* Resend Success */}

@@ -263,11 +263,10 @@ export function OnboardingWizard() {
 
               <div>
                 <h1 className="text-5xl font-bold text-gray-900 mb-4">
-                  Welcome to BigMCP
+                  {t('onboarding.welcome.title')}
                 </h1>
                 <p className="text-xl text-gray-600 font-serif max-w-2xl mx-auto">
-                  Your unified gateway to connect, manage, and orchestrate all your
-                  MCP servers in one place. Let's get you set up!
+                  {t('onboarding.welcome.subtitle')}
                 </p>
               </div>
 
@@ -275,40 +274,40 @@ export function OnboardingWizard() {
                 <Card padding="lg">
                   <div className="text-4xl mb-4">🔌</div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    Connect Services
+                    {t('onboarding.welcome.feature1.title')}
                   </h3>
                   <p className="text-sm text-gray-600 font-serif">
-                    Connect to hundreds of MCP servers with a few clicks
+                    {t('onboarding.welcome.feature1.body')}
                   </p>
                 </Card>
 
                 <Card padding="lg">
                   <div className="text-4xl mb-4">🤖</div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    AI Workflows
+                    {t('onboarding.welcome.feature2.title')}
                   </h3>
                   <p className="text-sm text-gray-600 font-serif">
-                    Create powerful workflows using natural language
+                    {t('onboarding.welcome.feature2.body')}
                   </p>
                 </Card>
 
                 <Card padding="lg">
                   <div className="text-4xl mb-4">🔒</div>
                   <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    Secure & Private
+                    {t('onboarding.welcome.feature3.title')}
                   </h3>
                   <p className="text-sm text-gray-600 font-serif">
-                    Your credentials are encrypted and never shared
+                    {t('onboarding.welcome.feature3.body')}
                   </p>
                 </Card>
               </div>
 
               <div className="flex justify-center gap-4 mt-12">
                 <Button variant="secondary" onClick={handleSkip}>
-                  Skip for now
+                  {t('onboarding.actions.skip')}
                 </Button>
                 <Button variant="primary" size="lg" onClick={handleContinue}>
-                  Get Started
+                  {t('onboarding.actions.getStarted')}
                 </Button>
               </div>
             </div>
@@ -319,11 +318,10 @@ export function OnboardingWizard() {
             <div className="space-y-8 animate-fade-in">
               <div className="text-center">
                 <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                  Choose Your Services
+                  {t('onboarding.chooseServers.title')}
                 </h2>
                 <p className="text-lg text-gray-600 font-serif max-w-2xl mx-auto">
-                  Select the services you use. You can always add more later from the
-                  marketplace.
+                  {t('onboarding.chooseServers.subtitle')}
                 </p>
               </div>
 
@@ -364,18 +362,16 @@ export function OnboardingWizard() {
 
               <div className="flex justify-between mt-12">
                 <Button variant="ghost" onClick={() => setStep('welcome')}>
-                  Back
+                  {t('onboarding.actions.back')}
                 </Button>
                 <div className="flex gap-3">
                   <Button variant="secondary" onClick={handleSkip}>
-                    Skip for now
+                    {t('onboarding.actions.skip')}
                   </Button>
                   <Button variant="primary" onClick={handleContinue}>
                     {selectedServers.length > 0
-                      ? `Continue with ${selectedServers.length} service${
-                          selectedServers.length > 1 ? 's' : ''
-                        }`
-                      : 'Skip this step'}
+                      ? t('onboarding.actions.continueWith', { count: selectedServers.length })
+                      : t('onboarding.actions.skipStep')}
                   </Button>
                 </div>
               </div>
@@ -387,12 +383,14 @@ export function OnboardingWizard() {
             <div className="space-y-8 animate-fade-in">
               <div className="text-center">
                 <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                  {isConnecting ? 'Connecting Your Services...' : 'Connection Results'}
+                  {isConnecting
+                    ? t('onboarding.connect.titleConnecting')
+                    : t('onboarding.connect.titleResults')}
                 </h2>
                 <p className="text-lg text-gray-600 font-serif max-w-2xl mx-auto">
                   {isConnecting
-                    ? 'We are connecting to your selected services. This may take a moment.'
-                    : 'Here is the status of your service connections.'}
+                    ? t('onboarding.connect.subtitleConnecting')
+                    : t('onboarding.connect.subtitleResults')}
                 </p>
               </div>
 
@@ -425,14 +423,14 @@ export function OnboardingWizard() {
                             </h4>
                             <p className="text-sm text-gray-600">
                               {isCurrentlyConnecting
-                                ? 'Connecting...'
+                                ? t('onboarding.connect.statusConnecting')
                                 : result?.success
-                                ? 'Connected successfully'
+                                ? t('onboarding.connect.statusSuccess')
                                 : result?.requiresCredentials
-                                ? 'Requires credentials setup'
+                                ? t('onboarding.connect.statusNeedsCreds')
                                 : result?.error
                                 ? result.error
-                                : 'Waiting...'}
+                                : t('onboarding.connect.statusWaiting')}
                             </p>
                           </div>
                         </div>
@@ -457,8 +455,8 @@ export function OnboardingWizard() {
                 {!isConnecting && connectionResults.some(r => r.requiresCredentials) && (
                   <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
                     <p className="text-sm text-amber-800">
-                      <strong>Note:</strong> Some servers require credentials to be configured.
-                      You can set them up from the <strong>{t('menu.services')}</strong> page after completing onboarding.
+                      <strong>{t('onboarding.connect.noteLabel')}:</strong>{' '}
+                      {t('onboarding.connect.noteCredentials', { services: t('menu.services') })}
                     </p>
                   </div>
                 )}
@@ -467,8 +465,8 @@ export function OnboardingWizard() {
                   <div className="mt-6 flex justify-center">
                     <Button variant="primary" onClick={handleContinue}>
                       {connectionResults.some(r => r.success)
-                        ? 'Continue to Dashboard'
-                        : 'Continue Anyway'}
+                        ? t('onboarding.actions.continueDashboard')
+                        : t('onboarding.actions.continueAnyway')}
                     </Button>
                   </div>
                 )}
@@ -480,7 +478,7 @@ export function OnboardingWizard() {
                   onClick={() => setStep('choose-servers')}
                   disabled={isConnecting}
                 >
-                  Back
+                  {t('onboarding.actions.back')}
                 </Button>
               </div>
             </div>
@@ -502,19 +500,23 @@ export function OnboardingWizard() {
 
               <div>
                 <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                  {serversNeedCredentials ? 'Almost There!' : 'You\'re All Set!'}
+                  {serversNeedCredentials
+                    ? t('onboarding.complete.titleAlmost')
+                    : t('onboarding.complete.titleDone')}
                 </h2>
                 <p className="text-xl text-gray-600 font-serif max-w-2xl mx-auto">
                   {serversNeedCredentials
-                    ? `Some services need credentials to work. Head to ${t('menu.services')} to configure them, then start creating AI-powered workflows.`
+                    ? t('onboarding.complete.bodyNeedsCreds', { services: t('menu.services') })
                     : someServersConnected
-                    ? 'Your services are connected! Start exploring the marketplace to discover more services and create your first AI-powered workflow.'
-                    : 'Welcome to BigMCP. Start exploring the marketplace to discover services and create your first AI-powered workflow.'}
+                    ? t('onboarding.complete.bodyConnected')
+                    : t('onboarding.complete.bodyWelcome')}
                 </p>
               </div>
 
               <Button variant="primary" size="lg" onClick={handleContinue}>
-                {serversNeedCredentials ? `Go to ${t('menu.services')}` : 'Go to Marketplace'}
+                {serversNeedCredentials
+                  ? t('onboarding.actions.goToServices', { services: t('menu.services') })
+                  : t('onboarding.actions.goToMarketplace')}
               </Button>
             </div>
           )}

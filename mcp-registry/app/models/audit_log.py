@@ -157,6 +157,9 @@ class AuditAction(str, enum.Enum):
     # User-driven connected-apps revocation (N2.4 / Story H)
     CONNECTED_APP_REVOKE = "auth.connected_app_revoke"
 
+    # Sprint 3.A — Self-heal orphan users on login (no personal org)
+    ACCOUNT_AUTO_HEAL_ORG = "auth.account_auto_heal_org"
+
     # SSO / OIDC (Story I.1)
     SSO_LOGIN_SUCCESS = "auth.sso_login_success"
     SSO_LOGIN_FAILED = "auth.sso_login_failed"

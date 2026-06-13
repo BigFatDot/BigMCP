@@ -492,3 +492,117 @@ class TestAuthenticationIntegration:
         u1 = me_response_1.json().get("user", me_response_1.json())
         u2 = me_response_2.json().get("user", me_response_2.json())
         assert u1["id"] == u2["id"]
+
+
+class TestLoginSelfHealOrphan:
+    """Sprint 3.A — /auth/login silently mints a personal org for users
+    whose ``organization_members`` row was never created (legacy accounts
+    or any future code path that fails to seed the personal org).
+    """
+
+    @pytest.mark.asyncio
+    async def test_login_self_heals_orphan_user(
+        self, client: AsyncClient, db_session
+    ):
+        """An active user with zero memberships logs in successfully and
+        ends up with a freshly minted personal org + ADMIN membership.
+        """
+        from sqlalchemy import select
+        from app.models.user import User, AuthProvider
+        from app.models.organization import OrganizationMember
+        from app.models.audit_log import AuditLog
+        from app.services.auth_service import AuthService
+
+        auth_service = AuthService(db_session)
+        password = "OrphanPass123"
+        user = User(
+            email="orphan@example.com",
+            name="Orphan User",
+            auth_provider=AuthProvider.LOCAL,
+            password_hash=auth_service.hash_password(password),
+            email_verified=True,
+        )
+        db_session.add(user)
+        await db_session.commit()
+        await db_session.refresh(user)
+        user_id = user.id
+
+        # Sanity: no membership yet
+        pre_q = await db_session.execute(
+            select(OrganizationMember).where(
+                OrganizationMember.user_id == user_id
+            )
+        )
+        assert pre_q.scalar_one_or_none() is None
+
+        # Login — must succeed (no 500) and trigger the self-heal
+        response = await client.post(
+            "/api/v1/auth/login",
+            json={"email": "orphan@example.com", "password": password},
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert "access_token" in body
+
+        # The membership now exists with ADMIN role
+        post_q = await db_session.execute(
+            select(OrganizationMember).where(
+                OrganizationMember.user_id == user_id
+            )
+        )
+        memberships = list(post_q.scalars().all())
+        assert len(memberships) == 1
+        # role can be Enum or string depending on dialect — normalise
+        role_val = memberships[0].role
+        assert (
+            role_val.value if hasattr(role_val, "value") else str(role_val)
+        ).lower() == "admin"
+
+        # Audit row was written
+        audit_q = await db_session.execute(
+            select(AuditLog).where(
+                AuditLog.actor_id == user_id,
+                AuditLog.action == "auth.account_auto_heal_org",
+            )
+        )
+        assert audit_q.scalar_one_or_none() is not None
+
+    @pytest.mark.asyncio
+    async def test_login_idempotent_when_already_has_org(
+        self, client: AsyncClient, test_user: dict, db_session
+    ):
+        """Logging in twice for a user who already has an org does not
+        mint a second personal organization.
+        """
+        from uuid import UUID
+        from sqlalchemy import select, func
+        from app.models.organization import OrganizationMember
+
+        user_uuid = UUID(test_user["user"]["id"])
+
+        # First /auth/login already happened via the test_user fixture.
+        before_q = await db_session.execute(
+            select(func.count(OrganizationMember.id)).where(
+                OrganizationMember.user_id == user_uuid
+            )
+        )
+        before = int(before_q.scalar_one() or 0)
+        assert before == 1
+
+        # Login again
+        response = await client.post(
+            "/api/v1/auth/login",
+            json={
+                "email": test_user["email"],
+                "password": test_user["password"],
+            },
+        )
+        assert response.status_code == 200
+
+        after_q = await db_session.execute(
+            select(func.count(OrganizationMember.id)).where(
+                OrganizationMember.user_id == user_uuid
+            )
+        )
+        after = int(after_q.scalar_one() or 0)
+        assert after == before, "Login should not create extra orgs"

@@ -43,6 +43,70 @@ bearer_scheme = HTTPBearer(auto_error=False)
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
+async def _ensure_personal_organization(
+    db: AsyncSession,
+    user: User,
+) -> tuple[OrganizationMember, bool]:
+    """Ensure ``user`` has at least one organization membership.
+
+    Returns a tuple ``(membership, created)`` where ``created`` is True when
+    we had to mint a brand-new personal organization for this user. The
+    caller is responsible for committing the session — we only ``flush``
+    so the IDs are available for downstream JWT minting / audit logging.
+
+    Idempotent: a concurrent caller racing to do the same heal will read
+    back the row created by the winner the next time the transaction
+    starts because we lock the user row with ``SELECT … FOR UPDATE``
+    before deciding to insert. Callers that hold a read-only snapshot
+    won't see the duplicate insert until they refresh.
+    """
+    # SELECT FOR UPDATE on the user row. Postgres serialises us against
+    # another worker that's also trying to heal the same orphan account.
+    # SQLite (used by the unit-test suite) doesn't support row-level
+    # locks; ``with_for_update`` silently degrades there, which is fine
+    # because the test suite is single-process.
+    locked = await db.execute(
+        select(User).where(User.id == user.id).with_for_update()
+    )
+    locked_user = locked.scalar_one()
+
+    # Re-check inside the lock — another worker may have completed the
+    # heal while we were waiting.
+    existing = await db.execute(
+        select(OrganizationMember)
+        .where(OrganizationMember.user_id == locked_user.id)
+        .order_by(OrganizationMember.created_at.asc())
+        .limit(1)
+    )
+    membership = existing.scalar_one_or_none()
+    if membership:
+        return membership, False
+
+    # No org → mint a personal one + ADMIN membership.
+    org_name = (
+        f"{locked_user.name}'s Organization"
+        if locked_user.name
+        else f"{locked_user.email}'s Organization"
+    )
+    organization = Organization(
+        name=org_name,
+        slug=f"org-{locked_user.id}",
+        organization_type="personal",
+    )
+    db.add(organization)
+    await db.flush()
+
+    membership = OrganizationMember(
+        user_id=locked_user.id,
+        organization_id=organization.id,
+        role=UserRole.ADMIN,
+    )
+    db.add(membership)
+    await db.flush()
+
+    return membership, True
+
+
 @router.post("/register", response_model=RegisterResponse, status_code=status.HTTP_201_CREATED)
 async def register(
     data: UserRegister,
@@ -114,23 +178,15 @@ async def register(
     db.add(user)
     await db.flush()  # Flush to get user.id
 
-    # Create default organization for user
-    org_name = f"{data.name}'s Organization" if data.name else f"{data.email}'s Organization"
-    organization = Organization(
-        name=org_name,
-        slug=f"org-{user.id}",  # Simple slug based on user ID
-        organization_type="personal"  # Personal organization type
-    )
-    db.add(organization)
-    await db.flush()  # Flush to get organization.id
-
-    # Create organization membership (user is admin of their own org)
-    membership = OrganizationMember(
-        user_id=user.id,
-        organization_id=organization.id,
-        role=UserRole.ADMIN
-    )
-    db.add(membership)
+    # Create default organization + ADMIN membership for user.
+    # Shared with /auth/login self-heal so the two code paths can't
+    # drift on naming convention or slug shape.
+    membership, _ = await _ensure_personal_organization(db, user)
+    organization = (
+        await db.execute(
+            select(Organization).where(Organization.id == membership.organization_id)
+        )
+    ).scalar_one()
 
     await db.commit()
     await db.refresh(user)
@@ -355,10 +411,32 @@ async def login(
     membership = result.scalar_one_or_none()
 
     if not membership:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="User has no organization"
-        )
+        # Sprint 3.A — self-heal orphan accounts (Cerema-era users created
+        # before the org-auto-provision logic, plus any future code path
+        # that fails to seed the personal org). The user just wanted to
+        # log in — we mint the personal org silently and audit it so
+        # admins can see the heal in the trail.
+        membership, _ = await _ensure_personal_organization(db, user)
+        await db.commit()
+
+        try:
+            from ...services.audit_service import AuditService
+            from ...models.audit_log import AuditAction
+            await AuditService(db).log_action(
+                action=AuditAction.ACCOUNT_AUTO_HEAL_ORG,
+                actor_id=user.id,
+                organization_id=membership.organization_id,
+                resource_type="user",
+                resource_id=str(user.id),
+                details={
+                    "email": user.email,
+                    "organization_id": str(membership.organization_id),
+                    "trigger": "login_no_membership",
+                },
+                request=request,
+            )
+        except Exception:
+            pass
 
     # Check MFA requirement
     if user.mfa_enabled:
