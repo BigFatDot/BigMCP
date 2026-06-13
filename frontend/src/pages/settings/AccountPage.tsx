@@ -17,7 +17,7 @@ import {
   ShieldCheckIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline'
-import { Button, Card } from '@/components/ui'
+import { Button, Card, useConfirm } from '@/components/ui'
 import { MFASetupModal, MFADisableModal } from '@/components/auth'
 import { useAuth, useEdition } from '@/hooks/useAuth'
 import { useInstanceAdmin } from '@/hooks/useInstanceAdmin'
@@ -26,6 +26,7 @@ import type { MFAStatus } from '@/types/auth'
 
 export function AccountPage() {
   const { t } = useTranslation('settings')
+  const confirm = useConfirm()
   const { user, logout, refreshUser } = useAuth()
   const { editionLoading, isCloudSaaS, isEnterprise, licenseOrg, licenseFeatures } = useEdition()
   const {
@@ -160,14 +161,18 @@ export function AccountPage() {
   }
 
   const handleDeleteAccount = async () => {
-    if (!confirm(t('account.danger.confirmPrompt'))) {
-      return
-    }
-    // Double confirmation for destructive action
-    const confirmText = prompt(t('account.danger.typeDelete'))
-    if (confirmText !== 'DELETE') {
-      return
-    }
+    // Single in-app modal that combines the warning and the "type DELETE to
+    // confirm" guard, replacing the legacy window.confirm + window.prompt pair.
+    const ok = await confirm({
+      title: t('account.danger.confirmTitle'),
+      message: t('account.danger.confirmPrompt'),
+      confirmLabel: t('account.danger.deleteButton'),
+      cancelLabel: t('account.cancel'),
+      danger: true,
+      requireText: 'DELETE',
+      requireTextLabel: t('account.danger.typeDelete'),
+    })
+    if (!ok) return
 
     try {
       await authApi.deleteAccount()

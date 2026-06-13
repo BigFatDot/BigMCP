@@ -116,6 +116,7 @@
       "deleteAccount": "Delete Account",
       "deleteWarning": "This action cannot be undone. All your data will be permanently deleted.",
       "deleteButton": "Delete my account",
+      "confirmTitle": "Delete your account?",
       "confirmPrompt": "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.",
       "typeDelete": "Type \"DELETE\" to confirm account deletion:"
     }

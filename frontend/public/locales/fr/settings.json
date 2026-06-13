@@ -116,6 +116,7 @@
       "deleteAccount": "Supprimer le compte",
       "deleteWarning": "Cette action est irréversible. Toutes vos données seront définitivement supprimées.",
       "deleteButton": "Supprimer mon compte",
+      "confirmTitle": "Supprimer votre compte ?",
       "confirmPrompt": "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et toutes vos données seront définitivement supprimées.",
       "typeDelete": "Tapez \"DELETE\" pour confirmer la suppression du compte :"
     }
