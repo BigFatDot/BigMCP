@@ -291,86 +291,192 @@ SESSION_EXPIRY_HOURS=24
 `,
 
   'llm-providers': `
-# Fournisseurs LLM
+# Bring Your Own LLM (BYOL)
 
-Configurez votre backend IA pour BigMCP auto-hébergé.
+BigMCP n'embarque **aucun** LLM. Tu fournis le tien : API managée,
+endpoint auto-hébergé, ou modèle local complètement air-gappé. Le
+backend parle à n'importe quel provider exposant une surface
+OpenAI-compatible \`/v1/chat/completions\` (et \`/v1/embeddings\`).
 
-## Fournisseurs supportés
+Conséquence directe : **pas de lock-in**. Change de provider en
+modifiant trois variables d'environnement puis redémarre le
+backend.
 
-| Fournisseur | Modèles | Support Embedding |
-|-------------|---------|-------------------|
-| OpenAI | GPT-4o, GPT-4, GPT-3.5 | Oui |
-| Anthropic | Claude 3.5, Claude 3 | Non* |
-| Mistral | Mistral Small/Large | Oui |
-| Ollama | Tout modèle local | Dépend |
+## À quoi sert le LLM dans BigMCP
 
-*Anthropic ne fournit pas d'API d'embedding; utilisez un fournisseur secondaire.
+1. **Orchestration / planner** — transforme un objectif en langage
+   naturel en plan d'appels d'outils via \`execute(goal=...)\`.
+   Utilise le chat completion.
+2. **Recherche sémantique sur le catalogue d'outils** — embed les
+   descriptions des tools pour alimenter \`search()\`. Utilise
+   l'endpoint \`/v1/embeddings\`.
+3. **Reranking (optionnel)** — endpoint \`/v1/rerank\` à la Mistral
+   pour affiner le classement des tools. Garde-fou
+   \`RERANK_ENABLED=true\`. À laisser désactivé pour Ollama /
+   OpenAI / vLLM (ils n'exposent pas \`/rerank\`).
 
-## Configuration OpenAI
+## Variables d'environnement clés
 
-\`\`\`bash
-LLM_PROVIDER=openai
+À placer dans le \`.env\` à la racine de ton déploiement BigMCP :
+
+\`\`\`env
+# Endpoint de chat completion (OpenAI-compatible /v1)
+LLM_API_URL=https://api.mistral.ai/v1
+LLM_API_KEY=sk-...
+LLM_MODEL=mistral-small-latest
+
+# Nom du modèle d'embedding envoyé à /v1/embeddings
+EMBEDDING_MODEL=mistral-embed
+# Dimension du vecteur : 1024 (Mistral), 1536 (OpenAI small), 768 (nomic), …
+EMBEDDING_DIMENSION=1024
+\`\`\`
+
+Optionnel : séparer chat et embeddings entre deux providers
+(ex. chat local pas cher + embeddings managés) :
+
+\`\`\`env
+EMBEDDING_API_URL=https://api.mistral.ai/v1
+EMBEDDING_API_KEY=sk-...
+\`\`\`
+
+Si \`EMBEDDING_API_URL\` n'est pas défini, le backend retombe sur
+\`LLM_API_URL\` pour les embeddings.
+
+## Mistral (par défaut)
+
+\`\`\`env
+LLM_API_URL=https://api.mistral.ai/v1
+LLM_API_KEY=...
+LLM_MODEL=mistral-small-latest
+EMBEDDING_MODEL=mistral-embed
+EMBEDDING_DIMENSION=1024
+
+# Mistral expose /v1/rerank — tu peux l'activer
+RERANK_ENABLED=true
+RERANK_MODEL=rerank-small
+\`\`\`
+
+## OpenAI
+
+\`\`\`env
 LLM_API_URL=https://api.openai.com/v1
-OPENAI_API_KEY=sk-...
-LLM_MODEL=gpt-4o
+LLM_API_KEY=sk-...
+LLM_MODEL=gpt-4o-mini
 EMBEDDING_MODEL=text-embedding-3-small
+EMBEDDING_DIMENSION=1536
+
+# OpenAI n'expose pas /rerank — laisse désactivé
+RERANK_ENABLED=false
 \`\`\`
 
-### Azure OpenAI
+## Ollama (local)
 
-\`\`\`bash
-LLM_PROVIDER=azure
-AZURE_OPENAI_ENDPOINT=https://votre-ressource.openai.azure.com
-AZURE_OPENAI_KEY=...
-AZURE_OPENAI_DEPLOYMENT=gpt-4o
-\`\`\`
-
-## Configuration Anthropic
-
-\`\`\`bash
-LLM_PROVIDER=anthropic
-ANTHROPIC_API_KEY=sk-ant-...
-LLM_MODEL=claude-3-5-sonnet-20241022
-
-# Pour les embeddings, utilisez un fournisseur secondaire
-EMBEDDING_PROVIDER=openai
-OPENAI_API_KEY=sk-...
-\`\`\`
-
-## Modèles locaux (Ollama)
-
-### Installer Ollama
+Chemin recommandé pour un déploiement souverain ou air-gappé.
+Ollama expose une API OpenAI-compatible sur le port 11434.
 
 \`\`\`bash
 curl -fsSL https://ollama.com/install.sh | sh
-ollama pull llama2
+ollama pull llama3.1:8b
 ollama pull nomic-embed-text
 \`\`\`
 
-### Configurer BigMCP
-
-\`\`\`bash
-LLM_PROVIDER=ollama
-OLLAMA_URL=http://localhost:11434
-LLM_MODEL=llama2
+\`\`\`env
+# Depuis Docker, utilise l'IP de l'hôte (ex. http://host.docker.internal:11434/v1)
+LLM_API_URL=http://localhost:11434/v1
+LLM_API_KEY=ollama          # n'importe quelle chaîne non vide ; Ollama l'ignore
+LLM_MODEL=llama3.1:8b
 EMBEDDING_MODEL=nomic-embed-text
+EMBEDDING_DIMENSION=768
+
+RERANK_ENABLED=false
 \`\`\`
 
-## Choisir un fournisseur
+## vLLM (auto-hébergé production)
 
-| Cas d'usage | Recommandé |
-|-------------|------------|
-| Meilleure qualité | OpenAI GPT-4o ou Claude 3.5 |
-| Économique | Mistral Small |
-| Priorité confidentialité | Ollama + modèles locaux |
-| Enterprise | Azure OpenAI |
+Pour plus de débit qu'Ollama, lance vLLM derrière son serveur
+OpenAI-compatible (\`--api-key\` optionnel) :
 
-## Conseils de performance
+\`\`\`bash
+python -m vllm.entrypoints.openai.api_server \\
+  --model meta-llama/Llama-3.1-8B-Instruct \\
+  --port 8000
+\`\`\`
 
-1. **Utilisez des modèles plus petits** pour les tâches simples
-2. **Activez le cache** pour réduire les appels API
-3. **Regroupez les embeddings** si possible
-4. **Surveillez l'utilisation** pour contrôler les coûts
+\`\`\`env
+LLM_API_URL=http://vllm:8000/v1
+LLM_API_KEY=any-string
+LLM_MODEL=meta-llama/Llama-3.1-8B-Instruct
+EMBEDDING_MODEL=text-embedding-3-small   # servi par un autre vLLM ou par OpenAI
+EMBEDDING_DIMENSION=1536
+
+RERANK_ENABLED=false
+\`\`\`
+
+## N'importe quel provider OpenAI-compatible
+
+Si ton provider expose \`POST /v1/chat/completions\` et
+\`POST /v1/embeddings\` au format OpenAI standard, ça marche
+directement — il suffit de pointer \`LLM_API_URL\`, \`LLM_API_KEY\`,
+\`LLM_MODEL\` et un \`EMBEDDING_MODEL\` qu'il supporte. Aucune
+modification de code.
+
+## Mode air-gap
+
+\`AIRGAP_MODE=true\` désactive **tous** les appels HTTP sortants
+non-LLM de BigMCP :
+
+- Sync marketplace (npm / GitHub / Glama / Smithery) désactivée.
+- Récupération d'icônes CDN (Simple Icons, LobeHub) remplacée par
+  des avatars inline.
+- Fallback avatar CDN (ui-avatars.com) remplacé par un data URI.
+- API LemonSqueezy billing hard-désactivée (déjà SaaS-only).
+
+Les appels LLM restent **autorisés en sortie** — la garantie
+air-gap c'est que BigMCP lui-même n'appelle plus rien d'autre que
+ton endpoint LLM configuré. Pour un vrai air-gap, pointe
+\`LLM_API_URL\` sur un Ollama / vLLM local accessible uniquement
+sur ton réseau privé.
+
+\`\`\`env
+AIRGAP_MODE=true
+LLM_API_URL=http://ollama.internal:11434/v1
+LLM_API_KEY=ollama
+LLM_MODEL=llama3.1:8b
+EMBEDDING_MODEL=nomic-embed-text
+EMBEDDING_DIMENSION=768
+\`\`\`
+
+Vérifier que le mode est actif :
+
+\`\`\`bash
+curl http://localhost:8001/edition/status | jq .airgap
+# → true
+\`\`\`
+
+## Ce qui n'est **pas** supporté
+
+- **API Anthropic Claude directe** — Anthropic n'expose pas
+  d'endpoint OpenAI-compatible \`/v1/chat/completions\` à ce jour.
+  Workaround : passer par un proxy de traduction comme LiteLLM ou
+  toute gateway OpenAI-compatible, puis pointer \`LLM_API_URL\`
+  sur le proxy.
+- **Provider sans API d'embedding** — pointer \`EMBEDDING_API_URL\`
+  sur un autre provider qui en a un (ex. chat = Ollama,
+  embeddings = Mistral ou OpenAI).
+
+## Changer de provider
+
+Aucune étape de migration. Mets à jour \`LLM_API_URL\` /
+\`LLM_API_KEY\` / \`LLM_MODEL\` dans \`.env\`, puis :
+
+\`\`\`bash
+docker compose restart backend
+\`\`\`
+
+L'index d'embeddings est reconstruit à la volée au prochain
+\`search()\` sémantique. Si tu changes pour un modèle avec une
+dimension de vecteur différente, ajuste aussi
+\`EMBEDDING_DIMENSION\` — l'index sera rebâti.
 `,
 
   'custom-servers': `

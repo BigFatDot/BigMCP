@@ -246,9 +246,9 @@ export const docsNavigation: DocSection[] = [
       },
       {
         slug: 'llm-providers',
-        title: 'LLM Providers',
-        description: 'Configure your AI backend',
-        keywords: ['llm', 'openai', 'anthropic', 'local', 'ollama'],
+        title: 'Bring Your Own LLM',
+        description: 'Configure Mistral, OpenAI, Ollama, vLLM or any OpenAI-compatible provider, plus air-gap mode',
+        keywords: ['llm', 'byol', 'bring your own', 'openai', 'mistral', 'ollama', 'vllm', 'local', 'airgap', 'air-gap', 'sovereign', 'self-host', 'anthropic'],
       },
       {
         slug: 'custom-servers',
