@@ -31,12 +31,26 @@ function setMetaTag(property: string, content: string) {
   }
 }
 
+const DEFAULT_TITLE = 'BigMCP — One endpoint for all your MCP servers'
+const DEFAULT_DESCRIPTION =
+  'Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, keep every byte on your infrastructure. AGPLv3, no vendor lock-in.'
+
+/**
+ * Returns the final title string. If the title already contains "BigMCP",
+ * we use it as-is to avoid "BigMCP — … | BigMCP" duplication. Otherwise
+ * we append a discrete " | BigMCP" suffix for brand consistency.
+ */
+function formatTitle(title: string): string {
+  return /bigmcp/i.test(title) ? title : `${title} | BigMCP`
+}
+
 export function usePageMeta({ title, description }: PageMeta) {
   useEffect(() => {
     if (title) {
-      document.title = `${title} | BigMCP`
-      setMetaTag('og:title', `${title} | BigMCP`)
-      setMetaTag('twitter:title', `${title} | BigMCP`)
+      const formatted = formatTitle(title)
+      document.title = formatted
+      setMetaTag('og:title', formatted)
+      setMetaTag('twitter:title', formatted)
     }
 
     if (description) {
@@ -47,10 +61,10 @@ export function usePageMeta({ title, description }: PageMeta) {
 
     // Cleanup: restore defaults on unmount
     return () => {
-      document.title = 'BigMCP - Unified MCP Server Gateway'
-      setMetaTag('description', 'Connect, manage, and orchestrate all your MCP servers in one place.')
-      setMetaTag('og:title', 'BigMCP - Unified MCP Server Gateway')
-      setMetaTag('og:description', 'Connect, manage, and orchestrate all your MCP servers in one place.')
+      document.title = DEFAULT_TITLE
+      setMetaTag('description', DEFAULT_DESCRIPTION)
+      setMetaTag('og:title', DEFAULT_TITLE)
+      setMetaTag('og:description', DEFAULT_DESCRIPTION)
     }
   }, [title, description])
 }

@@ -109,6 +109,7 @@ export function Governance() {
               >
                 <div
                   className="flex items-end gap-1 flex-none"
+                  role="img"
                   aria-label={`Level ${role.lv} of 4`}
                 >
                   {[1, 2, 3, 4].map((b) => {

@@ -11,12 +11,19 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import { InstanceLogoWithText } from '../../components/brand/InstanceLogo'
 import { useBranding } from '../../contexts/BrandingContext'
+import { usePageMeta } from '../../hooks/usePageMeta'
 
 export function SignupPage() {
   const { t } = useTranslation('auth')
+  const { t: tCommon } = useTranslation('common')
   const navigate = useNavigate()
   const { signup, deploymentConfig } = useAuth()
   const { branding } = useBranding()
+
+  usePageMeta({
+    title: tCommon('meta.signup.title'),
+    description: tCommon('meta.signup.description'),
+  })
 
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')

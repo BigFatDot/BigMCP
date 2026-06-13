@@ -49,5 +49,35 @@
   "empty": {
     "noData": "No data available",
     "noResults": "No results found"
+  },
+  "meta": {
+    "landing": {
+      "title": "BigMCP — One endpoint for all your MCP servers",
+      "description": "Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, keep every byte on your infrastructure. AGPLv3, no vendor lock-in."
+    },
+    "signup": {
+      "title": "Try BigMCP — Sign up",
+      "description": "Create your BigMCP account to connect, manage and orchestrate all your MCP servers from a single endpoint."
+    },
+    "login": {
+      "title": "Sign in to BigMCP",
+      "description": "Sign in to your BigMCP account to access your MCP servers, credentials and compositions."
+    },
+    "notFound": {
+      "title": "404 — Page not found",
+      "description": "The page you are looking for does not exist or has been moved."
+    },
+    "docs": {
+      "titleSuffix": "BigMCP Docs",
+      "description": "BigMCP documentation: install, connect MCP servers, configure clients and orchestrate compositions."
+    },
+    "privacy": {
+      "title": "Privacy Policy — BigMCP",
+      "description": "BigMCP Privacy Policy. Learn how we collect, use, and protect your data."
+    },
+    "terms": {
+      "title": "Terms of Service — BigMCP",
+      "description": "BigMCP Terms of Service. Read our terms and conditions for using the platform."
+    }
   }
 }

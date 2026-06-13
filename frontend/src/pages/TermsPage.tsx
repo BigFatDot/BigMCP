@@ -3,13 +3,15 @@
  */
 
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { usePageMeta } from '@/hooks/usePageMeta'
 
 export function TermsPage() {
+  const { t } = useTranslation('common')
   usePageMeta({
-    title: 'Terms of Service - BigMCP',
-    description: 'BigMCP Terms of Service. Read our terms and conditions for using the platform.',
+    title: t('meta.terms.title', 'Terms of Service — BigMCP'),
+    description: t('meta.terms.description', 'BigMCP Terms of Service. Read our terms and conditions for using the platform.'),
   })
 
   return (

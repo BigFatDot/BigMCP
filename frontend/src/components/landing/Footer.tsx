@@ -19,6 +19,8 @@ const COLUMNS: FooterColumn[] = [
   {
     h: 'Product',
     links: [
+      // Intra-landing anchors kept on purpose: these are marketing sections,
+      // not docs pages.
       { label: 'Features', href: '#features' },
       { label: 'How it works', href: '#how' },
       { label: 'Marketplace', href: '#marketplace' },
@@ -28,10 +30,10 @@ const COLUMNS: FooterColumn[] = [
   {
     h: 'Platform',
     links: [
-      { label: 'Self-hosting', href: '#selfhost' },
-      { label: 'Security', href: '#governance' },
-      { label: 'Compositions', href: '#compositions' },
-      { label: 'API reference', href: '/docs' },
+      { label: 'Self-hosting', href: '/docs/self-hosting/docker-setup' },
+      { label: 'Security', href: '/docs/concepts/security' },
+      { label: 'Compositions', href: '/docs/guides/compositions' },
+      { label: 'API reference', href: '/docs/api/api-overview' },
     ],
   },
   {
@@ -100,7 +102,7 @@ export function Footer() {
 
           {COLUMNS.map((c) => (
             <div key={c.h}>
-              <h4
+              <h2
                 className="font-sans font-bold"
                 style={{
                   fontSize: 13,
@@ -111,7 +113,7 @@ export function Footer() {
                 }}
               >
                 {c.h}
-              </h4>
+              </h2>
               <ul className="flex flex-col gap-2.5">
                 {c.links.map((l) => {
                   const external = l.href.startsWith('http')

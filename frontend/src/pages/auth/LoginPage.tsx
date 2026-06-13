@@ -14,15 +14,22 @@ import { useBranding } from '../../contexts/BrandingContext'
 import { TOTPInput, SsoButtons } from '../../components/auth'
 import { EnvelopeIcon, ArrowPathIcon, ShieldCheckIcon } from '@heroicons/react/24/outline'
 import { mfaApi } from '../../services/marketplace'
+import { usePageMeta } from '../../hooks/usePageMeta'
 
 const API_BASE = '/api/v1'
 
 export function LoginPage() {
   const { t } = useTranslation('auth')
+  const { t: tCommon } = useTranslation('common')
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { login, deploymentConfig } = useAuth()
   const { branding } = useBranding()
+
+  usePageMeta({
+    title: tCommon('meta.login.title'),
+    description: tCommon('meta.login.description'),
+  })
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

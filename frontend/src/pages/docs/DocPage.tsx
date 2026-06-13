@@ -278,7 +278,7 @@ export function DocPage() {
   }, [section, slug])
 
   // Get current language from i18next
-  const { i18n } = useTranslation()
+  const { i18n, t: tCommon } = useTranslation('common')
   const currentLang = i18n.language?.split('-')[0] || 'en' // Handle 'fr-FR' -> 'fr'
 
   // Get content based on current language
@@ -299,9 +299,11 @@ export function DocPage() {
   // Update document title and meta tags
   const translatedTitle = section && slug ? getItemTitle(section, slug) : docInfo?.title
   const translatedDescription = section && slug ? getItemDescription(section, slug) : docInfo?.description
+  const docsSuffix = tCommon('meta.docs.titleSuffix', 'BigMCP Docs')
+  const docsDefaultDescription = tCommon('meta.docs.description', '')
   usePageMeta({
-    title: translatedTitle ? `${translatedTitle} - Docs` : undefined,
-    description: translatedDescription || undefined,
+    title: translatedTitle ? `${translatedTitle} — ${docsSuffix}` : docsSuffix,
+    description: translatedDescription || docsDefaultDescription || undefined,
   })
 
   // Scroll to top when navigating to a new page

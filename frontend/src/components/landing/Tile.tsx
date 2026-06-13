@@ -26,6 +26,7 @@ export function Tile({ name, m, c, size = 44, radius, className }: TileProps) {
         className,
       )}
       title={name}
+      role="img"
       aria-label={name}
       style={{
         width: size,

@@ -1,0 +1,61 @@
+# BigMCP
+
+> Open-source MCP gateway for organizations. Self-host one URL that exposes every Model Context Protocol (MCP) server your team needs, with RBAC, HMAC-signed audit logs, encrypted credential storage, and durable AI workflows. Bring your own LLM (Mistral, OpenAI, Ollama, vLLM) or run fully offline. Licensed under AGPLv3, no vendor lock-in.
+
+BigMCP aggregates 180+ verified MCP servers (GitHub, Notion, Slack, Stripe, PostgreSQL, Docker, and more) behind a single API endpoint compatible with Claude Desktop, Cursor, Mistral Le Chat, n8n, and any MCP 2025-03-26 client. AI agents call `search` to discover tools and `execute` to run them, with full credential isolation per user and per organization.
+
+## Docs
+
+- [Introduction](https://bigmcp.cloud/docs/getting-started/introduction): What BigMCP is and why use it
+- [Quick Start](https://bigmcp.cloud/docs/getting-started/quickstart): Get up and running in 5 minutes
+- [Connect Your First Server](https://bigmcp.cloud/docs/getting-started/first-server): Add an MCP server to your account
+- [Discover Servers](https://bigmcp.cloud/docs/guides/marketplace): Browse and install MCP servers from the marketplace
+- [Manage Services](https://bigmcp.cloud/docs/guides/credentials): Control connected servers and their tools
+- [Organize with Toolboxes](https://bigmcp.cloud/docs/guides/tool-groups): Bundle tools for different use cases and access control
+- [Create API Keys](https://bigmcp.cloud/docs/guides/api-keys): Generate keys for external integrations and automation
+- [Build Compositions](https://bigmcp.cloud/docs/guides/compositions): Chain tools together for complex workflows
+- [Composition Step Types](https://bigmcp.cloud/docs/guides/composition-step-types): Suspending steps (elicit, wait_until, subcomposition, wait_callback, approval)
+- [Team Services](https://bigmcp.cloud/docs/guides/team-services): Manage shared services for your team
+
+## Integrations
+
+- [Claude Desktop](https://bigmcp.cloud/docs/integrations/claude-desktop): Connect BigMCP to Claude Desktop via OAuth
+- [Mistral Le Chat](https://bigmcp.cloud/docs/integrations/mistral-lechat): Use BigMCP tools in Mistral Le Chat
+- [n8n Automation](https://bigmcp.cloud/docs/integrations/n8n): Use BigMCP tools in n8n workflows
+- [Custom Clients](https://bigmcp.cloud/docs/integrations/custom-clients): Build your own MCP client with the SDK
+
+## Core Concepts
+
+- [MCP Protocol](https://bigmcp.cloud/docs/concepts/mcp-overview): Understanding the Model Context Protocol standard
+- [MCP Servers](https://bigmcp.cloud/docs/concepts/servers): How servers expose tools, resources, and prompts
+- [Tools and Execution](https://bigmcp.cloud/docs/concepts/tools): How tools work and are executed by AI agents
+- [Security Model](https://bigmcp.cloud/docs/concepts/security): Encryption, authentication, and access control
+
+## API Reference
+
+- [API Overview](https://bigmcp.cloud/docs/api/api-overview): REST API introduction and authentication
+- [Marketplace API](https://bigmcp.cloud/docs/api/api-marketplace): Endpoints for server discovery
+- [Credentials API](https://bigmcp.cloud/docs/api/api-credentials): Manage user credentials programmatically
+- [MCP Gateway API](https://bigmcp.cloud/docs/api/api-mcp): Connect to tools via the gateway
+- [Tools and Execution API](https://bigmcp.cloud/docs/api/api-tools): Execute tools, bindings, and compositions
+
+## Self-Hosting
+
+- [Overview](https://bigmcp.cloud/docs/self-hosting/self-host-overview): Self-hosting options and requirements
+- [Docker Setup](https://bigmcp.cloud/docs/self-hosting/docker-setup): Deploy with Docker Compose
+- [Configuration](https://bigmcp.cloud/docs/self-hosting/configuration): Environment variables and settings
+- [Bring Your Own LLM](https://bigmcp.cloud/docs/self-hosting/llm-providers): Mistral, OpenAI, Ollama, vLLM, AIRGAP_MODE
+- [Custom MCP Servers](https://bigmcp.cloud/docs/self-hosting/custom-servers): Add your own MCP servers
+- [Scaling and Performance](https://bigmcp.cloud/docs/self-hosting/scaling): Optimize performance and scale your instance
+- [Monitoring](https://bigmcp.cloud/docs/self-hosting/monitoring): Prometheus metrics and observability
+- [Backup and Restore](https://bigmcp.cloud/docs/self-hosting/backup): Database backup and disaster recovery
+- [Single Sign-On (OIDC)](https://bigmcp.cloud/docs/self-hosting/sso): Plug your IdP (Google, Microsoft Entra, Okta, Authentik, Keycloak)
+
+## Project
+
+- [Roadmap](https://bigmcp.cloud/docs/project/roadmap): What's shipped, what's next, what's deliberately out of scope
+
+## Optional
+
+- [GitHub Repository](https://github.com/BigFatDot/BigMCP): Source code, issues, discussions
+- [License (AGPLv3)](https://github.com/BigFatDot/BigMCP/blob/main/LICENSE): Full license text

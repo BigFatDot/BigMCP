@@ -12,8 +12,8 @@ export function NotFoundPage() {
   const { t } = useTranslation('common')
 
   usePageMeta({
-    title: 'Page not found',
-    description: 'The page you are looking for does not exist or has been moved.',
+    title: t('meta.notFound.title', '404 — Page not found'),
+    description: t('meta.notFound.description', 'The page you are looking for does not exist or has been moved.'),
   })
 
   return (

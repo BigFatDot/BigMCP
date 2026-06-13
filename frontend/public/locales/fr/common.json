@@ -49,5 +49,35 @@
   "empty": {
     "noData": "Aucune donnée disponible",
     "noResults": "Aucun résultat trouvé"
+  },
+  "meta": {
+    "landing": {
+      "title": "BigMCP — Un seul endpoint pour tous vos serveurs MCP",
+      "description": "Auto-hébergez une gateway MCP autonome. Apportez votre LLM, fonctionnez hors-ligne, gardez chaque octet sur votre infrastructure. AGPLv3, sans verrouillage fournisseur."
+    },
+    "signup": {
+      "title": "Essayer BigMCP — Inscription",
+      "description": "Créez votre compte BigMCP pour connecter, gérer et orchestrer tous vos serveurs MCP depuis un seul endpoint."
+    },
+    "login": {
+      "title": "Se connecter à BigMCP",
+      "description": "Connectez-vous à votre compte BigMCP pour accéder à vos serveurs MCP, vos credentials et vos compositions."
+    },
+    "notFound": {
+      "title": "404 — Page introuvable",
+      "description": "La page que vous cherchez n'existe pas ou a été déplacée."
+    },
+    "docs": {
+      "titleSuffix": "Docs BigMCP",
+      "description": "Documentation BigMCP : installation, connexion des serveurs MCP, configuration des clients et orchestration des compositions."
+    },
+    "privacy": {
+      "title": "Politique de confidentialité — BigMCP",
+      "description": "Politique de confidentialité de BigMCP. Découvrez comment nous collectons, utilisons et protégeons vos données."
+    },
+    "terms": {
+      "title": "Conditions d'utilisation — BigMCP",
+      "description": "Conditions d'utilisation de BigMCP. Lisez nos termes et conditions pour l'utilisation de la plateforme."
+    }
   }
 }

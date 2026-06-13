@@ -3,13 +3,15 @@
  */
 
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import { usePageMeta } from '@/hooks/usePageMeta'
 
 export function PrivacyPage() {
+  const { t } = useTranslation('common')
   usePageMeta({
-    title: 'Privacy Policy - BigMCP',
-    description: 'BigMCP Privacy Policy. Learn how we collect, use, and protect your data.',
+    title: t('meta.privacy.title', 'Privacy Policy — BigMCP'),
+    description: t('meta.privacy.description', 'BigMCP Privacy Policy. Learn how we collect, use, and protect your data.'),
   })
 
   return (

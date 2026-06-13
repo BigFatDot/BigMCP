@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   Nav,
   Hero,
@@ -98,6 +99,7 @@ function useScrollReveal(): void {
 // ── page ────────────────────────────────────────────────────────────────────
 
 export function LandingPage() {
+  const { t } = useTranslation('common')
   const { branding, isLoading: brandingLoading } = useBranding()
   const { isCloudSaaS, editionLoading } = useEdition()
 
@@ -110,10 +112,10 @@ export function LandingPage() {
   usePageMeta({
     title: shouldShowSelfHosted
       ? branding.instance_name
-      : 'BigMCP — One endpoint for all your MCP servers',
+      : t('meta.landing.title'),
     description: shouldShowSelfHosted
       ? branding.instance_tagline
-      : 'Self-host an autonomous MCP gateway. Bring your own LLM, run fully offline, keep every byte on your infrastructure. AGPLv3, no vendor lock-in.',
+      : t('meta.landing.description'),
   })
 
   // Accent state — passed to Branding, repainted globally via applyAccent.
@@ -123,6 +125,25 @@ export function LandingPage() {
     applyAccent(accent)
   }, [accent])
   useScrollReveal()
+
+  // Canonical: keep <link rel="canonical"> aligned with the URL Lighthouse /
+  // search crawlers actually see. Without this, /welcome (SaaS landing route)
+  // gets a canonical pointing to the root domain, which Lighthouse flags as
+  // "Points to the domain's root URL instead of an equivalent page of content".
+  useEffect(() => {
+    const href = `${window.location.origin}${window.location.pathname}`
+    let link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')
+    const previous = link?.getAttribute('href') ?? null
+    if (!link) {
+      link = document.createElement('link')
+      link.setAttribute('rel', 'canonical')
+      document.head.appendChild(link)
+    }
+    link.setAttribute('href', href)
+    return () => {
+      if (link && previous !== null) link.setAttribute('href', previous)
+    }
+  }, [])
 
   if (shouldShowSelfHosted) {
     return <SelfHostedLandingPage />
