@@ -21,7 +21,9 @@
 import { useMemo, useReducer, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PlusIcon } from '@heroicons/react/24/outline'
-import toast from 'react-hot-toast'
+/* react-hot-toast removed — host (ProposeCompositionModal.onSaved)
+ * owns the success toast so the message stays context-aware (draft
+ * saved vs updated vs promoted). Errors surface inline via Alert. */
 import { Alert, Button, Input } from '@/components/ui'
 import {
   compositionsApi,
@@ -169,16 +171,23 @@ export function CompositionBuilder({
       setInputSchemaError(schemaErr)
       return
     }
+    // Production guard: if we're editing a comp that was production at
+    // mount, force the save back to `temporary` so the backend re-runs
+    // validate_*_for_production at promotion time. Skipping this lets
+    // an edited prod comp silently keep `status='production'` while
+    // failing the canary checks (flagged in adversarial review).
+    const wasProduction = isEditing && initial?.status === 'production'
+    const finalPayload = wasProduction
+      ? { ...payload, status: 'temporary' as const }
+      : payload
     dispatch({ type: 'SET_SAVING', value: true })
     try {
       const saved = isEditing && state.compositionId
-        ? await compositionsApi.update(state.compositionId, payload)
-        : await compositionsApi.create(payload)
-      toast.success(
-        isEditing
-          ? t('builder.toast.updated')
-          : t('builder.toast.created'),
-      )
+        ? await compositionsApi.update(state.compositionId, finalPayload)
+        : await compositionsApi.create(finalPayload)
+      // Toast lives in the host (ProposeCompositionModal.onSaved) so it
+      // can stay context-aware (create vs update vs promote). Builder
+      // stays silent on success — only surfaces errors via Alert below.
       onSaved(saved)
     } catch (e: unknown) {
       const detail =
@@ -220,6 +229,13 @@ export function CompositionBuilder({
 
   return (
     <div className="space-y-4">
+      {/* Production-edit warning — see handleSave for the forced demotion. */}
+      {isEditing && initial?.status === 'production' && (
+        <Alert variant="warning" title={t('builder.productionEdit.title') as string}>
+          {t('builder.productionEdit.message')}
+        </Alert>
+      )}
+
       {/* Header: name + description */}
       <div className="space-y-3">
         <Input

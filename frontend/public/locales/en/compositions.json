@@ -84,6 +84,10 @@
       "created": "Draft saved.",
       "updated": "Composition updated.",
       "saveFailed": "Could not save the composition."
+    },
+    "productionEdit": {
+      "title": "Editing a production composition",
+      "message": "Saving these changes will move the composition back to a temporary draft so it gets re-validated before being promoted again. The production version stays live until you promote the new draft."
     }
   }
 }

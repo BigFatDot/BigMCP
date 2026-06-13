@@ -84,6 +84,10 @@
       "created": "Brouillon enregistré.",
       "updated": "Composition mise à jour.",
       "saveFailed": "Impossible de sauvegarder la composition."
+    },
+    "productionEdit": {
+      "title": "Édition d'une composition en production",
+      "message": "L'enregistrement de ces changements ramènera la composition en brouillon temporaire pour qu'elle soit revalidée avant d'être promue à nouveau. La version en production reste active tant que tu n'as pas promu le nouveau brouillon."
     }
   }
 }

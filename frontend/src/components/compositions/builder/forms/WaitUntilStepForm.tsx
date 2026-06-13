@@ -9,11 +9,34 @@
  * via `validate.ts`). The form NEVER sends both at once.
  */
 
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Input } from '@/components/ui'
 import type { StepFormProps, WaitUntilConfig } from '../types'
 
 type Mode = 'wait_seconds' | 'resume_at'
+
+/** Local <input type="datetime-local"> emits naive strings like
+ *  "2026-06-13T18:00". The backend (`_parse_iso`) treats naive as UTC,
+ *  so we round-trip through Date to attach the user's offset. */
+function localInputToISO(raw: string): string | null {
+  if (!raw) return null
+  const d = new Date(raw)
+  return Number.isNaN(d.getTime()) ? null : d.toISOString()
+}
+
+/** Render an ISO timestamp back into the `YYYY-MM-DDTHH:mm` shape the
+ *  datetime-local input expects, in the user's local timezone. */
+function isoToLocalInput(iso: string | null | undefined): string {
+  if (!iso) return ''
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+    `T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  )
+}
 
 export function WaitUntilStepForm({
   value,
@@ -22,18 +45,36 @@ export function WaitUntilStepForm({
 }: StepFormProps<WaitUntilConfig>) {
   const { t } = useTranslation('compositions')
 
-  const mode: Mode =
+  // Mode is local state — deriving it purely from `value` traps the user
+  // when both fields are null (the "fresh draft" case), because
+  // switchMode would emit the same null/null shape and the derived mode
+  // wouldn't move. We seed from value on mount, then follow value only
+  // when an actual field gets populated (external hydration).
+  const [mode, setMode] = useState<Mode>(() =>
     value.resume_at !== null && value.resume_at !== undefined && value.resume_at !== ''
       ? 'resume_at'
-      : 'wait_seconds'
+      : 'wait_seconds',
+  )
+
+  useEffect(() => {
+    if (value.resume_at !== null && value.resume_at !== undefined && value.resume_at !== '') {
+      setMode('resume_at')
+    } else if (
+      value.wait_seconds !== null &&
+      value.wait_seconds !== undefined &&
+      mode === 'resume_at'
+    ) {
+      setMode('wait_seconds')
+    }
+    // No else: don't auto-flip during user edits in either direction.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value.resume_at, value.wait_seconds])
 
   const switchMode = (next: Mode) => {
     if (next === mode) return
-    onChange(
-      next === 'wait_seconds'
-        ? { wait_seconds: null, resume_at: null }
-        : { wait_seconds: null, resume_at: null },
-    )
+    setMode(next)
+    // Clear the inactive field so the validator sees the mutex respected.
+    onChange({ wait_seconds: null, resume_at: null })
   }
 
   return (
@@ -114,12 +155,12 @@ export function WaitUntilStepForm({
         <Input
           type="datetime-local"
           label={t('builder.waitUntil.resumeAtLabel')}
-          value={value.resume_at ?? ''}
+          value={isoToLocalInput(value.resume_at)}
           onChange={(e) => {
             const raw = e.target.value
             onChange({
               wait_seconds: null,
-              resume_at: raw === '' ? null : raw,
+              resume_at: localInputToISO(raw),
             })
           }}
           disabled={disabled}
